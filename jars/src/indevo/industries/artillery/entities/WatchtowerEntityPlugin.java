@@ -32,6 +32,7 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     you go do that future me
     */
 
+    public static final String ENTITY_ID = "IndEvo_Watchtower";
     public static final String MEM_SENSOR_LOCK_ACTIVE = "$IndEvo_isArtilleryActive";
     public static float PINGS_PER_SECOND = 0.05f;
     public static float WATCHTOWER_FLEET_SEEN_DURATION_DAYS = 5f;
@@ -40,9 +41,13 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
     protected float phase = 0f;
 
     public static SectorEntityToken spawn(SectorEntityToken primaryEntity, FactionAPI faction) {
+        return spawn(primaryEntity, faction, ENTITY_ID);
+    }
+
+    public static SectorEntityToken spawn(SectorEntityToken primaryEntity, FactionAPI faction, String entityType) {
 
         if (faction == null) faction = Global.getSector().getFaction(Ids.DERELICT_FACTION_ID);
-        SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower", faction.getId(), null);
+        SectorEntityToken t = primaryEntity.getContainingLocation().addCustomEntity(Misc.genUID(), null, entityType, faction.getId(), null);
 
         float orbitRadius = primaryEntity.getRadius() + 250f;
         t.setCircularOrbitWithSpin(primaryEntity, (float) Math.random() * 360f, orbitRadius, orbitRadius / 10f, 5f, 5f);
@@ -92,9 +97,12 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         super.advance(amount);
         if (!entity.isInCurrentLocation()) return;
 
-        phase += amount * PINGS_PER_SECOND;
-
         setFunctional(!entity.getContainingLocation().getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS));
+        advanceVision(amount);
+    }
+
+    protected void advanceVision(float amount) {
+        phase += amount * PINGS_PER_SECOND;
 
         // TODO: 19/10/2022 change this to an interval instead of this janky shit
         if (phase >= 1 * MathUtils.getRandomNumberInRange(1, 1.1f)) {
@@ -109,16 +117,23 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
             if (isFunctional()) for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, Setting.ARTILLERY_WATCHTOWER_RANGE.value())) {
                 if (isHostileTo(f)) { //&& f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
                     if (f.isPlayerFleet()) continue;
-
-                    boolean showMessage = !f.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
-                    f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, WATCHTOWER_FLEET_SEEN_DURATION_DAYS);
-
-                    if (showMessage) f.addFloatingText("Detected by Watchtower", Misc.getNegativeHighlightColor(), 1f);
+                    markSeen(f);
                 }
             }
 
             phase--;
         }
+    }
+
+    protected void markSeen(CampaignFleetAPI f) {
+        boolean showMessage = !f.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
+        f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, WATCHTOWER_FLEET_SEEN_DURATION_DAYS);
+
+        if (showMessage) f.addFloatingText(getSeenText(), Misc.getNegativeHighlightColor(), 1f);
+    }
+
+    protected String getSeenText() {
+        return "Detected by Watchtower";
     }
 
     public boolean isHostileTo(CampaignFleetAPI target) {

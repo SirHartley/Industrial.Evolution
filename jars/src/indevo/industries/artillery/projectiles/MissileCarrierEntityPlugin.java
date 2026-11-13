@@ -50,7 +50,9 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public static final float PROJECTILE_VELOCITY = 700f;
-    public static final float PROJECTILE_SIZE = 30f;
+    public static final float PROJECTILE_WIDTH = 14f;
+    public static final float PROJECTILE_HEIGHT = 22f;
+    public static final float TRAIL_WIDTH = 9f;
     public static final float FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT = 0.3f;
     public static final float EXPLOSION_SIZE = 600f;
     public static final float DETECTION_RADIUS = 150f;
@@ -216,7 +218,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
         missileSprite.setNormalBlend();
         missileSprite.setAngle(entity.getFacing());
-        missileSprite.setSize(PROJECTILE_SIZE, PROJECTILE_SIZE);
+        missileSprite.setSize(PROJECTILE_WIDTH, PROJECTILE_HEIGHT);
         missileSprite.setAlphaMult(alphaMult);
         missileSprite.renderAtCenter(entity.getLocation().x, entity.getLocation().y);
     }
@@ -279,7 +281,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     //trail
 
-    public static final float TRAIL_TIME = 0.5f;
+    public static final float TRAIL_TIME = 0.4f;
     public static final Color GLOW_COLOR = new Color(255, 200, 50, 255);
 
     private void addTrailToProj() {
@@ -290,7 +292,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
                 entity.getLocation(),
                 0f,
                 entity.getFacing() + 90f,
-                PROJECTILE_SIZE * 0.8f,
+                TRAIL_WIDTH,
                 1f,
                 GLOW_COLOR,
                 0.8f,

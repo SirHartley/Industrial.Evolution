@@ -40,6 +40,8 @@ IndEvo_parts,indEvo_weapons,1
 ,,
 IndEvo_parts,extended,10
 ,,
+IndEvo_rare_parts,IndEvo_droneNest,10
+,,
 item_IndEvo_consumable_nanites,indEvo_consumables,8
 item_IndEvo_consumable_locator,indEvo_consumables,6
 item_IndEvo_consumable_spike,indEvo_consumables,5
