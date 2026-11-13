@@ -62,7 +62,7 @@ public enum Setting {
     ARTILLERY_VISION_WEIGHT_DRONES("IndEvo_Artillery_visionWeight_drones", 1.0, 0, 10, Apply.NEW_GAME),
     ARTILLERY_LIGHTHOUSE_BEAM_LENGTH("IndEvo_Artillery_lighthouse_beamLength", 6000.0, 1000, 20000),
     ARTILLERY_LIGHTHOUSE_BEAM_WIDTH("IndEvo_Artillery_lighthouse_beamWidth", 20.0, 5, 90),
-    ARTILLERY_LIGHTHOUSE_TURN_TIME("IndEvo_Artillery_lighthouse_turnTime", 60.0, 10, 600),
+    ARTILLERY_LIGHTHOUSE_TURN_TIME("IndEvo_Artillery_lighthouse_turnTime", 180.0, 10, 600),
     ARTILLERY_DRONE_CONE_LENGTH("IndEvo_Artillery_drone_coneLength", 2000.0, 500, 10000),
     ARTILLERY_DEFENSE_FP("IndEvo_Artillery_defense_FP2", 70.0, 1, 1000),
     ARTILLERY_MORTAR_PROJECTILES_PER_SHOT("IndEvo_Artillery_mortar_projectilesPerShot", 8, 1, 30),
