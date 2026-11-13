@@ -110,7 +110,7 @@ Other effects:
 
 - Nanites: 25000 hull and armor budget, flagship first, then officer ships, then the rest; +20% CR up to 50%. Uses obf `FleetMemberStatus` (`DoNotObfuscate`, `obf/campaign/fleet/FleetMemberStatus.java:23`).
 - Locator: hyperspace only, 10 days, detected range +50%. Rings drawn from `LocatorScanData` with vanilla `GraviticScanData.GSPing`; strength from `$IndEvo_locatorSystemRating`, x(10000/dist) under 10000.
-- Spike: drops `IndEvo_field_spike`, arms after 2 s, fires when a non-player fleet comes within 350. `InterdictionMineAbility`: range 600, interdict `6 + (800 - sensorStrength)/200` s, hits the player too; `IPReactionScript` makes NPCs avoid it. Each interdicted fleet is passed to `DroneNetScript.onInterdicted`, which pops artillery spotter drones ([Artillery](../industries/ARTILLERY.md#drone-net)).
+- Spike: drops `IndEvo_field_spike`, arms after 2 s, fires when a non-player fleet comes within 350. `InterdictionMineAbility`: range 600, interdict `6 + (800 - sensorStrength)/200` s, hits the player too; `IPReactionScript` makes NPCs avoid it.
 - Decoy: drops `IndEvo_decoy_mine`, arms after 10 s, `DecoyMineAbility` sets it to the player faction and pings. Artillery in the location targets it for 20 s; fleets within 3000 that are not patrol, war or pirate, not busy, pass a 90% roll get INTERCEPT and GO_TO_LOCATION near it for 5 to 10 days.
 - Scoop: not in hyperspace; star within 3000 or a nebula tile (`OrbitFocus.getClosestNebulaTilePosition`, [Split fleet](../abilities/SPLIT_FLEET.md)). 3 days, fuel every 1 s of `1000/(dur*10)` times a star type or age mult; sound `IndEvo_succ`.
 - Relay: hyperspace only; `Tags.COMM_RELAY` on the player fleet for 7 days or until leaving hyperspace.

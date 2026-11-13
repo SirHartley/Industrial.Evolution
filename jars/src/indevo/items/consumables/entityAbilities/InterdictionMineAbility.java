@@ -17,7 +17,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Pings;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.industries.artillery.scripts.DroneNetScript;
 
 import java.awt.*;
 
@@ -266,8 +265,6 @@ public class InterdictionMineAbility extends BaseDurationAbility {
                     other.addFloatingText("Interdict! (" + (int) Math.round(interdictSeconds) + "s)", getColor(), 1f, true);
                 }
             }
-
-            if (interdictSeconds > 0) DroneNetScript.onInterdicted(other);
 
             float interdictDays = interdictSeconds / Global.getSector().getClock().getSecondsPerDay();
 

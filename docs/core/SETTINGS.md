@@ -30,7 +30,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | Exploration & Items | 11 | Salvage specials, derelict stations, relic components, `IndEvo_consumables_*` |
 | Meteor Swarms | 16 | `IndEvo_meteor_*` tuning |
 | Minefields | 10 | `IndEvo_Minefield_*` |
-| Artillery | 34 | `IndEvo_Artillery_*` tuning, watchtower, vision type weights, lighthouse beams, drone net |
+| Artillery | 24 | `IndEvo_Artillery_*` tuning, watchtower |
 | Industries | 26 | One enable toggle per industry (`IndEvo_AdManuf`, `IndEvo_embassy`, ...), governance, world wonders |
 | Production | 21 | Variable industries, supercomputer, salvage yards, engineering hub, restoration docks |
 | Derelict Industries | 19 | Derelict industry tuning |
