@@ -23,7 +23,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | Area | Doc | Feature | Package |
 |---|---|---|---|
 | Industries | [ACADEMY](industries/ACADEMY.md) | Officer and admin training, Galatia Academy market | `industries/academy` |
-| | [ARTILLERY](industries/ARTILLERY.md) | Artillery stations, vision (watchtowers, lighthouses, drone nets), campaign projectiles | `industries/artillery` |
+| | [ARTILLERY](industries/ARTILLERY.md) | Artillery stations, watchtowers, campaign projectiles | `industries/artillery` |
 | | [ASSEMBLER](industries/ASSEMBLER.md) | Variable manufactories and the commodity forge (VPC items) | `industries/assembler` |
 | | [CHANGELING](industries/CHANGELING.md) | Switchable population (governments), mining and refining | `industries/changeling` |
 | | [COURIER_PORT](industries/COURIER_PORT.md) | Shipping contracts between colonies | `industries/courierport` |
@@ -82,7 +82,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | A ruin turns into the wrong structure | `$IndEvo_ruinsIndustryId` -> `RuinsManager` ([DERELICTS](industries/DERELICTS.md)) |
 | `getIndustry("population" / "mining" / "refining")` returns an IE class | Switchables return the vanilla id ([contract](#industries-and-markets)) |
 | Detachment AI | `Behaviour.changeBehaviourAndUpdateAI -> DetachmentAI` ([SPLIT_FLEET](abilities/SPLIT_FLEET.md)) |
-| Artillery not firing | `CampaignAttackScript -> EyeIndicatorScript / WatchtowerEntityPlugin / LighthouseEntityPlugin / DroneNetScript -> ArtilleryStationScript` ([ARTILLERY](industries/ARTILLERY.md)) |
+| Artillery not firing | `CampaignAttackScript -> EyeIndicatorScript / WatchtowerEntityPlugin -> ArtilleryStationScript` ([ARTILLERY](industries/ARTILLERY.md)) |
 | Meteor shower spawn | `MeteorSwarmManager.reportEconomyTick -> spawnShower -> <Type>SwarmSpawner` ([METEOR](exploration/METEOR.md)) |
 | Dialogue or rules row | `rules.csv` block map -> command class ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
@@ -118,7 +118,6 @@ Every load (`:153` to `:173`):
 | `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all five IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:493` to `:497` |
 | `@Patch` class | PatchLib finds it in `jars/IndEvo.jar` at startup, no registration. A hook installs when its target class loads | [Patches](#patches) |
 | `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:499` |
-| `system.addScript` guarded by a system memory key | Saved script on one star system, added at placement | `DroneNetScript.getInstanceOrRegister` ([ARTILLERY](industries/ARTILLERY.md#drone-net)) |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
 | `ruleCommandPackages` | Rule commands found by package | `settings.json:30` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
