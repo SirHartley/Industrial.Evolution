@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
+import indevo.ambience.shuttletraffic.ShuttleDepartures;
 import indevo.ambience.shuttletraffic.ShuttleFactionRepo;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
@@ -27,12 +28,7 @@ public class LaneFlights extends BaseFlights {
     public static final int CONVOY_MARKET_SIZE = 5;
     public static final float CONVOY_GAP_MIN = 3f;
     public static final float CONVOY_GAP_MAX = 6f;
-    private static final int CONVOY_MIN = 4;
-    private static final int CONVOY_MAX = 6;
-    private static final int CONVOY_ESCORT = 2;
     private static final float CONVOY_SPACING = 16f;
-    private static final float CONVOY_ESCORT_SIDE = 25f;
-    private static final String ESCORT_FALLBACK = "talon";
 
     public LaneFlights(ShuttleTraffic traffic, ShuttlePaths paths) {
         super(traffic, paths);
@@ -101,10 +97,10 @@ public class LaneFlights extends BaseFlights {
         return (CONVOY_GAP_MIN + random.nextFloat() * (CONVOY_GAP_MAX - CONVOY_GAP_MIN)) / mult;
     }
 
-    // freighters in line astern, one fighter wing in a v on one flank
+    // freighters in line astern, as many as may leave one pad at once
     private List<Shuttle> launchConvoy(ShuttleRoute route, int room) {
-        int count = Math.min(CONVOY_MIN + random.nextInt(CONVOY_MAX - CONVOY_MIN + 1), room - CONVOY_ESCORT);
-        if (count < CONVOY_MIN) return List.of();
+        int count = ShuttleDepartures.CAP;
+        if (room < count) return List.of();
 
         boolean reverse = random.nextBoolean();
         ShuttleAnchor from = reverse ? route.b : route.a;
@@ -117,21 +113,13 @@ public class LaneFlights extends BaseFlights {
 
         Shuttle leader = create(lead, route, faction, from, to, paths.trafficLanePath(route, reverse, ShuttleFactionRepo.get(faction).laneDiscipline()), SpeedClass.CIVIL, 1f,
                 TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(Shuttle.CIVIL, count));
-        List<Shuttle> convoy = new ArrayList<>(count + CONVOY_ESCORT);
+        List<Shuttle> convoy = new ArrayList<>(count);
         convoy.add(leader);
         for (int i = 1; i < count; i++) {
             ShuttleHull hull = ShuttleHullPool.rollCargo(faction, random, 0.6f, false);
             convoy.add(follower(leader, hull != null ? hull : lead, ShuttleLook.CRAFT, CONVOY_SPACING * i, 0f, 1f, false));
         }
 
-        ShuttleHull escort = ShuttleHullPool.pick(ShuttleHullPool.getFactionPool(faction, true), random, h -> h.fighter);
-        if (escort == null) escort = ShuttleHullPool.getHull(ESCORT_FALLBACK, true, 3);
-        if (escort == null) return convoy;
-
-        float side = CONVOY_ESCORT_SIDE * paths.randomSign();
-        float mid = CONVOY_SPACING * (count - 1) * 0.5f;
-        // the wing flies its own small v on the flank: each wingman 10 su back and 8 su further out
-        for (int i = 0; i < CONVOY_ESCORT; i++) convoy.add(follower(leader, escort, ShuttleLook.CRAFT, mid + 10f * i, side + Math.signum(side) * 8f * i, 1f, false));
         return convoy;
     }
 

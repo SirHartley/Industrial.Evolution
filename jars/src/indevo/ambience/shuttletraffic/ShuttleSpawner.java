@@ -13,6 +13,7 @@ public class ShuttleSpawner {
 
     // a craft placed mid flight closer to the player than this could pop up on screen, it launches from its pad later
     private static final float WARM_CLEARANCE = 3000f;
+    private static final float DEPARTURE_RETRY = 2f;
 
     private final ShuttleTraffic traffic;
 
@@ -61,6 +62,7 @@ public class ShuttleSpawner {
 
     public void spawn(float amount) {
         traffic.getBudget().count(traffic.getShuttles());
+        traffic.getDepartures().prune(traffic.getTime());
         spawn(traffic.getNetwork().routes.values(), amount);
         spawn(traffic.getFleetRoutes().values(), amount);
     }
@@ -74,19 +76,34 @@ public class ShuttleSpawner {
             } else {
                 route.timer -= amount;
                 if (route.timer > 0f) continue;
-                route.timer = getInterval(route);
             }
 
-            List<Shuttle> launched = launch(route);
+            // either end may be the one it leaves from
+            int departureRoom = Math.min(getDepartureRoom(route.a), getDepartureRoom(route.b));
+            if (departureRoom <= 0) {
+                if (!route.isRare()) route.timer = DEPARTURE_RETRY;
+                continue;
+            }
+
+            if (!route.isRare()) route.timer = getInterval(route);
+
+            List<Shuttle> launched = launch(route, departureRoom);
             if (launched.isEmpty()) continue;
 
             route.pending = false;
         }
     }
 
-    private List<Shuttle> launch(ShuttleRoute route) {
-        List<Shuttle> launched = traffic.getFlights().launch(route, traffic.getBudget().getRoom(route.kind.group));
-        if (!launched.isEmpty()) add(route, launched);
+    private int getDepartureRoom(ShuttleAnchor anchor) {
+        return traffic.getDepartures().getRoom(anchor, traffic.getTime());
+    }
+
+    private List<Shuttle> launch(ShuttleRoute route, int departureRoom) {
+        List<Shuttle> launched = traffic.getFlights().launch(route, Math.min(departureRoom, traffic.getBudget().getRoom(route.kind.group)));
+        if (launched.isEmpty()) return launched;
+
+        add(route, launched);
+        traffic.getDepartures().add(launched.get(0).getFrom(), launched.size(), traffic.getTime());
         return launched;
     }
 
