@@ -66,7 +66,17 @@ public class StationFireEffect {
     public static final float STAR_CROSS_LENGTH = 17f;
     public static final float STAR_CROSS_WIDTH = 1.1f;
     public static final float STAR_LIGHT_SIZE = 144f;
-    public static final float LANCE_LENGTH = 95f;
+    public static final float LANCE_LENGTH = 55f;
+    public static final float LANCE_WIDTH = 1.6f;
+    public static final float LANCE_ALPHA = 0.5f;
+    public static final int SPARK_COUNT = 22;
+    public static final float SPARK_SPREAD = 46f;
+    public static final float SPARK_MIN_SPEED = 180f;
+    public static final float SPARK_MAX_SPEED = 520f;
+    public static final float SPARK_MIN_LIFE = 0.25f;
+    public static final float SPARK_MAX_LIFE = 0.6f;
+    public static final float SPARK_LENGTH_SECONDS = 0.045f;
+    public static final float SPARK_WIDTH = 2f;
     public static final float HOT_FRACTION = 0.18f;
     public static final float CHARGE_FADE_PER_SECOND = 6f;
     public static final float PENDING_SECONDS = 0.3f;
@@ -186,7 +196,7 @@ public class StationFireEffect {
                     float out = angle + side * (SIDE_PORT_ANGLE - 9f);
                     burst(4, port(angle + side * 90f, SIDE_PORT_DIST), out, 11f, 80f, 170f, 0.5f, 1f, 2f, 10f, profile.smoke, 0.3f, 3f, 0.5f);
                 }
-                sparks(12, at, angle, 52f);
+                sparks(SPARK_COUNT, at, angle, SPARK_SPREAD);
                 break;
             case MISSILE:
                 burst(8, port(angle, TUBE_DIST - 6f), angle + 180f, 26f, 40f, 125f, 1.2f, 2.4f, 4f, 16f, profile.smoke, 0.45f, 2.4f, 0.8f);
@@ -372,14 +382,14 @@ public class StationFireEffect {
     private void sparks(int count, Vector2f at, float angle, float spread) {
         for (int i = 0; i < count; i++) {
             double rad = Math.toRadians(angle + (random.nextFloat() * 2f - 1f) * spread);
-            float speed = 110f + random.nextFloat() * 190f;
+            float speed = SPARK_MIN_SPEED + random.nextFloat() * (SPARK_MAX_SPEED - SPARK_MIN_SPEED);
 
             Particle p = new Particle();
             p.x = at.x;
             p.y = at.y;
             p.vx = (float) Math.cos(rad) * speed;
             p.vy = (float) Math.sin(rad) * speed;
-            p.life = 0.15f + random.nextFloat() * 0.25f;
+            p.life = SPARK_MIN_LIFE + random.nextFloat() * (SPARK_MAX_LIFE - SPARK_MIN_LIFE);
             p.drag = 2.5f;
             p.spark = true;
             particles.add(p);
@@ -458,12 +468,18 @@ public class StationFireEffect {
             float done = p.age / p.life;
 
             if (p.spark) {
-                float length = (float) Math.sqrt(p.vx * p.vx + p.vy * p.vy) * 0.03f;
+                float length = (float) Math.sqrt(p.vx * p.vx + p.vy * p.vy) * SPARK_LENGTH_SECONDS;
+                float x = p.x - p.vx * SPARK_LENGTH_SECONDS / 2f;
+                float y = p.y - p.vy * SPARK_LENGTH_SECONDS / 2f;
                 line.setAngle((float) Math.toDegrees(Math.atan2(p.vy, p.vx)));
-                line.setSize(length, 1.5f);
+                line.setSize(length, SPARK_WIDTH);
                 line.setColor(profile.hot);
+                line.setAlphaMult(alphaMult * (1f - done * done));
+                line.renderAtCenter(x, y);
+                line.setSize(length * 0.6f, SPARK_WIDTH / 2f);
+                line.setColor(LANCE);
                 line.setAlphaMult(alphaMult * (1f - done));
-                line.renderAtCenter(p.x - p.vx * 0.015f, p.y - p.vy * 0.015f);
+                line.renderAtCenter(x, y);
             } else if (p.hot > 0f && done < HOT_FRACTION) {
                 float size = 3f * (p.startSize + (p.endSize - p.startSize) * done * 2f);
                 glow(glow, p.x, p.y, size, profile.hot, alphaMult * p.hot * 0.5f * (1f - done / HOT_FRACTION));
@@ -482,9 +498,9 @@ public class StationFireEffect {
             case RAILGUN:
                 double rad = Math.toRadians(flash.angle);
                 line.setAngle(flash.angle);
-                line.setSize(LANCE_LENGTH, 3f - 2f * done);
+                line.setSize(LANCE_LENGTH, LANCE_WIDTH * (1f - 0.6f * done));
                 line.setColor(LANCE);
-                line.setAlphaMult(alpha);
+                line.setAlphaMult(alpha * LANCE_ALPHA);
                 line.renderAtCenter(flash.x + (float) Math.cos(rad) * LANCE_LENGTH / 2f, flash.y + (float) Math.sin(rad) * LANCE_LENGTH / 2f);
                 glow(glow, flash.x, flash.y, 48f, profile.hot, alpha);
                 break;

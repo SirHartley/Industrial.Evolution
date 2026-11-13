@@ -144,7 +144,7 @@ Each projectile entity waits at the station until its own launch time (`projecti
 | Phase | What `StationFireEffect` draws |
 |---|---|
 | Wind-up | Glow at the muzzle over the last 0.5 s (mortar), 1 s (railgun) or 0.3 s (missile) before a shot (`incoming`) |
-| Shot (`shot`) | Flash for 0.13 s (mortar star: one long streak forward, two short ones 54 degrees to the sides, a thin cross flare and a light on the station; railgun lance and sparks; missile glow) and smoke out of a rear port and two side ports; the missile station puffs at the tube of each missile |
+| Shot (`shot`) | Flash for 0.13 s (mortar star: one long streak forward, two short ones 54 degrees to the sides, a thin cross flare and a light on the station; railgun: a short faint lance and 22 sparks that fly 30 to 160 su; missile glow) and smoke out of a rear port and two side ports; the missile station puffs at the tube of each missile |
 | Heat | Orange glow and rim on the station. Each shot adds `max / shots per volley` (max 1, missile 0.6) |
 | Vent | Starts 0.45 s after the last shot once no projectile is waiting, a new shot stops it. Runs for 60% of `IndEvo_Artillery_minCooldown` (at least 4 s, 9 s by default) and cools the glow to 0. Mortar: 5 steam puffs out of the three ports, the glow drops a step with each. Railgun: two fast streams out the back for 2 s that take 75% of the glow. Missile: slow discharge all around the station that turns as it drifts out |
 
