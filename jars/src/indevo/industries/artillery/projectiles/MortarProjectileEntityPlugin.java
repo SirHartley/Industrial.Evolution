@@ -24,7 +24,7 @@ import static indevo.utils.helper.MiscIE.smootherstep;
 
 public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
-    public static final float GLOW_SIZE = 30f;
+    public static final float GLOW_SIZE = 20f;
     public static Color GLOW_COLOR = new Color(255, 80, 60, 255);
     public static float GLOW_FREQUENCY = 3f; // on/off cycles per second
 

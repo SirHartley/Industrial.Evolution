@@ -29,15 +29,16 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
     //always hit when player does not change course
     public static final float MAX_RANGE = 50000f;
-    public static final float GLOW_SIZE = 50f;
+    public static final float GLOW_SIZE = 32f;
     public static Color GLOW_COLOR = new Color(100, 220, 255, 255);
     public static float GLOW_FREQUENCY = 1.5f; // on/off cycles per second
     public static final float PROJECTILE_VELOCITY = 6000f;
     public static final float EXPLOSION_SIZE = 250f;
 
     public static final float LINE_LENGTH = 265;
+    public static final float LINE_WIDTH = 4f;
     public static final float ALPHA_FADE_IN_FRACTION = 0.1f;
-    public static final float MAX_LINE_ALPHA = 0.4f;
+    public static final float MAX_LINE_ALPHA = 0.5f;
 
     //line
     public float currentAlpha = 0f;
@@ -200,17 +201,18 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public float trailID;
-    public static final float TRAIL_TIME = 0.5f;
+    public static final float TRAIL_TIME = 0.3f;
+    public static final float TRAIL_WIDTH = 12f;
 
     private void addTrailToProj() {
         MagicCampaignTrailPlugin.AddTrailMemberSimple(
                 entity,
                 trailID,
-                Global.getSettings().getSprite("fx", "IndEvo_trail_foggy"),
+                Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
                 entity.getLocation(),
                 0f,
                 Misc.getAngleInDegrees(originLocation, entity.getLocation()),
-                GLOW_SIZE * 0.8f,
+                TRAIL_WIDTH,
                 1f,
                 GLOW_COLOR,
                 0.8f,
@@ -229,7 +231,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
         targetLineSprite.setAdditiveBlend();
         targetLineSprite.setAngle(VectorUtils.getAngle(originLocation, target));
-        targetLineSprite.setSize(LINE_LENGTH, 11f);
+        targetLineSprite.setSize(LINE_LENGTH, LINE_WIDTH);
         targetLineSprite.setAlphaMult(currentAlpha);
         targetLineSprite.setColor(color);
 
