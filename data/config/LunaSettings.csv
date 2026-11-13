@@ -74,7 +74,7 @@ IndEvo_Artillery_visionWeight_lighthouse,[Artillery] Vision: Lighthouse Weight,D
 IndEvo_Artillery_visionWeight_drones,[Artillery] Vision: Drone Net Weight,Double,1,,Chance weight for a derelict artillery system to be guarded by a drone net. 0 means never. Default 1. Needs a new game.,0,10,Artillery
 IndEvo_Artillery_lighthouse_beamLength,[Lighthouse] Beam Length,Double,6000,,Lighthouse beam length in game units. A fleet inside a beam is spotted at once. Default 6000.,1000,20000,Artillery
 IndEvo_Artillery_lighthouse_beamWidth,[Lighthouse] Beam Width,Double,20,,Lighthouse beam width in degrees. Default 20.,5,90,Artillery
-IndEvo_Artillery_lighthouse_turnTime,[Lighthouse] Turn Time,Double,60,,Seconds for one full turn of a lighthouse. Lower values sweep faster. Default 60.,10,600,Artillery
+IndEvo_Artillery_lighthouse_turnTime,[Lighthouse] Turn Time,Double,180,,Seconds for one full turn of a lighthouse. Lower values sweep faster. Default 180.,10,600,Artillery
 IndEvo_Artillery_drone_coneLength,[Drone Net] Cone Length,Double,2000,,Spotter drone vision cone length in game units. Going dark shortens it. Default 2000.,500,10000,Artillery
 IndEvo_Artillery_defense_FP2,[Artillery] Defence Fleet FP,Double,70,,Base fleet points of artillery defenders. Default 70.,1,1000,Artillery
 IndEvo_Artillery_mortar_projectilesPerShot,[Mortar Artillery] Projectiles per Shot,Int,8,,Shells per mortar volley. Default 8.,1,30,Artillery

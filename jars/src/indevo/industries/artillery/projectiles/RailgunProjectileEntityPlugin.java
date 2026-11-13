@@ -36,6 +36,8 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public static float GLOW_FREQUENCY = 1.5f; // on/off cycles per second
     public static final float PROJECTILE_VELOCITY = 6000f;
     public static final float EXPLOSION_SIZE = 250f;
+    public static final float HIT_DISTANCE = EXPLOSION_SIZE * 0.2f;
+    public static final float OVERSHOOT_DISTANCE = 3000f;
 
     public static final float LINE_LENGTH = 265;
     public static final float LINE_WIDTH = 4f;
@@ -179,21 +181,26 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
             if (timePassedSeconds > projectileDelayTime + 0.05f)
                 addTrailToProj(); //clips into station without the delay
+            Vector2f from = new Vector2f(entity.getLocation());
             advanceEntityPosition(amount);
             boolean friendlyFireDelayPassed = timePassedSeconds > projectileDelayTime + (impactSeconds - projectileDelayTime) * FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT;
 
-            for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
-                if (friendlyFireDelayPassed
-                        && Misc.getDistance(entity, origin) > Setting.ARTILLERY_MIN_RANGE.value()
-                        && Misc.getDistance(entity, fleet) <= EXPLOSION_SIZE * 0.2f) {
+            // a frame moves the shell 100 su or more, so the hit check runs along the whole step
+            if (friendlyFireDelayPassed && amount > 0f && Misc.getDistance(entity, origin) > Setting.ARTILLERY_MIN_RANGE.value()) {
+                for (CampaignFleetAPI fleet : entity.getContainingLocation().getFleets()) {
+                    Vector2f closest = Misc.closestPointOnSegmentToPoint(from, entity.getLocation(), fleet.getLocation());
+                    if (Misc.getDistance(closest, fleet.getLocation()) > HIT_DISTANCE) continue;
 
+                    entity.setLocation(closest.x, closest.y);
                     spawnExplosion();
                     Misc.fadeAndExpire(entity, 0.1f);
                     finishing = true;
+                    break;
                 }
             }
 
-            if (timePassedSeconds > impactSeconds * 1.5f) {
+            // by distance: timePassedSeconds runs at double speed and ended long shots before they arrived
+            if (!finishing && currentProjectileDistance > Misc.getDistance(originLocation, target) + OVERSHOOT_DISTANCE) {
                 Misc.fadeAndExpire(entity, 0.1f);
                 finishing = true;
             }

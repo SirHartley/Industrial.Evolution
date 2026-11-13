@@ -46,15 +46,20 @@ public class DroneNetScript implements EveryFrameScript {
         public SectorEntityToken nest;
         public SectorEntityToken decoy;
         public Vector2f waypoint;
+        public Vector2f lastSeen;
         public float heading;
+        public float turnRate;
+        public float speed;
         public float coneAngle;
         public float sweep;
+        public float noticed;
         public float unseen;
         public float fuse = -1f;
         public boolean seesPlayer;
         public boolean following;
         public long lostAt;
-        public transient float trailId;
+        public transient float alert;
+        public transient float[] trailIds;
     }
 
     public static final String MEM_KEY = "$IndEvo_droneNet";
@@ -64,7 +69,7 @@ public class DroneNetScript implements EveryFrameScript {
     public static final String NEST_DROP_GROUP = "IndEvo_droneNest";
     public static final String EXPLOSION_SOUND_ID = "IndEvo_mortar_hit";
     public static final Color EXPLOSION_COLOR = new Color(255, 160, 60);
-    public static final Color TRAIL_COLOR = new Color(255, 200, 120);
+    public static final Color ENGINE_COLOR = new Color(255, 125, 25);
 
     public static final float CHECK_SECONDS = 0.25f;
     public static final float FADE_SECONDS = 1f;
@@ -79,22 +84,33 @@ public class DroneNetScript implements EveryFrameScript {
 
     public static final float CONE_ARC = 50f;
     public static final float SWEEP_ARC = 30f;
-    public static final float SWEEP_SECONDS = 5f;
-    public static final float CONE_TURN_RATE = 180f;
+    public static final float SWEEP_SECONDS = 8f;
+    public static final float CONE_TURN_RATE = 30f;
+    public static final float CONE_TURN_GAIN = 2f;
+    public static final float NOTICE_SECONDS = 1f;
     public static final float LOSE_SECONDS = 3f;
+    public static final float ALERT_SECONDS = 0.6f;
     public static final float FOLLOW_FRACTION = 0.45f;
     public static final float MIN_PROFILE_MULT = 0.5f;
     public static final float MAX_PROFILE_MULT = 1.5f;
     public static final float PROFILE_BASE = 1000f;
 
-    public static final float SPOTTER_BURN = 14f;
-    public static final float TURN_RATE = 240f;
-    public static final float SLOW_DISTANCE = 200f;
+    public static final float ROAM_BURN = 6f;
+    public static final float FOLLOW_BURN = 7f;
+    public static final float ACCELERATION = 90f;
+    public static final float TURN_RATE = 50f;
+    public static final float TURN_GAIN = 1.5f;
+    public static final float TURN_ACCELERATION = 150f;
+    public static final float TURN_SLOWDOWN = 0.5f;
+    public static final float SLOW_DISTANCE = 300f;
     public static final float ROAM_RADIUS = 4000f;
-    public static final float WAYPOINT_REACHED = 150f;
+    public static final float WAYPOINT_REACHED = 250f;
     public static final float DECOY_STANDOFF = 300f;
-    public static final float TRAIL_WIDTH = 5f;
-    public static final float TRAIL_SECONDS = 0.35f;
+    public static final float ENGINE_BACK = 9.6f;
+    public static final float ENGINE_SIDE = 6f;
+    public static final float TRAIL_WIDTH = 2.5f;
+    public static final float TRAIL_SECONDS = 0.45f;
+    public static final float TRAIL_MIN_SPEED = 20f;
 
     public static final float CHAIN_RADIUS = 400f;
     public static final float CHAIN_DELAY = 0.2f;
@@ -238,7 +254,6 @@ public class DroneNetScript implements EveryFrameScript {
 
         visibility = MathUtils.clamp(visibility + (active ? amount : -amount) / FADE_SECONDS, 0f, 1f);
 
-        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
         for (Spotter spotter : spotters) {
             if (spotter.entity == null) continue;
 
@@ -250,7 +265,8 @@ public class DroneNetScript implements EveryFrameScript {
                 }
             }
 
-            move(spotter, player, amount);
+            spotter.alert = MathUtils.clamp(spotter.alert + (spotter.seesPlayer ? amount : -amount) / ALERT_SECONDS, 0f, 1f);
+            move(spotter, amount);
         }
     }
 
@@ -284,9 +300,9 @@ public class DroneNetScript implements EveryFrameScript {
             look(spotter, player, elapsed);
         }
 
+        ensureCones();
         if (!active) return;
 
-        ensureCones();
         for (SectorEntityToken nest : nests) {
             float dist = Misc.getDistance(nest, player);
             if (dist < NEST_ZONE_RADIUS && !VisionBlockers.isBlocked(blockers, nest.getLocation(), player.getLocation()))
@@ -357,6 +373,7 @@ public class DroneNetScript implements EveryFrameScript {
         spotter.fuse = -1f;
         spotter.seesPlayer = false;
         spotter.following = false;
+        spotter.lastSeen = null;
         spotter.lostAt = Global.getSector().getClock().getTimestamp();
 
         light(loc, CHAIN_RADIUS, CHAIN_DELAY);
@@ -389,8 +406,12 @@ public class DroneNetScript implements EveryFrameScript {
 
         spotter.entity = drone;
         spotter.waypoint = null;
+        spotter.lastSeen = null;
         spotter.heading = Misc.random.nextFloat() * 360f;
+        spotter.turnRate = 0f;
+        spotter.speed = 0f;
         spotter.coneAngle = spotter.heading;
+        spotter.noticed = 0f;
         spotter.unseen = 0f;
         spotter.fuse = -1f;
         spotter.seesPlayer = false;
@@ -446,18 +467,26 @@ public class DroneNetScript implements EveryFrameScript {
         if (spotter.seesPlayer) {
             float dist = Misc.getDistance(spotter.entity, player);
             playerFraction = Math.max(playerFraction, MathUtils.clamp(1f - dist / coneLength, 0f, 1f));
-            spotter.following = true;
+            spotter.noticed += elapsed;
             spotter.unseen = 0f;
+
+            // a short graze fills the eye but does not pull the spotter off its route
+            if (spotter.noticed >= NOTICE_SECONDS) {
+                spotter.following = true;
+                spotter.lastSeen = new Vector2f(player.getLocation());
+            }
             return;
         }
 
+        spotter.noticed = 0f;
         if (!spotter.following) return;
 
         spotter.unseen += elapsed;
         if (!active || spotter.unseen >= LOSE_SECONDS) {
             spotter.following = false;
             spotter.unseen = 0f;
-            spotter.waypoint = new Vector2f(player.getLocation());
+            spotter.waypoint = spotter.lastSeen;
+            spotter.lastSeen = null;
         }
     }
 
@@ -509,46 +538,72 @@ public class DroneNetScript implements EveryFrameScript {
         system.getMemoryWithoutUpdate().unset(MEM_KEY);
     }
 
-    private void move(Spotter spotter, CampaignFleetAPI player, float amount) {
+    // the spotter only knows where it last saw the player, never where the player is now
+    private void move(Spotter spotter, float amount) {
         SectorEntityToken drone = spotter.entity;
         Vector2f loc = drone.getLocation();
-        SectorEntityToken focus = spotter.decoy != null ? spotter.decoy : spotter.following ? player : null;
+        Vector2f focus = spotter.decoy != null ? spotter.decoy.getLocation() : spotter.following ? spotter.lastSeen : null;
         Vector2f dest;
-        float lookAt;
+        float wantedSpeed;
 
         if (focus != null) {
-            float standoff = focus == player ? coneLength * FOLLOW_FRACTION : DECOY_STANDOFF;
-            dest = Misc.getUnitVectorAtDegreeAngle(Misc.getAngleInDegrees(focus.getLocation(), loc));
-            dest.scale(standoff);
-            Vector2f.add(dest, focus.getLocation(), dest);
-            lookAt = Misc.getAngleInDegrees(loc, focus.getLocation());
+            float standoff = spotter.decoy != null ? DECOY_STANDOFF : coneLength * FOLLOW_FRACTION;
+            dest = focus;
+            // closes to the standoff and then holds, it never backs off from an approaching fleet
+            wantedSpeed = Misc.getSpeedForBurnLevel(FOLLOW_BURN) * MathUtils.clamp((Misc.getDistance(loc, focus) - standoff) / SLOW_DISTANCE, 0f, 1f);
         } else {
             if (spotter.waypoint == null || Misc.getDistance(loc, spotter.waypoint) < WAYPOINT_REACHED) spotter.waypoint = pickWaypoint(spotter);
             dest = spotter.waypoint;
+            wantedSpeed = Misc.getSpeedForBurnLevel(ROAM_BURN);
+        }
 
+        float coneOffset = MathUtils.getShortestRotation(spotter.heading, spotter.coneAngle);
+        float turn = Misc.getDistance(loc, dest) > 1f ? MathUtils.getShortestRotation(spotter.heading, Misc.getAngleInDegrees(loc, dest)) : 0f;
+        wantedSpeed *= 1f - TURN_SLOWDOWN * Math.min(1f, Math.abs(turn) / 90f);
+
+        // TURN_ACCELERATION above TURN_GAIN * TURN_RATE, or the heading overshoots and swings back
+        float wantedTurnRate = MathUtils.clamp(turn * TURN_GAIN, -TURN_RATE, TURN_RATE);
+        spotter.turnRate += MathUtils.clamp(wantedTurnRate - spotter.turnRate, -TURN_ACCELERATION * amount, TURN_ACCELERATION * amount);
+        spotter.heading = Misc.normalizeAngle(spotter.heading + spotter.turnRate * amount);
+        spotter.speed += MathUtils.clamp(wantedSpeed - spotter.speed, -ACCELERATION * amount, ACCELERATION * amount);
+
+        Vector2f step = Misc.getUnitVectorAtDegreeAngle(spotter.heading);
+        step.scale(spotter.speed * amount);
+        drone.setLocation(loc.x + step.x, loc.y + step.y);
+        drone.setFacing(spotter.heading);
+
+        float wantedOffset;
+        if (focus != null) {
+            wantedOffset = MathUtils.getShortestRotation(spotter.heading, Misc.getAngleInDegrees(loc, focus));
+        } else {
             spotter.sweep += amount;
-            lookAt = spotter.heading + (float) Math.sin(spotter.sweep * 2f * Math.PI / SWEEP_SECONDS) * SWEEP_ARC;
+            wantedOffset = (float) Math.sin(spotter.sweep * 2f * Math.PI / SWEEP_SECONDS) * SWEEP_ARC;
         }
 
-        float dist = Misc.getDistance(loc, dest);
-        float speed = Misc.getSpeedForBurnLevel(SPOTTER_BURN) * Math.min(1f, dist / SLOW_DISTANCE);
+        // the lamp turns on the hull, so the cone swings with the heading and no faster than CONE_TURN_RATE on top
+        coneOffset += MathUtils.clamp(MathUtils.getShortestRotation(coneOffset, wantedOffset) * CONE_TURN_GAIN, -CONE_TURN_RATE, CONE_TURN_RATE) * amount;
+        spotter.coneAngle = Misc.normalizeAngle(spotter.heading + coneOffset);
 
-        if (dist > 1f) {
-            float turn = MathUtils.getShortestRotation(spotter.heading, Misc.getAngleInDegrees(loc, dest));
-            spotter.heading = Misc.normalizeAngle(spotter.heading + MathUtils.clamp(turn, -TURN_RATE * amount, TURN_RATE * amount));
+        if (spotter.speed < TRAIL_MIN_SPEED) return;
 
-            Vector2f step = Misc.getUnitVectorAtDegreeAngle(spotter.heading);
-            step.scale(Math.min(dist, speed * amount));
-            drone.setLocation(loc.x + step.x, loc.y + step.y);
+        if (spotter.trailIds == null) spotter.trailIds = new float[]{MagicCampaignTrailPlugin.getUniqueID(), MagicCampaignTrailPlugin.getUniqueID()};
+        for (int i = 0; i < 2; i++) {
+            MagicCampaignTrailPlugin.AddTrailMemberSimple(drone, spotter.trailIds[i], Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
+                    getEnginePoint(spotter, ENGINE_BACK, i == 0 ? ENGINE_SIDE : -ENGINE_SIDE), 0f, spotter.heading, TRAIL_WIDTH, 0.5f, ENGINE_COLOR, 0.5f, TRAIL_SECONDS, true, new Vector2f(0f, 0f));
         }
+    }
 
-        float coneTurn = MathUtils.getShortestRotation(spotter.coneAngle, lookAt);
-        spotter.coneAngle = Misc.normalizeAngle(spotter.coneAngle + MathUtils.clamp(coneTurn, -CONE_TURN_RATE * amount, CONE_TURN_RATE * amount));
-        drone.setFacing(focus != null ? spotter.coneAngle : spotter.heading);
+    // offsets from the picket hull file (engines 22 px back, 15 px to each side) at the entity's 0.4 sprite scale
+    public static Vector2f getEnginePoint(Spotter spotter, float back, float side) {
+        Vector2f loc = spotter.entity.getLocation();
+        double rad = Math.toRadians(spotter.heading);
+        float cos = (float) Math.cos(rad);
+        float sin = (float) Math.sin(rad);
+        return new Vector2f(loc.x - cos * back - sin * side, loc.y - sin * back + cos * side);
+    }
 
-        if (spotter.trailId == 0f) spotter.trailId = MagicCampaignTrailPlugin.getUniqueID();
-        MagicCampaignTrailPlugin.AddTrailMemberSimple(drone, spotter.trailId, Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
-                drone.getLocation(), 0f, spotter.heading, TRAIL_WIDTH, 1f, TRAIL_COLOR, 0.6f, TRAIL_SECONDS, true, new Vector2f(0f, 0f));
+    public static float getThrottle(Spotter spotter) {
+        return MathUtils.clamp(spotter.speed / Misc.getSpeedForBurnLevel(FOLLOW_BURN), 0f, 1f);
     }
 
     private Vector2f pickWaypoint(Spotter spotter) {
