@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.abilities.InterdictionPulseAbility;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
@@ -176,10 +177,18 @@ public class DroneNetScript implements EveryFrameScript {
         debris.setDiscoverable(null);
         debris.setDiscoveryXP(null);
         debris.getDropValue().clear();
-        debris.addDropRandom(NEST_DROP_GROUP, MIN_NEST_RELICS, MAX_NEST_RELICS);
+        debris.addDropRandom(createNestDrop());
 
         if (nest.getOrbit() != null) debris.setOrbit(nest.getOrbit().makeCopy());
         debris.setLocation(nest.getLocation().x, nest.getLocation().y);
+    }
+
+    public static SalvageEntityGenDataSpec.DropData createNestDrop() {
+        SalvageEntityGenDataSpec.DropData drop = new SalvageEntityGenDataSpec.DropData();
+        drop.group = NEST_DROP_GROUP;
+        drop.chances = MIN_NEST_RELICS;
+        drop.maxChances = MAX_NEST_RELICS;
+        return drop;
     }
 
     public boolean isActive() {

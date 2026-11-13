@@ -4,7 +4,6 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.util.Misc;
@@ -39,12 +38,7 @@ public class IndEvo_DroneNest extends BaseCommandPlugin {
     }
 
     private void showLoot(InteractionDialogAPI dialog) {
-        SalvageEntityGenDataSpec.DropData drop = new SalvageEntityGenDataSpec.DropData();
-        drop.group = DroneNetScript.NEST_DROP_GROUP;
-        drop.chances = DroneNetScript.MIN_NEST_RELICS;
-        drop.maxChances = DroneNetScript.MAX_NEST_RELICS;
-
-        CargoAPI loot = SalvageEntity.generateSalvage(Misc.random, 1f, 1f, 1f, null, List.of(drop));
+        CargoAPI loot = SalvageEntity.generateSalvage(Misc.random, 1f, 1f, 1f, null, List.of(DroneNetScript.createNestDrop()));
 
         dialog.getOptionPanel().clearOptions();
         dialog.setPromptText("");
