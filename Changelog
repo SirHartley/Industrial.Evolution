@@ -361,6 +361,9 @@ Note - Spotters explode when interdicted or hit by a missile or an artillery she
 Note - Nests track anything within 300 units. Shoot one for Relic Components, by missile or by flying up to it
 Note - Colonising the system replaces the drone net with watchtowers
 Added - Settings for vision type weights, lighthouse beams and drone cones
+Added - Artillery fire animation: muzzle flash and smoke per shot, the station glows hot and vents
+Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a slow discharge all around
+Added - Mortar shells leave a short trail
 Adjusted - Thinner artillery target lines, shells, missiles and trails
 Adjusted - Uses vanilla star dialogs for better mod compatibility
 Fixed - Slow fields and forced overloads no longer expire while paused
