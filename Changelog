@@ -115,8 +115,6 @@ Adjusted - Conflict Package demand now matches its single chips (more crew, fewe
 Adjusted - VPC commodities and outputs moved to data/config/indEvo/vpc_commodities.csv
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 
---- cont
-
 Governments
 Fixed - Permanent governments can no longer be changed
 Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
