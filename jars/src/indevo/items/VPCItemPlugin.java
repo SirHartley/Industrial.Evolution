@@ -10,6 +10,7 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.impl.items.GenericSpecialItemPlugin;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -95,6 +96,8 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
     private static final int CONTENT_MIN_ALPHA = 40;
     private static final float[] FULL_BOUNDS = {0f, 0f, 1f, 1f};
     private static final Map<String, float[]> CONTENT_BOUNDS = new HashMap<>();
+    // rightmost slots, fuel last; unlisted outputs keep their order on the left
+    private static final List<String> RIGHT_SLOT_ORDER = List.of(Commodities.MARINES, Commodities.CREW, Commodities.FUEL);
     // render and apply read the outputs every frame, warn once per id
     private static final Set<String> WARNED_IDS = new HashSet<>();
 
@@ -175,7 +178,8 @@ public class VPCItemPlugin extends GenericSpecialItemPlugin {
         // the engine draws the chip (spec icon) and its hover highlight before this
         if (!isValid(data)) return;
 
-        List<Commodity> outputs = getOutputs(data);
+        List<Commodity> outputs = new ArrayList<>(getOutputs(data));
+        outputs.sort(Comparator.comparingInt(c -> RIGHT_SLOT_ORDER.indexOf(c.id())));
         Chip chip = CHIPS[getTier(data).outputs - 1];
 
         Color bright = Global.getSettings().getBrightPlayerColor();
