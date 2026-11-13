@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.RangeBlockerUtil;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.artillery.utils.VisionBlockers;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -34,6 +35,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
     protected float angle = (float) Math.random() * 360f;
     protected float direction = Math.random() < 0.5f ? 1f : -1f;
     protected boolean lit = false;
+    protected int beamCount = 1;
 
     protected transient float brightness;
     protected transient SpriteAPI texture;
@@ -66,8 +68,12 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
         return Setting.ARTILLERY_LIGHTHOUSE_BEAM_WIDTH.value();
     }
 
-    public static int getBeamCount() {
-        return Math.min(MAX_BEAMS, Setting.ARTILLERY_LIGHTHOUSE_BEAMS.intValue());
+    public int getBeamCount() {
+        return beamCount;
+    }
+
+    public void setBeamCount(int beamCount) {
+        this.beamCount = Math.max(1, Math.min(MAX_BEAMS, beamCount));
     }
 
     @Override
@@ -130,8 +136,9 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
                 && dist > blocker.getCurrMaxAt(Misc.getAngleInDegreesStrict(loc, point)) + radius) return false;
 
         float arc = getArc() + 360f * checkSeconds / Setting.ARTILLERY_LIGHTHOUSE_TURN_TIME.value();
-        for (int i = 0; i < getBeamCount(); i++) {
-            if (Misc.isInArc(angle + 180f * i, arc, loc, point)) return true;
+        for (int i = 0; i < beamCount; i++) {
+            if (Misc.isInArc(angle + 180f * i, arc, loc, point))
+                return !VisionBlockers.isBlocked(VisionBlockers.collectSmoke(entity.getContainingLocation()), loc, point);
         }
 
         return false;
@@ -143,7 +150,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
         ensureBlocker();
 
         float alpha = viewport.getAlphaMult() * brightness;
-        for (int i = 0; i < getBeamCount(); i++) beams[i].render(alpha);
+        for (int i = 0; i < beamCount; i++) beams[i].render(alpha);
     }
 
     // map space is world space times factor, same as the vanilla terrain map icons
@@ -164,7 +171,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
-        for (int i = 0; i < getBeamCount(); i++) {
+        for (int i = 0; i < beamCount; i++) {
             float start = angle + 180f * i - arc / 2f;
 
             GL11.glBegin(GL11.GL_TRIANGLE_FAN);
@@ -222,7 +229,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
         tooltip.addTitle("Lighthouse Beam");
         tooltip.addPara("A fleet caught in the beam is %s and its position sent to the artillery in this system.",
                 10f, Misc.getNegativeHighlightColor(), "spotted at once");
-        tooltip.addPara("Planets block the beam.", 10f);
+        tooltip.addPara("Planets and chaff clouds block the beam.", 10f);
     }
 
     @Override

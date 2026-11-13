@@ -19,6 +19,7 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
 
     protected SectorEntityToken beam;
     protected boolean lit = false;
+    protected int beamCount = 1 + Misc.random.nextInt(LighthouseBeamTerrain.MAX_BEAMS);
     protected float sinceCheck = CHECK_SECONDS;
 
     // unlit it works as a plain watchtower, lit only the beams see
@@ -65,6 +66,7 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
         if (beam == null || beam.isExpired() || beam.getContainingLocation() != loc) {
             beam = loc.addTerrain(LighthouseBeamTerrain.TERRAIN_ID, new BaseRingTerrain.RingParams(1f, 0f, entity, "Lighthouse Beam"));
             beam.setCircularOrbit(entity, 0f, 0f, 100f);
+            getBeamPlugin().setBeamCount(beamCount);
         }
 
         return getBeamPlugin();
