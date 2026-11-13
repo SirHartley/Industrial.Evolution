@@ -22,6 +22,14 @@
 		"plugin":"indevo.industries.artillery.terrain.ArtilleryTerrain",
 	},
 
+	"IndEvo_lighthouse_beam":{
+		"plugin":"indevo.industries.artillery.terrain.LighthouseBeamTerrain",
+	},
+
+	"IndEvo_drone_cones":{
+		"plugin":"indevo.industries.artillery.terrain.DroneConeTerrain",
+	},
+
 	"IndEvo_slowfield":{
 		"plugin":"indevo.industries.artillery.terrain.SlowFieldTerrain",
 		"musicSuppression":0.50,

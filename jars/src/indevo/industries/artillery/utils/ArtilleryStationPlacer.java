@@ -3,6 +3,7 @@ package indevo.industries.artillery.utils;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.BattleCreationContext;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.FleetInteractionDialogPluginImpl;
@@ -22,10 +23,14 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
+import indevo.industries.artillery.entities.LighthouseEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
+import indevo.industries.artillery.scripts.DroneNetScript;
 import indevo.items.consumables.listeners.LocatorSystemRatingUpdater;
 import indevo.utils.ModPlugin;
+
+import org.lwjgl.util.vector.Vector2f;
 
 import java.util.List;
 import java.util.Random;
@@ -34,6 +39,15 @@ import static indevo.industries.artillery.scripts.ArtilleryStationScript.SCRIPT_
 import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KEY;
 
 public class ArtilleryStationPlacer {
+
+    public enum VisionType {WATCHTOWER, LIGHTHOUSE, DRONES}
+
+    public static final int MIN_LIGHTHOUSES_PER_SYSTEM = 4;
+    public static final float LIGHTHOUSE_MIN_ORBIT = 1500f;
+    public static final float LIGHTHOUSE_MAX_ORBIT = 16000f;
+    public static final int MIN_DRONE_NESTS = 3;
+    public static final int MAX_DRONE_NESTS = 6;
+    public static final float EXTENT_PER_DRONE_NEST = 4000f;
 
     public static void placeCoreWorldArtilleries() {
 
@@ -146,10 +160,8 @@ public class ArtilleryStationPlacer {
 
             StarSystemAPI starSystem = planet.getStarSystem();
 
-            if (starSystem.getEntitiesWithTag(Ids.TAG_WATCHTOWER).isEmpty()) {
-                String faction = planet.getMarket() != null && (planet.getMarket().isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(planet.getMarket().getFactionId())) ? Ids.DERELICT_FACTION_ID : planet.getMarket().getFactionId();
-                ArtilleryStationPlacer.placeWatchtowers(starSystem, faction);
-            }
+            String faction = planet.getMarket() != null && (planet.getMarket().isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(planet.getMarket().getFactionId())) ? Ids.DERELICT_FACTION_ID : planet.getMarket().getFactionId();
+            placeVision(starSystem, faction);
 
             if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID))
                 planet.getMarket().addCondition(ArtilleryStationCondition.ID);
@@ -182,19 +194,119 @@ public class ArtilleryStationPlacer {
         }
     }
 
-    public static void placeWatchtowers(StarSystemAPI system, String factionId) {
-        float minGap = 100f;
+    public static void placeVision(StarSystemAPI system, String factionId) {
+        MemoryAPI mem = system.getMemoryWithoutUpdate();
+        if (mem.contains(Ids.MEM_SYSTEM_ARTILLERY_VISION) || !system.getEntitiesWithTag(Ids.TAG_WATCHTOWER).isEmpty()) return;
+
         Random random = new Random();
+        VisionType type = Ids.DERELICT_FACTION_ID.equals(factionId) ? pickVisionType(random) : VisionType.WATCHTOWER;
+        mem.set(Ids.MEM_SYSTEM_ARTILLERY_VISION, type.name());
+
+        switch (type) {
+            case WATCHTOWER -> placeTowers(system, factionId, WatchtowerEntityPlugin.ENTITY_ID, random);
+            case LIGHTHOUSE -> placeLighthouses(system, factionId, random);
+            case DRONES -> placeDroneNet(system, factionId, random);
+        }
+    }
+
+    private static VisionType pickVisionType(Random random) {
+        WeightedRandomPicker<VisionType> picker = new WeightedRandomPicker<>(random);
+        picker.add(VisionType.WATCHTOWER, Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER.value());
+        picker.add(VisionType.LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value());
+        picker.add(VisionType.DRONES, Setting.ARTILLERY_VISION_WEIGHT_DRONES.value());
+
+        VisionType type = picker.pick();
+        return type != null ? type : VisionType.WATCHTOWER;
+    }
+
+    public static void placeLighthouses(StarSystemAPI system, String factionId, Random random) {
+        int placed = placeTowers(system, factionId, LighthouseEntityPlugin.ENTITY_ID, random);
+        int extra = MIN_LIGHTHOUSES_PER_SYSTEM - placed;
+        if (extra <= 0) return;
+
+        SectorEntityToken center = system.getCenter();
+        float minRadius = getMinCenterOrbit(system);
+        float extent = getCenterOrbitExtent(system, minRadius);
+
+        for (int i = 0; i < extra; i++) {
+            float radius = getSpreadRadius(minRadius, extent, i, extra, random);
+            float orbitDays = radius / (20f + random.nextFloat() * 5f);
+
+            SectorEntityToken t = addTower(system, factionId, LighthouseEntityPlugin.ENTITY_ID, null);
+            t.setOrbit(Global.getFactory().createCircularOrbitWithSpin(center,
+                    random.nextFloat() * 360f, radius, orbitDays, random.nextFloat() * 10f + 1f));
+        }
+    }
+
+    public static void placeDroneNet(StarSystemAPI system, String factionId, Random random) {
+        float minRadius = getMinCenterOrbit(system);
+        float extent = getCenterOrbitExtent(system, minRadius);
+        int count = Math.max(MIN_DRONE_NESTS, Math.min(MAX_DRONE_NESTS, Math.round(extent / EXTENT_PER_DRONE_NEST)));
+
+        DroneNetScript net = DroneNetScript.getInstanceOrRegister(system, factionId, extent);
+        int placed = 0;
+
+        for (int i = 0; i < count; i++) {
+            float radius = getSpreadRadius(minRadius, extent, i, count, random);
+            float orbitDays = radius / (20f + random.nextFloat() * 5f);
+            if (net.addNest(random.nextFloat() * 360f, radius, orbitDays, random)) placed++;
+        }
+
+        // no drone hulls for this faction, the system must not stay blind
+        if (placed == 0) {
+            system.getMemoryWithoutUpdate().set(Ids.MEM_SYSTEM_ARTILLERY_VISION, VisionType.WATCHTOWER.name());
+            placeTowers(system, factionId, WatchtowerEntityPlugin.ENTITY_ID, random);
+        }
+    }
+
+    private static float getMinCenterOrbit(StarSystemAPI system) {
+        float minRadius = LIGHTHOUSE_MIN_ORBIT;
+        if (system.getStar() != null) minRadius += system.getStar().getRadius() * 2f;
+        return minRadius;
+    }
+
+    private static float getCenterOrbitExtent(StarSystemAPI system, float minRadius) {
+        return Math.max(minRadius * 2f, Math.min(LIGHTHOUSE_MAX_ORBIT, getSystemExtent(system)));
+    }
+
+    private static float getSpreadRadius(float minRadius, float extent, int index, int count, Random random) {
+        return minRadius + (extent - minRadius) * (index + random.nextFloat()) / count;
+    }
+
+    private static float getSystemExtent(StarSystemAPI system) {
+        Vector2f center = system.getCenter().getLocation();
+        float extent = 0f;
+
+        for (PlanetAPI planet : system.getPlanets()) extent = Math.max(extent, Misc.getDistance(center, planet.getLocation()));
+        for (SectorEntityToken jumpPoint : system.getJumpPoints()) extent = Math.max(extent, Misc.getDistance(center, jumpPoint.getLocation()));
+
+        return extent;
+    }
+
+    private static SectorEntityToken addTower(StarSystemAPI system, String factionId, String entityType, String name) {
+        SectorEntityToken t = system.addCustomEntity(Misc.genUID(), name, entityType, factionId, null);
+        if (Misc.getMarketsInLocation(system).isEmpty())
+            MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
+
+        return t;
+    }
+
+    public static int placeTowers(StarSystemAPI system, String factionId, String entityType, Random random) {
+        float minGap = 100f;
         FactionAPI faction = Global.getSector().getFaction(factionId);
+        boolean watchtower = WatchtowerEntityPlugin.ENTITY_ID.equals(entityType);
+        int placed = 0;
 
         //jump points
         for (SectorEntityToken t : system.getJumpPoints()) {
-            WatchtowerEntityPlugin.spawn(t, Global.getSector().getFaction(factionId));
+            WatchtowerEntityPlugin.spawn(t, faction, entityType);
+            placed++;
         }
 
         //gates
         for (SectorEntityToken t : system.getEntitiesWithTag(Tags.GATE)){
-            WatchtowerEntityPlugin.spawn(t, Global.getSector().getFaction(factionId));
+            WatchtowerEntityPlugin.spawn(t, faction, entityType);
+            placed++;
         }
 
         //gas giants
@@ -206,10 +318,8 @@ public class ArtilleryStationPlacer {
             List<BaseThemeGenerator.OrbitGap> gaps = BaseThemeGenerator.findGaps(planet, 100f, 100f + ow + minGap, minGap);
             BaseThemeGenerator.EntityLocation loc = createLocationAtRandomGap(random, planet, gaps, BaseThemeGenerator.LocationType.GAS_GIANT_ORBIT);
             if (loc != null) {
-                SectorEntityToken t = system.addCustomEntity(Misc.genUID(), "Watchtower", "IndEvo_Watchtower", faction.getId(), null);
-                t.setOrbit(loc.orbit);
-                if (Misc.getMarketsInLocation(system).isEmpty())
-                    MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
+                addTower(system, factionId, entityType, null).setOrbit(loc.orbit);
+                placed++;
             }
         }
 
@@ -229,14 +339,15 @@ public class ArtilleryStationPlacer {
 
                 BaseThemeGenerator.EntityLocation loc = createLocationAtRandomGap(random, terrain, gaps, BaseThemeGenerator.LocationType.IN_RING);
                 if (loc != null) {
-                    SectorEntityToken t = system.addCustomEntity(Misc.genUID(), faction.getDisplayName() + " Watchtower", "IndEvo_Watchtower", faction.getId(), null);
-                    t.setOrbit(loc.orbit);
-                    if (Misc.getMarketsInLocation(system).isEmpty())
-                        MiscellaneousThemeGenerator.makeDiscoverable(t, 200f, 2000f);
+                    String name = watchtower ? faction.getDisplayName() + " Watchtower" : null;
+                    addTower(system, factionId, entityType, name).setOrbit(loc.orbit);
+                    placed++;
                     break;
                 }
             }
         }
+
+        return placed;
     }
 
     private static BaseThemeGenerator.EntityLocation createLocationAtRandomGap(Random random, SectorEntityToken center, List<BaseThemeGenerator.OrbitGap> gaps, BaseThemeGenerator.LocationType type) {

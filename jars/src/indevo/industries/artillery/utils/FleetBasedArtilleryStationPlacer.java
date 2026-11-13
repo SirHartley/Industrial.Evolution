@@ -115,7 +115,7 @@ public class FleetBasedArtilleryStationPlacer {
 
             if (starSystem.getEntitiesWithTag(Ids.TAG_WATCHTOWER).isEmpty()) {
                 String faction = planet.getMarket() != null && (planet.getMarket().isPlanetConditionMarketOnly() || Factions.NEUTRAL.equals(planet.getMarket().getFactionId())) ? Ids.DERELICT_FACTION_ID : planet.getMarket().getFactionId();
-                ArtilleryStationPlacer.placeWatchtowers(starSystem, faction);
+                ArtilleryStationPlacer.placeVision(starSystem, faction);
             }
 
             addBattlestations("mortar", planet);
