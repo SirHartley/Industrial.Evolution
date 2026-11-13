@@ -69,14 +69,15 @@ public class StationFireEffect {
     public static final float LANCE_LENGTH = 55f;
     public static final float LANCE_WIDTH = 1.6f;
     public static final float LANCE_ALPHA = 0.5f;
-    public static final int SPARK_COUNT = 22;
+    public static final int SPARK_COUNT = 16;
     public static final float SPARK_SPREAD = 46f;
-    public static final float SPARK_MIN_SPEED = 180f;
-    public static final float SPARK_MAX_SPEED = 520f;
-    public static final float SPARK_MIN_LIFE = 0.25f;
-    public static final float SPARK_MAX_LIFE = 0.6f;
-    public static final float SPARK_LENGTH_SECONDS = 0.045f;
-    public static final float SPARK_WIDTH = 2f;
+    public static final float SPARK_MIN_SPEED = 140f;
+    public static final float SPARK_MAX_SPEED = 380f;
+    public static final float SPARK_MIN_LIFE = 0.2f;
+    public static final float SPARK_MAX_LIFE = 0.45f;
+    public static final float SPARK_LENGTH_SECONDS = 0.036f;
+    public static final float SPARK_WIDTH = 1.7f;
+    public static final float SPARK_CORE_ALPHA = 0.6f;
     public static final float HOT_FRACTION = 0.18f;
     public static final float CHARGE_FADE_PER_SECOND = 6f;
     public static final float PENDING_SECONDS = 0.3f;
@@ -478,7 +479,7 @@ public class StationFireEffect {
                 line.renderAtCenter(x, y);
                 line.setSize(length * 0.6f, SPARK_WIDTH / 2f);
                 line.setColor(LANCE);
-                line.setAlphaMult(alphaMult * (1f - done));
+                line.setAlphaMult(alphaMult * SPARK_CORE_ALPHA * (1f - done));
                 line.renderAtCenter(x, y);
             } else if (p.hot > 0f && done < HOT_FRACTION) {
                 float size = 3f * (p.startSize + (p.endSize - p.startSize) * done * 2f);
