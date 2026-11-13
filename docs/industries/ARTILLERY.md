@@ -130,7 +130,7 @@ Station destroyed in battle (`reportFleetDespawnedToListener`): the industry dis
 Volleys:
 
 - Mortar: `MortarShotScript -> MortarProjectileEntityPlugin` x `IndEvo_Artillery_mortar_projectilesPerShot`, random points in a 250 to 700 su circle around the position predicted at impact time. NPC fleets near the reticule get `ArtilleryReactionScript -> ModularFleetAIAPI.getNavModule().avoidLocation`.
-- Railgun: `RailgunShotEntity -> RailgunProjectileEntityPlugin` x `IndEvo_Artillery_railgun_projectilesPerShot`, alternating lead fuzz `IndEvo_Artillery_railgun_shotFuzzMult`. Explodes on any fleet within 50 su after 30% of flight time.
+- Railgun: `RailgunShotEntity -> RailgunProjectileEntityPlugin` x `IndEvo_Artillery_railgun_projectilesPerShot`, alternating lead fuzz `IndEvo_Artillery_railgun_shotFuzzMult`. Explodes on any fleet within 50 su of its path after 30% of flight time (checked along the whole frame step, `HIT_DISTANCE`). A shell that hits nothing ends `OVERSHOOT_DISTANCE` (3000 su) past its target point.
 - Missile: `MissileShotScript` spawns an even number of `MissileCarrierEntityPlugin` on three-point arcs (`TrigHelper`, see [Utils](../core/UTILS.md)); a carrier launches at `impactSeconds - flight time`, but never before 0.3 to 0.7 s (`MIN_LAUNCH_DELAY`, `LAUNCH_DELAY_SPREAD`), so the station wind-up always shows and a long flight lands later; at launch `moveStartToStation` lays the arc again from the station's current location through the split point and the target, because the station orbits on while the carrier waits; at 30% of the remaining distance each splits into 3 `MissileSubmunitionEntity` that home on hostiles within 600 su; each ends in `ECMExplosion` (interdict like the interdiction mine, plus `IndEvo_slowfield` terrain for `IndEvo_Artillery_missile_duration` seconds).
 
 Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileEntityPlugin.java:264`, `RailgunProjectileEntityPlugin.java:272`).
@@ -230,7 +230,7 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 
 Suspected bugs (not fixed): see the return report of the documentation pass; listed here for upkeep.
 
-- `RailgunProjectileEntityPlugin.advance` adds `amount` to `timePassedSeconds` twice (`:126, 135`), so the wait, line fade and the failsafe run at double speed. The wind-up report halves the remaining wait for it (`:161`); remove that with the fix.
+- `RailgunProjectileEntityPlugin.advance` adds `amount` to `timePassedSeconds` twice (`:126, 135`), so the wait and the line fade run at double speed and a shell arrives before its lead point is reached. The end of a missed shell is by distance for that reason. The wind-up report halves the remaining wait for it (`:161`); remove that with the fix.
 - Railgun shells explode on any fleet, friendly included (`RailgunProjectileEntityPlugin.java:185-194`); carriers check hostility.
 - `RailgunShotEntity` never expires; the danger-sign entity stays in the location at alpha 0.
 - `MissileCarrierEntityPlugin` keeps looping after `finishing` and can spawn several ECM explosions in one frame (`:159-169`).

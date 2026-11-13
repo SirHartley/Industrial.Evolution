@@ -372,6 +372,8 @@ Fixed - Placed stations no longer fire with Artillery turned off
 Fixed - Orbital Artillery tooltip now unlocks its Codex entry
 Fixed - Jumping out of a system now empties the watchtower eye
 Fixed - Artillery missiles no longer launch from beside a moving station
+Fixed - Railgun shots no longer vanish before they arrive at long range
+Fixed - Railgun shots no longer pass through a fleet without a hit
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins
