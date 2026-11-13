@@ -16,6 +16,8 @@ import indevo.config.Setting;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.renderers.ArtilleryFireRenderer;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
+import indevo.utils.helper.Circle;
+import indevo.utils.helper.TrigHelper;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -146,6 +148,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         }
 
         if (timePassedSeconds > projectileDelaySeconds && !finishing) {
+            if (sound) moveStartToStation();
             advanceProjectile();
             if (sound) {
                 ArtilleryFireRenderer.reportShot(origin, ArtilleryStationEntityPlugin.TYPE_MISSILE, getLaunchAngle());
@@ -217,6 +220,22 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
         entity.setLocation(nextPos.x, nextPos.y);
         entity.setFacing(projRotation - 90);
+    }
+
+    // the station orbits on while the carrier waits, so the arc is laid again from where it is at launch
+    private void moveStartToStation() {
+        Vector2f start = new Vector2f(origin.getLocation());
+        Vector2f split = getPointForTrajectoryAngle(splitAngleOnTrajectory);
+        Circle circle = TrigHelper.findThreePointCircle(start, target, split);
+        if (Float.isNaN(circle.radius) || Float.isInfinite(circle.radius) || Float.isNaN(circle.center.x) || Float.isNaN(circle.center.y)) return;
+
+        originLocation = start;
+        trajectoryCenter = circle.center;
+        trajectoryRadius = circle.radius;
+        splitAngleOnTrajectory = Misc.getAngleInDegrees(trajectoryCenter, split);
+        projectileFlightTime = getTotalDistToTarget() / PROJECTILE_VELOCITY;
+        impactSeconds = projectileDelaySeconds + projectileFlightTime;
+        entity.setLocation(start.x, start.y);
     }
 
     private float getLaunchAngle() {
