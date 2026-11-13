@@ -7,29 +7,32 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
-import com.fs.starfarer.api.impl.campaign.terrain.PulsarRenderer;
-import com.fs.starfarer.api.impl.campaign.terrain.RangeBlockerUtil;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.artillery.renderers.LightConeRenderer;
 import indevo.industries.artillery.utils.VisionBlockers;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 import java.util.EnumSet;
+import java.util.List;
 
-public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRenderer.PulsarRendererDelegate {
+public class LighthouseBeamTerrain extends BaseRingTerrain {
 
     public static final String TERRAIN_ID = "IndEvo_lighthouse_beam";
     public static final float INNER_RADIUS = 40f;
     public static final float FADE_SECONDS = 1f;
     public static final int MAX_BEAMS = 2;
-    public static final int BEAM_ALPHA = 170;
+    public static final float BEAM_ALPHA = 0.35f;
+    public static final float LAMP_SIZE = 70f;
+    public static final float LAMP_ALPHA = 0.6f;
+    public static final float SCROLL_SPEED = 0.02f;
+    public static final float BLOCKER_SECONDS = 0.1f;
     public static final float MAP_ALPHA = 0.3f;
-    public static final Color LIGHT_COLOR = new Color(255, 235, 180);
-    public static final float FACTION_TINT = 0.35f;
-    private static final int BLOCKER_RESOLUTION = 720;
+    public static final Color LIGHT_COLOR = new Color(255, 236, 190);
+    public static final float FACTION_TINT = 0.2f;
     private static final int MAP_ARC_SEGMENTS = 8;
 
     protected float angle = (float) Math.random() * 360f;
@@ -39,16 +42,17 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
 
     protected transient float brightness;
     protected transient SpriteAPI texture;
-    protected transient PulsarRenderer[] beams;
-    protected transient RangeBlockerUtil blocker;
+    protected transient SpriteAPI glow;
+    protected transient List<VisionBlockers.Blocker> blockers;
+    protected transient float sinceBlockers;
+    protected transient float scroll;
 
     @Override
     protected Object readResolve() {
         super.readResolve();
         layers = EnumSet.of(CampaignEngineLayers.TERRAIN_7);
         texture = Global.getSettings().getSprite("terrain", "pulsar");
-        beams = new PulsarRenderer[MAX_BEAMS];
-        for (int i = 0; i < MAX_BEAMS; i++) beams[i] = new PulsarRenderer(this);
+        glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
         return this;
     }
 
@@ -93,24 +97,20 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
         brightness += (lit ? amount : -amount) / FADE_SECONDS;
         brightness = Math.max(0f, Math.min(1f, brightness));
 
-        for (int i = 0; i < MAX_BEAMS; i++) {
-            beams[i].advance(amount);
-            beams[i].setCurrAngle(angle + 180f * i);
-        }
+        scroll = (scroll + amount * SCROLL_SPEED) % 1f;
 
-        if (lit && entity.isInCurrentLocation()) {
-            ensureBlocker();
-            blocker.updateLimits(entity, getBlockerExclude(), 0.5f);
-            blocker.advance(amount, 100f, 0.5f);
-        }
+        sinceBlockers += amount;
+        if (sinceBlockers >= BLOCKER_SECONDS) blockers = null;
     }
 
-    // PulsarRenderer draws its fade out strip from the blocker data, a null blocker collapses it to the centre
-    private void ensureBlocker() {
-        float range = getLength() + 1000f;
-        if (blocker != null && blocker.getMaxRange() == range) return;
-        blocker = new RangeBlockerUtil(BLOCKER_RESOLUTION, range);
-        blocker.updateAndSync(entity, getBlockerExclude(), 0.1f);
+    // planets and chaff clouds, the same list for the drawn light and for sees
+    private List<VisionBlockers.Blocker> getBlockers() {
+        if (blockers == null) {
+            blockers = VisionBlockers.collect(entity.getContainingLocation(), getBlockerExclude());
+            sinceBlockers = 0f;
+        }
+
+        return blockers;
     }
 
     // the body the lighthouse orbits would shadow half its sweep
@@ -132,13 +132,9 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
         float dist = Misc.getDistance(loc, point);
         if (dist < INNER_RADIUS || dist > getLength() + radius) return false;
 
-        if (blocker != null && blocker.isAnythingShortened()
-                && dist > blocker.getCurrMaxAt(Misc.getAngleInDegreesStrict(loc, point)) + radius) return false;
-
         float arc = getArc() + 360f * checkSeconds / Setting.ARTILLERY_LIGHTHOUSE_TURN_TIME.value();
         for (int i = 0; i < beamCount; i++) {
-            if (Misc.isInArc(angle + 180f * i, arc, loc, point))
-                return !VisionBlockers.isBlocked(VisionBlockers.collectSmoke(entity.getContainingLocation()), loc, point);
+            if (Misc.isInArc(angle + 180f * i, arc, loc, point)) return !VisionBlockers.isBlocked(getBlockers(), loc, point);
         }
 
         return false;
@@ -147,10 +143,23 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (brightness <= 0f) return;
-        ensureBlocker();
 
         float alpha = viewport.getAlphaMult() * brightness;
-        for (int i = 0; i < beamCount; i++) beams[i].render(alpha);
+        Vector2f loc = entity.getLocation();
+        Color color = getLightColor();
+
+        for (int i = 0; i < beamCount; i++)
+            LightConeRenderer.draw(loc, angle + 180f * i, getArc(), getLength(), getBlockers(), color, alpha * BEAM_ALPHA, texture, scroll);
+
+        glow.setAdditiveBlend();
+        glow.setSize(LAMP_SIZE, LAMP_SIZE);
+        glow.setColor(color);
+        glow.setAlphaMult(alpha * LAMP_ALPHA);
+        glow.renderAtCenter(loc.x, loc.y);
+    }
+
+    private Color getLightColor() {
+        return Misc.interpolateColor(LIGHT_COLOR, params.relatedEntity.getFaction().getBaseUIColor(), FACTION_TINT);
     }
 
     // map space is world space times factor, same as the vanilla terrain map icons
@@ -159,7 +168,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
         if (!lit || alphaMult <= 0f) return;
 
         Vector2f loc = entity.getLocation();
-        Color color = getPulsarColorForAngle(0f);
+        Color color = getLightColor();
         float r = color.getRed() / 255f;
         float g = color.getGreen() / 255f;
         float b = color.getBlue() / 255f;
@@ -254,43 +263,6 @@ public class LighthouseBeamTerrain extends BaseRingTerrain implements PulsarRend
 
     @Override
     public float getMinEffectRadius(Vector2f locFrom) {
-        return 0f;
-    }
-
-    public float getPulsarInnerRadius() {
-        return INNER_RADIUS;
-    }
-
-    public float getPulsarOuterRadius() {
-        return getLength();
-    }
-
-    public Vector2f getPulsarCenterLoc() {
-        return entity.getLocation();
-    }
-
-    public float getPulsarInnerWidth() {
-        return getArc() / 360f * 2f * (float) Math.PI * INNER_RADIUS;
-    }
-
-    public float getPulsarOuterWidth() {
-        return getPulsarInnerWidth() * getLength() / INNER_RADIUS;
-    }
-
-    public Color getPulsarColorForAngle(float angle) {
-        Color tinted = Misc.interpolateColor(LIGHT_COLOR, params.relatedEntity.getFaction().getBaseUIColor(), FACTION_TINT);
-        return Misc.setAlpha(tinted, BEAM_ALPHA);
-    }
-
-    public SpriteAPI getPulsarTexture() {
-        return texture;
-    }
-
-    public RangeBlockerUtil getPulsarBlocker() {
-        return blocker;
-    }
-
-    public float getPulsarScrollSpeed() {
         return 0f;
     }
 }
