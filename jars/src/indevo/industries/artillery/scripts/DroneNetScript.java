@@ -59,7 +59,7 @@ public class DroneNetScript implements EveryFrameScript {
         public boolean following;
         public long lostAt;
         public transient float alert;
-        public transient float trailId;
+        public transient float[] trailIds;
     }
 
     public static final String MEM_KEY = "$IndEvo_droneNet";
@@ -69,7 +69,7 @@ public class DroneNetScript implements EveryFrameScript {
     public static final String NEST_DROP_GROUP = "IndEvo_droneNest";
     public static final String EXPLOSION_SOUND_ID = "IndEvo_mortar_hit";
     public static final Color EXPLOSION_COLOR = new Color(255, 160, 60);
-    public static final Color TRAIL_COLOR = new Color(255, 200, 120);
+    public static final Color ENGINE_COLOR = new Color(255, 125, 25);
 
     public static final float CHECK_SECONDS = 0.25f;
     public static final float FADE_SECONDS = 1f;
@@ -106,8 +106,10 @@ public class DroneNetScript implements EveryFrameScript {
     public static final float ROAM_RADIUS = 4000f;
     public static final float WAYPOINT_REACHED = 250f;
     public static final float DECOY_STANDOFF = 300f;
-    public static final float TRAIL_WIDTH = 5f;
-    public static final float TRAIL_SECONDS = 0.35f;
+    public static final float ENGINE_BACK = 9.6f;
+    public static final float ENGINE_SIDE = 6f;
+    public static final float TRAIL_WIDTH = 2.5f;
+    public static final float TRAIL_SECONDS = 0.45f;
     public static final float TRAIL_MIN_SPEED = 20f;
 
     public static final float CHAIN_RADIUS = 400f;
@@ -298,9 +300,9 @@ public class DroneNetScript implements EveryFrameScript {
             look(spotter, player, elapsed);
         }
 
+        ensureCones();
         if (!active) return;
 
-        ensureCones();
         for (SectorEntityToken nest : nests) {
             float dist = Misc.getDistance(nest, player);
             if (dist < NEST_ZONE_RADIUS && !VisionBlockers.isBlocked(blockers, nest.getLocation(), player.getLocation()))
@@ -584,9 +586,24 @@ public class DroneNetScript implements EveryFrameScript {
 
         if (spotter.speed < TRAIL_MIN_SPEED) return;
 
-        if (spotter.trailId == 0f) spotter.trailId = MagicCampaignTrailPlugin.getUniqueID();
-        MagicCampaignTrailPlugin.AddTrailMemberSimple(drone, spotter.trailId, Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
-                drone.getLocation(), 0f, spotter.heading, TRAIL_WIDTH, 1f, TRAIL_COLOR, 0.6f, TRAIL_SECONDS, true, new Vector2f(0f, 0f));
+        if (spotter.trailIds == null) spotter.trailIds = new float[]{MagicCampaignTrailPlugin.getUniqueID(), MagicCampaignTrailPlugin.getUniqueID()};
+        for (int i = 0; i < 2; i++) {
+            MagicCampaignTrailPlugin.AddTrailMemberSimple(drone, spotter.trailIds[i], Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
+                    getEnginePoint(spotter, ENGINE_BACK, i == 0 ? ENGINE_SIDE : -ENGINE_SIDE), 0f, spotter.heading, TRAIL_WIDTH, 0.5f, ENGINE_COLOR, 0.5f, TRAIL_SECONDS, true, new Vector2f(0f, 0f));
+        }
+    }
+
+    // offsets from the picket hull file (engines 22 px back, 15 px to each side) at the entity's 0.4 sprite scale
+    public static Vector2f getEnginePoint(Spotter spotter, float back, float side) {
+        Vector2f loc = spotter.entity.getLocation();
+        double rad = Math.toRadians(spotter.heading);
+        float cos = (float) Math.cos(rad);
+        float sin = (float) Math.sin(rad);
+        return new Vector2f(loc.x - cos * back - sin * side, loc.y - sin * back + cos * side);
+    }
+
+    public static float getThrottle(Spotter spotter) {
+        return MathUtils.clamp(spotter.speed / Misc.getSpeedForBurnLevel(FOLLOW_BURN), 0f, 1f);
     }
 
     private Vector2f pickWaypoint(Spotter spotter) {
