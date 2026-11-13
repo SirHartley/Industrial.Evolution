@@ -959,7 +959,7 @@
 		"showNameOnMap":false,
 		"scaleNameWithZoom":false,
 		"scaleIconWithZoom":true,
-		"tags":["IndEvo_droneNest"],
+		"tags":["IndEvo_droneNest", "has_interaction_dialog"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
