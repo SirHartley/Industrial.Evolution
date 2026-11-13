@@ -108,7 +108,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
 
-        float closestDist = Float.MIN_VALUE;
+        float closestDist = Float.MAX_VALUE;
         SectorEntityToken closestTower = null;
 
         for (SectorEntityToken t : watchtowerList) {
@@ -125,7 +125,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
             float dist = Misc.getDistance(t, player);
             if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value()) {
-                if (dist > closestDist) {
+                if (dist < closestDist) {
                     closestDist = dist;
                     closestTower = t;
                 }
@@ -136,6 +136,9 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         if (closestTower == null && !spotted) { //null means we are out of range of any tower
             addition = -amount;
+
+        } else if (closestTower == null) {
+            addition = amount;
 
         } else { //at this point we are in range because there is a closest hostile tower
             float distanceFraction = 1 - closestDist / Setting.ARTILLERY_WATCHTOWER_RANGE.value();
