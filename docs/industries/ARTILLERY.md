@@ -188,7 +188,6 @@ Suspected bugs (not fixed): see the return report of the documentation pass; lis
 - `RailgunProjectileEntityPlugin.advance` adds `amount` to `timePassedSeconds` twice (`:122, 131`), so line fade and the failsafe run at double speed.
 - Railgun shells explode on any fleet, friendly included (`RailgunProjectileEntityPlugin.java:178-186`); carriers check hostility.
 - `RailgunShotEntity` never expires; the danger-sign entity stays in the location at alpha 0.
-- `EyeIndicatorScript` picks the farthest tower in range (`closestDist = Float.MIN_VALUE`, `dist > closestDist`, `:110-122`), so fill speed uses the wrong distance.
 - `MissileCarrierEntityPlugin` keeps looping after `finishing` and can spawn several ECM explosions in one frame (`:149-159`).
 - `MissileCarrierEntityPlugin` uses `fleet.isHostileTo(origin)` with the station as origin; inferred fine, not checked in game.
 
