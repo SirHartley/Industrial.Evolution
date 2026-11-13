@@ -352,6 +352,9 @@ Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
 Fixed - Ship parts from wrecks now roll per wreck instead of once per session
 
 Artillery
+Added - Lighthouses: rotating beams guard some derelict artillery systems and spot you at once (new game)
+Note - Planets block the beams, a hack turns a lighthouse off
+Added - Settings for vision type weights and lighthouse beams
 Adjusted - Uses vanilla star dialogs for better mod compatibility
 Fixed - Slow fields and forced overloads no longer expire while paused
 Fixed - Watchtowers no longer count as stable locations
