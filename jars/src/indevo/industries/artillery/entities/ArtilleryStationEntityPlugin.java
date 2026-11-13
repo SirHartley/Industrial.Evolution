@@ -8,9 +8,11 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.industry.ArtilleryStation;
@@ -135,6 +137,25 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
 
     public static List<SectorEntityToken> getArtilleriesInLoc(LocationAPI loc) {
         return loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION);
+    }
+
+    public static boolean needsVisionAgainstPlayer(LocationAPI loc) {
+        if (!Setting.ENABLE_ARTILLERY.enabled()) return false;
+
+        for (MarketAPI market : Misc.getMarketsInLocation(loc)) {
+            if (market.isPlayerOwned()) return false;
+        }
+
+        return hasWorkingArtilleryHostileToPlayer(loc);
+    }
+
+    public static boolean hasWorkingArtilleryHostileToPlayer(LocationAPI loc) {
+        for (SectorEntityToken t : getArtilleriesInLoc(loc)) {
+            if (!(t.getCustomPlugin() instanceof ArtilleryStationEntityPlugin plugin)) continue;
+            if (!plugin.isDisrupted() && t.getFaction().isHostileTo(Factions.PLAYER)) return true;
+        }
+
+        return false;
     }
 
     public String getType() {

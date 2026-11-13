@@ -10,7 +10,10 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.industries.artillery.renderers.ArtilleryFireRenderer;
+import indevo.industries.artillery.scripts.DroneNetScript;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
@@ -28,15 +31,16 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
     //always hit when player does not change course
     public static final float MAX_RANGE = 50000f;
-    public static final float GLOW_SIZE = 50f;
+    public static final float GLOW_SIZE = 32f;
     public static Color GLOW_COLOR = new Color(100, 220, 255, 255);
     public static float GLOW_FREQUENCY = 1.5f; // on/off cycles per second
     public static final float PROJECTILE_VELOCITY = 6000f;
     public static final float EXPLOSION_SIZE = 250f;
 
     public static final float LINE_LENGTH = 265;
+    public static final float LINE_WIDTH = 4f;
     public static final float ALPHA_FADE_IN_FRACTION = 0.1f;
-    public static final float MAX_LINE_ALPHA = 0.4f;
+    public static final float MAX_LINE_ALPHA = 0.5f;
 
     //line
     public float currentAlpha = 0f;
@@ -153,6 +157,8 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         if (!projectileDelayPassed && origin != null && origin.getLocation() != null) {
             updateProjectileFlightTime();
             originLocation = new Vector2f(origin.getLocation().x, origin.getLocation().y);
+            // timePassedSeconds is added twice per frame above, so the real wait is half of it
+            if (!finishing) ArtilleryFireRenderer.reportIncoming(origin, ArtilleryStationEntityPlugin.TYPE_RAILGUN, Misc.getAngleInDegrees(originLocation, target), (projectileDelayTime - timePassedSeconds) / 2f);
         }
 
         //target reticule alpha
@@ -166,6 +172,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         if (projectileDelayPassed && !finishing) {
 
             if (sound) {
+                ArtilleryFireRenderer.reportShot(origin, ArtilleryStationEntityPlugin.TYPE_RAILGUN, Misc.getAngleInDegrees(originLocation, target));
                 Global.getSoundPlayer().playSound("IndEvo_railgun_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
@@ -199,17 +206,18 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public float trailID;
-    public static final float TRAIL_TIME = 0.5f;
+    public static final float TRAIL_TIME = 0.3f;
+    public static final float TRAIL_WIDTH = 12f;
 
     private void addTrailToProj() {
         MagicCampaignTrailPlugin.AddTrailMemberSimple(
                 entity,
                 trailID,
-                Global.getSettings().getSprite("fx", "IndEvo_trail_foggy"),
+                Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
                 entity.getLocation(),
                 0f,
                 Misc.getAngleInDegrees(originLocation, entity.getLocation()),
-                GLOW_SIZE * 0.8f,
+                TRAIL_WIDTH,
                 1f,
                 GLOW_COLOR,
                 0.8f,
@@ -228,7 +236,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
         targetLineSprite.setAdditiveBlend();
         targetLineSprite.setAngle(VectorUtils.getAngle(originLocation, target));
-        targetLineSprite.setSize(LINE_LENGTH, 11f);
+        targetLineSprite.setSize(LINE_LENGTH, LINE_WIDTH);
         targetLineSprite.setAlphaMult(currentAlpha);
         targetLineSprite.setColor(color);
 
@@ -266,6 +274,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
                 "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
 
         explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
+        DroneNetScript.reportBlast(cl, entity.getLocation(), EXPLOSION_SIZE);
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {

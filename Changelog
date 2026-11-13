@@ -350,12 +350,27 @@ Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
 Fixed - Ship parts from wrecks now roll per wreck instead of once per session
 
 Artillery
+Added - Lighthouses: one or two rotating beams guard some derelict artillery systems and spot you at once (new game)
+Note - Planets and Chaff Clouds block the beams, going dark does not help, a hack turns a lighthouse off
+Added - Drone nets: nests launch spotter drones with vision cones in some derelict artillery systems (new game)
+Note - A spotter that sees you follows you, the eye fills as under a watchtower
+Note - Planets and Chaff Clouds block the cones, going dark shortens them, a Sensor Decoy pulls spotters away
+Note - Spotters explode when interdicted or hit by a missile or an artillery shell, and take nearby spotters with them
+Note - Nests track anything within 300 units. Shoot one for Relic Components, by missile or by flying up to it
+Note - Colonising the system replaces the drone net with watchtowers
+Added - Settings for vision type weights, lighthouse beams and drone cones
+Added - Artillery fire animation: muzzle flash and smoke per shot, the station glows hot and vents
+Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a slow discharge all around
+Added - Mortar shells leave a short trail
+Adjusted - Thinner artillery target lines, shells, missiles and trails
 Adjusted - Uses vanilla star dialogs for better mod compatibility
 Fixed - Slow fields and forced overloads no longer expire while paused
+Fixed - Watchtowers now properly lock on faster the closer you are
 Fixed - Watchtowers no longer count as stable locations
 Fixed - Creating a stable location now properly counts wormholes
 Fixed - Placed stations no longer fire with Artillery turned off
 Fixed - Orbital Artillery tooltip now unlocks its Codex entry
+Fixed - Jumping out of a system now empties the watchtower eye
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins

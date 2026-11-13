@@ -7,6 +7,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.artillery.entities.LighthouseEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEyeIndicator;
 import indevo.utils.ModPlugin;
@@ -81,7 +82,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         amount += checkInterval.getIntervalDuration(); //increment by interval since the amount is missing from last advance
         cycleActions();
 
-        boolean inFleetRange = false;
+        boolean spotted = false;
         for (CampaignFleetAPI f : loc.getFleets()) {
             //check if visible to other fleet
             for (CampaignFleetAPI otherFLeet : loc.getFleets()) {
@@ -95,7 +96,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
                     if (f.isPlayerFleet()) {
                         elapsed = MAX_TIME_TO_TARGET_LOCK;
                         isLocked = true;
-                        inFleetRange = true;
+                        spotted = true;
 
                         ModPlugin.log("in fleet range, is seen");
 
@@ -106,32 +107,40 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         }
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
-        if (watchtowerList.isEmpty()) return;
 
-        float closestDist = Float.MIN_VALUE;
-        SectorEntityToken closestTower = null;
+        // share of its range a source has the player inside, the closest source sets the fill speed
+        float bestFraction = -1f;
+
+        DroneNetScript droneNet = DroneNetScript.get(loc);
+        if (droneNet != null) bestFraction = droneNet.getPlayerFraction();
 
         for (SectorEntityToken t : watchtowerList) {
             WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) t.getCustomPlugin();
 
-            float dist = Misc.getDistance(t, player);
-            if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value()) {
-                if (dist > closestDist) {
-                    closestDist = dist;
-                    closestTower = t;
+            if (p instanceof LighthouseEntityPlugin lighthouse && lighthouse.isLit()) {
+                if (lighthouse.beamSees(player)) {
+                    elapsed = MAX_TIME_TO_TARGET_LOCK;
+                    isLocked = true;
+                    spotted = true;
                 }
+                continue;
             }
+
+            float dist = Misc.getDistance(t, player);
+            if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value())
+                bestFraction = Math.max(bestFraction, 1 - dist / Setting.ARTILLERY_WATCHTOWER_RANGE.value());
         }
 
-        float addition = 0f;
+        float addition;
 
-        if (closestTower == null && !inFleetRange) { //null means we are out of range of any tower
+        if (bestFraction < 0f && !spotted) { //out of range of every source
             addition = -amount;
 
-        } else { //at this point we are in range because there is a closest hostile tower
-            float distanceFraction = 1 - closestDist / Setting.ARTILLERY_WATCHTOWER_RANGE.value();
-            float mult = 1 + distanceFraction;
-            addition = amount * mult;
+        } else if (bestFraction < 0f) {
+            addition = amount;
+
+        } else {
+            addition = amount * (1 + bestFraction);
         }
 
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);
@@ -181,9 +190,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
         fleet.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
 
-        if (fleet.isPlayerFleet()) {
-            transferStateToEntity(WatchtowerEyeIndicator.State.NONE, false);
-        }
+        if (fleet.isPlayerFleet()) reset();
     }
 
     @Override

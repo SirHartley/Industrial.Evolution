@@ -13,6 +13,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
+import indevo.industries.artillery.renderers.ArtilleryFireRenderer;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
@@ -50,7 +52,9 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public static final float PROJECTILE_VELOCITY = 700f;
-    public static final float PROJECTILE_SIZE = 30f;
+    public static final float PROJECTILE_WIDTH = 14f;
+    public static final float PROJECTILE_HEIGHT = 22f;
+    public static final float TRAIL_WIDTH = 9f;
     public static final float FRIENDLY_FIRE_IMMUNITY_PROJ_FLIGHT_TIME_FRACT = 0.3f;
     public static final float EXPLOSION_SIZE = 600f;
     public static final float DETECTION_RADIUS = 150f;
@@ -62,6 +66,8 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     //render the warning sign and add the X shots
     public static final float AVERAGE_PROJ_IMPACT_TIME = 10f;
+    public static final float MIN_LAUNCH_DELAY = 0.3f;
+    public static final float LAUNCH_DELAY_SPREAD = 0.4f;
     public static final float DANGER_SIGN_FADEOUT_TIME = 10f;
 
     public static float DANGER_SIGN_SIZE = 150f;
@@ -135,9 +141,14 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
         advanceDangerSign();
 
+        if (timePassedSeconds <= projectileDelaySeconds && !finishing) {
+            ArtilleryFireRenderer.reportIncoming(origin, ArtilleryStationEntityPlugin.TYPE_MISSILE, getLaunchAngle(), projectileDelaySeconds - timePassedSeconds);
+        }
+
         if (timePassedSeconds > projectileDelaySeconds && !finishing) {
             advanceProjectile();
             if (sound) {
+                ArtilleryFireRenderer.reportShot(origin, ArtilleryStationEntityPlugin.TYPE_MISSILE, getLaunchAngle());
                 Global.getSoundPlayer().playSound("IndEvo_missile_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
@@ -208,6 +219,12 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         entity.setFacing(projRotation - 90);
     }
 
+    private float getLaunchAngle() {
+        float originAngle = Misc.getAngleInDegrees(trajectoryCenter, originLocation);
+        float turn = Misc.getClosestTurnDirection(Misc.getAngleInDegrees(originLocation, getPointForTrajectoryAngle(splitAngleOnTrajectory)), originLocation, target);
+        return Misc.getAngleInDegrees(originLocation, getPointForTrajectoryAngle(originAngle + turn));
+    }
+
     public void renderProjectile(ViewportAPI viewport) {
         float alphaMult = viewport.getAlphaMult();
         alphaMult *= entity.getSensorFaderBrightness();
@@ -216,16 +233,17 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
         missileSprite.setNormalBlend();
         missileSprite.setAngle(entity.getFacing());
-        missileSprite.setSize(PROJECTILE_SIZE, PROJECTILE_SIZE);
+        missileSprite.setSize(PROJECTILE_WIDTH, PROJECTILE_HEIGHT);
         missileSprite.setAlphaMult(alphaMult);
         missileSprite.renderAtCenter(entity.getLocation().x, entity.getLocation().y);
     }
 
     private void updateProjectileFlightTime() {
         this.originLocation = new Vector2f(origin.getLocation());
-        ;
         this.projectileFlightTime = getTotalDistToTarget() / PROJECTILE_VELOCITY;
-        this.projectileDelaySeconds = impactSeconds - projectileFlightTime;
+        // long flights would launch on the first frame and skip the station wind-up, so they land later instead
+        this.projectileDelaySeconds = Math.max(impactSeconds - projectileFlightTime, MIN_LAUNCH_DELAY + MathUtils.getRandomNumberInRange(0f, LAUNCH_DELAY_SPREAD));
+        this.impactSeconds = projectileDelaySeconds + projectileFlightTime;
     }
 
     public float getTotalDistToTarget() {
@@ -279,7 +297,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     //trail
 
-    public static final float TRAIL_TIME = 0.5f;
+    public static final float TRAIL_TIME = 0.4f;
     public static final Color GLOW_COLOR = new Color(255, 200, 50, 255);
 
     private void addTrailToProj() {
@@ -290,7 +308,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
                 entity.getLocation(),
                 0f,
                 entity.getFacing() + 90f,
-                PROJECTILE_SIZE * 0.8f,
+                TRAIL_WIDTH,
                 1f,
                 GLOW_COLOR,
                 0.8f,
