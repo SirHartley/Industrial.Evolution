@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.industries.artillery.scripts.DroneNetScript;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -235,6 +236,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
                 "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
         explosion.setLocation(target.x, target.y);
+        DroneNetScript.reportBlast(cl, target, Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value());
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {

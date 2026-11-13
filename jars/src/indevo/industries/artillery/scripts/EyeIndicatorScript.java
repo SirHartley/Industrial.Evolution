@@ -108,8 +108,11 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
 
-        float closestDist = Float.MAX_VALUE;
-        SectorEntityToken closestTower = null;
+        // share of its range a source has the player inside, the closest source sets the fill speed
+        float bestFraction = -1f;
+
+        DroneNetScript droneNet = DroneNetScript.get(loc);
+        if (droneNet != null) bestFraction = droneNet.getPlayerFraction();
 
         for (SectorEntityToken t : watchtowerList) {
             WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) t.getCustomPlugin();
@@ -124,26 +127,20 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
             }
 
             float dist = Misc.getDistance(t, player);
-            if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value()) {
-                if (dist < closestDist) {
-                    closestDist = dist;
-                    closestTower = t;
-                }
-            }
+            if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value())
+                bestFraction = Math.max(bestFraction, 1 - dist / Setting.ARTILLERY_WATCHTOWER_RANGE.value());
         }
 
-        float addition = 0f;
+        float addition;
 
-        if (closestTower == null && !spotted) { //null means we are out of range of any tower
+        if (bestFraction < 0f && !spotted) { //out of range of every source
             addition = -amount;
 
-        } else if (closestTower == null) {
+        } else if (bestFraction < 0f) {
             addition = amount;
 
-        } else { //at this point we are in range because there is a closest hostile tower
-            float distanceFraction = 1 - closestDist / Setting.ARTILLERY_WATCHTOWER_RANGE.value();
-            float mult = 1 + distanceFraction;
-            addition = amount * mult;
+        } else {
+            addition = amount * (1 + bestFraction);
         }
 
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);

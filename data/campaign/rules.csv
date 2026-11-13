@@ -413,6 +413,19 @@ The hack will eventually be picked up and cleared out by maintenance subroutines
 IndEvo_derelictWatchtower_disableControlUnderAI,COB_DisableIndividualOptions,"$IndEvo_isArtilleryActive score:2000
 $tag:IndEvo_watchtower","SetEnabled COB_takeControl false
 SetTooltip COB_takeControl ""Any attempts at taking control of the $entityName get stifled by a heavily AI-backed counter-hack. Your engineers concede defeat after a few minutes to avoid a network breach.""",,,
+IndEvo_droneNest_open,OpenInteractionDialog,$tag:IndEvo_droneNest score:1000,"ShowDefaultVisual
+SetShortcut defaultLeave ""ESCAPE""","The $entityName is little more than a ring of launch cradles around an old Domain fabricator. It does not answer hails, and a short range sensor sweep passes over your hull every few seconds.
+
+It carries no weapons of its own. Your gunnery officer reports a clean firing solution.","0:IndEvo_droneNest_fire:Open fire on the nest
+1:defaultLeave:Leave",
+IndEvo_droneNest_fire,DialogOptionSelected,$option == IndEvo_droneNest_fire,"IndEvo_DroneNest destroy
+SetShortcut IndEvo_droneNest_leave ""ESCAPE""","One salvo is enough. The launch cradles fold in on themselves and the fabricator breaks apart, leaving a slowly spreading cloud of wreckage.
+
+The drones it has already launched carry on with their patrol.","0:IndEvo_droneNest_salvage:Salvage the wreckage
+1:IndEvo_droneNest_leave:Leave",
+IndEvo_droneNest_salvage,DialogOptionSelected,$option == IndEvo_droneNest_salvage,IndEvo_DroneNest salvage,,,
+IndEvo_droneNest_leave,DialogOptionSelected,$option == IndEvo_droneNest_leave,"IndEvo_DroneNest debris
+DismissDialog",,,
 ,,,,,,
 #Galatia Job List,,,,,,
 IndEvo_JobMenuPoint,PopulateOptions,$id == station_galatia_academy,,,4:IndEvo_JobMenuInit:Visit the Research Tracts,

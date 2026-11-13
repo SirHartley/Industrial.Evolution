@@ -5,13 +5,11 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
-import indevo.config.Setting;
 import indevo.industries.artillery.terrain.LighthouseBeamTerrain;
 
 public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
@@ -48,15 +46,10 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
     }
 
     private boolean shouldBeLit() {
-        if (!Setting.ENABLE_ARTILLERY.enabled() || !isFunctional() || isHacked()) return false;
+        if (!isFunctional() || isHacked()) return false;
         if (!entity.getFaction().isHostileTo(Factions.PLAYER)) return false;
 
-        LocationAPI loc = entity.getContainingLocation();
-        for (MarketAPI market : Misc.getMarketsInLocation(loc)) {
-            if (market.isPlayerOwned()) return false;
-        }
-
-        return ArtilleryStationEntityPlugin.hasWorkingArtilleryHostileToPlayer(loc);
+        return ArtilleryStationEntityPlugin.needsVisionAgainstPlayer(entity.getContainingLocation());
     }
 
     private void markFleetsInBeam(LighthouseBeamTerrain terrain) {

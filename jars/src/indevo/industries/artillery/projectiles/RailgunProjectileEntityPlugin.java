@@ -11,6 +11,7 @@ import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.industries.artillery.scripts.DroneNetScript;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
@@ -266,6 +267,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
                 "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
 
         explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
+        DroneNetScript.reportBlast(cl, entity.getLocation(), EXPLOSION_SIZE);
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
