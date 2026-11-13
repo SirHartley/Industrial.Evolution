@@ -56,8 +56,16 @@ public class StationFireEffect {
     public static final float GLOW_CORE_FRACTION = 0.45f;
 
     public static final float FLASH_SECONDS = 0.13f;
-    public static final float CONE_LENGTH = 62f;
-    public static final float CONE_HALF_ARC = 17f;
+    public static final float STAR_LENGTH = 98f;
+    public static final float STAR_WIDTH = 5.5f;
+    public static final float STAR_CORE_LENGTH = 58f;
+    public static final float STAR_CORE_WIDTH = 2.2f;
+    public static final float STAR_SIDE_ANGLE = 54f;
+    public static final float STAR_SIDE_LENGTH = 38f;
+    public static final float STAR_SIDE_WIDTH = 3.2f;
+    public static final float STAR_CROSS_LENGTH = 17f;
+    public static final float STAR_CROSS_WIDTH = 1.1f;
+    public static final float STAR_LIGHT_SIZE = 144f;
     public static final float LANCE_LENGTH = 95f;
     public static final float HOT_FRACTION = 0.18f;
     public static final float CHARGE_FADE_PER_SECOND = 6f;
@@ -469,8 +477,7 @@ public class StationFireEffect {
 
         switch (profile) {
             case MORTAR:
-                renderCone(flash, alpha);
-                glow(glow, flash.x, flash.y, 60f, FLASH_CORE, alpha);
+                renderStar(flash, alpha, done, glow);
                 break;
             case RAILGUN:
                 double rad = Math.toRadians(flash.angle);
@@ -497,32 +504,64 @@ public class StationFireEffect {
         glow.renderAtCenter(x, y);
     }
 
-    private void renderCone(Flash flash, float alpha) {
-        float midLength = CONE_LENGTH * 0.35f;
-        double left = Math.toRadians(flash.angle - CONE_HALF_ARC);
-        double right = Math.toRadians(flash.angle + CONE_HALF_ARC);
-        float r = profile.hot.getRed() / 255f;
-        float g = profile.hot.getGreen() / 255f;
-        float b = profile.hot.getBlue() / 255f;
+    private void renderStar(Flash flash, float alpha, float done, SpriteAPI glow) {
+        float grow = 1f - (1f - done) * (1f - done);
+        float thin = 1f - 0.5f * done;
+        float reach = 0.5f + 0.5f * grow;
+
+        glow.setColor(profile.hot);
+        glow.setAlphaMult(Math.min(1f, alpha * 0.3f));
+        glow.setSize(STAR_LIGHT_SIZE, STAR_LIGHT_SIZE);
+        glow.renderAtCenter(flash.x, flash.y);
+
+        streak(flash, glow, 0f, STAR_LENGTH * reach, STAR_WIDTH * thin, profile.hot, alpha);
+        streak(flash, glow, 0f, STAR_CORE_LENGTH * reach, STAR_CORE_WIDTH * thin, FLASH_CORE, alpha);
+        for (int side = -1; side <= 1; side += 2) {
+            streak(flash, glow, side * STAR_SIDE_ANGLE, STAR_SIDE_LENGTH * (0.6f + 0.4f * grow), STAR_SIDE_WIDTH * thin, profile.hot, alpha * 0.9f);
+            streak(flash, glow, side * 90f, STAR_CROSS_LENGTH, STAR_CROSS_WIDTH, FLASH_CORE, alpha * 0.8f);
+        }
+
+        glow(glow, flash.x, flash.y, 33f, FLASH_CORE, alpha);
+    }
+
+    // kite from just behind the muzzle to the tip: white at the muzzle, the colour at 30%, clear at the tip
+    private void streak(Flash flash, SpriteAPI glow, float offset, float length, float width, Color color, float alpha) {
+        float angle = flash.angle + offset;
+        float dx = (float) Math.cos(Math.toRadians(angle));
+        float dy = (float) Math.sin(Math.toRadians(angle));
+        float r = color.getRed() / 255f;
+        float g = color.getGreen() / 255f;
+        float b = color.getBlue() / 255f;
+        float wr = FLASH_CORE.getRed() / 255f;
+        float wg = FLASH_CORE.getGreen() / 255f;
+        float wb = FLASH_CORE.getBlue() / 255f;
+        float a = Math.min(1f, alpha);
+
+        float[] along = {-0.06f * length, 0.1f * length, 0.3f * length, length};
+        float[] half = {0f, width, width * 0.78f, 0f};
+        float[][] rgba = {
+                {wr, wg, wb, a},
+                {wr + (r - wr) * 0.33f, wg + (g - wg) * 0.33f, wb + (b - wb) * 0.33f, a * 0.97f},
+                {r, g, b, a * 0.9f},
+                {r, g, b, 0f}
+        };
 
         beginShapes();
-        GL11.glBegin(GL11.GL_TRIANGLES);
-        GL11.glColor4f(FLASH_CORE.getRed() / 255f, FLASH_CORE.getGreen() / 255f, FLASH_CORE.getBlue() / 255f, alpha);
-        GL11.glVertex2f(flash.x, flash.y);
-        GL11.glColor4f(r, g, b, alpha * 0.8f);
-        GL11.glVertex2f(flash.x + (float) Math.cos(left) * midLength, flash.y + (float) Math.sin(left) * midLength);
-        GL11.glVertex2f(flash.x + (float) Math.cos(right) * midLength, flash.y + (float) Math.sin(right) * midLength);
-        GL11.glEnd();
-
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glColor4f(r, g, b, alpha * 0.8f);
-        GL11.glVertex2f(flash.x + (float) Math.cos(left) * midLength, flash.y + (float) Math.sin(left) * midLength);
-        GL11.glVertex2f(flash.x + (float) Math.cos(right) * midLength, flash.y + (float) Math.sin(right) * midLength);
-        GL11.glColor4f(r, g, b, 0f);
-        GL11.glVertex2f(flash.x + (float) Math.cos(right) * CONE_LENGTH, flash.y + (float) Math.sin(right) * CONE_LENGTH);
-        GL11.glVertex2f(flash.x + (float) Math.cos(left) * CONE_LENGTH, flash.y + (float) Math.sin(left) * CONE_LENGTH);
+        GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
+        for (int i = 0; i < along.length; i++) {
+            GL11.glColor4f(rgba[i][0], rgba[i][1], rgba[i][2], rgba[i][3]);
+            GL11.glVertex2f(flash.x + dx * along[i] - dy * half[i], flash.y + dy * along[i] + dx * half[i]);
+            GL11.glVertex2f(flash.x + dx * along[i] + dy * half[i], flash.y + dy * along[i] - dx * half[i]);
+        }
         GL11.glEnd();
         endShapes();
+
+        glow.setColor(color);
+        glow.setAlphaMult(a * 0.5f);
+        glow.setAngle(angle);
+        glow.setSize(length * 0.9f, width * 4f);
+        glow.renderAtCenter(flash.x + dx * length * 0.35f, flash.y + dy * length * 0.35f);
+        glow.setAngle(0f);
     }
 
     private void renderRim(Vector2f loc, float alpha) {
