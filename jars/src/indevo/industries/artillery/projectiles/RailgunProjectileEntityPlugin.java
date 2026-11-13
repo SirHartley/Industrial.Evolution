@@ -10,7 +10,9 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.industries.artillery.renderers.ArtilleryFireRenderer;
 import indevo.industries.artillery.scripts.DroneNetScript;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
@@ -155,6 +157,8 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         if (!projectileDelayPassed && origin != null && origin.getLocation() != null) {
             updateProjectileFlightTime();
             originLocation = new Vector2f(origin.getLocation().x, origin.getLocation().y);
+            // timePassedSeconds is added twice per frame above, so the real wait is half of it
+            if (!finishing) ArtilleryFireRenderer.reportIncoming(origin, ArtilleryStationEntityPlugin.TYPE_RAILGUN, Misc.getAngleInDegrees(originLocation, target), (projectileDelayTime - timePassedSeconds) / 2f);
         }
 
         //target reticule alpha
@@ -168,6 +172,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         if (projectileDelayPassed && !finishing) {
 
             if (sound) {
+                ArtilleryFireRenderer.reportShot(origin, ArtilleryStationEntityPlugin.TYPE_RAILGUN, Misc.getAngleInDegrees(originLocation, target));
                 Global.getSoundPlayer().playSound("IndEvo_railgun_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }

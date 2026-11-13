@@ -12,8 +12,11 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.industries.artillery.renderers.ArtilleryFireRenderer;
 import indevo.industries.artillery.scripts.DroneNetScript;
+import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -33,6 +36,8 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public static final float MAX_FADE_IN_SIZE_MULT = 1.5f;
     public static final float MAX_RETICULE_ALPHA = 0.7f;
     public static final float PROJECTILE_VELOCITY = 1500f;
+    public static final float TRAIL_TIME = 0.1f;
+    public static final float TRAIL_WIDTH = 5f;
 
     transient private SpriteAPI glow;
     transient private SpriteAPI targetReticule;
@@ -52,6 +57,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public SectorEntityToken origin;
     public Vector2f target;
     private float projectileDelayTime;
+    public float trailID;
 
     //the projectile is an entity, the target reticule a particle
     //render reticule, wait until flight time matches impact eta, then render projectile at fixed velocity on impact vector
@@ -135,6 +141,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
             float projectileFlightTime = Misc.getDistance(origin.getLocation(), target) / PROJECTILE_VELOCITY;
             this.projectileDelayTime = impactSeconds - projectileFlightTime;
             this.angle = MathUtils.getRandomNumberInRange(-20, 20);
+            trailID = MagicCampaignTrailPlugin.getUniqueID();
         }
 
         readResolve();
@@ -186,14 +193,20 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         //check if the projectile should be in the air
         boolean projectileDelayPassed = timePassedSeconds > projectileDelayTime;
 
+        if (!projectileDelayPassed && !finishing) {
+            ArtilleryFireRenderer.reportIncoming(origin, ArtilleryStationEntityPlugin.TYPE_MORTAR, Misc.getAngleInDegrees(origin.getLocation(), target), projectileDelayTime - timePassedSeconds);
+        }
+
         if (projectileDelayPassed && !finishing) {
             //advance projectile location
             if (sound) {
+                ArtilleryFireRenderer.reportShot(origin, ArtilleryStationEntityPlugin.TYPE_MORTAR, Misc.getAngleInDegrees(origin.getLocation(), target));
                 Global.getSoundPlayer().playSound("IndEvo_mortar_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
 
             advanceEntityPosition(amount);
+            if (timePassedSeconds > projectileDelayTime + 0.05f) addTrailToProj();
 
             if (Misc.getDistance(entity.getLocation(), target) < 30f) {
                 spawnExplosion();
@@ -206,6 +219,23 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
             while (phase > 1) phase--;
             flicker.advance(amount);
         } else if (!finishing) entity.setLocation(origin.getLocation().x, origin.getLocation().y);
+    }
+
+    private void addTrailToProj() {
+        MagicCampaignTrailPlugin.AddTrailMemberSimple(
+                entity,
+                trailID,
+                Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
+                entity.getLocation(),
+                0f,
+                Misc.getAngleInDegrees(entity.getLocation(), target),
+                TRAIL_WIDTH,
+                1f,
+                GLOW_COLOR,
+                0.8f,
+                TRAIL_TIME,
+                true,
+                new Vector2f(0, 0));
     }
 
     public void advanceEntityPosition(float amount) {

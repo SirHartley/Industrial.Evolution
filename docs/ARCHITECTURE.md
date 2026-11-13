@@ -119,6 +119,7 @@ Every load (`:153` to `:173`):
 | `@Patch` class | PatchLib finds it in `jars/IndEvo.jar` at startup, no registration. A hook installs when its target class loads | [Patches](#patches) |
 | `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:499` |
 | `system.addScript` guarded by a system memory key | Saved script on one star system, added at placement | `DroneNetScript.getInstanceOrRegister` ([ARTILLERY](industries/ARTILLERY.md#drone-net)) |
+| `LunaCampaignRenderer.addTransientRenderer` guarded by `hasRendererOfClass` or `getRendererOfClass` | Transient LunaLib campaign renderer, one per session, not saved | `ShuttleTrafficRenderer.register()` ([SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md)), `ArtilleryFireRenderer.getInstanceOrRegister` on the first shot ([ARTILLERY](industries/ARTILLERY.md#fire-animation)) |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
 | `ruleCommandPackages` | Rule commands found by package | `settings.json:30` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |

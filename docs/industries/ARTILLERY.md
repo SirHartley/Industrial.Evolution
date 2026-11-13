@@ -27,9 +27,10 @@ Some planets carry the `IndEvo_ArtilleryStationCondition` condition and a statio
 | `indevo/industries/artillery/utils/VisionBlockers.java` | Line of sight helper for cones, nest zones and lighthouse beams: planets and chaff clouds as circles, `isBlocked`, `getRayLength` |
 | `indevo/industries/artillery/entities/WatchtowerEyeIndicator.java` | Custom entity `IndEvo_Eye` that draws the eye above the player fleet |
 | `indevo/industries/artillery/entities/VariableExplosionEntityPlugin.java` | `ExplosionEntityPlugin` subclass with sound, size and blastwave params. Shared: also used by consumables and the crucible |
-| `indevo/industries/artillery/projectiles/MortarShotScript.java`, `MortarProjectileEntityPlugin.java` | Mortar volley: N reticules around the predicted target position, shells fly at 1500 su/s, explode with `VariableExplosion`. Holds `ArtilleryReactionScript` (NPC avoidance) |
+| `indevo/industries/artillery/projectiles/MortarShotScript.java`, `MortarProjectileEntityPlugin.java` | Mortar volley: N reticules around the predicted target position, shells fly at 1500 su/s with a short trail (`TRAIL_WIDTH`, `TRAIL_TIME`), explode with `VariableExplosion`. Holds `ArtilleryReactionScript` (NPC avoidance) |
 | `indevo/industries/artillery/projectiles/RailgunShotEntity.java`, `RailgunProjectileEntityPlugin.java` | Railgun volley: danger sign plus N lead-predicted shots at 6000 su/s with a target line. Drawn sizes are the constants at the top of each projectile class (`LINE_WIDTH`, `GLOW_SIZE`, `TRAIL_WIDTH`, `PROJECTILE_WIDTH/HEIGHT`) |
 | `indevo/industries/artillery/projectiles/MissileShotScript.java`, `MissileCarrierEntityPlugin.java`, `MissileSubmunitionEntity.java`, `ECMExplosion.java` | Missile volley: curved carriers split into 3 homing submunitions; each submunition or a direct hit spawns an `ECMExplosion` (interdict plus slow field terrain) |
+| `indevo/industries/artillery/renderers/ArtilleryFireRenderer.java`, `StationFireEffect.java` | Fire animation on the station: wind-up glow, muzzle flash, smoke, heat glow, vents. Drawing only, see [Fire animation](#fire-animation) |
 | `indevo/industries/artillery/projectiles/RenderTemporaryIndicator.java` | Debug marker entity. Only used from commented code |
 | `indevo/industries/artillery/terrain/ArtilleryTerrain.java` | Ring terrain `IndEvo_artillery_range_terrain`: range circle, name, tooltip, safe-spot display |
 | `indevo/industries/artillery/terrain/SlowFieldTerrain.java` | Ring terrain `IndEvo_slowfield`: burn penalty via `Misc.getBurnMultForTerrain` |
@@ -82,6 +83,7 @@ Combat side, linked only: `data/scripts/weapons/IndEvo_targetingBeamEffect.java`
 | `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:459`) | `WatchtowerFactionResetListener.register()` (persistent listener, class-deduped) |
 | `ModPlugin.setScriptsIfNeeded` (`ModPlugin.java:505`) | `EyeIndicatorScript.register()` (persistent sector script, guarded by `$IndEvo_EyeScript`) |
 | `ArtilleryStationPlacer.placeDroneNet` | `DroneNetScript.getInstanceOrRegister(system, ..)` (persistent system script via `system.addScript`, guarded by `$IndEvo_droneNet`) |
+| First `reportIncoming` or `reportShot` after a load | `ArtilleryFireRenderer.getInstanceOrRegister()` (transient LunaLib renderer, one per session, found again with `LunaCampaignRenderer.getRendererOfClass`) |
 | PatchLib | `WatchtowerStableLocationPatch`, found by PatchLib in the jar, no registration |
 | `ModPlugin.pickMissileAI` (`ModPlugin.java:373`) | Combat AI for mortar and missile projectiles |
 | CSV | industry plugin column, condition plugin, entity `pluginClass`, terrain `plugin`, hullmod class |
@@ -131,7 +133,22 @@ Volleys:
 - Railgun: `RailgunShotEntity -> RailgunProjectileEntityPlugin` x `IndEvo_Artillery_railgun_projectilesPerShot`, alternating lead fuzz `IndEvo_Artillery_railgun_shotFuzzMult`. Explodes on any fleet within 50 su after 30% of flight time.
 - Missile: `MissileShotScript` spawns an even number of `MissileCarrierEntityPlugin` on three-point arcs (`TrigHelper`, see [Utils](../core/UTILS.md)); at 30% of the remaining distance each splits into 3 `MissileSubmunitionEntity` that home on hostiles within 600 su; each ends in `ECMExplosion` (interdict like the interdiction mine, plus `IndEvo_slowfield` terrain for `IndEvo_Artillery_missile_duration` seconds).
 
-Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileEntityPlugin.java:233`, `RailgunProjectileEntityPlugin.java:264`).
+Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileEntityPlugin.java:264`, `RailgunProjectileEntityPlugin.java:272`).
+
+### Fire animation
+
+Drawing only: no effect on hits, timing or the save. The station sprite never moves or turns; every position is the station's location plus an offset along the shot's angle.
+
+Each projectile entity waits at the station until its own launch time (`projectileDelayTime`), so a volley leaves shot by shot. While it waits it calls `ArtilleryFireRenderer.reportIncoming(station, type, angle, secondsToShot)` every frame, and `reportShot(station, type, angle)` once, next to its fire sound (`MortarProjectileEntityPlugin.advance`, `RailgunProjectileEntityPlugin.advance`, `MissileCarrierEntityPlugin.advance`). Both return when the station is not in the player's location. The renderer keeps one `StationFireEffect` per station, advances it while the game is not paused, drops it when it is idle and draws it in `TERRAIN_7` (above the station, below fleets) with the station's sensor fade.
+
+| Phase | What `StationFireEffect` draws |
+|---|---|
+| Wind-up | Glow at the muzzle over the last 0.5 s (mortar), 1 s (railgun) or 0.3 s (missile) before a shot (`incoming`) |
+| Shot (`shot`) | Flash for 0.13 s (mortar cone, railgun lance and sparks, missile glow) and smoke out of a rear port and two side ports; the missile station puffs at the tube of each missile |
+| Heat | Orange glow and rim on the station. Each shot adds `max / shots per volley` (max 1, missile 0.6) |
+| Vent | Starts 0.45 s after the last shot once no projectile is waiting, a new shot stops it. Runs for 60% of `IndEvo_Artillery_minCooldown` (at least 4 s, 9 s by default) and cools the glow to 0. Mortar: 5 steam puffs out of the three ports, the glow drops a step with each. Railgun: two fast streams out the back for 2 s that take 75% of the glow. Missile: slow discharge all around the station that turns as it drifts out |
+
+Smoke is the vanilla `nebula_particles` sheet in normal blend, glows are `fusion_lamp_glow`, sparks and the lance are `IndEvo_line`, cone and rim are plain GL. All sizes, counts and times are constants in `StationFireEffect`.
 
 ### Seen state and watchtowers
 
@@ -191,7 +208,7 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 - Off-screen: `CampaignAttackScript`, `ArtilleryStationScript`, `DroneNetScript` and watchtower logic return early outside the player's location, so the off-screen 60-frame throttle (`docs/concepts/campaign-frame.md`) does not apply. Artillery never fires off-screen.
 - Tuning settings are read at use time and apply to placed stations: delay between shots, reload, range, shot counts, impact times, fuzz, explosion sizes, watchtower range and defender FP apply to the next shot or fight. The improve bonus is `CampaignAttackScript.rangeBonus`, reset and set again on every industry apply (`ArtilleryStation.java:544-549`).
 - `WatchtowerStableLocationPatch` targets `Misc` by API names only (stable). It needs PatchLib (hard dependency); without the patch watchtowers count as stable locations again.
-- Save data: `ArtilleryStationScript` (planet script and memory), `CampaignAttackScript` (entity script, target maps keyed by entity id), the industry's `stationFleet`/`stationEntity` fields, `WatchtowerFactionResetListener.watchtowerTimeoutMap`, `EyeIndicatorScript`, each `LighthouseEntityPlugin` (beam reference, lit flag, beam count) and `LighthouseBeamTerrain` (angle, direction, lit flag, beam count), each `DroneNetScript` (system script and `$IndEvo_droneNet`: nest and spotter entities, per spotter movement state) all persist. Vision placement is new game only; a save from before lighthouses and drone nets keeps its watchtowers. Projectile entities persist while alive.
+- Save data: `ArtilleryStationScript` (planet script and memory), `CampaignAttackScript` (entity script, target maps keyed by entity id), the industry's `stationFleet`/`stationEntity` fields, `WatchtowerFactionResetListener.watchtowerTimeoutMap`, `EyeIndicatorScript`, each `LighthouseEntityPlugin` (beam reference, lit flag, beam count) and `LighthouseBeamTerrain` (angle, direction, lit flag, beam count), each `DroneNetScript` (system script and `$IndEvo_droneNet`: nest and spotter entities, per spotter movement state) all persist. The fire animation is not saved: `ArtilleryFireRenderer` is a transient renderer and a load drops heat and smoke. Vision placement is new game only; a save from before lighthouses and drone nets keeps its watchtowers. Projectile entities persist while alive.
 - The industry and the derelict script must agree on the type: the script stores it in `$IndEvo_ArtilleryType`; the industry derives it from its id. The rebuild options come from the parent `IndEvo_Artillery_base` (`parent_item`).
 - `ArtilleryStationScript.getScript(entity)` assumes a non-planet argument orbits the planet (`:79-89`).
 - `$IndEvo_ArtilleryStation` is also set as a tag on defender fleets (`IndEvo_ArtilleryDefenderGen.java:107`); `ConsumableItemDropListener` checks that tag (`indevo/items/consumables/listeners/ConsumableItemDropListener.java:48`).
@@ -213,12 +230,12 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 
 Suspected bugs (not fixed): see the return report of the documentation pass; listed here for upkeep.
 
-- `RailgunProjectileEntityPlugin.advance` adds `amount` to `timePassedSeconds` twice (`:122, 131`), so line fade and the failsafe run at double speed.
-- Railgun shells explode on any fleet, friendly included (`RailgunProjectileEntityPlugin.java:178-186`); carriers check hostility.
+- `RailgunProjectileEntityPlugin.advance` adds `amount` to `timePassedSeconds` twice (`:126, 135`), so the wait, line fade and the failsafe run at double speed. The wind-up report halves the remaining wait for it (`:161`); remove that with the fix.
+- Railgun shells explode on any fleet, friendly included (`RailgunProjectileEntityPlugin.java:185-194`); carriers check hostility.
 - `RailgunShotEntity` never expires; the danger-sign entity stays in the location at alpha 0.
-- `MissileCarrierEntityPlugin` keeps looping after `finishing` and can spawn several ECM explosions in one frame (`:149-159`).
+- `MissileCarrierEntityPlugin` keeps looping after `finishing` and can spawn several ECM explosions in one frame (`:159-169`).
 - `MissileCarrierEntityPlugin` uses `fleet.isHostileTo(origin)` with the station as origin; inferred fine, not checked in game.
 
 ## Maintenance
 
-Update this doc when artillery placement, targeting rules, projectile types, ids, settings or the defender fight change. Combat weapon scripts belong in [Combat](../core/COMBAT.md), consumables that interact with artillery in [Consumables](../items/CONSUMABLES.md), the setting mechanism in [Settings](../core/SETTINGS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when artillery placement, targeting rules, projectile types, the fire animation, ids, settings or the defender fight change. Combat weapon scripts belong in [Combat](../core/COMBAT.md), consumables that interact with artillery in [Consumables](../items/CONSUMABLES.md), the setting mechanism in [Settings](../core/SETTINGS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
