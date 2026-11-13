@@ -37,16 +37,16 @@ public class DroneConeTerrain extends BaseRingTerrain {
 
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
-        draw(1f, viewport.getAlphaMult() * WORLD_ALPHA, viewport);
+        draw(1f, viewport.getAlphaMult() * WORLD_ALPHA, viewport, true);
     }
 
     // map space is world space times factor, same as the vanilla terrain map icons
     @Override
     public void renderOnMap(float factor, float alphaMult) {
-        draw(factor, alphaMult * MAP_ALPHA, null);
+        draw(factor, alphaMult * MAP_ALPHA, null, false);
     }
 
-    private void draw(float factor, float alpha, ViewportAPI viewport) {
+    private void draw(float factor, float alpha, ViewportAPI viewport, boolean cones) {
         DroneNetScript net = DroneNetScript.get(entity.getContainingLocation());
         if (net == null) return;
 
@@ -63,7 +63,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
         for (DroneNetScript.Spotter spotter : net.getSpotters()) {
-            if (spotter.entity == null) continue;
+            if (!cones || spotter.entity == null) continue;
 
             Vector2f loc = spotter.entity.getLocation();
             if (viewport != null && !viewport.isNearViewport(loc, length)) continue;
