@@ -3,7 +3,7 @@ package indevo.ambience.shuttletraffic;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 
 import java.util.ArrayDeque;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -13,7 +13,7 @@ public class ShuttleDepartures {
     public static final int CAP = 3;
     public static final float WINDOW = 10f;
 
-    private final Map<SectorEntityToken, ArrayDeque<Float>> departures = new HashMap<>();
+    private final Map<SectorEntityToken, ArrayDeque<Float>> departures = new IdentityHashMap<>();
 
     public int getRoom(ShuttleAnchor anchor, float time) {
         if (anchor == null || anchor.entity == null) return CAP;
