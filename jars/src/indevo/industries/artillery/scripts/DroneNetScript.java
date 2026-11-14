@@ -59,6 +59,7 @@ public class DroneNetScript implements EveryFrameScript {
         public boolean following;
         public long lostAt;
         public transient float alert;
+        public transient float pingCooldown;
         public transient float[] trailIds;
     }
 
@@ -68,7 +69,10 @@ public class DroneNetScript implements EveryFrameScript {
     public static final String DECOY_ENTITY_ID = "IndEvo_decoy_mine";
     public static final String NEST_DROP_GROUP = "IndEvo_droneNest";
     public static final String EXPLOSION_SOUND_ID = "IndEvo_mortar_hit";
-    public static final String LOCK_SOUND_ID = "detected_player";
+    public static final String LOCK_SOUND_ID = "ui_neutrino_detector_ping";
+    public static final float LOCK_SOUND_VOLUME = 3f;
+    public static final String LOCK_PING_ID = "noticed_player";
+    public static final float LOCK_PING_COOLDOWN = 3f;
     public static final Color EXPLOSION_COLOR = new Color(255, 160, 60);
     public static final Color ENGINE_COLOR = new Color(255, 125, 25);
 
@@ -273,6 +277,7 @@ public class DroneNetScript implements EveryFrameScript {
                 }
             }
 
+            spotter.pingCooldown -= amount;
             spotter.alert = MathUtils.clamp(spotter.alert + (spotter.seesPlayer ? amount : -amount) / ALERT_SECONDS, 0f, 1f);
             move(spotter, amount);
         }
@@ -478,9 +483,12 @@ public class DroneNetScript implements EveryFrameScript {
     }
 
     private void look(Spotter spotter, CampaignFleetAPI player, float elapsed) {
+        boolean saw = spotter.seesPlayer;
         spotter.seesPlayer = active && sees(spotter, player, coneLength);
 
         if (spotter.seesPlayer) {
+            if (!saw) pingLock(spotter);
+
             float dist = Misc.getDistance(spotter.entity, player);
             playerFraction = Math.max(playerFraction, MathUtils.clamp(1f - dist / coneLength, 0f, 1f));
             spotter.noticed += elapsed;
@@ -488,7 +496,6 @@ public class DroneNetScript implements EveryFrameScript {
 
             // a short graze fills the eye but does not pull the spotter off its route
             if (spotter.noticed >= NOTICE_SECONDS) {
-                if (!spotter.following) Global.getSoundPlayer().playUISound(LOCK_SOUND_ID, 1f, 1f);
                 spotter.following = true;
                 spotter.lastSeen = new Vector2f(player.getLocation());
             }
@@ -505,6 +512,15 @@ public class DroneNetScript implements EveryFrameScript {
             spotter.waypoint = spotter.lastSeen;
             spotter.lastSeen = null;
         }
+    }
+
+    // the cone turns red now; the cooldown keeps a fleet on the cone edge from pinging every check
+    private void pingLock(Spotter spotter) {
+        if (spotter.pingCooldown > 0f || spotter.following) return;
+
+        spotter.pingCooldown = LOCK_PING_COOLDOWN;
+        Global.getSoundPlayer().playUISound(LOCK_SOUND_ID, 1f, LOCK_SOUND_VOLUME);
+        Global.getSector().addPing(spotter.entity, LOCK_PING_ID, DroneConeTerrain.LOCK_COLOR);
     }
 
     private boolean sees(Spotter spotter, SectorEntityToken target, float length) {
