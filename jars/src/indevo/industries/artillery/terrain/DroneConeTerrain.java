@@ -30,7 +30,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
     public static final float LOCK_PULSE = 0.25f;
     public static final float SCROLL_SPEED = 0.02f;
     public static final float BLOOM_SIZE = 200f;
-    public static final float BLOOM_ALPHA = 0.2f;
+    public static final float BLOOM_ALPHA = 0.12f;
     public static final float LAMP_SIZE = 22f;
     public static final float LAMP_ALPHA = 0.45f;
 
@@ -54,7 +54,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
     protected transient float scroll;
 
     static {
-        LIGHT.peak = 0.2f;
+        LIGHT.peak = 0.13f;
         LIGHT.edgeStart = 0.4f;
         LIGHT.edgeEnd = 1.25f;
         LIGHT.farShare = 0.3f;
