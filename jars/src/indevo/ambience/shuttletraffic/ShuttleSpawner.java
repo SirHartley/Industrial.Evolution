@@ -103,8 +103,17 @@ public class ShuttleSpawner {
         if (launched.isEmpty()) return launched;
 
         add(route, launched);
-        traffic.getDepartures().add(launched.get(0).getFrom(), launched.size(), traffic.getTime());
+        traffic.getDepartures().add(launched.get(0).getFrom(), countDepartures(launched), traffic.getTime());
         return launched;
+    }
+
+    // fighter wingmen and escorts fly with their leader, they do not count against the pad
+    private static int countDepartures(List<Shuttle> launched) {
+        int count = 0;
+        for (Shuttle shuttle : launched) {
+            if (!shuttle.isFollower() || !shuttle.hull.fighter) count++;
+        }
+        return count;
     }
 
     private void add(ShuttleRoute route, List<Shuttle> launched) {
