@@ -55,7 +55,6 @@ public enum Setting {
     ARTILLERY_MAX_COOLDOWN("IndEvo_Artillery_maxCooldown", 17.0, 1, 100),
     ARTILLERY_COOLDOWN_NPC_MULT("IndEvo_Artillery_cooldownNPCMult", 2.0, 1, 100),
     ARTILLERY_MIN_RANGE("IndEvo_Artillery_minRange", 500.0, 1, 1000),
-    ARTILLERY_MAX_RANGE("IndEvo_Artillery_maxRange", 12000.0, 2, 100000),
     ARTILLERY_WATCHTOWER_RANGE("IndEvo_Artillery_WatchtowerRange", 4000.0, 1, 10000),
     ARTILLERY_VISION_WEIGHT_WATCHTOWER("IndEvo_Artillery_visionWeight_watchtower", 1.0, 0, 10, Apply.NEW_GAME),
     ARTILLERY_VISION_WEIGHT_LIGHTHOUSE("IndEvo_Artillery_visionWeight_lighthouse", 1.0, 0, 10, Apply.NEW_GAME),
