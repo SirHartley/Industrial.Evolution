@@ -368,6 +368,8 @@ Adjusted - Railgun now fires an instant beam down its target line instead of she
 Note - The target line stays until the shot, every fleet on it then is in the line of fire
 Adjusted - Uses vanilla star dialogs for better mod compatibility
 Adjusted - Artillery now targets fleets anywhere in the system (was 12000 units)
+Adjusted - Mortar and missile target markers now always show the same time before impact, at any range
+Note - Shots at you aim again when the marker shows, shots at far NPC fleets miss if they turn
 Fixed - Slow fields and forced overloads no longer expire while paused
 Fixed - Watchtowers now properly lock on faster the closer you are
 Fixed - Watchtowers no longer count as stable locations

@@ -167,7 +167,7 @@ public class CampaignAttackScript implements EveryFrameScript {
                 }
 
                 //area blocking by artillery to avoid overlap when multiple hostiles are in one location
-                Vector2f anticipatedArea = MortarShotScript.getAnticipatedTargetLoc(target);
+                Vector2f anticipatedArea = MortarShotScript.getAnticipatedTargetLoc(entity, target);
                 if (type.equals(TYPE_MORTAR)) {
                     if (isBlocked(anticipatedArea)) {
                         ModPlugin.log("mortar invalid target, skipping");
@@ -201,7 +201,7 @@ public class CampaignAttackScript implements EveryFrameScript {
                     break;
                 case TYPE_MORTAR:
                     Global.getSector().addScript(new MortarShotScript(entity, target, Setting.ARTILLERY_MORTAR_PROJECTILES_PER_SHOT.intValue()));
-                    blockArea(MortarShotScript.getAnticipatedTargetLoc(target));
+                    blockArea(MortarShotScript.getAnticipatedTargetLoc(entity, target), MortarShotScript.getLeadSeconds(entity, target));
                     break;
             }
 
@@ -302,8 +302,8 @@ public class CampaignAttackScript implements EveryFrameScript {
 
     public IntervalUtil devmodeInterval = new IntervalUtil(5f, 5f);
 
-    public void blockArea(Vector2f targetLoc) {
-        blockedAreas.put(targetLoc, new IntervalUtil(Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value(), Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value()));
+    public void blockArea(Vector2f targetLoc, float seconds) {
+        blockedAreas.put(targetLoc, new IntervalUtil(seconds, seconds));
     }
 
     private boolean isBlocked(Vector2f targetLoc) {
@@ -338,10 +338,10 @@ public class CampaignAttackScript implements EveryFrameScript {
                     anticipatedLoc = RailgunShotEntity.getAnticipatedTargetLoc(target);
                     break;
                 case TYPE_MISSILE:
-                    anticipatedLoc = MissileShotScript.getAnticipatedTargetLoc(target);
+                    anticipatedLoc = MissileShotScript.getAnticipatedTargetLoc(entity, target);
                     break;
                 case TYPE_MORTAR:
-                    anticipatedLoc = MortarShotScript.getAnticipatedTargetLoc(target);
+                    anticipatedLoc = MortarShotScript.getAnticipatedTargetLoc(entity, target);
                     break;
             }
 

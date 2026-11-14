@@ -42,6 +42,8 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         public float trajectoryRadius;
         public float splitAngleOnTrajectory;
         public float impactSeconds;
+        public SectorEntityToken track;
+        public Vector2f trackOffset;
 
         public MissileParams(SectorEntityToken origin, Vector2f target, float impactSeconds, Vector2f trajectoryCenter, float trajectoryRadius, float splitAngleOnTrajectory) {
             this.origin = origin;
@@ -70,6 +72,9 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     public static final float AVERAGE_PROJ_IMPACT_TIME = 10f;
     public static final float MIN_LAUNCH_DELAY = 0.3f;
     public static final float LAUNCH_DELAY_SPREAD = 0.4f;
+    public static final float MAX_RETARGET_SPEED_MULT = 3f;
+    public static final float RETARGET_SPLIT_FRACT = 0.7f;
+    public static final float RETARGET_BEND_FRACT = 0.1f;
     public static final float DANGER_SIGN_FADEOUT_TIME = 10f;
 
     public static float DANGER_SIGN_SIZE = 150f;
@@ -99,6 +104,14 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     public float impactSeconds;
     public float projectileDelaySeconds;
     public float projectileFlightTime;
+    public float legStartSeconds;
+    public float warningSeconds;
+    public float revealSeconds;
+    public boolean revealed = false;
+
+    //player carriers aim again when the danger sign shows
+    public SectorEntityToken track;
+    public Vector2f trackOffset;
 
     public float trailID;
     public boolean finishing = false;
@@ -121,6 +134,9 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
             this.trajectoryRadius = ((MissileParams) pluginParams).trajectoryRadius;
             this.splitAngleOnTrajectory = ((MissileParams) pluginParams).splitAngleOnTrajectory;
             this.impactSeconds = ((MissileParams) pluginParams).impactSeconds;
+            this.warningSeconds = impactSeconds;
+            this.track = ((MissileParams) pluginParams).track;
+            this.trackOffset = ((MissileParams) pluginParams).trackOffset;
 
             trailID = MagicCampaignTrailPlugin.getUniqueID();
 
@@ -141,6 +157,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     public void advance(float amount) {
         timePassedSeconds += amount;
 
+        if (!revealed && timePassedSeconds >= revealSeconds) reveal();
         advanceDangerSign();
 
         if (timePassedSeconds <= projectileDelaySeconds && !finishing) {
@@ -210,7 +227,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         float targetAngle = Misc.getAngleInDegrees(trajectoryCenter, target);
         float totalAngle = Misc.getAngleDiff(originAngle, targetAngle);
 
-        float fractionTrajectoryPassed = (Math.max(0, timePassedSeconds - Math.max(projectileDelaySeconds, 0))) / projectileFlightTime;
+        float fractionTrajectoryPassed = (Math.max(0, timePassedSeconds - Math.max(legStartSeconds, 0))) / projectileFlightTime;
 
         float turn = Misc.getClosestTurnDirection(Misc.getAngleInDegrees(originLocation, getPointForTrajectoryAngle(splitAngleOnTrajectory)), originLocation, target);
         float nextAngle = Misc.getAngleInDegrees(trajectoryCenter, originLocation) + totalAngle * fractionTrajectoryPassed * turn;
@@ -235,7 +252,48 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         splitAngleOnTrajectory = Misc.getAngleInDegrees(trajectoryCenter, split);
         projectileFlightTime = getTotalDistToTarget() / PROJECTILE_VELOCITY;
         impactSeconds = projectileDelaySeconds + projectileFlightTime;
+        legStartSeconds = projectileDelaySeconds;
+        if (!revealed) revealSeconds = Math.max(0f, impactSeconds - warningSeconds);
         entity.setLocation(start.x, start.y);
+    }
+
+    private void reveal() {
+        revealed = true;
+
+        boolean launched = timePassedSeconds > projectileDelaySeconds && !sound;
+        if (!launched || finishing || track == null || trackOffset == null || !track.isAlive() || track.getContainingLocation() != entity.getContainingLocation()) return;
+
+        float remaining = impactSeconds - timePassedSeconds;
+        if (remaining <= 0.5f) return;
+
+        Vector2f start = new Vector2f(entity.getLocation());
+        Vector2f aim = MissileShotScript.predict(track, remaining + 1f);
+        Vector2f newTarget = new Vector2f(aim.x + trackOffset.x, aim.y + trackOffset.y);
+        Vector2f oldSplit = getPointForTrajectoryAngle(splitAngleOnTrajectory);
+
+        // keep the bend side of the old arc, split stays on the short arc between start and target
+        float side = Math.signum((target.x - start.x) * (oldSplit.y - start.y) - (target.y - start.y) * (oldSplit.x - start.x));
+        if (side == 0f) side = 1f;
+
+        float chord = Misc.getDistance(start, newTarget);
+        float chordAngle = Misc.getAngleInDegrees(start, newTarget);
+        Vector2f onChord = MathUtils.getPointOnCircumference(start, chord * RETARGET_SPLIT_FRACT, chordAngle);
+        Vector2f newSplit = MathUtils.getPointOnCircumference(onChord, chord * RETARGET_BEND_FRACT, chordAngle + 90f * side);
+
+        Circle circle = TrigHelper.findThreePointCircle(start, newTarget, newSplit);
+        if (Float.isNaN(circle.radius) || Float.isInfinite(circle.radius) || Float.isNaN(circle.center.x) || Float.isNaN(circle.center.y)) return;
+
+        originLocation = start;
+        target = newTarget;
+        trajectoryCenter = circle.center;
+        trajectoryRadius = circle.radius;
+        splitAngleOnTrajectory = Misc.getAngleInDegrees(trajectoryCenter, newSplit);
+        legStartSeconds = timePassedSeconds;
+        projectileFlightTime = Math.max(remaining, getTotalDistToTarget() / (PROJECTILE_VELOCITY * MAX_RETARGET_SPEED_MULT));
+        impactSeconds = timePassedSeconds + projectileFlightTime;
+        revealSeconds = timePassedSeconds;
+        warningSeconds = projectileFlightTime;
+        initDangerSign();
     }
 
     private float getLaunchAngle() {
@@ -263,6 +321,8 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         // long flights would launch on the first frame and skip the station wind-up, so they land later instead
         this.projectileDelaySeconds = Math.max(impactSeconds - projectileFlightTime, MIN_LAUNCH_DELAY + MathUtils.getRandomNumberInRange(0f, LAUNCH_DELAY_SPREAD));
         this.impactSeconds = projectileDelaySeconds + projectileFlightTime;
+        this.legStartSeconds = projectileDelaySeconds;
+        this.revealSeconds = Math.max(0f, impactSeconds - warningSeconds);
     }
 
     public float getTotalDistToTarget() {
@@ -345,23 +405,28 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     public void advanceDangerSign() {
         //target reticule alpha
+        float shown = timePassedSeconds - revealSeconds;
+        float window = impactSeconds - revealSeconds;
         float maxFadeInTime = DANGER_SIGN_FADEOUT_TIME * DANGERSIGN_ALPHA_RAMPUP_FRACTION;
-        float minFadeoutTime = impactSeconds * DANGERSIGN_ALPHA_FADEOUT_FRACTION;
+        float minFadeoutTime = window * DANGERSIGN_ALPHA_FADEOUT_FRACTION;
 
-        if (timePassedSeconds < maxFadeInTime) {
-            float mult = smootherstep(0, maxFadeInTime, timePassedSeconds);
+        if (!revealed) currentAlpha = 0f;
+        else if (shown < maxFadeInTime) {
+            float mult = smootherstep(0, maxFadeInTime, shown);
             currentAlpha = MAX_DANGER_SIGN_ALPHA * mult;
             sizeMult = MAX_FADE_IN_SIZE_MULT - (MAX_FADE_IN_SIZE_MULT - 1) * mult;
-        } else if (timePassedSeconds < minFadeoutTime) {
+        } else if (shown < minFadeoutTime) {
             currentAlpha = MAX_DANGER_SIGN_ALPHA;
             sizeMult = 1f;
         } else
-            currentAlpha = MAX_DANGER_SIGN_ALPHA * (1 - smootherstep(minFadeoutTime, impactSeconds, timePassedSeconds));
+            currentAlpha = MAX_DANGER_SIGN_ALPHA * (1 - smootherstep(minFadeoutTime, window, shown));
 
     }
 
     public void renderDangerSign() {
-        float timeRemainingMult = 1 - Math.min(timePassedSeconds / AVERAGE_PROJ_IMPACT_TIME, 1);
+        if (!revealed) return;
+
+        float timeRemainingMult = 1 - Math.min((timePassedSeconds - revealSeconds) / Math.max(impactSeconds - revealSeconds, 0.1f), 1);
         int gColour = Math.max((int) Math.round(200 * timeRemainingMult), 0);
         int rColour = Math.max((int) Math.round(100 * timeRemainingMult), 0);
         Color color = new Color(255, gColour, rColour, 255); //Start
