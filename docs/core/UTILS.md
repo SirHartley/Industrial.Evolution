@@ -162,7 +162,7 @@ Fixed copy of MagicLib's campaign trail plugin (Nicke535, fix by President Matt 
 | `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:504`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
 | `trails/MagicCustomCampaignTrailEntityScript.java` | Plugin of custom entity `IndEvo_campaign_trail_custom_entity` (`data/config/custom_entities.json`); forwards `render` to the trail plugin. The plugin moves this entity to the player's location each frame |
 
-Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
+Users: artillery projectiles (`MortarProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
 
 ## ui
 
