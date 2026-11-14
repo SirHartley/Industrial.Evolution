@@ -363,6 +363,8 @@ Added - Artillery fire animation: muzzle flash and smoke per shot, the station g
 Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a slow discharge all around
 Added - Mortar shells leave a short trail
 Adjusted - Thinner artillery target lines, shells, missiles and trails
+Adjusted - Railgun now fires an instant beam down its target line instead of shells
+Note - The target line stays until the shot, every fleet on it then is in the line of fire
 Adjusted - Uses vanilla star dialogs for better mod compatibility
 Adjusted - Artillery now targets fleets anywhere in the system (was 12000 units)
 Fixed - Slow fields and forced overloads no longer expire while paused
@@ -373,8 +375,6 @@ Fixed - Placed stations no longer fire with Artillery turned off
 Fixed - Orbital Artillery tooltip now unlocks its Codex entry
 Fixed - Jumping out of a system now empties the watchtower eye
 Fixed - Artillery missiles no longer launch from beside a moving station
-Fixed - Railgun shots no longer vanish before they arrive at long range
-Fixed - Railgun shots no longer pass through a fleet without a hit
 Removed - Artillery improvement and the Max Range setting (no range left to improve)
 
 Console Commands
