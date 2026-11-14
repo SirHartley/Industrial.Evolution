@@ -2,7 +2,6 @@ package indevo.industries.artillery.renderers;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.combat.ViewportAPI;
-import com.fs.starfarer.api.graphics.SpriteAPI;
 import indevo.industries.artillery.utils.VisionBlockers;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
@@ -25,7 +24,6 @@ public class LightConeRenderer {
         public float falloff = 8f;
         public float endStart = 0.55f;
         public float nearSoftShare = 0.02f;
-        public float textureShare = 0f;
         public float shadow = 0.9f;
         public float sourceRadius = 50f;
         public float dustGain = 0f;
@@ -47,8 +45,8 @@ public class LightConeRenderer {
     public static final float SMOKE_SOFT_DISTANCE = 60f;
     public static final float DUST_CELL = 50f;
     public static final float DUST_WANDER = 14f;
-    public static final float DUST_BIG_SHARE = 0.15f;
-    public static final float DUST_MAX_ALPHA = 0.9f;
+    public static final float DUST_BIG_SHARE = 0.07f;
+    public static final float DUST_MAX_ALPHA = 0.6f;
     public static final float DUST_MIN_LIGHT = 0.004f;
 
     private static final float[] RINGS = {0f, 0.02f, 0.06f, 0.12f, 0.2f, 0.3f, 0.42f, 0.55f, 0.66f, 0.77f, 0.88f, 0.95f, 1f};
@@ -68,7 +66,6 @@ public class LightConeRenderer {
     // scratch for one cone, drawing runs on one thread
     private static final float[] COS = new float[MAX_RAYS];
     private static final float[] SIN = new float[MAX_RAYS];
-    private static final float[] ACROSS = new float[MAX_RAYS];
     private static final int[] SAMPLES = new int[MAX_RAYS];
     private static final float[][] DIST = new float[MAX_RAYS][MAX_SAMPLES];
     private static final float[][] LIGHT = new float[MAX_RAYS][MAX_SAMPLES];
@@ -77,7 +74,7 @@ public class LightConeRenderer {
     // an arc of 360 with edgeStart 1 gives a round light with no edge
     // a blocker takes style.shadow of the light behind it, the rest is drawn unblocked as fill
     public static void draw(Vector2f loc, float angle, float arc, float length, List<VisionBlockers.Blocker> blockers,
-                            Style style, Color color, float alpha, SpriteAPI texture, float scroll) {
+                            Style style, Color color, float alpha) {
         float peak = alpha * style.peak;
         if (peak <= 0f) return;
 
@@ -91,10 +88,10 @@ public class LightConeRenderer {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
         if (inCone.isEmpty()) {
-            drawLight(loc, angle, half, drawnHalf, drawnLength, inCone, style, color, peak, texture, scroll);
+            drawLight(loc, angle, half, drawnHalf, drawnLength, inCone, style, color, peak);
         } else {
-            drawLight(loc, angle, half, drawnHalf, drawnLength, inCone, style, color, peak * style.shadow, texture, scroll);
-            drawLight(loc, angle, half, drawnHalf, drawnLength, null, style, color, peak * (1f - style.shadow), null, 0f);
+            drawLight(loc, angle, half, drawnHalf, drawnLength, inCone, style, color, peak * style.shadow);
+            drawLight(loc, angle, half, drawnHalf, drawnLength, null, style, color, peak * (1f - style.shadow));
         }
 
         GL11.glPopAttrib();
@@ -189,7 +186,7 @@ public class LightConeRenderer {
     }
 
     private static void drawLight(Vector2f loc, float angle, float half, float drawnHalf, float drawnLength, List<VisionBlockers.Blocker> blockers,
-                                  Style style, Color color, float alpha, SpriteAPI texture, float scroll) {
+                                  Style style, Color color, float alpha) {
         float[] offsets = getRayOffsets(loc, angle, drawnHalf, drawnLength, blockers, style.sourceRadius);
         int rays = offsets.length;
 
@@ -197,27 +194,15 @@ public class LightConeRenderer {
             double rad = Math.toRadians(angle + offsets[i]);
             COS[i] = (float) Math.cos(rad);
             SIN[i] = (float) Math.sin(rad);
-            ACROSS[i] = (offsets[i] + drawnHalf) / (2f * drawnHalf);
             setSamples(i, loc, drawnLength, blockers, style, style.across(Math.abs(offsets[i]) / half));
         }
 
-        boolean textured = texture != null && style.textureShare > 0f;
-
         GL11.glDisable(GL11.GL_TEXTURE_2D);
-        drawMesh(loc, rays, color, alpha * (textured ? 1f - style.textureShare : 1f), 0f, 0f, 0f);
-
-        if (textured) {
-            float meanWidth = drawnLength * (float) Math.toRadians(drawnHalf);
-            float texPerUnit = texture.getTextureWidth() * texture.getTextureHeight() * texture.getHeight() / (texture.getWidth() * meanWidth);
-
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-            texture.bindTexture();
-            drawMesh(loc, rays, color, alpha * style.textureShare * 2f, texPerUnit, scroll * texture.getTextureWidth(), texture.getTextureHeight());
-        }
+        drawMesh(loc, rays, color, alpha);
     }
 
     // every ray has its own sample distances, so the strip between two rays is stitched by distance
-    private static void drawMesh(Vector2f loc, int rays, Color color, float alpha, float texPerUnit, float texOffset, float texHeight) {
+    private static void drawMesh(Vector2f loc, int rays, Color color, float alpha) {
         float r = color.getRed() / 255f;
         float g = color.getGreen() / 255f;
         float b = color.getBlue() / 255f;
@@ -238,7 +223,6 @@ public class LightConeRenderer {
                     float dist = DIST[at][sample];
 
                     GL11.glColor4f(r, g, b, Math.min(1f, alpha * LIGHT[at][sample]));
-                    GL11.glTexCoord2f(dist * texPerUnit - texOffset, texHeight * ACROSS[at]);
                     GL11.glVertex2f(loc.x + COS[at] * dist, loc.y + SIN[at] * dist);
                 }
 

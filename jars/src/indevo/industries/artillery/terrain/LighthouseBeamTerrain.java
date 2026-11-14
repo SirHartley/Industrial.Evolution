@@ -65,7 +65,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         LIGHT.nearSoftShare = 0.01f;
         LIGHT.shadow = 0.95f;
         LIGHT.sourceRadius = 50f;
-        LIGHT.dustGain = 8f;
+        LIGHT.dustGain = 5f;
     }
 
     @Override
@@ -171,7 +171,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         float[] angles = new float[beamCount];
         for (int i = 0; i < beamCount; i++) {
             angles[i] = angle + 180f * i;
-            LightConeRenderer.draw(loc, angles[i], getArc(), getLength(), getBlockers(), LIGHT, color, alpha, null, 0f);
+            LightConeRenderer.draw(loc, angles[i], getArc(), getLength(), getBlockers(), LIGHT, color, alpha);
         }
 
         LightConeRenderer.drawDust(viewport, loc, angles, getArc(), getLength(), getBlockers(), LIGHT, color, alpha, dustTime);

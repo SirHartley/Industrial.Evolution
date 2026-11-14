@@ -28,7 +28,6 @@ public class DroneConeTerrain extends BaseRingTerrain {
     public static final LightConeRenderer.Style LIGHT = new LightConeRenderer.Style();
     public static final float LOCK_ALPHA_MULT = 1.25f;
     public static final float LOCK_PULSE = 0.25f;
-    public static final float SCROLL_SPEED = 0.02f;
     public static final float BLOOM_SIZE = 200f;
     public static final float BLOOM_ALPHA = 0.12f;
     public static final float LAMP_SIZE = 22f;
@@ -51,22 +50,24 @@ public class DroneConeTerrain extends BaseRingTerrain {
     public static final float RENDER_RANGE = 10000000f;
     private static final int ZONE_SEGMENTS = 48;
     private static final float[] ALL_AROUND = {0f};
+    private static final float[] CONE_ANGLE = new float[1];
 
-    protected transient SpriteAPI texture;
     protected transient SpriteAPI glow;
-    protected transient float scroll;
     protected transient float dustTime;
 
     static {
         LIGHT.peak = 0.13f;
-        LIGHT.edgeStart = 0.4f;
-        LIGHT.edgeEnd = 1.25f;
-        LIGHT.farShare = 0.3f;
+        LIGHT.edgeStart = 0.35f;
+        LIGHT.edgeEnd = 1.2f;
+        LIGHT.coreShare = 0.65f;
+        LIGHT.coreWidth = 0.2f;
+        LIGHT.farShare = 0.4f;
         LIGHT.falloff = 8f;
-        LIGHT.endStart = 0.55f;
-        LIGHT.textureShare = 0.35f;
-        LIGHT.shadow = 0.88f;
-        LIGHT.sourceRadius = 60f;
+        LIGHT.endStart = 0.6f;
+        LIGHT.nearSoftShare = 0.01f;
+        LIGHT.shadow = 0.95f;
+        LIGHT.sourceRadius = 50f;
+        LIGHT.dustGain = 5f;
 
         NEST_LIGHT.peak = 0.16f;
         NEST_LIGHT.edgeStart = 1f;
@@ -74,14 +75,13 @@ public class DroneConeTerrain extends BaseRingTerrain {
         NEST_LIGHT.farShare = 0.35f;
         NEST_LIGHT.falloff = 6f;
         NEST_LIGHT.endStart = 0.7f;
-        NEST_LIGHT.dustGain = 4f;
+        NEST_LIGHT.dustGain = 3f;
     }
 
     @Override
     protected Object readResolve() {
         super.readResolve();
         layers = EnumSet.of(CampaignEngineLayers.TERRAIN_7A, CampaignEngineLayers.TERRAIN_8);
-        texture = Global.getSettings().getSprite("terrain", "pulsar");
         glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
         return this;
     }
@@ -89,7 +89,6 @@ public class DroneConeTerrain extends BaseRingTerrain {
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        scroll = (scroll + amount * SCROLL_SPEED) % 1f;
         dustTime += amount;
     }
 
@@ -135,7 +134,9 @@ public class DroneConeTerrain extends BaseRingTerrain {
 
             Color color = Misc.interpolateColor(LIGHT_COLOR, LOCK_COLOR, spotter.alert);
             float lock = 1f + (LOCK_ALPHA_MULT - 1f) * spotter.alert;
-            LightConeRenderer.draw(loc, spotter.coneAngle, DroneNetScript.CONE_ARC, length, blockers, LIGHT, color, alpha * lock, texture, scroll);
+            LightConeRenderer.draw(loc, spotter.coneAngle, DroneNetScript.CONE_ARC, length, blockers, LIGHT, color, alpha * lock);
+            CONE_ANGLE[0] = spotter.coneAngle;
+            LightConeRenderer.drawDust(viewport, loc, CONE_ANGLE, DroneNetScript.CONE_ARC, length, blockers, LIGHT, color, alpha * lock, dustTime);
 
             glow.setColor(color);
             glow.setAlphaMult(alpha * BLOOM_ALPHA);
@@ -153,7 +154,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
             if (nest.isDiscoverable()) continue;
             if (!viewport.isNearViewport(loc, radius * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
 
-            LightConeRenderer.draw(loc, 0f, 360f, radius, blockers, NEST_LIGHT, LIGHT_COLOR, alpha, null, 0f);
+            LightConeRenderer.draw(loc, 0f, 360f, radius, blockers, NEST_LIGHT, LIGHT_COLOR, alpha);
             LightConeRenderer.drawDust(viewport, loc, ALL_AROUND, 360f, radius, blockers, NEST_LIGHT, LIGHT_COLOR, alpha, dustTime);
 
             glow.setAngle(0f);
