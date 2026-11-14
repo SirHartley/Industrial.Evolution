@@ -23,6 +23,8 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     public static final float MAX_TIME_TO_TARGET_LOCK = 20f; //10s per day
     public static final float DISTANCE_MOD = 2; //max mult for distance
     public static final float DRONE_FILL_MULT = 2f;
+    public static final float DRAIN_RATE = 1f / 1.2f;
+    public static final float SEEN_DAYS = 0.6f;
 
     private SectorEntityToken indicator;
     public IntervalUtil checkInterval = new IntervalUtil(0.5f, 0.5f);
@@ -135,7 +137,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         float addition;
 
         if (bestRate < 0f && !spotted) { //out of range of every source
-            addition = -amount;
+            addition = -amount * DRAIN_RATE;
 
         } else if (bestRate < 0f) {
             addition = amount;
@@ -167,7 +169,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         } else if (elapsed == MAX_TIME_TO_TARGET_LOCK) {
             isLocked = true;
-            player.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, 0.5f);
+            player.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, SEEN_DAYS);
         }
 
         transferStateToEntity(state, isLocked);
