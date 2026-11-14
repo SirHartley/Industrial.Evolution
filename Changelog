@@ -145,6 +145,7 @@ Fixed - Two ruins in one system no longer roll the same derelict industry
 Fixed - Crash in Hull Forge and Ancient Laboratory after losing the last colony
 Fixed - Old Industrial Ruins no longer offer another colony's derelict industry
 Fixed - Ruins added mid-campaign now properly get a derelict industry
+Fixed - Ruins known from bought or salvaged survey data now show their scan results on a visit
 Fixed - NPC ruins upgrades no longer restart over and over (Nexerelin)
 Fixed - Old Industrial Ruins tooltip now unlocks its Codex entry
 Fixed - 5 charge Forge Templates now show their hull and price
