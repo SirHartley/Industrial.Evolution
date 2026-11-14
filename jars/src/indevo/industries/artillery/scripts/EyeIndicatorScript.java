@@ -22,6 +22,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     public static final float BASE_NPC_KNOWN_DURATION = 5f;
     public static final float MAX_TIME_TO_TARGET_LOCK = 20f; //10s per day
     public static final float DISTANCE_MOD = 2; //max mult for distance
+    public static final float DRONE_FILL_MULT = 2f;
 
     private SectorEntityToken indicator;
     public IntervalUtil checkInterval = new IntervalUtil(0.5f, 0.5f);
@@ -108,11 +109,11 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
 
-        // share of its range a source has the player inside, the closest source sets the fill speed
-        float bestFraction = -1f;
+        // a source fills the eye at 1 + the share of its range the player is inside, drones twice as fast; the fastest source counts
+        float bestRate = -1f;
 
         DroneNetScript droneNet = DroneNetScript.get(loc);
-        if (droneNet != null) bestFraction = droneNet.getPlayerFraction();
+        if (droneNet != null && droneNet.getPlayerFraction() >= 0f) bestRate = DRONE_FILL_MULT * (1f + droneNet.getPlayerFraction());
 
         for (SectorEntityToken t : watchtowerList) {
             WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) t.getCustomPlugin();
@@ -128,19 +129,19 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
             float dist = Misc.getDistance(t, player);
             if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value())
-                bestFraction = Math.max(bestFraction, 1 - dist / Setting.ARTILLERY_WATCHTOWER_RANGE.value());
+                bestRate = Math.max(bestRate, 2f - dist / Setting.ARTILLERY_WATCHTOWER_RANGE.value());
         }
 
         float addition;
 
-        if (bestFraction < 0f && !spotted) { //out of range of every source
+        if (bestRate < 0f && !spotted) { //out of range of every source
             addition = -amount;
 
-        } else if (bestFraction < 0f) {
+        } else if (bestRate < 0f) {
             addition = amount;
 
         } else {
-            addition = amount * (1 + bestFraction);
+            addition = amount * bestRate;
         }
 
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);

@@ -87,7 +87,7 @@ public class DroneNetScript implements EveryFrameScript {
     public static final float SWEEP_SECONDS = 8f;
     public static final float CONE_TURN_RATE = 30f;
     public static final float CONE_TURN_GAIN = 2f;
-    public static final float NOTICE_SECONDS = 1f;
+    public static final float NOTICE_SECONDS = 0.5f;
     public static final float LOSE_SECONDS = 3f;
     public static final float ALERT_SECONDS = 0.6f;
     public static final float FOLLOW_FRACTION = 0.45f;
