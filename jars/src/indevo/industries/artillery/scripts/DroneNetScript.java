@@ -87,13 +87,14 @@ public class DroneNetScript implements EveryFrameScript {
     public static final float SWEEP_SECONDS = 8f;
     public static final float CONE_TURN_RATE = 30f;
     public static final float CONE_TURN_GAIN = 2f;
-    public static final float NOTICE_SECONDS = 1f;
+    public static final float NOTICE_SECONDS = 0.5f;
     public static final float LOSE_SECONDS = 3f;
     public static final float ALERT_SECONDS = 0.6f;
     public static final float FOLLOW_FRACTION = 0.45f;
     public static final float MIN_PROFILE_MULT = 0.5f;
     public static final float MAX_PROFILE_MULT = 1.5f;
     public static final float PROFILE_BASE = 1000f;
+    public static final float CONE_RESIZE_SECONDS = 0.5f;
 
     public static final float ROAM_BURN = 6f;
     public static final float FOLLOW_BURN = 7f;
@@ -127,6 +128,8 @@ public class DroneNetScript implements EveryFrameScript {
     private boolean done;
     private float playerFraction = -1f;
     private float coneLength = Setting.ARTILLERY_DRONE_CONE_LENGTH.value();
+    private transient float coneTarget;
+    private transient float coneRate;
     private float visibility;
     private float sinceCheck;
     private transient List<VisionBlockers.Blocker> blockers;
@@ -254,6 +257,10 @@ public class DroneNetScript implements EveryFrameScript {
 
         visibility = MathUtils.clamp(visibility + (active ? amount : -amount) / FADE_SECONDS, 0f, 1f);
 
+        float gap = coneTarget - coneLength;
+        float step = coneRate * amount;
+        if (coneRate > 0f) coneLength = Math.abs(gap) <= step ? coneTarget : coneLength + Math.signum(gap) * step;
+
         for (Spotter spotter : spotters) {
             if (spotter.entity == null) continue;
 
@@ -290,7 +297,7 @@ public class DroneNetScript implements EveryFrameScript {
         active = !system.getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)
                 && ArtilleryStationEntityPlugin.needsVisionAgainstPlayer(system);
         blockers = VisionBlockers.collect(system);
-        coneLength = getConeLengthFor(player);
+        setConeTarget(getConeLengthFor(player));
         playerFraction = -1f;
 
         List<SectorEntityToken> decoys = getDecoys();
@@ -428,6 +435,14 @@ public class DroneNetScript implements EveryFrameScript {
     private float getConeLengthFor(CampaignFleetAPI fleet) {
         float profile = fleet.getStats().getDetectedRangeMod().computeEffective(PROFILE_BASE) / PROFILE_BASE;
         return Setting.ARTILLERY_DRONE_CONE_LENGTH.value() * MathUtils.clamp(profile, MIN_PROFILE_MULT, MAX_PROFILE_MULT);
+    }
+
+    // drawing and sight use the same length, so the cone on screen is the cone that sees
+    private void setConeTarget(float target) {
+        if (target == coneTarget) return;
+
+        coneTarget = target;
+        coneRate = Math.abs(target - coneLength) / CONE_RESIZE_SECONDS;
     }
 
     private void ensureCones() {

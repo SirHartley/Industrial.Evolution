@@ -2,7 +2,6 @@ package indevo.industries.artillery.terrain;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
-import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
@@ -65,7 +64,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         LIGHT.nearSoftShare = 0.01f;
         LIGHT.shadow = 0.95f;
         LIGHT.sourceRadius = 50f;
-        LIGHT.dustGain = 8f;
+        LIGHT.dustGain = 5f;
     }
 
     @Override
@@ -126,17 +125,11 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
     // planets and chaff clouds, the same list for the drawn light and for sees
     private List<VisionBlockers.Blocker> getBlockers() {
         if (blockers == null) {
-            blockers = VisionBlockers.collect(entity.getContainingLocation(), getBlockerExclude());
+            blockers = VisionBlockers.collect(entity.getContainingLocation());
             sinceBlockers = 0f;
         }
 
         return blockers;
-    }
-
-    // the body the lighthouse orbits would shadow half its sweep
-    private SectorEntityToken getBlockerExclude() {
-        SectorEntityToken focus = params.relatedEntity.getOrbitFocus();
-        return focus instanceof PlanetAPI ? focus : null;
     }
 
     @Override
@@ -171,7 +164,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         float[] angles = new float[beamCount];
         for (int i = 0; i < beamCount; i++) {
             angles[i] = angle + 180f * i;
-            LightConeRenderer.draw(loc, angles[i], getArc(), getLength(), getBlockers(), LIGHT, color, alpha, null, 0f);
+            LightConeRenderer.draw(loc, angles[i], getArc(), getLength(), getBlockers(), LIGHT, color, alpha);
         }
 
         LightConeRenderer.drawDust(viewport, loc, angles, getArc(), getLength(), getBlockers(), LIGHT, color, alpha, dustTime);

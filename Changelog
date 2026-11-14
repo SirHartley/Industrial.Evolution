@@ -353,7 +353,7 @@ Artillery
 Added - Lighthouses: one or two rotating beams guard some derelict artillery systems and spot you at once (new game)
 Note - Planets and Chaff Clouds block the beams, going dark does not help, a hack turns a lighthouse off
 Added - Drone nets: nests launch spotter drones with vision cones in some derelict artillery systems (new game)
-Note - A spotter that sees you follows you, the eye fills as under a watchtower
+Note - A spotter that sees you follows you, the eye fills twice as fast as under a watchtower
 Note - Planets and Chaff Clouds block the cones, going dark shortens them, a Sensor Decoy pulls spotters away
 Note - Spotters explode when interdicted or hit by a missile or an artillery shell, and take nearby spotters with them
 Note - Nests track anything within 300 units. Shoot one for Relic Components, by missile or by flying up to it

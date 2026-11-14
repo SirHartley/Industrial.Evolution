@@ -28,13 +28,14 @@ public class DroneConeTerrain extends BaseRingTerrain {
     public static final LightConeRenderer.Style LIGHT = new LightConeRenderer.Style();
     public static final float LOCK_ALPHA_MULT = 1.25f;
     public static final float LOCK_PULSE = 0.25f;
-    public static final float SCROLL_SPEED = 0.02f;
     public static final float BLOOM_SIZE = 200f;
-    public static final float BLOOM_ALPHA = 0.2f;
+    public static final float BLOOM_ALPHA = 0.12f;
     public static final float LAMP_SIZE = 22f;
     public static final float LAMP_ALPHA = 0.45f;
 
-    public static final float ZONE_ALPHA = 0.25f;
+    public static final LightConeRenderer.Style NEST_LIGHT = new LightConeRenderer.Style();
+    public static final float NEST_GLOW_SIZE = 80f;
+    public static final float NEST_GLOW_ALPHA = 0.4f;
     public static final float ZONE_MAP_ALPHA = 0.4f;
     public static final float ZONE_CENTER_ALPHA_MULT = 0.2f;
     public static final float ZONE_OUTLINE_ALPHA_MULT = 1.5f;
@@ -48,28 +49,39 @@ public class DroneConeTerrain extends BaseRingTerrain {
 
     public static final float RENDER_RANGE = 10000000f;
     private static final int ZONE_SEGMENTS = 48;
+    private static final float[] ALL_AROUND = {0f};
+    private static final float[] CONE_ANGLE = new float[1];
 
-    protected transient SpriteAPI texture;
     protected transient SpriteAPI glow;
-    protected transient float scroll;
+    protected transient float dustTime;
 
     static {
-        LIGHT.peak = 0.2f;
-        LIGHT.edgeStart = 0.4f;
-        LIGHT.edgeEnd = 1.25f;
-        LIGHT.farShare = 0.3f;
+        LIGHT.peak = 0.13f;
+        LIGHT.edgeStart = 0.35f;
+        LIGHT.edgeEnd = 1.2f;
+        LIGHT.coreShare = 0.65f;
+        LIGHT.coreWidth = 0.2f;
+        LIGHT.farShare = 0.4f;
         LIGHT.falloff = 8f;
-        LIGHT.endStart = 0.55f;
-        LIGHT.textureShare = 0.35f;
-        LIGHT.shadow = 0.88f;
-        LIGHT.sourceRadius = 60f;
+        LIGHT.endStart = 0.6f;
+        LIGHT.nearSoftShare = 0.01f;
+        LIGHT.shadow = 0.95f;
+        LIGHT.sourceRadius = 50f;
+        LIGHT.dustGain = 5f;
+
+        NEST_LIGHT.peak = 0.16f;
+        NEST_LIGHT.edgeStart = 1f;
+        NEST_LIGHT.edgeEnd = 2f;
+        NEST_LIGHT.farShare = 0.35f;
+        NEST_LIGHT.falloff = 6f;
+        NEST_LIGHT.endStart = 0.7f;
+        NEST_LIGHT.dustGain = 3f;
     }
 
     @Override
     protected Object readResolve() {
         super.readResolve();
         layers = EnumSet.of(CampaignEngineLayers.TERRAIN_7A, CampaignEngineLayers.TERRAIN_8);
-        texture = Global.getSettings().getSprite("terrain", "pulsar");
         glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
         return this;
     }
@@ -77,7 +89,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
     @Override
     public void advance(float amount) {
         super.advance(amount);
-        scroll = (scroll + amount * SCROLL_SPEED) % 1f;
+        dustTime += amount;
     }
 
     // light below the fleets, lamps and engines above them
@@ -95,7 +107,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
         if (alpha <= 0f) return;
 
         drawCones(net, alpha, viewport);
-        drawZones(net, 1f, alpha * ZONE_ALPHA, viewport);
+        drawNestLights(net, alpha, viewport);
     }
 
     // map space is world space times factor, same as the vanilla terrain map icons
@@ -104,7 +116,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
         DroneNetScript net = DroneNetScript.get(entity.getContainingLocation());
         if (net == null) return;
 
-        drawZones(net, factor, alphaMult * net.getVisibility() * ZONE_MAP_ALPHA, null);
+        drawZones(net, factor, alphaMult * net.getVisibility() * ZONE_MAP_ALPHA);
     }
 
     private void drawCones(DroneNetScript net, float alpha, ViewportAPI viewport) {
@@ -122,10 +134,33 @@ public class DroneConeTerrain extends BaseRingTerrain {
 
             Color color = Misc.interpolateColor(LIGHT_COLOR, LOCK_COLOR, spotter.alert);
             float lock = 1f + (LOCK_ALPHA_MULT - 1f) * spotter.alert;
-            LightConeRenderer.draw(loc, spotter.coneAngle, DroneNetScript.CONE_ARC, length, blockers, LIGHT, color, alpha * lock, texture, scroll);
+            LightConeRenderer.draw(loc, spotter.coneAngle, DroneNetScript.CONE_ARC, length, blockers, LIGHT, color, alpha * lock);
+            CONE_ANGLE[0] = spotter.coneAngle;
+            LightConeRenderer.drawDust(viewport, loc, CONE_ANGLE, DroneNetScript.CONE_ARC, length, blockers, LIGHT, color, alpha * lock, dustTime);
 
             glow.setColor(color);
             glow.setAlphaMult(alpha * BLOOM_ALPHA);
+            glow.renderAtCenter(loc.x, loc.y);
+        }
+    }
+
+    // the nest zone as a round lamp, the checked radius sits inside the fade
+    private void drawNestLights(DroneNetScript net, float alpha, ViewportAPI viewport) {
+        List<VisionBlockers.Blocker> blockers = net.getBlockers();
+        float radius = DroneNetScript.NEST_ZONE_RADIUS;
+
+        for (SectorEntityToken nest : net.getNests()) {
+            Vector2f loc = nest.getLocation();
+            if (nest.isDiscoverable()) continue;
+            if (!viewport.isNearViewport(loc, radius * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
+
+            LightConeRenderer.draw(loc, 0f, 360f, radius, blockers, NEST_LIGHT, LIGHT_COLOR, alpha);
+            LightConeRenderer.drawDust(viewport, loc, ALL_AROUND, 360f, radius, blockers, NEST_LIGHT, LIGHT_COLOR, alpha, dustTime);
+
+            glow.setAngle(0f);
+            glow.setSize(NEST_GLOW_SIZE, NEST_GLOW_SIZE);
+            glow.setColor(LIGHT_COLOR);
+            glow.setAlphaMult(alpha * NEST_GLOW_ALPHA);
             glow.renderAtCenter(loc.x, loc.y);
         }
     }
@@ -173,7 +208,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
         glow.renderAtCenter(point.x, point.y);
     }
 
-    private void drawZones(DroneNetScript net, float factor, float alpha, ViewportAPI viewport) {
+    private void drawZones(DroneNetScript net, float factor, float alpha) {
         if (alpha <= 0f) return;
 
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT);
@@ -184,7 +219,6 @@ public class DroneConeTerrain extends BaseRingTerrain {
         for (SectorEntityToken nest : net.getNests()) {
             Vector2f loc = nest.getLocation();
             if (nest.isDiscoverable()) continue;
-            if (viewport != null && !viewport.isNearViewport(loc, DroneNetScript.NEST_ZONE_RADIUS)) continue;
 
             drawZone(loc, DroneNetScript.NEST_ZONE_RADIUS, ZONE_COLOR, alpha, factor);
         }
