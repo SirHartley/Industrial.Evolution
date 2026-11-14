@@ -13,7 +13,7 @@ Reviews, explanations, audits, and proposals are read-only unless the user reque
 1. Read the current remote `CLAUDE.md` in full at the start of each new task. Within the same task, reuse the version already read unless the instructions change. Read new or changed instruction files before following them.
 2. Use the `starsector-knowledge` skill before answering or changing anything related to Starsector. It covers 0.98a-RC8. Do not rely on memory.
 3. Use the `house-style` skill for every task in this repository. Its personal rules (answers, vocabulary, comments, commits, punctuation) apply everywhere; this file wins on project details.
-4. Use the `starsector-rules-writing` skill for any change to `data/campaign/rules.csv`, dialogue or rule commands. Use the `patchlib` skill only when the official API cannot reach what is needed.
+4. Use the `starsector-rules-writing` skill in knowledgebase mode for any change to `data/campaign/rules.csv`, dialogue or rule commands. Use the `patchlib` skill only when the official API cannot reach what is needed.
 5. Use the `starsector-native-smoke` skill with [SMOKE_TESTS.md](docs/SMOKE_TESTS.md) when a change must be seen or exercised in the real game.
 6. Third-party libraries (GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib, Console Commands, Nexerelin, Shadowyards, RAT) are not in the knowledge skill. Their compile jars are in `lib/` ([Compile dependencies](#compile-dependencies)); decompile one with the knowledge skill's Vineflower into a temporary directory, never into the repository. Ask the user for a jar only when it is missing there or a newer version is needed.
 7. Select the required guides using [Which guide to read](#which-guide-to-read). Apply every matching row, including for reviews and fixes to existing behavior.
@@ -69,7 +69,7 @@ The feature docs own feature behavior; [ARCHITECTURE.md](docs/ARCHITECTURE.md) o
 - Build the exact final remote task-branch revision. Earlier builds, partial builds, IDE analysis, and static checks do not satisfy the gate.
 - Missing compilers or required dependencies are merge blockers. Documentation-only changes do not require a build.
 - A native smoke test supplements the compile gate and is not a merge requirement. When one ran, record it in the PR ([SMOKE_TESTS.md](docs/SMOKE_TESTS.md#results)).
-- A change to `rules.csv` passes the `starsector-rules-writing` checks. A change to any CSV keeps UTF-8 without BOM, straight quotes and the column count.
+- A change to `rules.csv` shows no new errors in the `starsector-rules-writing` skill's `rules_check.py . --baseline git:origin/dev`. A change to any CSV keeps UTF-8 without BOM, straight quotes and the column count.
 - No CI runs on pushes or pull requests. The only workflow is the manual `release.yml` ([RELEASE.md](docs/RELEASE.md#release-workflow)); start it only on the user's command. Do not add triggers or check workflows.
 - Open a pull request and merge it when the work is complete. Do not leave finished work on an unmerged branch.
 - Use the connected GitHub app to create, inspect, and merge pull requests. Use `gh` only if the app is unavailable.
