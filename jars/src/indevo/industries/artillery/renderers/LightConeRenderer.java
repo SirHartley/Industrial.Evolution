@@ -74,6 +74,7 @@ public class LightConeRenderer {
     private static final float[][] LIGHT = new float[MAX_RAYS][MAX_SAMPLES];
 
     // additive light with no outline; arc and length are the checked ones, the light is drawn past both so the checked edge sits inside the fade
+    // an arc of 360 with edgeStart 1 gives a round light with no edge
     // a blocker takes style.shadow of the light behind it, the rest is drawn unblocked as fill
     public static void draw(Vector2f loc, float angle, float arc, float length, List<VisionBlockers.Blocker> blockers,
                             Style style, Color color, float alpha, SpriteAPI texture, float scroll) {
@@ -81,7 +82,7 @@ public class LightConeRenderer {
         if (peak <= 0f) return;
 
         float half = arc / 2f;
-        float drawnHalf = half * style.edgeEnd;
+        float drawnHalf = Math.min(180f, half * style.edgeEnd);
         float drawnLength = length * DRAWN_LENGTH_MULT;
         List<VisionBlockers.Blocker> inCone = getBlockersInCone(blockers, loc, angle, drawnHalf, drawnLength);
 
@@ -433,6 +434,7 @@ public class LightConeRenderer {
     }
 
     private static int addOffset(float[] offsets, int count, float offset, float drawnHalf) {
+        if (drawnHalf >= 180f) offset = normalize(offset);
         if (offset <= -drawnHalf || offset >= drawnHalf || count >= offsets.length) return count;
 
         offsets[count] = offset;
