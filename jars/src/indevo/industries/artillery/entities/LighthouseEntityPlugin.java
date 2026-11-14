@@ -5,7 +5,6 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
-import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -44,13 +43,6 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
 
     public boolean beamSees(SectorEntityToken target) {
         return lit && beam != null && getBeamPlugin().sees(target.getLocation(), target.getRadius(), CHECK_SECONDS);
-    }
-
-    private boolean shouldBeLit() {
-        if (!isFunctional() || isHacked()) return false;
-        if (!entity.getFaction().isHostileTo(Factions.PLAYER)) return false;
-
-        return ArtilleryStationEntityPlugin.needsVisionAgainstPlayer(entity.getContainingLocation());
     }
 
     private void markFleetsInBeam(LighthouseBeamTerrain terrain) {

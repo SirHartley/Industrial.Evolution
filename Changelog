@@ -360,6 +360,10 @@ Note - Nests sweep three searchlights around them, a fast fleet can slip through
 Note - A nest light that catches you locks on and follows you, reaching 30% further until it loses you
 Note - Shoot a nest for Relic Components, by missile or by flying up to it
 Note - Colonising the system replaces the drone net with watchtowers
+Added - Searchlights: towers sweep orange and purple lights over some derelict artillery systems (new game)
+Note - Orange lights see moving fleets, purple lights see fleets at burn 2 or less, dimmed lights see nothing
+Note - A light that sees you turns red and follows you, stop or start moving to shake it off
+Note - Chaff Clouds block the lights, going dark does not help, a hack turns a tower off
 Added - Settings for vision type weights, lighthouse beams and drone cones
 Added - Artillery fire animation: muzzle flash and smoke per shot, the station glows hot and vents
 Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a slow discharge all around

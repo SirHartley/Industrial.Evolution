@@ -26,6 +26,10 @@
 		"plugin":"indevo.industries.artillery.terrain.LighthouseBeamTerrain",
 	},
 
+	"IndEvo_searchlights":{
+		"plugin":"indevo.industries.artillery.terrain.SearchlightTerrain",
+	},
+
 	"IndEvo_drone_cones":{
 		"plugin":"indevo.industries.artillery.terrain.DroneConeTerrain",
 	},

@@ -23,7 +23,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | Area | Doc | Feature | Package |
 |---|---|---|---|
 | Industries | [ACADEMY](industries/ACADEMY.md) | Officer and admin training, Galatia Academy market | `industries/academy` |
-| | [ARTILLERY](industries/ARTILLERY.md) | Artillery stations, vision (watchtowers, lighthouses, drone nets), campaign projectiles | `industries/artillery` |
+| | [ARTILLERY](industries/ARTILLERY.md) | Artillery stations, vision (watchtowers, lighthouses, searchlights, drone nets), campaign projectiles | `industries/artillery` |
 | | [ASSEMBLER](industries/ASSEMBLER.md) | Variable manufactories and the commodity forge (VPC items) | `industries/assembler` |
 | | [CHANGELING](industries/CHANGELING.md) | Switchable population (governments), mining and refining | `industries/changeling` |
 | | [COURIER_PORT](industries/COURIER_PORT.md) | Shipping contracts between colonies | `industries/courierport` |
@@ -82,7 +82,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | A ruin turns into the wrong structure | `$IndEvo_ruinsIndustryId` -> `RuinsManager` ([DERELICTS](industries/DERELICTS.md)) |
 | `getIndustry("population" / "mining" / "refining")` returns an IE class | Switchables return the vanilla id ([contract](#industries-and-markets)) |
 | Detachment AI | `Behaviour.changeBehaviourAndUpdateAI -> DetachmentAI` ([SPLIT_FLEET](abilities/SPLIT_FLEET.md)) |
-| Artillery not firing | `CampaignAttackScript -> EyeIndicatorScript / WatchtowerEntityPlugin / LighthouseEntityPlugin / DroneNetScript -> ArtilleryStationScript` ([ARTILLERY](industries/ARTILLERY.md)) |
+| Artillery not firing | `CampaignAttackScript -> EyeIndicatorScript / WatchtowerEntityPlugin / LighthouseEntityPlugin / SearchlightEntityPlugin / DroneNetScript -> ArtilleryStationScript` ([ARTILLERY](industries/ARTILLERY.md)) |
 | Meteor shower spawn | `MeteorSwarmManager.reportEconomyTick -> spawnShower -> <Type>SwarmSpawner` ([METEOR](exploration/METEOR.md)) |
 | Dialogue or rules row | `rules.csv` block map -> command class ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
