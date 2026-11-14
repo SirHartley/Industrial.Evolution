@@ -25,7 +25,6 @@ public final class PlayerSettings implements LunaSettingsListener {
     private static final List<Pair> PAIRS = List.of(
             new Pair(ARTILLERY_MIN_DELAY_BETWEEN_SHOTS, ARTILLERY_MAX_DELAY_BETWEEN_SHOTS),
             new Pair(ARTILLERY_MIN_COOLDOWN, ARTILLERY_MAX_COOLDOWN),
-            new Pair(ARTILLERY_MIN_RANGE, ARTILLERY_MAX_RANGE),
             new Pair(METEOR_MIN_INTENSITY, METEOR_MAX_INTENSITY),
             new Pair(METEOR_MIN_DISTANCE_FROM_SUN, METEOR_MAX_DISTANCE_FROM_SUN),
             new Pair(METEOR_MIN_ANGLE, METEOR_MAX_ANGLE),

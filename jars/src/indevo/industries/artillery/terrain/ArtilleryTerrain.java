@@ -17,10 +17,6 @@ import static indevo.industries.artillery.entities.ArtilleryStationEntityPlugin.
 
 public class ArtilleryTerrain extends BaseRingTerrain {
 
-    public void setRange(float range) {
-        params.bandWidthInEngine = range;
-    }
-
     public void remove() {
         Misc.fadeAndExpire(entity, 0f);
     }

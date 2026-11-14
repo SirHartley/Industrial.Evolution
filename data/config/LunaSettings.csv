@@ -67,7 +67,6 @@ IndEvo_Artillery_minCooldown,[Artillery] Min Cooldown,Double,15,,Minimum seconds
 IndEvo_Artillery_maxCooldown,[Artillery] Max Cooldown,Double,17,,Maximum seconds before firing at the same fleet again. Default 17.,1,100,Artillery
 IndEvo_Artillery_cooldownNPCMult,[Artillery] NPC Cooldown Mult,Double,2,,Cooldown multiplier against NPC fleets. Higher values mean fewer shots. Default 2.,1,100,Artillery
 IndEvo_Artillery_minRange,[Artillery] Min Range,Double,500,,Minimum targeting distance in game units. Closer fleets are safe. Default 500.,1,1000,Artillery
-IndEvo_Artillery_maxRange,[Artillery] Max Range,Double,12000,,Maximum targeting distance in game units. 12000 = 6 map cells; improving the station adds 4000. Default 12000.,2,100000,Artillery
 IndEvo_Artillery_WatchtowerRange,[Artillery] Watchtower Range,Double,4000,,Watchtower detection range in game units. Artillery needs a watchtower or hostile fleet to spot its target. Default 4000.,1,10000,Artillery
 IndEvo_Artillery_visionWeight_watchtower,[Artillery] Vision: Watchtower Weight,Double,1,,Chance weight for a derelict artillery system to be guarded by watchtowers. 0 means never. Default 1. Needs a new game.,0,10,Artillery
 IndEvo_Artillery_visionWeight_lighthouse,[Artillery] Vision: Lighthouse Weight,Double,1,,Chance weight for a derelict artillery system to be guarded by lighthouses. 0 means never. Default 1. Needs a new game.,0,10,Artillery

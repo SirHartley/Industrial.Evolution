@@ -29,6 +29,8 @@ public class CampaignAttackScript implements EveryFrameScript {
     //exclusions
     public static final float ARTILLERY_BLOCKOUT_RANGE = 400f;
     public static final float INHABITED_AREA_SAFE_RADIUS = 700f;
+    // range is the whole system, the terrain only names it and shows safe spots
+    public static final float TERRAIN_RADIUS = 1000000f;
 
     public static final String TYPE_RAILGUN = "railgun";
     public static final String TYPE_MORTAR = "mortar";
@@ -44,9 +46,6 @@ public class CampaignAttackScript implements EveryFrameScript {
     private Map<String, IntervalUtil> forcedTargetMap = new HashMap<>();
 
     private SectorEntityToken terrain = null;
-
-    private float rangeBonus = 0f;
-    public float terrainRange = Setting.ARTILLERY_MAX_RANGE.value(); //we save this here because getting the terrain is expensive
 
     public boolean disabled = false;
     public boolean isDone = false;
@@ -64,7 +63,7 @@ public class CampaignAttackScript implements EveryFrameScript {
     }
 
     public void addTerrainToLoc(){
-        SectorEntityToken t = entity.getContainingLocation().addTerrain("IndEvo_artillery_range_terrain", new BaseRingTerrain.RingParams(terrainRange, 0f, entity, "In artillery range"));
+        SectorEntityToken t = entity.getContainingLocation().addTerrain("IndEvo_artillery_range_terrain", new BaseRingTerrain.RingParams(TERRAIN_RADIUS, 0f, entity, "In artillery range"));
         t.setCircularOrbit(entity, 0, 0, 0);
 
         terrain = t;
@@ -100,7 +99,7 @@ public class CampaignAttackScript implements EveryFrameScript {
 
         if (terrain == null) addTerrainToLoc();
 
-        matchTerrainRangeAndLoc();
+        matchTerrainLoc();
 
         if (disabled) return;
 
@@ -232,7 +231,6 @@ public class CampaignAttackScript implements EveryFrameScript {
         return hostile
                 && t.isAlive()
                 && isNotNullAI
-                && Misc.getDistance(t, entity) <= getRange()
                 && Misc.getDistance(t, entity) >= Setting.ARTILLERY_MIN_RANGE.value()
                 && t.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY)
                 && !t.getMemoryWithoutUpdate().getBoolean(MemFlags.ENTITY_MISSION_IMPORTANT);
@@ -241,7 +239,6 @@ public class CampaignAttackScript implements EveryFrameScript {
     private boolean isForcedValid(SectorEntityToken t) {
         return t != null
                 && !t.isExpired()
-                && Misc.getDistance(t, entity) <= getRange()
                 && Misc.getDistance(t, entity) >= Setting.ARTILLERY_MIN_RANGE.value()
                 && !t.getMemoryWithoutUpdate().contains(FORCE_INVALID);
     }
@@ -399,11 +396,7 @@ public class CampaignAttackScript implements EveryFrameScript {
         setDone(true);
     }
 
-    public void matchTerrainRangeAndLoc() {
-        if (Math.round(getRange()) != Math.round(terrainRange)) {
-            adjustTerrainRange(getRange());
-        }
-
+    public void matchTerrainLoc() {
         if (terrain.getContainingLocation() != entity.getContainingLocation()) {
             getTerrainPlugin().remove();
             addTerrainToLoc();
@@ -420,22 +413,5 @@ public class CampaignAttackScript implements EveryFrameScript {
         }
 
         return null;
-    }
-
-    public void adjustTerrainRange(float range) {
-        getTerrainPlugin().setRange(range);
-        terrainRange = range;
-    }
-
-    public void addToRange(float range) {
-        rangeBonus += range;
-    }
-
-    public void resetRange() {
-        rangeBonus = 0f;
-    }
-
-    public float getRange() {
-        return Setting.ARTILLERY_MAX_RANGE.value() + rangeBonus;
     }
 }

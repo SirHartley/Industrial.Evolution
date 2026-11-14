@@ -60,8 +60,7 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
         Color color = entity.getFaction().getBaseUIColor();
 
         tooltip.addPara(Misc.ucFirst(type) + " Artillery", color, 0);
-        CampaignAttackScript s = getOrInitScript();
-        if (s != null) tooltip.addPara("Targets enemy fleets at %s range", 3f, Misc.getHighlightColor(), (int) Math.round(s.getRange()) + " units");
+        tooltip.addPara("Targets enemy fleets %s", 3f, Misc.getHighlightColor(), "anywhere in the system");
 
         boolean hostile = getOrInitScript().isHostileTo(Global.getSector().getPlayerFleet());
         Color c = hostile ? Misc.getNegativeHighlightColor() : Misc.getPositiveHighlightColor();

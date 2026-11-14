@@ -364,6 +364,7 @@ Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a 
 Added - Mortar shells leave a short trail
 Adjusted - Thinner artillery target lines, shells, missiles and trails
 Adjusted - Uses vanilla star dialogs for better mod compatibility
+Adjusted - Artillery now targets fleets anywhere in the system (was 12000 units)
 Fixed - Slow fields and forced overloads no longer expire while paused
 Fixed - Watchtowers now properly lock on faster the closer you are
 Fixed - Watchtowers no longer count as stable locations
@@ -374,6 +375,7 @@ Fixed - Jumping out of a system now empties the watchtower eye
 Fixed - Artillery missiles no longer launch from beside a moving station
 Fixed - Railgun shots no longer vanish before they arrive at long range
 Fixed - Railgun shots no longer pass through a fleet without a hit
+Removed - Artillery improvement and the Max Range setting (no range left to improve)
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins
