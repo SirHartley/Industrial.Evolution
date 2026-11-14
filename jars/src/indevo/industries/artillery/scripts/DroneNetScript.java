@@ -35,8 +35,10 @@ import org.lwjgl.util.vector.Vector2f;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class DroneNetScript implements EveryFrameScript {
@@ -63,6 +65,12 @@ public class DroneNetScript implements EveryFrameScript {
         public transient float[] trailIds;
     }
 
+    public static class NestLights {
+        public final boolean[] sees = new boolean[NEST_LIGHTS];
+        public final float[] alert = new float[NEST_LIGHTS];
+        public float pingCooldown;
+    }
+
     public static final String MEM_KEY = "$IndEvo_droneNet";
     public static final String NEST_ENTITY_ID = "IndEvo_DroneNest";
     public static final String SPOTTER_ENTITY_ID = "IndEvo_SpotterDrone";
@@ -79,7 +87,11 @@ public class DroneNetScript implements EveryFrameScript {
     public static final float CHECK_SECONDS = 0.25f;
     public static final float FADE_SECONDS = 1f;
     public static final int SPOTTERS_PER_NEST = 2;
-    public static final float NEST_ZONE_RADIUS = 300f;
+    public static final int NEST_LIGHTS = 3;
+    public static final float NEST_LIGHT_ARC = 39f;
+    public static final float NEST_LIGHT_LENGTH = 1000f;
+    public static final float NEST_SWING_ARC = 45f;
+    public static final float NEST_SWING_SECONDS = 11.4f;
     public static final float RELAUNCH_DAYS = 3f;
     public static final int MIN_NEST_RELICS = 6;
     public static final int MAX_NEST_RELICS = 10;
@@ -137,7 +149,9 @@ public class DroneNetScript implements EveryFrameScript {
     private transient float coneRate;
     private float visibility;
     private float sinceCheck;
+    private float nestSweep;
     private transient List<VisionBlockers.Blocker> blockers;
+    private transient Map<SectorEntityToken, NestLights> nestLights;
 
     public DroneNetScript(StarSystemAPI system, String factionId) {
         this.system = system;
@@ -186,6 +200,7 @@ public class DroneNetScript implements EveryFrameScript {
 
     public void destroyNest(SectorEntityToken nest, boolean withDebris) {
         if (!nests.remove(nest)) return;
+        if (nestLights != null) nestLights.remove(nest);
 
         spawnExplosion(nest.getLocation(), NEST_EXPLOSION_SIZE);
         if (withDebris) addDebris(nest);
@@ -244,6 +259,30 @@ public class DroneNetScript implements EveryFrameScript {
         return visibility;
     }
 
+    // same eased profile scaling as the spotter cones
+    public float getNestLightLength() {
+        return NEST_LIGHT_LENGTH * coneLength / Setting.ARTILLERY_DRONE_CONE_LENGTH.value();
+    }
+
+    // lights 120 degrees apart, each a third of a swing behind the last; base and phase per nest from its id
+    public float getNestLightAngle(SectorEntityToken nest, int index) {
+        float phase = nestSweep / NEST_SWING_SECONDS + (getNestHash(nest) % 1000) / 1000f - (float) index / NEST_LIGHTS;
+        return Misc.normalizeAngle(getNestLightBase(nest, index) + (float) Math.sin(phase * 2f * Math.PI) * NEST_SWING_ARC);
+    }
+
+    public static float getNestLightBase(SectorEntityToken nest, int index) {
+        return Misc.normalizeAngle(getNestHash(nest) % 360 + index * 360f / NEST_LIGHTS);
+    }
+
+    private static int getNestHash(SectorEntityToken nest) {
+        return nest.getId().hashCode() & Integer.MAX_VALUE;
+    }
+
+    public NestLights getNestLights(SectorEntityToken nest) {
+        if (nestLights == null) nestLights = new HashMap<>();
+        return nestLights.computeIfAbsent(nest, k -> new NestLights());
+    }
+
     @Override
     public void advance(float amount) {
         if (done) return;
@@ -261,6 +300,14 @@ public class DroneNetScript implements EveryFrameScript {
         }
 
         visibility = MathUtils.clamp(visibility + (active ? amount : -amount) / FADE_SECONDS, 0f, 1f);
+        nestSweep += amount;
+
+        for (SectorEntityToken nest : nests) {
+            NestLights lights = getNestLights(nest);
+            lights.pingCooldown -= amount;
+            for (int i = 0; i < NEST_LIGHTS; i++)
+                lights.alert[i] = MathUtils.clamp(lights.alert[i] + (lights.sees[i] ? amount : -amount) / ALERT_SECONDS, 0f, 1f);
+        }
 
         float gap = coneTarget - coneLength;
         float step = coneRate * amount;
@@ -314,14 +361,11 @@ public class DroneNetScript implements EveryFrameScript {
         }
 
         ensureCones();
+
+        float nestLength = getNestLightLength();
+        for (SectorEntityToken nest : nests) lookFromNest(nest, player, nestLength);
+
         if (!active) return;
-
-        for (SectorEntityToken nest : nests) {
-            float dist = Misc.getDistance(nest, player);
-            if (dist < NEST_ZONE_RADIUS && !VisionBlockers.isBlocked(blockers, nest.getLocation(), player.getLocation()))
-                playerFraction = Math.max(playerFraction, 1f - dist / NEST_ZONE_RADIUS);
-        }
-
         markHostileFleets();
     }
 
@@ -514,6 +558,37 @@ public class DroneNetScript implements EveryFrameScript {
         }
     }
 
+    private void lookFromNest(SectorEntityToken nest, CampaignFleetAPI player, float length) {
+        NestLights lights = getNestLights(nest);
+        boolean saw = false;
+        boolean sees = false;
+
+        for (int i = 0; i < NEST_LIGHTS; i++) {
+            saw |= lights.sees[i];
+            lights.sees[i] = active && nestLightSees(nest, i, player, length);
+            sees |= lights.sees[i];
+        }
+
+        if (!sees) return;
+
+        float dist = Misc.getDistance(nest, player);
+        playerFraction = Math.max(playerFraction, MathUtils.clamp(1f - dist / length, 0f, 1f));
+
+        if (saw || lights.pingCooldown > 0f) return;
+        lights.pingCooldown = LOCK_PING_COOLDOWN;
+        Global.getSoundPlayer().playUISound(LOCK_SOUND_ID, 1f, LOCK_SOUND_VOLUME);
+        Global.getSector().addPing(nest, LOCK_PING_ID, DroneConeTerrain.LOCK_COLOR);
+    }
+
+    private boolean nestLightSees(SectorEntityToken nest, int index, SectorEntityToken target, float length) {
+        Vector2f from = nest.getLocation();
+        float dist = Misc.getDistance(from, target.getLocation());
+        if (dist > length + target.getRadius()) return false;
+        if (dist > target.getRadius() + nest.getRadius() && !Misc.isInArc(getNestLightAngle(nest, index), NEST_LIGHT_ARC, from, target.getLocation())) return false;
+
+        return !VisionBlockers.isBlocked(blockers, from, target.getLocation());
+    }
+
     // the cone turns red now; the cooldown keeps a fleet on the cone edge from pinging every check
     private void pingLock(Spotter spotter) {
         if (spotter.pingCooldown > 0f || spotter.following) return;
@@ -556,8 +631,9 @@ public class DroneNetScript implements EveryFrameScript {
         }
 
         for (SectorEntityToken nest : nests) {
-            if (Misc.getDistance(nest, fleet) < NEST_ZONE_RADIUS && !VisionBlockers.isBlocked(blockers, nest.getLocation(), fleet.getLocation()))
-                return "Drone Nest";
+            for (int i = 0; i < NEST_LIGHTS; i++) {
+                if (nestLightSees(nest, i, fleet, NEST_LIGHT_LENGTH)) return "Drone Nest";
+            }
         }
 
         return null;

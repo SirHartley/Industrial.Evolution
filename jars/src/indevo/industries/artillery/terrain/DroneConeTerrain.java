@@ -33,7 +33,6 @@ public class DroneConeTerrain extends BaseRingTerrain {
     public static final float LAMP_SIZE = 22f;
     public static final float LAMP_ALPHA = 0.45f;
 
-    public static final LightConeRenderer.Style NEST_LIGHT = new LightConeRenderer.Style();
     public static final float NEST_GLOW_SIZE = 80f;
     public static final float NEST_GLOW_ALPHA = 0.4f;
     public static final float ZONE_MAP_ALPHA = 0.4f;
@@ -49,7 +48,6 @@ public class DroneConeTerrain extends BaseRingTerrain {
 
     public static final float RENDER_RANGE = 10000000f;
     private static final int ZONE_SEGMENTS = 48;
-    private static final float[] ALL_AROUND = {0f};
     private static final float[] CONE_ANGLE = new float[1];
 
     protected transient SpriteAPI glow;
@@ -68,14 +66,6 @@ public class DroneConeTerrain extends BaseRingTerrain {
         LIGHT.shadow = 0.95f;
         LIGHT.sourceRadius = 50f;
         LIGHT.dustGain = 2.5f;
-
-        NEST_LIGHT.peak = 0.16f;
-        NEST_LIGHT.edgeStart = 1f;
-        NEST_LIGHT.edgeEnd = 2f;
-        NEST_LIGHT.farShare = 0.35f;
-        NEST_LIGHT.falloff = 6f;
-        NEST_LIGHT.endStart = 0.7f;
-        NEST_LIGHT.dustGain = 3f;
     }
 
     @Override
@@ -144,18 +134,23 @@ public class DroneConeTerrain extends BaseRingTerrain {
         }
     }
 
-    // the nest zone as a round lamp, the checked radius sits inside the fade
     private void drawNestLights(DroneNetScript net, float alpha, ViewportAPI viewport) {
         List<VisionBlockers.Blocker> blockers = net.getBlockers();
-        float radius = DroneNetScript.NEST_ZONE_RADIUS;
+        float length = net.getNestLightLength();
 
         for (SectorEntityToken nest : net.getNests()) {
             Vector2f loc = nest.getLocation();
             if (nest.isDiscoverable()) continue;
-            if (!viewport.isNearViewport(loc, radius * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
+            if (!viewport.isNearViewport(loc, length * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
 
-            LightConeRenderer.draw(loc, 0f, 360f, radius, blockers, NEST_LIGHT, LIGHT_COLOR, alpha);
-            LightConeRenderer.drawDust(viewport, loc, ALL_AROUND, 360f, radius, blockers, NEST_LIGHT, LIGHT_COLOR, alpha, dustTime);
+            DroneNetScript.NestLights lights = net.getNestLights(nest);
+            for (int i = 0; i < DroneNetScript.NEST_LIGHTS; i++) {
+                Color color = Misc.interpolateColor(LIGHT_COLOR, LOCK_COLOR, lights.alert[i]);
+                float lock = 1f + (LOCK_ALPHA_MULT - 1f) * lights.alert[i];
+                CONE_ANGLE[0] = net.getNestLightAngle(nest, i);
+                LightConeRenderer.draw(loc, CONE_ANGLE[0], DroneNetScript.NEST_LIGHT_ARC, length, blockers, LIGHT, color, alpha * lock);
+                LightConeRenderer.drawDust(viewport, loc, CONE_ANGLE, DroneNetScript.NEST_LIGHT_ARC, length, blockers, LIGHT, color, alpha * lock, dustTime);
+            }
 
             glow.setAngle(0f);
             glow.setSize(NEST_GLOW_SIZE, NEST_GLOW_SIZE);
@@ -220,7 +215,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
             Vector2f loc = nest.getLocation();
             if (nest.isDiscoverable()) continue;
 
-            drawZone(loc, DroneNetScript.NEST_ZONE_RADIUS, ZONE_COLOR, alpha, factor);
+            drawZone(loc, net.getNestLightLength(), ZONE_COLOR, alpha, factor);
         }
 
         GL11.glPopAttrib();
