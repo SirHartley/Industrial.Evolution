@@ -3,7 +3,6 @@ package indevo.industries.artillery.utils;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
 import indevo.items.consumables.terrain.SmokeCloudTerrain;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -29,15 +28,9 @@ public class VisionBlockers {
     public static final float PLANET_RADIUS_MULT = 0.9f;
 
     public static List<Blocker> collect(LocationAPI loc) {
-        return collect(loc, null);
-    }
-
-    public static List<Blocker> collect(LocationAPI loc, SectorEntityToken exclude) {
         List<Blocker> blockers = collectSmoke(loc);
 
         for (PlanetAPI planet : loc.getPlanets()) {
-            if (planet == exclude) continue;
-
             Vector2f at = planet.getLocation();
             blockers.add(new Blocker(at.x, at.y, planet.getRadius() * PLANET_RADIUS_MULT, false));
         }
