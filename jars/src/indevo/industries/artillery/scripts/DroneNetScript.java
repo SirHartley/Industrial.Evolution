@@ -68,6 +68,7 @@ public class DroneNetScript implements EveryFrameScript {
     public static final String DECOY_ENTITY_ID = "IndEvo_decoy_mine";
     public static final String NEST_DROP_GROUP = "IndEvo_droneNest";
     public static final String EXPLOSION_SOUND_ID = "IndEvo_mortar_hit";
+    public static final String LOCK_SOUND_ID = "detected_player";
     public static final Color EXPLOSION_COLOR = new Color(255, 160, 60);
     public static final Color ENGINE_COLOR = new Color(255, 125, 25);
 
@@ -487,6 +488,7 @@ public class DroneNetScript implements EveryFrameScript {
 
             // a short graze fills the eye but does not pull the spotter off its route
             if (spotter.noticed >= NOTICE_SECONDS) {
+                if (!spotter.following) Global.getSoundPlayer().playUISound(LOCK_SOUND_ID, 1f, 1f);
                 spotter.following = true;
                 spotter.lastSeen = new Vector2f(player.getLocation());
             }

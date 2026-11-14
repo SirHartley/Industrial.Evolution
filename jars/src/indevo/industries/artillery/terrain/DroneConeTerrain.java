@@ -67,7 +67,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
         LIGHT.nearSoftShare = 0.01f;
         LIGHT.shadow = 0.95f;
         LIGHT.sourceRadius = 50f;
-        LIGHT.dustGain = 5f;
+        LIGHT.dustGain = 2.5f;
 
         NEST_LIGHT.peak = 0.16f;
         NEST_LIGHT.edgeStart = 1f;
