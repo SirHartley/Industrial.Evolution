@@ -44,37 +44,44 @@ public class MortarShotScript implements EveryFrameScript {
     public void advance(float amount) {
         if (isDone()) return;
 
-        List<Vector2f> targetList = getTargetList(target, Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value());
+        Vector2f center = getAnticipatedTargetLoc(origin, target);
+        SectorEntityToken track = target.isPlayerFleet() ? target : null;
 
-        for (Vector2f t : targetList) {
-            MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, (float) (Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value() + 3f * random()));
+        for (Vector2f t : getTargetList(target, center, getLeadSeconds(origin, target))) {
+            float warningSeconds = (float) (Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value() + 3f * random());
+            MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, warningSeconds, track, Vector2f.sub(t, center, null));
         }
 
         done = true;
     }
 
-    public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
+    public static Vector2f getAnticipatedTargetLoc(SectorEntityToken origin, SectorEntityToken entity) {
+        return predict(entity, getLeadSeconds(origin, entity));
+    }
+
+    // shells leave at once when the flight outlasts the warning, so the lead covers the flight
+    public static float getLeadSeconds(SectorEntityToken origin, SectorEntityToken entity) {
+        float impact = Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value();
+        float lead = Math.max(impact, MortarProjectileEntityPlugin.AVERAGE_LAUNCH_DELAY + Misc.getDistance(origin, entity) / MortarProjectileEntityPlugin.PROJECTILE_VELOCITY);
+        float flight = Misc.getDistance(origin.getLocation(), predict(entity, lead)) / MortarProjectileEntityPlugin.PROJECTILE_VELOCITY;
+        return Math.max(impact, MortarProjectileEntityPlugin.AVERAGE_LAUNCH_DELAY + flight);
+    }
+
+    public static Vector2f predict(SectorEntityToken entity, float seconds) {
         Vector2f vel = entity.getVelocity();
-        float dist = vel.length() * Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value() * 1.1f;
-        float currentNavigationAngle = Misc.getAngleInDegrees(vel);
-        Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
+        float dist = vel.length() * seconds * 1.1f;
+        Vector2f location = Misc.getUnitVectorAtDegreeAngle(Misc.getAngleInDegrees(vel));
         location.scale(dist);
         return Vector2f.add(location, entity.getLocation(), location);
     }
 
-    public List<Vector2f> getTargetList(SectorEntityToken entity, float impactTimeSeconds) {
+    public List<Vector2f> getTargetList(SectorEntityToken entity, Vector2f anticipatedEntityPos, float leadSeconds) {
         //Je langsamer desto offener der Winkel?
         //Nein, wechsel zu nicht-winkelbasiertem Kreissystem
 
         List<Vector2f> targetList = new ArrayList<>();
 
-        Vector2f vel = entity.getVelocity();
-        float dist = vel.length() * impactTimeSeconds * 1.1f;
-        float currentNavigationAngle = Misc.getAngleInDegrees(vel);
-        Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
-        location.scale(dist);
-        Vector2f anticipatedEntityPos = Vector2f.add(location, entity.getLocation(), location);
-
+        float dist = entity.getVelocity().length() * leadSeconds * 1.1f;
         float targetRadius = MathUtils.clamp(dist, MIN_TARGET_RADIUS, MAX_TARGET_RADIUS);
 
         ModPlugin.log("target radius " + targetRadius + " impact length " + dist);
