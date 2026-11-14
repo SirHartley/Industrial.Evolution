@@ -67,7 +67,12 @@ public class DroneNetScript implements EveryFrameScript {
 
     public static class NestLights {
         public final boolean[] sees = new boolean[NEST_LIGHTS];
+        public final boolean[] locked = new boolean[NEST_LIGHTS];
         public final float[] alert = new float[NEST_LIGHTS];
+        public final float[] angle = new float[NEST_LIGHTS];
+        public final float[] reach = {1f, 1f, 1f};
+        public final float[] unseen = new float[NEST_LIGHTS];
+        public final Vector2f[] lastSeen = new Vector2f[NEST_LIGHTS];
         public float pingCooldown;
     }
 
@@ -92,6 +97,8 @@ public class DroneNetScript implements EveryFrameScript {
     public static final float NEST_LIGHT_LENGTH = 1000f;
     public static final float NEST_SWING_ARC = 45f;
     public static final float NEST_SWING_SECONDS = 11.4f;
+    public static final float NEST_TURN_RATE = 45f;
+    public static final float NEST_TRACK_REACH = 1.3f;
     public static final float RELAUNCH_DAYS = 3f;
     public static final int MIN_NEST_RELICS = 6;
     public static final int MAX_NEST_RELICS = 10;
@@ -264,8 +271,12 @@ public class DroneNetScript implements EveryFrameScript {
         return NEST_LIGHT_LENGTH * coneLength / Setting.ARTILLERY_DRONE_CONE_LENGTH.value();
     }
 
-    // lights 120 degrees apart, each a third of a swing behind the last; base and phase per nest from its id
     public float getNestLightAngle(SectorEntityToken nest, int index) {
+        return getNestLights(nest).angle[index];
+    }
+
+    // lights 120 degrees apart, each a third of a swing behind the last; base and phase per nest from its id
+    public float getNestSweepAngle(SectorEntityToken nest, int index) {
         float phase = nestSweep / NEST_SWING_SECONDS + (getNestHash(nest) % 1000) / 1000f - (float) index / NEST_LIGHTS;
         return Misc.normalizeAngle(getNestLightBase(nest, index) + (float) Math.sin(phase * 2f * Math.PI) * NEST_SWING_ARC);
     }
@@ -280,7 +291,14 @@ public class DroneNetScript implements EveryFrameScript {
 
     public NestLights getNestLights(SectorEntityToken nest) {
         if (nestLights == null) nestLights = new HashMap<>();
-        return nestLights.computeIfAbsent(nest, k -> new NestLights());
+
+        NestLights lights = nestLights.get(nest);
+        if (lights != null) return lights;
+
+        lights = new NestLights();
+        nestLights.put(nest, lights);
+        for (int i = 0; i < NEST_LIGHTS; i++) lights.angle[i] = getNestSweepAngle(nest, i);
+        return lights;
     }
 
     @Override
@@ -302,12 +320,7 @@ public class DroneNetScript implements EveryFrameScript {
         visibility = MathUtils.clamp(visibility + (active ? amount : -amount) / FADE_SECONDS, 0f, 1f);
         nestSweep += amount;
 
-        for (SectorEntityToken nest : nests) {
-            NestLights lights = getNestLights(nest);
-            lights.pingCooldown -= amount;
-            for (int i = 0; i < NEST_LIGHTS; i++)
-                lights.alert[i] = MathUtils.clamp(lights.alert[i] + (lights.sees[i] ? amount : -amount) / ALERT_SECONDS, 0f, 1f);
-        }
+        for (SectorEntityToken nest : nests) moveNestLights(nest, amount);
 
         float gap = coneTarget - coneLength;
         float step = coneRate * amount;
@@ -363,7 +376,7 @@ public class DroneNetScript implements EveryFrameScript {
         ensureCones();
 
         float nestLength = getNestLightLength();
-        for (SectorEntityToken nest : nests) lookFromNest(nest, player, nestLength);
+        for (SectorEntityToken nest : nests) lookFromNest(nest, player, nestLength, elapsed);
 
         if (!active) return;
         markHostileFleets();
@@ -558,21 +571,52 @@ public class DroneNetScript implements EveryFrameScript {
         }
     }
 
-    private void lookFromNest(SectorEntityToken nest, CampaignFleetAPI player, float length) {
+    // a light that sees the player turns to follow and reaches NEST_TRACK_REACH further until it loses him for LOSE_SECONDS
+    private void moveNestLights(SectorEntityToken nest, float amount) {
+        NestLights lights = getNestLights(nest);
+        Vector2f from = nest.getLocation();
+        Vector2f player = Global.getSector().getPlayerFleet().getLocation();
+        lights.pingCooldown -= amount;
+
+        for (int i = 0; i < NEST_LIGHTS; i++) {
+            lights.alert[i] = MathUtils.clamp(lights.alert[i] + (lights.sees[i] ? amount : -amount) / ALERT_SECONDS, 0f, 1f);
+            float reachTarget = lights.locked[i] ? NEST_TRACK_REACH : 1f;
+            float reachStep = (NEST_TRACK_REACH - 1f) / CONE_RESIZE_SECONDS * amount;
+            lights.reach[i] += MathUtils.clamp(reachTarget - lights.reach[i], -reachStep, reachStep);
+
+            Vector2f focus = lights.sees[i] ? player : lights.locked[i] ? lights.lastSeen[i] : null;
+            float wanted = focus != null ? Misc.getAngleInDegrees(from, focus) : getNestSweepAngle(nest, i);
+            float turn = MathUtils.getShortestRotation(lights.angle[i], wanted);
+            lights.angle[i] = Misc.normalizeAngle(lights.angle[i] + MathUtils.clamp(turn, -NEST_TURN_RATE * amount, NEST_TURN_RATE * amount));
+        }
+    }
+
+    private void lookFromNest(SectorEntityToken nest, CampaignFleetAPI player, float length, float elapsed) {
         NestLights lights = getNestLights(nest);
         boolean saw = false;
         boolean sees = false;
 
         for (int i = 0; i < NEST_LIGHTS; i++) {
             saw |= lights.sees[i];
-            lights.sees[i] = active && nestLightSees(nest, i, player, length);
+            float reach = length * lights.reach[i];
+            lights.sees[i] = active && nestLightSees(nest, i, player, reach);
             sees |= lights.sees[i];
+
+            if (lights.sees[i]) {
+                lights.locked[i] = true;
+                lights.unseen[i] = 0f;
+                lights.lastSeen[i] = new Vector2f(player.getLocation());
+                playerFraction = Math.max(playerFraction, MathUtils.clamp(1f - Misc.getDistance(nest, player) / reach, 0f, 1f));
+            } else if (lights.locked[i]) {
+                lights.unseen[i] += elapsed;
+                if (!active || lights.unseen[i] >= LOSE_SECONDS) {
+                    lights.locked[i] = false;
+                    lights.lastSeen[i] = null;
+                }
+            }
         }
 
         if (!sees) return;
-
-        float dist = Misc.getDistance(nest, player);
-        playerFraction = Math.max(playerFraction, MathUtils.clamp(1f - dist / length, 0f, 1f));
 
         if (saw || lights.pingCooldown > 0f) return;
         lights.pingCooldown = LOCK_PING_COOLDOWN;

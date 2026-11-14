@@ -141,15 +141,16 @@ public class DroneConeTerrain extends BaseRingTerrain {
         for (SectorEntityToken nest : net.getNests()) {
             Vector2f loc = nest.getLocation();
             if (nest.isDiscoverable()) continue;
-            if (!viewport.isNearViewport(loc, length * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
+            if (!viewport.isNearViewport(loc, length * DroneNetScript.NEST_TRACK_REACH * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
 
             DroneNetScript.NestLights lights = net.getNestLights(nest);
             for (int i = 0; i < DroneNetScript.NEST_LIGHTS; i++) {
                 Color color = Misc.interpolateColor(LIGHT_COLOR, LOCK_COLOR, lights.alert[i]);
                 float lock = 1f + (LOCK_ALPHA_MULT - 1f) * lights.alert[i];
-                CONE_ANGLE[0] = net.getNestLightAngle(nest, i);
-                LightConeRenderer.draw(loc, CONE_ANGLE[0], DroneNetScript.NEST_LIGHT_ARC, length, blockers, LIGHT, color, alpha * lock);
-                LightConeRenderer.drawDust(viewport, loc, CONE_ANGLE, DroneNetScript.NEST_LIGHT_ARC, length, blockers, LIGHT, color, alpha * lock, dustTime);
+                float reach = length * lights.reach[i];
+                CONE_ANGLE[0] = lights.angle[i];
+                LightConeRenderer.draw(loc, CONE_ANGLE[0], DroneNetScript.NEST_LIGHT_ARC, reach, blockers, LIGHT, color, alpha * lock);
+                LightConeRenderer.drawDust(viewport, loc, CONE_ANGLE, DroneNetScript.NEST_LIGHT_ARC, reach, blockers, LIGHT, color, alpha * lock, dustTime);
             }
 
             glow.setAngle(0f);
