@@ -25,13 +25,20 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
     public static final float INNER_RADIUS = 40f;
     public static final float FADE_SECONDS = 1f;
     public static final int MAX_BEAMS = 2;
-    public static final float BEAM_ALPHA = 0.35f;
-    public static final float LAMP_SIZE = 70f;
+    public static final LightConeRenderer.Style LIGHT = new LightConeRenderer.Style();
+    public static final float LAMP_SIZE = 220f;
     public static final float LAMP_ALPHA = 0.6f;
-    public static final float SCROLL_SPEED = 0.02f;
+    public static final float LAMP_CORE_SIZE = 36f;
+    public static final float LAMP_CORE_ALPHA = 0.8f;
+    public static final float SPILL_SIZE = 700f;
+    public static final float SPILL_ALPHA = 0.03f;
+    public static final float BEAM_ROOT_SIZE = 80f;
+    public static final float BEAM_ROOT_DISTANCE = 12f;
+    public static final float BEAM_ROOT_ALPHA = 0.35f;
     public static final float BLOCKER_SECONDS = 0.1f;
     public static final float MAP_ALPHA = 0.3f;
-    public static final Color LIGHT_COLOR = new Color(255, 236, 190);
+    public static final Color LIGHT_COLOR = new Color(255, 238, 205);
+    public static final Color LAMP_CORE_COLOR = new Color(255, 252, 240);
     public static final float FACTION_TINT = 0.2f;
     private static final int MAP_ARC_SEGMENTS = 8;
 
@@ -41,17 +48,30 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
     protected int beamCount = 1;
 
     protected transient float brightness;
-    protected transient SpriteAPI texture;
     protected transient SpriteAPI glow;
     protected transient List<VisionBlockers.Blocker> blockers;
     protected transient float sinceBlockers;
-    protected transient float scroll;
+    protected transient float dustTime;
+
+    static {
+        LIGHT.peak = 0.18f;
+        LIGHT.edgeStart = 0.35f;
+        LIGHT.edgeEnd = 1.2f;
+        LIGHT.coreShare = 0.65f;
+        LIGHT.coreWidth = 0.2f;
+        LIGHT.farShare = 0.4f;
+        LIGHT.falloff = 8f;
+        LIGHT.endStart = 0.6f;
+        LIGHT.nearSoftShare = 0.01f;
+        LIGHT.shadow = 0.95f;
+        LIGHT.sourceRadius = 50f;
+        LIGHT.dustGain = 8f;
+    }
 
     @Override
     protected Object readResolve() {
         super.readResolve();
         layers = EnumSet.of(CampaignEngineLayers.TERRAIN_7);
-        texture = Global.getSettings().getSprite("terrain", "pulsar");
         glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
         return this;
     }
@@ -97,7 +117,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         brightness += (lit ? amount : -amount) / FADE_SECONDS;
         brightness = Math.max(0f, Math.min(1f, brightness));
 
-        scroll = (scroll + amount * SCROLL_SPEED) % 1f;
+        dustTime += amount;
 
         sinceBlockers += amount;
         if (sinceBlockers >= BLOCKER_SECONDS) blockers = null;
@@ -148,14 +168,33 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         Vector2f loc = entity.getLocation();
         Color color = getLightColor();
 
-        for (int i = 0; i < beamCount; i++)
-            LightConeRenderer.draw(loc, angle + 180f * i, getArc(), getLength(), getBlockers(), color, alpha * BEAM_ALPHA, texture, scroll);
+        float[] angles = new float[beamCount];
+        for (int i = 0; i < beamCount; i++) {
+            angles[i] = angle + 180f * i;
+            LightConeRenderer.draw(loc, angles[i], getArc(), getLength(), getBlockers(), LIGHT, color, alpha, null, 0f);
+        }
+
+        LightConeRenderer.drawDust(viewport, loc, angles, getArc(), getLength(), getBlockers(), LIGHT, color, alpha, dustTime);
 
         glow.setAdditiveBlend();
-        glow.setSize(LAMP_SIZE, LAMP_SIZE);
+        glow.setAngle(0f);
         glow.setColor(color);
-        glow.setAlphaMult(alpha * LAMP_ALPHA);
-        glow.renderAtCenter(loc.x, loc.y);
+        drawGlow(loc.x, loc.y, SPILL_SIZE, alpha * SPILL_ALPHA);
+        drawGlow(loc.x, loc.y, LAMP_SIZE, alpha * LAMP_ALPHA);
+
+        for (float beam : angles) {
+            Vector2f root = Misc.getUnitVectorAtDegreeAngle(beam);
+            drawGlow(loc.x + root.x * BEAM_ROOT_DISTANCE, loc.y + root.y * BEAM_ROOT_DISTANCE, BEAM_ROOT_SIZE, alpha * BEAM_ROOT_ALPHA);
+        }
+
+        glow.setColor(LAMP_CORE_COLOR);
+        drawGlow(loc.x, loc.y, LAMP_CORE_SIZE, alpha * LAMP_CORE_ALPHA);
+    }
+
+    private void drawGlow(float x, float y, float size, float alpha) {
+        glow.setSize(size, size);
+        glow.setAlphaMult(alpha);
+        glow.renderAtCenter(x, y);
     }
 
     private Color getLightColor() {

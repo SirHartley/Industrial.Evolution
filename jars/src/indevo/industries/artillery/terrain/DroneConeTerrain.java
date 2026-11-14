@@ -20,15 +20,17 @@ import java.util.List;
 public class DroneConeTerrain extends BaseRingTerrain {
 
     public static final String TERRAIN_ID = "IndEvo_drone_cones";
-    public static final Color LIGHT_COLOR = new Color(255, 236, 190);
-    public static final Color LOCK_COLOR = new Color(255, 110, 70);
+    public static final Color LIGHT_COLOR = new Color(255, 232, 200);
+    public static final Color LOCK_COLOR = new Color(255, 78, 52);
     public static final Color ZONE_COLOR = new Color(255, 200, 80);
     public static final Color ENGINE_CORE_COLOR = new Color(255, 235, 200);
 
-    public static final float CONE_ALPHA = 0.3f;
-    public static final float LOCK_ALPHA_MULT = 1.4f;
+    public static final LightConeRenderer.Style LIGHT = new LightConeRenderer.Style();
+    public static final float LOCK_ALPHA_MULT = 1.25f;
     public static final float LOCK_PULSE = 0.25f;
     public static final float SCROLL_SPEED = 0.02f;
+    public static final float BLOOM_SIZE = 200f;
+    public static final float BLOOM_ALPHA = 0.2f;
     public static final float LAMP_SIZE = 22f;
     public static final float LAMP_ALPHA = 0.45f;
 
@@ -50,6 +52,18 @@ public class DroneConeTerrain extends BaseRingTerrain {
     protected transient SpriteAPI texture;
     protected transient SpriteAPI glow;
     protected transient float scroll;
+
+    static {
+        LIGHT.peak = 0.2f;
+        LIGHT.edgeStart = 0.4f;
+        LIGHT.edgeEnd = 1.25f;
+        LIGHT.farShare = 0.3f;
+        LIGHT.falloff = 8f;
+        LIGHT.endStart = 0.55f;
+        LIGHT.textureShare = 0.35f;
+        LIGHT.shadow = 0.88f;
+        LIGHT.sourceRadius = 60f;
+    }
 
     @Override
     protected Object readResolve() {
@@ -95,8 +109,10 @@ public class DroneConeTerrain extends BaseRingTerrain {
 
     private void drawCones(DroneNetScript net, float alpha, ViewportAPI viewport) {
         float length = net.getConeLength();
-        float pulse = 1f - LOCK_PULSE * Global.getSector().getCampaignUI().getSharedFader().getBrightness();
         List<VisionBlockers.Blocker> blockers = net.getBlockers();
+        glow.setAdditiveBlend();
+        glow.setAngle(0f);
+        glow.setSize(BLOOM_SIZE, BLOOM_SIZE);
 
         for (DroneNetScript.Spotter spotter : net.getSpotters()) {
             if (spotter.entity == null) continue;
@@ -105,14 +121,19 @@ public class DroneConeTerrain extends BaseRingTerrain {
             if (!viewport.isNearViewport(loc, length * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
 
             Color color = Misc.interpolateColor(LIGHT_COLOR, LOCK_COLOR, spotter.alert);
-            float lock = 1f + (LOCK_ALPHA_MULT * pulse - 1f) * spotter.alert;
-            LightConeRenderer.draw(loc, spotter.coneAngle, DroneNetScript.CONE_ARC, length, blockers, color, alpha * CONE_ALPHA * lock, texture, scroll);
+            float lock = 1f + (LOCK_ALPHA_MULT - 1f) * spotter.alert;
+            LightConeRenderer.draw(loc, spotter.coneAngle, DroneNetScript.CONE_ARC, length, blockers, LIGHT, color, alpha * lock, texture, scroll);
+
+            glow.setColor(color);
+            glow.setAlphaMult(alpha * BLOOM_ALPHA);
+            glow.renderAtCenter(loc.x, loc.y);
         }
     }
 
     private void drawDrones(DroneNetScript net, ViewportAPI viewport) {
         float alpha = viewport.getAlphaMult();
         float lampAlpha = alpha * net.getVisibility() * LAMP_ALPHA;
+        float pulse = LOCK_PULSE * Global.getSector().getCampaignUI().getSharedFader().getBrightness();
         glow.setAdditiveBlend();
 
         for (DroneNetScript.Spotter spotter : net.getSpotters()) {
@@ -131,7 +152,7 @@ public class DroneConeTerrain extends BaseRingTerrain {
             glow.setAngle(0f);
             glow.setSize(LAMP_SIZE, LAMP_SIZE);
             glow.setColor(Misc.interpolateColor(LIGHT_COLOR, LOCK_COLOR, spotter.alert));
-            glow.setAlphaMult(lampAlpha);
+            glow.setAlphaMult(lampAlpha * (1f - pulse * spotter.alert));
             glow.renderAtCenter(lamp.x, lamp.y);
         }
     }
