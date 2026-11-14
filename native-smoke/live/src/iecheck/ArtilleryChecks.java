@@ -1281,7 +1281,7 @@ public final class ArtilleryChecks {
             c.expect(live(net).size() == nests * DroneNetScript.SPOTTERS_PER_NEST, "E3 two spotters per nest (" + live(net).size() + ")");
             park(net, List.of());
             SectorEntityToken nest = net.getNests().get(0);
-            pinPlayer(() -> new Vector2f(nest.getLocation().x + 50f, nest.getLocation().y));
+            pinPlayer(() -> at(nest, net.getNestLightAngle(nest, 0), 50f));
             resetEye();
             realTime();
             probe = new Probe(s, projectile(MISSILE));
@@ -1289,8 +1289,8 @@ public final class ArtilleryChecks {
         });
         steps.add(c -> {
             float rate = (probe.e4 - probe.e1) / 3f;
-            c.expect(rate >= 1f && rate <= 2f, "E3 nest zone fills 1 to 2 per second (got " + rate + ")");
-            c.expect(probe.maxJump < 1.5f, "E3 nest zone never instant (max jump " + probe.maxJump + ")");
+            c.expect(rate >= 1f && rate <= 2f, "E3 nest light fills 1 to 2 per second (got " + rate + ")");
+            c.expect(probe.maxJump < 1.5f, "E3 nest light never instant (max jump " + probe.maxJump + ")");
             float delay = probe.firstProj - probe.lockAt;
             c.expect(probe.firstProj >= 0f && delay <= Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value() + 0.5f, "E4 missile carrier spawns within the station delay after the lock (got " + delay + " s)");
             pinPlayer(() -> HIDE);
@@ -1399,16 +1399,16 @@ public final class ArtilleryChecks {
             pin(a, () -> inCone);
             SectorEntityToken nest = net.getNests().get(1);
             CampaignFleetAPI b = npc(s, nest.getLocation());
-            pin(b, () -> new Vector2f(nest.getLocation().x, nest.getLocation().y + 100f));
+            pin(b, () -> at(nest, net.getNestLightAngle(nest, 0), 300f));
             keep.put("n4a", a);
             keep.put("n4b", b);
-            c.until(() -> a.getMemoryWithoutUpdate().getBoolean(EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY) && b.getMemoryWithoutUpdate().getBoolean(EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY), 0.2f, "N4 NPC fleets in a cone and a nest zone are seen");
+            c.until(() -> a.getMemoryWithoutUpdate().getBoolean(EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY) && b.getMemoryWithoutUpdate().getBoolean(EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY), 0.2f, "N4 NPC fleets in a cone and a nest light are seen");
         });
         steps.add(c -> {
             for (String k : new String[]{"n4a", "n4b"}) {
                 CampaignFleetAPI f = (CampaignFleetAPI) keep.get(k);
                 float expire = f.getMemoryWithoutUpdate().getExpire(EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY);
-                c.expect(expire > 4.8f && expire <= 5.01f, "N4 " + (k.equals("n4a") ? "cone" : "nest zone") + " sighting lasts 5 days (expire " + expire + ")");
+                c.expect(expire > 4.8f && expire <= 5.01f, "N4 " + (k.equals("n4a") ? "cone" : "nest light") + " sighting lasts 5 days (expire " + expire + ")");
                 f.getContainingLocation().removeEntity(f);
             }
             unpinAll();
@@ -1477,7 +1477,7 @@ public final class ArtilleryChecks {
         return net.getNests().get(0);
     }
 
-    // L1 and L2 for cones and nest zones
+    // L1 and L2 for cones and nest lights
     private static void droneSight(List<Step> steps) {
         steps.add(c -> make(c, "ds", VisionType.DRONES, MISSILE));
         // L1 cone
@@ -1512,7 +1512,7 @@ public final class ArtilleryChecks {
             });
         }
         steps.add(c -> c.shot("l1-cone"));
-        // L2 cone and nest zone
+        // L2 cone and nest light
         for (String mode : new String[]{"cone-control", "cone-on", "cone-between", "nest-control", "nest-on", "nest-between"}) {
             steps.add(c -> {
                 zoomReset();
@@ -1534,21 +1534,23 @@ public final class ArtilleryChecks {
                 } else {
                     park(net, List.of());
                     SectorEntityToken nest = net.getNests().get(0);
-                    float d = mode.endsWith("between") ? 280f : 250f;
-                    pinPlayer(() -> new Vector2f(nest.getLocation().x + d, nest.getLocation().y));
-                    if (mode.endsWith("on")) keep.put("cloud", cloud(s, new Vector2f(nest.getLocation().x + d, nest.getLocation().y), 100f));
-                    if (mode.endsWith("between")) keep.put("cloud", cloud(s, new Vector2f(nest.getLocation().x + 140f, nest.getLocation().y), 100f));
+                    float base = DroneNetScript.getNestLightBase(nest, 0);
+                    float d = mode.endsWith("between") ? 530f : 500f;
+                    pinPlayer(() -> at(nest, base, d));
+                    if (mode.endsWith("on")) keep.put("cloud", cloud(s, at(nest, base, d), 100f));
+                    if (mode.endsWith("between")) keep.put("cloud", cloud(s, at(nest, base, 280f), 100f));
                 }
                 keep.put("seen", Boolean.FALSE);
                 realTime();
-                hold(c, 0.15f, "L2 " + mode + " window", () -> {
+                // a fixed point on the swing centre is crossed at least once per half swing
+                hold(c, mode.startsWith("nest") ? 0.65f : 0.15f, "L2 " + mode + " window", () -> {
                     boolean seen = mode.startsWith("cone") ? sp.seesPlayer : net.getPlayerFraction() > 0f;
                     if (settled() && seen) keep.put("seen", Boolean.TRUE);
                 });
             });
             steps.add(c -> {
                 boolean seen = (Boolean) keep.get("seen");
-                String what = mode.startsWith("cone") ? "cone" : "nest zone";
+                String what = mode.startsWith("cone") ? "cone" : "nest light";
                 if (mode.endsWith("control")) c.expect(seen, "L2 " + what + " sees the player without chaff");
                 else c.expect(!seen, "L2 chaff cloud " + (mode.endsWith("on") ? "on" : "between") + " the player: not seen by the " + what);
             });
