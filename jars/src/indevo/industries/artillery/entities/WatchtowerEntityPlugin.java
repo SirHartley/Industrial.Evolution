@@ -125,6 +125,14 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
         }
     }
 
+    // lights of a lighthouse or searchlight tower are on: working, not hacked, hostile to the player, and an artillery needs the vision
+    protected boolean shouldBeLit() {
+        if (!isFunctional() || isHacked()) return false;
+        if (!entity.getFaction().isHostileTo(Factions.PLAYER)) return false;
+
+        return ArtilleryStationEntityPlugin.needsVisionAgainstPlayer(entity.getContainingLocation());
+    }
+
     protected void markSeen(CampaignFleetAPI f) {
         boolean showMessage = !f.getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
         f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, WATCHTOWER_FLEET_SEEN_DURATION_DAYS);

@@ -24,6 +24,7 @@ import indevo.ids.Ids;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.LighthouseEntityPlugin;
+import indevo.industries.artillery.entities.SearchlightEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.scripts.ArtilleryStationScript;
 import indevo.industries.artillery.scripts.DroneNetScript;
@@ -40,7 +41,7 @@ import static indevo.industries.artillery.scripts.ArtilleryStationScript.TYPE_KE
 
 public class ArtilleryStationPlacer {
 
-    public enum VisionType {WATCHTOWER, LIGHTHOUSE, DRONES}
+    public enum VisionType {WATCHTOWER, LIGHTHOUSE, DRONES, SEARCHLIGHT}
 
     public static final int MIN_LIGHTHOUSES_PER_SYSTEM = 4;
     public static final float LIGHTHOUSE_MIN_ORBIT = 1500f;
@@ -206,6 +207,7 @@ public class ArtilleryStationPlacer {
             case WATCHTOWER -> placeTowers(system, factionId, WatchtowerEntityPlugin.ENTITY_ID, random);
             case LIGHTHOUSE -> placeLighthouses(system, factionId, random);
             case DRONES -> placeDroneNet(system, factionId, random);
+            case SEARCHLIGHT -> placeTowers(system, factionId, SearchlightEntityPlugin.ENTITY_ID, random);
         }
     }
 
@@ -214,6 +216,7 @@ public class ArtilleryStationPlacer {
         picker.add(VisionType.WATCHTOWER, Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER.value());
         picker.add(VisionType.LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value());
         picker.add(VisionType.DRONES, Setting.ARTILLERY_VISION_WEIGHT_DRONES.value());
+        picker.add(VisionType.SEARCHLIGHT, Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT.value());
 
         VisionType type = picker.pick();
         return type != null ? type : VisionType.WATCHTOWER;

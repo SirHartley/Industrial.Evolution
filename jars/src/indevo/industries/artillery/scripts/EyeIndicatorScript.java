@@ -8,6 +8,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.entities.LighthouseEntityPlugin;
+import indevo.industries.artillery.entities.SearchlightEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEyeIndicator;
 import indevo.utils.ModPlugin;
@@ -23,6 +24,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     public static final float MAX_TIME_TO_TARGET_LOCK = 20f; //10s per day
     public static final float DISTANCE_MOD = 2; //max mult for distance
     public static final float DRONE_FILL_MULT = 2f;
+    public static final float SEARCHLIGHT_FILL_MULT = 4f;
     public static final float DRAIN_RATE = 1f / 1.2f;
     public static final float SEEN_DAYS = 0.6f;
 
@@ -111,7 +113,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
 
-        // a source fills the eye at 1 + the share of its range the player is inside, drones twice as fast; the fastest source counts
+        // a source fills the eye at 1 + the share of its range the player is inside, drones twice and searchlights four times as fast; the fastest source counts
         float bestRate = -1f;
 
         DroneNetScript droneNet = DroneNetScript.get(loc);
@@ -126,6 +128,11 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
                     isLocked = true;
                     spotted = true;
                 }
+                continue;
+            }
+
+            if (p instanceof SearchlightEntityPlugin searchlight && searchlight.isLit()) {
+                bestRate = Math.max(bestRate, SEARCHLIGHT_FILL_MULT * searchlight.getPlayerRate());
                 continue;
             }
 

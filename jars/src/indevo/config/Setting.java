@@ -59,6 +59,7 @@ public enum Setting {
     ARTILLERY_VISION_WEIGHT_WATCHTOWER("IndEvo_Artillery_visionWeight_watchtower", 1.0, 0, 10, Apply.NEW_GAME),
     ARTILLERY_VISION_WEIGHT_LIGHTHOUSE("IndEvo_Artillery_visionWeight_lighthouse", 1.0, 0, 10, Apply.NEW_GAME),
     ARTILLERY_VISION_WEIGHT_DRONES("IndEvo_Artillery_visionWeight_drones", 1.0, 0, 10, Apply.NEW_GAME),
+    ARTILLERY_VISION_WEIGHT_SEARCHLIGHT("IndEvo_Artillery_visionWeight_searchlight", 1.0, 0, 10, Apply.NEW_GAME),
     ARTILLERY_LIGHTHOUSE_BEAM_LENGTH("IndEvo_Artillery_lighthouse_beamLength", 6000.0, 1000, 20000),
     ARTILLERY_LIGHTHOUSE_BEAM_WIDTH("IndEvo_Artillery_lighthouse_beamWidth", 20.0, 5, 90),
     ARTILLERY_LIGHTHOUSE_TURN_TIME("IndEvo_Artillery_lighthouse_turnTime", 225.0, 10, 600),
