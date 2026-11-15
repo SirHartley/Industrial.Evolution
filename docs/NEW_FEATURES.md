@@ -149,6 +149,7 @@ Philipp's briefs:
 
 Philipp's calls (2026-11-15):
 
+- Look (dust mockup `ie/ROGUE_ASTEROID_DUST_MOCKUP.html`, after his first play): understated, no clouds, no glowing tails, nothing trailing behind a rock. Picked C (dust halo and debris) with the page defaults: faint dust, some debris, rogue rocks only. Built, see [METEOR](exploration/METEOR.md#rogue-asteroids). Rogue type odds stay at the shower weights (no pick).
 - Not big swarms: small assemblies of rocks in different shapes, e.g. wide and sparse, localized, long, drop shaped.
 - Any of the existing rock types.
 - Path anywhere in the system, weighted towards where the player is heading.

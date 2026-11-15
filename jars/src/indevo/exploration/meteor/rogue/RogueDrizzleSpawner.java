@@ -161,6 +161,7 @@ public class RogueDrizzleSpawner implements EveryFrameScript {
         if (rock.getCustomPlugin() instanceof IcyRockEntity && size < RogueAsteroidSpawner.ICE_SPLINTER_MIN_SIZE) rock.addTag(IcyRockEntity.TAG_NO_SPLINTERS);
 
         rock.addTag(TAG_ROCK);
+        rock.addTag(RogueAsteroidSpawner.TAG_ROGUE_ROCK);
         rock.setLocation(p.x, p.y);
         rocks.add(rock);
     }
