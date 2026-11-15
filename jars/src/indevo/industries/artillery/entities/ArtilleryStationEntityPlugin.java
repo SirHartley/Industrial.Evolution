@@ -25,6 +25,8 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
     public static final String TYPE_RAILGUN = "railgun";
     public static final String TYPE_MORTAR = "mortar";
     public static final String TYPE_MISSILE = "missile";
+    public static final String WARNING_PING_SOUND = "mine_ping";
+    public static final float WARNING_PING_VOLUME = 0.7f;
 
     private String type;
 

@@ -376,6 +376,7 @@ Added - Settings for vision type weights, lighthouse beams and drone cones
 Added - Artillery fire animation: muzzle flash and smoke per shot, the station glows hot and vents
 Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a slow discharge all around
 Added - Mortar shells leave a short trail
+Added - Artillery target markers aimed at you play a short warning ping
 Adjusted - Derelict artillery systems always get lighthouses, searchlights or a drone net, plain watchtowers only guard core worlds
 Note - Colonising the system replaces lighthouses, searchlights and the drone net with watchtowers
 Adjusted - Thinner artillery target lines, shells, missiles and trails

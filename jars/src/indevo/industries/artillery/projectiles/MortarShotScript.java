@@ -47,9 +47,12 @@ public class MortarShotScript implements EveryFrameScript {
         Vector2f center = getAnticipatedTargetLoc(origin, target);
         SectorEntityToken track = target.isPlayerFleet() ? target : null;
 
+        boolean ping = track != null;
+
         for (Vector2f t : getTargetList(target, center, getLeadSeconds(origin, target))) {
             float warningSeconds = (float) (Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value() + 3f * random());
-            MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, warningSeconds, track, Vector2f.sub(t, center, null));
+            MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, warningSeconds, track, Vector2f.sub(t, center, null), ping);
+            ping = false;
         }
 
         done = true;
