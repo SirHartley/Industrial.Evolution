@@ -42,7 +42,7 @@ Added - Setting to adjust interdict disable time
 Fixed - Mines no longer cluster in one spot of the belt
 
 Fog
-Added - Fog: weather that sometimes covers a nearby system for about a month or sits there as a local bank for months; the core worlds only get banks. Sensors are nearly useless inside, so moving fleets show only by the trails they leave. Emergency Burn and Interdiction Pulse blow the fog clear, and pirate or Pather fleets sometimes lie in wait (Quick Settings).
+Added - Fog: weather that sometimes covers a nearby system for about a month or sits there as a local bank for months; the core worlds only get banks. Sensors are nearly useless inside, so moving fleets show only by the trails they leave. Emergency Burn and Interdiction Pulse blow the fog clear, and pirate or Pather fleets sometimes lie in wait. Some banks hide a small cache, found with an Active Sensor Burst or by flying right over it; it is gone when the bank is (Quick Settings).
 
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry

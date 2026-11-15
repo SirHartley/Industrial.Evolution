@@ -11,11 +11,13 @@ import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetFactoryV3;
 import com.fs.starfarer.api.impl.campaign.fleets.FleetParamsV3;
+import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
@@ -23,6 +25,7 @@ import indevo.exploration.fog.fleet.FogLurkerAssignmentAI;
 import indevo.exploration.fog.terrain.FogTerrainPlugin;
 import indevo.exploration.fog.terrain.FogTerrainPlugin.Kind;
 import indevo.utils.helper.MiscIE;
+import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +61,10 @@ public class FogWeatherManager implements EconomyTickListener {
     public static final float LURKER_MIN_POINTS = 30f;
     public static final float LURKER_MAX_POINTS = 70f;
     public static final float LURKER_POST_MIN_MASK = 0.5f;
+
+    public static final float BANK_CACHE_CHANCE = 0.15f;
+    public static final String[] CACHE_TYPES = {Entities.SUPPLY_CACHE_SMALL, Entities.EQUIPMENT_CACHE_SMALL, Entities.WEAPONS_CACHE_SMALL};
+    public static final float CACHE_ORBIT_DAYS = 300f;
 
     private final Random random = new Random();
 
@@ -119,7 +126,7 @@ public class FogWeatherManager implements EconomyTickListener {
         return true;
     }
 
-    public static SectorEntityToken spawn(StarSystemAPI system, Kind kind, Random random, boolean forceAmbush) {
+    public static SectorEntityToken spawn(StarSystemAPI system, Kind kind, Random random, boolean forceAmbush, boolean forceCache) {
         if (hasFog(system)) throw new IllegalStateException("IndEvo fog spawned twice in " + system.getName());
 
         SectorEntityToken fog;
@@ -139,6 +146,7 @@ public class FogWeatherManager implements EconomyTickListener {
             fog = system.addTerrain(FogTerrainPlugin.TERRAIN_ID, new FogTerrainPlugin.FogParams(kind, radius, random.nextInt(), ROLL_IN_DAYS, hold, FADE_DAYS));
             placeBank(system, fog, radius, random);
             lurkers = forceAmbush || random.nextFloat() < BANK_AMBUSH_CHANCE ? 1 : 0;
+            if (forceCache || random.nextFloat() < BANK_CACHE_CHANCE) spawnCache(system, fog, radius, random);
         }
 
         getActiveFog().add(fog);
@@ -156,7 +164,7 @@ public class FogWeatherManager implements EconomyTickListener {
             if (isValidSystem(system, kind)) picker.add(system);
         }
         if (picker.isEmpty()) return;
-        spawn(picker.pick(), kind, random, false);
+        spawn(picker.pick(), kind, random, false, false);
     }
 
     private static float getSystemRadius(StarSystemAPI system) {
@@ -210,26 +218,40 @@ public class FogWeatherManager implements EconomyTickListener {
             return;
         }
 
+        Vector2f post = pickThickSpot(getPlugin(fog), radius * 0.2f, radius * 0.7f, random);
+        fleet.setTransponderOn(false);
+        fleet.getMemoryWithoutUpdate().set(FogLurkerAssignmentAI.MEM_LURKER, true);
+        system.spawnFleet(fog, post.x, post.y, fleet);
+        FogLurkerAssignmentAI ai = new FogLurkerAssignmentAI(fleet, fog, post.x, post.y);
+        fleet.addScript(ai);
+        ai.holdPost();
+    }
+
+    private static void spawnCache(StarSystemAPI system, SectorEntityToken fog, float radius, Random random) {
         FogTerrainPlugin plugin = getPlugin(fog);
-        float postX = 0f, postY = 0f, best = -1f;
+        // well inside the ragged edge, which starts at 0.6 radius
+        Vector2f spot = pickThickSpot(plugin, radius * 0.1f, radius * 0.35f, random);
+        SectorEntityToken cache = BaseThemeGenerator.addSalvageEntity(random, system, CACHE_TYPES[random.nextInt(CACHE_TYPES.length)], Factions.NEUTRAL);
+        cache.setLocation(fog.getLocation().x + spot.x, fog.getLocation().y + spot.y);
+        cache.setCircularOrbit(fog, Misc.getAngleInDegrees(spot), spot.length(), CACHE_ORBIT_DAYS);
+        plugin.setCache(cache);
+    }
+
+    // offset from the fog centre with the thickest rest mask of up to 30 tries
+    private static Vector2f pickThickSpot(FogTerrainPlugin plugin, float minDist, float maxDist, Random random) {
+        Vector2f spot = new Vector2f();
+        float best = -1f;
         for (int i = 0; i < 30 && best < LURKER_POST_MIN_MASK; i++) {
-            float dist = radius * MiscIE.getRandomInRange(0.2f, 0.7f, random);
+            float dist = MiscIE.getRandomInRange(minDist, maxDist, random);
             double angle = random.nextDouble() * Math.PI * 2;
             float x = (float) Math.cos(angle) * dist, y = (float) Math.sin(angle) * dist;
             float mask = plugin.getRestMaskAt(x, y);
             if (mask > best) {
                 best = mask;
-                postX = x;
-                postY = y;
+                spot.set(x, y);
             }
         }
-
-        fleet.setTransponderOn(false);
-        fleet.getMemoryWithoutUpdate().set(FogLurkerAssignmentAI.MEM_LURKER, true);
-        system.spawnFleet(fog, postX, postY, fleet);
-        FogLurkerAssignmentAI ai = new FogLurkerAssignmentAI(fleet, fog, postX, postY);
-        fleet.addScript(ai);
-        ai.holdPost();
+        return spot;
     }
 
     private static FogTerrainPlugin getPlugin(SectorEntityToken fog) {
