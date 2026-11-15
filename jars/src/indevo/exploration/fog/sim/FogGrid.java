@@ -274,6 +274,26 @@ public class FogGrid {
         }
     }
 
+    // instant cut along a segment, full inside inner and gone at outer, pushed out to both sides
+    public void lance(float x0, float y0, float x1, float y1, float inner, float outer, float push) {
+        float len = (float) Math.hypot(x1 - x0, y1 - y0);
+        if (len < 1f) return;
+        float ux = (x1 - x0) / len, uy = (y1 - y0) / len;
+        for (int j = 1; j < n - 1; j++) for (int i = 1; i < n - 1; i++) {
+            float dx = ox + (i + 0.5f) * cell - x0, dy = oy + (j + 0.5f) * cell - y0;
+            float along = dx * ux + dy * uy;
+            if (along < 0f || along > len) continue;
+            float side = dx * uy - dy * ux, dist = Math.abs(side);
+            if (dist >= outer) continue;
+            int k = j * n + i;
+            float f = 1f - dist / outer, s = Math.signum(side) * push * f;
+            d[k] *= (float) smooth(inner, outer, dist);
+            src[k] += 3f * f;
+            u[k] += uy * s;
+            v[k] -= ux * s;
+        }
+    }
+
     public void ring(float x, float y, float r0, float r1, float dt) {
         float outer = r1 + 160f;
         int i0 = Math.max(1, (int) Math.floor((x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + outer - ox) / cell));
