@@ -1994,7 +1994,7 @@ public final class ArtilleryChecks {
                             && Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT.value() == 1f,
                     "placement ran with vision weights 1/1/1");
             Map<String, Integer> types = new LinkedHashMap<>();
-            int one = 0, two = 0, systems = 0, badNets = 0, unlabeled = 0;
+            int one = 0, two = 0, three = 0, systems = 0, badNets = 0, unlabeled = 0;
             StringBuilder nests = new StringBuilder();
             for (StarSystemAPI s : Global.getSector().getStarSystems()) {
                 if (!s.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) continue;
@@ -2006,6 +2006,7 @@ public final class ArtilleryChecks {
                     int n = rolledBeams(h);
                     if (n == 1) one++;
                     if (n == 2) two++;
+                    if (n == 3) three++;
                 }
                 if ("DRONES".equals(type)) {
                     DroneNetScript net = net(s);
@@ -2016,9 +2017,9 @@ public final class ArtilleryChecks {
                 }
             }
             c.note("placement: " + systems + " artillery systems, vision " + types + ", unlabeled " + unlabeled);
-            c.note("H3 lighthouses with 1 beam " + one + ", with 2 beams " + two);
+            c.note("H3 lighthouses with 1 beam " + one + ", with 2 beams " + two + ", with 3 beams " + three);
             c.note("N5 nests per drone system: " + nests.toString().trim());
-            c.expect(one > 0 && two > 0, "H3 lighthouses roll 1 and 2 beams (" + one + " / " + two + ")");
+            c.expect(one > 0 && two > 0, "H3 lighthouses roll 1, 2 and rarely 3 beams (" + one + " / " + two + " / " + three + ")");
             c.expect(badNets == 0 && nests.length() > 0, "N5 every drone system has 3 to 6 nests");
             c.expect(types.size() >= 3, "every new vision type placed with weights 1/1/1 (" + types + ")");
             c.expect(!types.containsKey(VisionType.WATCHTOWER.name()) || types.get(VisionType.WATCHTOWER.name()) <= 4, "procgen rolls no plain watchtowers, only the 4 core systems keep them (" + types + ")");

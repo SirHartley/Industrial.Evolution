@@ -18,8 +18,16 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
 
     protected SectorEntityToken beam;
     protected boolean lit = false;
-    protected int beamCount = 1 + Misc.random.nextInt(LighthouseBeamTerrain.MAX_BEAMS);
+    protected int beamCount = rollBeamCount();
     protected float sinceCheck = CHECK_SECONDS;
+
+    // 30% one beam, 60% two, 10% three
+    private static int rollBeamCount() {
+        float roll = Misc.random.nextFloat();
+        if (roll < 0.3f) return 1;
+        if (roll < 0.9f) return 2;
+        return 3;
+    }
 
     // unlit it works as a plain watchtower, lit only the beams see
     @Override
