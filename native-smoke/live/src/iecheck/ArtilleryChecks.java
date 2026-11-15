@@ -982,7 +982,7 @@ public final class ArtilleryChecks {
             c.until(() -> probe.lockAt >= 0f && (probe.firstProj >= 0f || probe.secs() > probe.lockAt + 4f), 1f, "E2 lock in the beam", probe::sample);
         });
         steps.add(c -> {
-            c.expect(probe.lockAt >= 0f && probe.lockAt <= 0.55f, "E2 lit beam on the player locks within one 0.5 s check (got " + probe.lockAt + ")");
+            c.expect(probe.lockAt >= 0.9f && probe.lockAt <= 2.1f, "E2 beam ramp at a third of its length locks in about 1.3 s, not at once (got " + probe.lockAt + ")");
             float delay = probe.firstProj - probe.lockAt;
             c.expect(probe.firstProj >= 0f && delay <= Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value() + 0.5f, "E4 railgun shot spawns within the station delay after the lock (got " + delay + " s)");
             pinPlayer(() -> HIDE);
@@ -1294,9 +1294,8 @@ public final class ArtilleryChecks {
             c.until(() -> probe.lockAt >= 0f && (probe.firstProj >= 0f || probe.secs() > probe.lockAt + 4f), 2.5f, "E3 lock 50 su from a nest", probe::sample);
         });
         steps.add(c -> {
-            float rate = (probe.e4 - probe.e1) / 3f;
-            c.expect(rate >= 1f && rate <= 2f, "E3 nest light fills 1 to 2 per second (got " + rate + ")");
-            c.expect(probe.maxJump < 1.5f, "E3 nest light never instant (max jump " + probe.maxJump + ")");
+            c.expect(probe.lockAt > 0.4f && probe.lockAt <= 1.2f, "E3 nest light 50 su out locks almost at once, on the second check (got " + probe.lockAt + ")");
+            c.expect(probe.maxJump < EyeIndicatorScript.MAX_TIME_TO_TARGET_LOCK, "E3 nest light never fills the eye in one check (max jump " + probe.maxJump + ")");
             float delay = probe.firstProj - probe.lockAt;
             c.expect(probe.firstProj >= 0f && delay <= Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value() + 0.5f, "E4 missile carrier spawns within the station delay after the lock (got " + delay + " s)");
             pinPlayer(() -> HIDE);
@@ -1316,9 +1315,8 @@ public final class ArtilleryChecks {
             c.until(() -> probe.secs() >= 4.2f, 1f, "E3 cone sample", probe::sample);
         });
         steps.add(c -> {
-            float rate = (probe.e4 - probe.e1) / 3f;
-            c.expect(rate >= 1f && rate <= 2f, "E3 spotter cone at half length fills 1 to 2 per second (got " + rate + ", cone " + keep.get("e3len") + ")");
-            c.expect(probe.maxJump < 1.5f, "E3 spotter cone never instant (max jump " + probe.maxJump + ")");
+            c.expect(probe.lockAt >= 1.2f && probe.lockAt <= 2.6f, "E3 spotter cone at half length locks in about 1.75 s (got " + probe.lockAt + ", cone " + keep.get("e3len") + ")");
+            c.expect(probe.maxJump < EyeIndicatorScript.MAX_TIME_TO_TARGET_LOCK, "E3 spotter cone never fills the eye in one check (max jump " + probe.maxJump + ")");
             pinPlayer(() -> HIDE);
             resetEye();
             // N2
