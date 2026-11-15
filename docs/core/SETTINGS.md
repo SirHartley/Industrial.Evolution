@@ -12,7 +12,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | File | Owner / role |
 |---|---|
-| `indevo/config/Setting.java` | One constant per LunaLib field (160): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
+| `indevo/config/Setting.java` | One constant per LunaLib field (161): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
 | `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back, `applyCampaignSettings` |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `indevo/tools/SettingsChecks.java` | Build gate checks of the CSV against `Setting` ([Settings checks](#settings-checks)); never shipped |
