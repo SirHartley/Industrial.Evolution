@@ -51,6 +51,10 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float KEEP_REFRESH_DAYS = 0.1f;
     public static final float JUMP_POINT_KEEP = 400f;
     public static final float STATION_KEEP = 300f;
+    // fog starts at a body's surface and is full at this many radii, at least MIN_FADE further out
+    public static final float PLANET_FADE = 2.3f;
+    public static final float STAR_FADE = 3f;
+    public static final float MIN_FADE = 200f;
     public static final float TELEPORT_DISTANCE = 600f;
     // meteor radius is twice the sprite, rocks cut a thinner trail than a fleet
     public static final float ROCK_RADIUS_MULT = 0.5f;
@@ -165,10 +169,9 @@ public class FogTerrainPlugin extends BaseTerrain {
         return getElapsedDays() >= rollInDays + holdDays + fadeDays;
     }
 
+    // the rest fog, never the live grid: a fleet always sits in the hole it cuts
     public float getDensityAt(Vector2f point) {
-        float x = point.x - entity.getLocation().x, y = point.y - entity.getLocation().y;
-        if (grid != null && grid.inWindow(x, y)) return grid.density(x, y);
-        return getShape().mask(x, y, getMaskTime()) * getStrength();
+        return getRestMaskAt(point.x - entity.getLocation().x, point.y - entity.getLocation().y) * getStrength();
     }
 
     public float getRestMaskAt(float localX, float localY) {
@@ -363,15 +366,16 @@ public class FogTerrainPlugin extends BaseTerrain {
         if (kind == Kind.BANK) for (MarketAPI market : Misc.getMarketsInLocation(loc)) marketEntities.add(market.getPrimaryEntity());
 
         for (PlanetAPI planet : loc.getPlanets()) {
-            float extra = marketEntities.contains(planet) ? STATION_KEEP : 0f;
-            addKeep(out, planet, planet.getRadius() + extra, anchor, reach);
+            float inner = planet.getRadius() + (marketEntities.contains(planet) ? STATION_KEEP : 0f);
+            float fade = planet.isStar() ? STAR_FADE : PLANET_FADE;
+            addKeep(out, planet, inner, Math.max(inner * fade, inner + MIN_FADE), anchor, reach);
         }
 
         if (kind == Kind.BANK) {
-            for (SectorEntityToken jp : loc.getJumpPoints()) addKeep(out, jp, jp.getRadius() + JUMP_POINT_KEEP, anchor, reach);
-            for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) addKeep(out, station, station.getRadius() + STATION_KEEP, anchor, reach);
+            for (SectorEntityToken jp : loc.getJumpPoints()) addSmallKeep(out, jp, jp.getRadius() + JUMP_POINT_KEEP, anchor, reach);
+            for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) addSmallKeep(out, station, station.getRadius() + STATION_KEEP, anchor, reach);
             for (SectorEntityToken market : marketEntities) {
-                if (market != null && !(market instanceof PlanetAPI)) addKeep(out, market, market.getRadius() + STATION_KEEP, anchor, reach);
+                if (market != null && !(market instanceof PlanetAPI)) addSmallKeep(out, market, market.getRadius() + STATION_KEEP, anchor, reach);
             }
         }
 
@@ -380,12 +384,17 @@ public class FogTerrainPlugin extends BaseTerrain {
         return keep;
     }
 
-    private void addKeep(List<Float> out, SectorEntityToken other, float keepRadius, Vector2f anchor, float reach) {
+    private void addSmallKeep(List<Float> out, SectorEntityToken other, float keepRadius, Vector2f anchor, float reach) {
+        addKeep(out, other, keepRadius * 1.05f, keepRadius * 1.7f, anchor, reach);
+    }
+
+    private void addKeep(List<Float> out, SectorEntityToken other, float inner, float outer, Vector2f anchor, float reach) {
         float x = other.getLocation().x - anchor.x, y = other.getLocation().y - anchor.y;
-        if (Math.hypot(x, y) - keepRadius * 1.7f > reach) return;
+        if (Math.hypot(x, y) - outer > reach) return;
         out.add(x);
         out.add(y);
-        out.add(keepRadius);
+        out.add(inner);
+        out.add(outer);
     }
 
     private void advanceView(float amount) {
@@ -455,13 +464,13 @@ public class FogTerrainPlugin extends BaseTerrain {
             if (t.seen > 0f) addPatch(x, y, fleet.getRadius() * PATCH_RADIUS_MULT * t.seen, fleet == player);
         }
 
-        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), 1f, amount, dt);
+        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), 1f, true, amount, dt);
         for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) {
-            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), 1f, amount, dt);
+            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), 1f, true, amount, dt);
         }
         // shower and rogue rocks move by script, so their speed is taken frame to frame like a planet
         for (SectorEntityToken rock : loc.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) {
-            moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_CUT, amount, dt);
+            moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_CUT, false, amount, dt);
         }
 
         tracked.values().removeIf(t -> t.frame != frame);
@@ -494,18 +503,20 @@ public class FogTerrainPlugin extends BaseTerrain {
         t.pulsed = pulsed;
     }
 
-    private void moveBody(SectorEntityToken body, float bodyRadius, float cut, float amount, float dt) {
+    private void moveBody(SectorEntityToken body, float bodyRadius, float cut, boolean wake, float amount, float dt) {
         float x = body.getLocation().x - entity.getLocation().x, y = body.getLocation().y - entity.getLocation().y;
         if (!grid.inWindow(x, y)) return;
         Tracked t = track(body, x, y);
         FogGrid.Mover m = t.mover;
         boolean jumped = Math.hypot(x - t.lastX, y - t.lastY) > TELEPORT_DISTANCE;
+        if (jumped) m.clearTrail();
         m.vx = jumped ? 0f : (x - t.lastX) / amount;
         m.vy = jumped ? 0f : (y - t.lastY) / amount;
         m.x = x;
         m.y = y;
         m.r = bodyRadius;
         m.cut = cut;
+        m.body = wake;
         t.lastX = x;
         t.lastY = y;
         grid.mover(m, dt);

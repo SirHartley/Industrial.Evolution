@@ -70,24 +70,10 @@ void main() {
 	float c2 = clamp(cover / 0.85, 0.0, 1.0);
 	float a = pow(c2 * c2 * (3.0 - 2.0 * c2), 1.1) * 0.94;
 
-	// fine wisps: ridged noise in warped space, only in the thin fog of the outer edge, never in trails or holes inside
-	float hal = 0.0;
-	for (int i = 0; i < 8; i++) {
-		float an = float(i) * 0.785 + 0.3;
-		hal += g(w + vec2(cos(an), sin(an)) * 900.0).r;
-	}
-	hal = hal * 1.3 / 8.0;
-	vec2 wq = q * 2.4 + vec2(fbm(q * 1.6 + uTime * 0.018), fbm(q * 1.6 + 9.0 - uTime * 0.015)) * 2.2;
-	float rr = 1.0 - abs(2.0 * fbm(wq) - 1.0);
-	float zone = smoothstep(0.02, 0.14, d) * (1.0 - smoothstep(0.2, 0.5, d)) * (1.0 - smoothstep(0.3, 0.55, hal));
-	float aw = pow(rr, 8.0) * zone * 0.6;
-	a = a + aw * (1.0 - a);
-
 	vec3 c = mix(uC0, uC1, smoothstep(0.2, 0.8, n1 * 0.7 + n3 * 0.3));
 	c = mix(c, uC2, clamp(0.18 + lit * 0.35 + rim * 0.5 + spd / 700.0, 0.0, 1.0) * 0.55);
 	c *= 1.0 - whorl * 0.28 * smoothstep(0.2, 0.6, d);
 	c *= 0.82 + 0.25 * smoothstep(0.2, 1.0, d);
-	c = mix(c, uC2, aw * 0.35);
 
 	for (int i = 0; i < 16; i++) {
 		if (float(i) >= uHN) break;
