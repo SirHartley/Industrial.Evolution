@@ -30,6 +30,7 @@ import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.abilities.splitfleet.listeners.DetachmentPayroll;
 import indevo.ambience.shuttletraffic.renderers.ShuttleTrafficRenderer;
+import indevo.exploration.meteor.renderers.RogueRockDustRenderer;
 import indevo.config.PlayerSettings;
 import indevo.config.Setting;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
@@ -491,6 +492,7 @@ public class ModPlugin extends BaseModPlugin {
         ShieldVisualsOptionProvider.register();
         MilitaryRelay.RelayItemRemovalButtonListener.register();
         MeteorSwarmManager.register();
+        RogueRockDustRenderer.register();
         FogWeatherManager.register();
         ShuttleTrafficRenderer.register();
         RemoveIndustryOptionWarningProvider.register();
