@@ -46,6 +46,9 @@
 
 	"IndEvo_fog":{
 		"plugin":"indevo.exploration.fog.terrain.FogTerrainPlugin",
+		# same as vanilla nebula: music muted and the nebula hum inside
+		"musicSuppression":1,
+		"loopOne":"terrain_nebula",
 	},
 
 	"crucible_field":{

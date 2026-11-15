@@ -22,7 +22,7 @@ Inside fog the sensor range of a fleet and the range at which it is detected bot
 | `indevo/exploration/fog/FogWeatherManager.java` | Transient `EconomyTickListener`. Roll, system choice, spell and bank placement, lurker and cache spawn, the list of active fog in persistent data |
 | `sim/FogNoise.java` | Hash, value noise, fbm, smoothstep. No engine imports |
 | `sim/FogGrid.java` | Fluid solver on a scrolling window, port of the mockup's `sim_inline.js`. Nested `Shape` (rest mask and ambient curl, a pure function of local position, seed and time) and `Mover`. No engine imports, runs headless |
-| `terrain/FogTerrainPlugin.java` | `BaseTerrain` for `IndEvo_fog`. Saved: kind, radius, seed, start timestamp, roll in, hold, fade, the bank's cache. Strength from the clock, sensor cut, density lookup, feeds movers, abilities and clear patches into the grid, map disc, tooltip, hides its cache, removes itself and the cache when over |
+| `terrain/FogTerrainPlugin.java` | `BaseTerrain` for `IndEvo_fog`. Saved: kind, radius, seed, start timestamp, roll in, hold, fade, the bank's cache. Strength from the clock, sensor cut, density lookup, sound factor, feeds movers, abilities and clear patches into the grid, map outline, tooltip, hides its cache, removes itself and the cache when over |
 | `renderers/FogRenderer.java` | Static drawing helper called from the terrain's `render`: grid packed into one RGBA texture per frame, GraphicsLib shader program, plain vertex coloured mesh when the program is 0 |
 | `fleet/FogLurkerAssignmentAI.java` | `EveryFrameScript` on a lurker fleet: hold a post in the fog, chase a strong trail, return, leave and despawn when the fog ends |
 | `indevo/console/SpawnFog.java` | Console command `indevo_spawnFog [spell\|bank] [ambush] [cache]` for testing ([Console](../core/CONSOLE.md)) |
@@ -33,7 +33,7 @@ Inside fog the sensor range of a fleet and the range at which it is detected bot
 | Kind | Id / key | Where |
 |---|---|---|
 | Setting | `IndEvo_fog_enabled` (true), Quick Settings | `data/config/LunaSettings.csv:9`, `indevo/config/Setting.java:23` |
-| Terrain | `IndEvo_fog` -> `FogTerrainPlugin` | `data/campaign/terrain.json:47` |
+| Terrain | `IndEvo_fog` -> `FogTerrainPlugin`, music suppression 1, loop `terrain_nebula` | `data/campaign/terrain.json:47` |
 | Description | `IndEvo_fog` `TERRAIN` (tooltip text) | `data/strings/descriptions.csv:73` |
 | Effect category | `IndEvo_fog` (`$terrain_IndEvo_fog` per fleet) | `FogTerrainPlugin.EFFECT_CATEGORY` |
 | Stat mods | `IndEvo_fog_stat_mod_1` (detected range), `_2` (sensor range), temporary mults for 0.1 days | `FogTerrainPlugin.applyEffect` |
@@ -70,13 +70,17 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 
 ### Sensor cut
 
-`applyEffect` (`:227`) adds `1 - 0.9 * density` as a 0.1 day temporary mult to `getDetectedRangeMod()` and `getSensorRangeMod()`, as the vanilla abyss does. While a fleet's Active Sensor Burst is active or in progress the sensor range mult is skipped; the detected range mult stays. `BaseTerrain.advance` applies one terrain per effect category per fleet per frame, so fog never stacks with itself.
+`applyEffect` (`:236`) adds `1 - 0.9 * density` as a 0.1 day temporary mult to `getDetectedRangeMod()` and `getSensorRangeMod()`, as the vanilla abyss does. While a fleet's Active Sensor Burst is active or in progress the sensor range mult is skipped; the detected range mult stays. `BaseTerrain.advance` applies one terrain per effect category per fleet per frame, so fog never stacks with itself.
+
+### Sound
+
+`terrain.json` gives `IndEvo_fog` the vanilla nebula's sound: `musicSuppression` 1 and `loopOne` `terrain_nebula`. `BaseTerrain.advance` plays them while the player fleet is inside (density above 0.05). `getProximitySoundFactor` scales both by the density at the player, full at `FULL_SOUND_DENSITY` 0.6, so music fades out and the hum fades in with the fog's thickness.
 
 ### Grid and drawing
 
-- `advanceView` (`:382`), only in the player's location and, for a bank, while the view centre is within the render range. 128 x 128 cells of 80 units in bank local coordinates, recentred by whole cells when the view centre drifts more than 8 cells; cells that scroll in start at the rest mask, border cells are held at the rest mask. One solver step per frame, `dt` clamped to `FogGrid.MAX_DT` (0.1 s).
-- Movers (`feedMovers`, `:422`): every fleet in the window with its velocity minus the bank's own velocity; planets and stations with their frame to frame speed (jumps over 600 units count as no motion); meteor shower and rogue rocks (`MeteorSwarmManager.METEOR_TAG`) the same way, with half their entity radius (the hit radius is twice the sprite) and `ROCK_CUT` 0.8.
-- Abilities (`readAbilities`, `:477`): Emergency Burn blasts when its level reaches 1; Interdiction Pulse rings out to `InterdictionPulseAbility.getRange` over 0.6 s when `$justDidInterdictionPulse` appears. Polled per fleet in the window: no callback reports NPC ability use, and the pulse's level is 1 for at most a frame (duration 0.001 days, `abilities.csv`), so the memory flag is the reliable signal.
+- `advanceView` (`:391`), only in the player's location and, for a bank, while the view centre is within the render range. 128 x 128 cells of 80 units in bank local coordinates, recentred by whole cells when the view centre drifts more than 8 cells; cells that scroll in start at the rest mask, border cells are held at the rest mask. One solver step per frame, `dt` clamped to `FogGrid.MAX_DT` (0.1 s).
+- Movers (`feedMovers`, `:431`): every fleet in the window with its velocity minus the bank's own velocity; planets and stations with their frame to frame speed (jumps over 600 units count as no motion); meteor shower and rogue rocks (`MeteorSwarmManager.METEOR_TAG`) the same way, with half their entity radius (the hit radius is twice the sprite) and `ROCK_CUT` 0.8.
+- Abilities (`readAbilities`, `:486`): Emergency Burn blasts when its level reaches 1; Interdiction Pulse rings out to `InterdictionPulseAbility.getRange` over 0.6 s when `$justDidInterdictionPulse` appears. Polled per fleet in the window: no callback reports NPC ability use, and the pulse's level is 1 for at most a frame (duration 0.001 days, `abilities.csv`), so the memory flag is the reliable signal.
 - Clear patches: the player fleet always, other fleets while the player can see them (fade in 0.5 s, out 0.8 s), up to 16, radius 2.6 x fleet radius.
 - `render` draws on `TERRAIN_8` (above `FLEETS`) one world space quad over the visible part of the window. The texture packs density / 1.3, the advected detail offset and the flow speed. Alpha rises over a long soft ramp (`cover / 0.85`, smoothstep, power 1.1). Fine wisps: ridged noise in warped space, drawn only where the fog is thin, using eight samples 900 units out so they reach past the edge. Colours: `FogRenderer.coloursFor` takes the average colour of the system's first `nebula` terrain texture (`BaseTiledTerrain.getParams()` cat and key, `SpriteAPI.getAverageColor`), scaled to a dark, body and light shade; `FogRenderer.GREY` without a nebula. Cached per plugin while loaded.
 - `renderOnMap` draws the rest mask on a 40 x 40 grid out to 1.4 radius in the light shade, alpha 0.35 x mask x strength, so the map shows the real outline.
@@ -99,7 +103,7 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 - `FogGrid` and `FogNoise` import nothing from the game. Keep it that way: the headless check compiles them alone.
 - The rest mask is a pure function of local position, seed and time, so the shape follows an orbiting bank and is the same after a load. The grid is never saved.
 - Strength, the end of the fog and the mask time come only from the saved start timestamp and the campaign clock.
-- Effects run for fleets within `getRenderRange()` (`:243`) of the fog centre: `BaseTerrain.advance` skips fleets farther out (knowledge skill `api/impl/campaign/terrain/BaseTerrain.java:89`), and `CampaignTerrain.render` only calls `render` when the centre is within it of the viewport (`obf/campaign/CampaignTerrain.java:88`).
+- Effects run for fleets within `getRenderRange()` (`:252`) of the fog centre: `BaseTerrain.advance` skips fleets farther out (knowledge skill `api/impl/campaign/terrain/BaseTerrain.java:89`), and `CampaignTerrain.render` only calls `render` when the centre is within it of the viewport (`obf/campaign/CampaignTerrain.java:88`).
 - Spot range is `(observer sensor strength + target profile) x target detected range mods x observer sensor range mods` (knowledge skill `obf/campaign/BaseCampaignEntity.java:1089`), so the cut on both sides multiplies.
 - `ShaderLib.loadShader` returns 0 when the shader fails (GraphicsLib 1.9.0). `FogRenderer` then logs a warning once and draws the plain mesh.
 - Fog shader uniforms and the texture layout are coupled between `FogRenderer.renderShader`, `FogGrid.pack` and `indevo_fogFragment.shader`.
