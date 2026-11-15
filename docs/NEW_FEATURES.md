@@ -154,6 +154,7 @@ Philipp's calls (2026-11-15):
 - Not every rogue has treasure.
 - Same damage as the showers.
 - Rough mockups first: project file `ie/ROGUE_ASTEROIDS_MOCKUP.html` (live view at game scale, one card per shape, path map).
+- After the first look at the mockups: no Stream (a thin line of rocks "looks stupid"), Teardrop is the long shape. Wall and Chevron need a more organic look: redrawn ragged, with uneven spacing, bends and stragglers.
 
 **What already exists (confirmed in code)**
 
@@ -206,7 +207,7 @@ Save: `RogueDrizzleSpawner` is saved with its location; rocks save their movemen
 7. Fee: Courier price without base fee x 0.2 to 0.5 by fleet type. Right level?
 8. Hyperspace: offers in systems only for now (recommended, same as CR), or hyperspace too?
 9. Name: "Return Freight" is a placeholder.
-10. Rogue shapes: which go in, at what weights? Proposed: Scatter 30, Cluster 25, Stream 20, Drop 25, Drizzle 15; Wall, Chevron, Pair, Escort are extra ideas, off. Pick on the mockup page.
+10. Rogue shapes: which go in, at what weights? Proposed: Scatter 30, Cluster 25, Teardrop 30, Drizzle 15; Wall and Chevron (redrawn looser, waiting for a second look), Pair and Escort are extra ideas, off. Stream is out (Philipp, 2026-11-15). Pick on the mockup page.
 11. Rogue path: 70% of paths aim at the fleet's course, 30% anywhere. Right split? (slider on the mockup page)
 12. Rogues in colonies: rocks break on stations and station fleets with glow and fragments but no damage (recommended: a cluster can otherwise take a colony's station down to 1% hull, a few percent per rock), or same damage as on fleets?
 13. Drizzle: 5 to 15 days, and no terrain or tooltip like the other rogues (recommended), or the system wide terrain with name and end time from the terrain plan? Volume: light, medium or heavy on the mockup page.
