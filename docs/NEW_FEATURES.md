@@ -27,7 +27,7 @@ Where IE and CR collide (both installed):
 
 1. Same fleet. IE cannot see a CR offer (no vanilla importance), and the chain captain is exactly the fleet IE's first quest wants (independent scavenger outside the core). With two quest flags on one fleet both mods' `OpenCommLink` rows match, the higher score wins and the other quest hangs (rules-language.md, `FireBest`).
 2. Same time. Each mod has its own timer and cap, so two offers can sit in one system, or come back to back.
-3. IE's own fleets are safe from CR today: the roider tutorial fleet is important (`TutorialEncounterScript.java:84`), poor spacer and bounty hunter fleets are hostile, parade fleets are player faction. Courier fleets (`IndEvo_couriers`) only pass because no CR quest type matches their faction and flags.
+3. IE's own fleets are safe from CR today: the roider tutorial fleet is important (`TutorialEncounterScript.java:85`), poor spacer and bounty hunter fleets are hostile, parade fleets are player faction. Courier fleets (`IndEvo_couriers`) only pass because no CR quest type matches their faction and flags.
 
 Route: a lockout contract in memory, the same strings in both mods, plain values only (String, Boolean, Long). Same pattern as the Skillshot lock (`IMPROVEMENT_TARGETS.md` 1.8) and the distress lock (`DISTRESS_REWORK_PLAN.md` 3.4).
 
@@ -161,7 +161,7 @@ Philipp's calls (2026-11-15):
 
 **What already exists (confirmed in code)**
 
-- Roll: `MeteorSwarmManager.reportEconomyTick` (`MeteorSwarmManager.java:79`) rolls in the player's current location, 10 ticks per month (`economyIterPerMonth`, vanilla `settings.json:527`). `isValidMeteorLoc` (`:99`) refuses systems with markets (`:112`) and checks the 31 day global and 186 day location timeouts (`:176-177`).
+- Roll: `MeteorSwarmManager.reportEconomyTick` (`MeteorSwarmManager.java:90`) rolls in the player's current location, 10 ticks per month (`economyIterPerMonth`, vanilla `settings.json:527`). `isValidMeteorLoc` (`:99`) refuses systems with markets (`:112`) and checks the 31 day global and 186 day location timeouts (`:176-177`).
 - Size: `MeteorFactory.spawn` passes `data.size` as radius, sprite width and sprite height (`MeteorFactory.java:43`), and a hit is `distance < entity.getRadius()` (`MeteorEntity.java:132`). So a rock hits at twice the distance its sprite covers. Shower rocks are size 20 to about 100, ice rocks double that (`IceSwarmSpawner.java:83`), speed 200 to 500 su/s (`StandardSwarmSpawner.java:69`), which is burn 10 to 25 (`speedPerBurnLevel` 20).
 - Hits: targets are `Tags.STATION` entities and every fleet in the location, station fleets included (`MeteorEntity.java:48-49`), only within 1000 su of the viewport (`:107`). A fleet gets one ship damaged and a push that drops its orbit (`MeteorImpact.java:119`, `:193`); anything else gets sound, glow and fragments. `Misc.applyDamage` never takes a hull below 1% (`Misc.java:5961`). Vanilla puts a market's station fleet back in orbit on its next advance (`OrbitalStation.java:221`).
 - Warning path: `ArcingMovementModule` and `ExternalOrbitMovement` report every rock's angle to the location's `MeteorSwarmWarningPathRenderer` (`ArcingMovementModule.java:52`, `ExternalOrbitMovement.java:29`). The renderer ends after 10 s without reports and `RadioactiveTerrain` lives as long as the renderer (`RadioactiveTerrain.java:91`). A rock on another path that reports would keep a shower's warning path and terrain alive and light the wrong signs.

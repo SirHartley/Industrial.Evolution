@@ -13,6 +13,7 @@ import indevo.exploration.meteor.entities.IcyRockEntity;
 import indevo.exploration.meteor.entities.MeteorEntity;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
+import indevo.exploration.meteor.renderers.MeteorSwarmWarningPathRenderer;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.CircularArc;
 import org.lwjgl.util.vector.Vector2f;
@@ -89,7 +90,8 @@ public class RogueDrizzleSpawner implements EveryFrameScript {
     public void advance(float amount) {
         if (done) return;
 
-        if (Global.getSector().getClock().getElapsedDaysSince(startTimestamp) >= durationDays) {
+        if (Global.getSector().getClock().getElapsedDaysSince(startTimestamp) >= durationDays
+                || location.getMemoryWithoutUpdate().contains(MeteorSwarmWarningPathRenderer.MEM_INSTANCE)) {
             done = true;
             return;
         }
