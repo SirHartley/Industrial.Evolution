@@ -82,7 +82,7 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 ### Lurkers
 
 - Built with `FleetFactoryV3`, pirates 70% else Luddic Path, 30..70 combat points, fleet type `patrolMedium`, transponder off, `$IndEvo_fogLurker`. The post is a random point in the fog (best rest mask of 30 tries, 0.2..0.7 radius out), kept as an offset from the fog centre so it moves with a bank.
-- `FogLurkerAssignmentAI.advance` (`FogLurkerAssignmentAI.java:50`): `HOLD` at the post (re-issued when the post moved more than 600 units). A trail is noticed (`noticesTrail`, `:98`) only for the player fleet, within 1500 units, not `Misc.isSlowMoving`, inside fog (density above 0.05), and only if `fleet.isHostileTo(player)`. Then `INTERCEPT` the player; 2 days after the last such sighting it returns to the post. When the fog is gone it goes to the nearest jump point (else the system centre) with `GO_TO_LOCATION_AND_DESPAWN`.
+- `FogLurkerAssignmentAI.advance` (`FogLurkerAssignmentAI.java:50`): `HOLD` at the post (re-issued when the post moved more than 600 units). A trail is noticed (`noticesTrail`, `:98`) only for the player fleet, within 1500 units, not `Misc.isSlowMoving`, inside fog (density above 0.05), and only if `fleet.isHostileTo(player)`. Then `INTERCEPT` the player. The lurker cannot see the player in fog, and the vanilla tactical module sends a fleet with an unseen target to `$ai_lastSeenTargetLoc`, or to a random point 3000 units away when that is unset (knowledge skill `obf/campaign/ai/TacticalModule.java:573`), so while the trail is noticed the script writes the player's position to `FleetAIFlags.LAST_SEEN_TARGET_LOC` and clears `DAYS_TARGET_UNSEEN` each frame. When the trail stops the vanilla search pattern runs round the last point; 2 days after the last sighting the lurker returns to the post. When the fog is gone it goes to the nearest jump point (else the system centre) with `GO_TO_LOCATION_AND_DESPAWN`.
 - `HOLD` never engages, so a player going slow or dark past a lurker is safe; the vanilla game never reads `TerrainAIFlags`, so this script is the only fog behaviour NPCs have.
 
 ## Contracts
@@ -100,7 +100,7 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 
 | Item | State |
 |---|---|
-| Not seen in game | Shader look, layer order against fleets and other terrain, frame time, window edge at full zoom out, ambush behaviour and `INTERCEPT` on a fleet the lurker cannot see are unverified |
+| Not seen in game | Shader look, layer order against fleets and other terrain, frame time, window edge at full zoom out, ambush behaviour and the lurker chase are unverified |
 | Window size | 128 x 80 = 10240 units. A view wider than about 10000 units shows the fog cut at the window edge |
 | Chaff Cloud | Still uses its own renderer; moving it to the fog renderer is a later task |
 

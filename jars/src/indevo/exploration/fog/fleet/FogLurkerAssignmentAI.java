@@ -8,8 +8,11 @@ import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
+import com.fs.starfarer.api.campaign.ai.FleetAIFlags;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.fog.terrain.FogTerrainPlugin;
+import org.lwjgl.util.vector.Vector2f;
 
 public class FogLurkerAssignmentAI implements EveryFrameScript {
 
@@ -68,6 +71,10 @@ public class FogLurkerAssignmentAI implements EveryFrameScript {
                 fleet.addAssignment(FleetAssignment.INTERCEPT, player, CHASE_DAYS + 1f);
                 chasing = true;
             }
+            // the lurker cannot see the target: without a last seen point the tactical module picks a random one
+            MemoryAPI mem = fleet.getMemoryWithoutUpdate();
+            mem.set(FleetAIFlags.LAST_SEEN_TARGET_LOC, new Vector2f(player.getLocation()), 0.1f);
+            mem.unset(FleetAIFlags.DAYS_TARGET_UNSEEN);
             return;
         }
 
