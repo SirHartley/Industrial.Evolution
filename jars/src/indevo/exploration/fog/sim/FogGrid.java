@@ -20,7 +20,7 @@ public class FogGrid {
     public static final float MAX_DT = 0.1f;
     // body wake: samples along the path, spacing and least width in wake radii and cells, cut per second
     public static final int WAKE_SAMPLES = 12;
-    public static final float WAKE_STEP = 0.5f, WAKE_MIN_CELLS = 2.2f, WAKE_RATE = 3f;
+    public static final float WAKE_STEP = 0.5f, WAKE_RATE = 3f;
     public static final int RECENTRE_CELLS = 8;
     // roll in front: band width, and the fast fill behind it since there is no fog around yet that could flow in
     public static final float FRONT_WIDTH = 1500f;
@@ -232,9 +232,10 @@ public class FogGrid {
         float sp = (float) Math.hypot(b.vx, b.vy);
         if (sp < 2f) return;
         float rad = b.r * 1.5f + b.pad, ux = b.vx / sp, uy = b.vy / sp, fill = 1f;
-        // a hole narrower than a cell would miss the cell centres, so it cuts the nearest cells at a share of the strength
+        // a hole narrower than a cell cannot be held by the grid: it only stirs the nearest cells, by its share of their area,
+        // and the caller draws its clear space per pixel
         if (rad < cell) {
-            fill = rad / cell;
+            fill = rad * rad / (cell * cell);
             rad = cell;
         }
         float speedCut = Math.min(1.5f, sp / 170f);
@@ -257,7 +258,7 @@ public class FogGrid {
             }
         }
 
-        if (b.body) wake(b, rad, dt);
+        if (b.body) wake(b, rad, fill, dt);
 
         b.shed += sp * dt / (rad * 2.6f);
         if (b.shed >= 1f) {
@@ -269,8 +270,8 @@ public class FogGrid {
     }
 
     // an orbiting body is too slow to outrun the refill, so it holds a tapering wake open along the path it came
-    private void wake(Mover b, float rad, float dt) {
-        float base = Math.max(rad, cell * WAKE_MIN_CELLS), step = base * WAKE_STEP;
+    private void wake(Mover b, float base, float fill, float dt) {
+        float step = base * WAKE_STEP;
         float[] t = b.trail;
         if (b.trailCount == 0 || Math.hypot(b.x - t[0], b.y - t[1]) >= step) {
             b.trailCount = Math.min(WAKE_SAMPLES, b.trailCount + 1);
@@ -287,7 +288,7 @@ public class FogGrid {
             int j0 = Math.max(1, (int) Math.floor((y - r - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((y + r - oy) / cell));
             for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
                 float dist = (float) Math.hypot(ox + (i + 0.5f) * cell - x, oy + (j + 0.5f) * cell - y);
-                if (dist < r) d[j * n + i] *= 1f - Math.min(1f, dt * WAKE_RATE * f * (1f - dist / r));
+                if (dist < r) d[j * n + i] *= 1f - Math.min(1f, dt * WAKE_RATE * f * fill * (1f - dist / r));
             }
         }
     }

@@ -6,7 +6,7 @@ uniform float uTime;
 uniform float uCell;
 uniform float uAlpha;
 uniform sampler2D uTex;
-uniform vec3 uHoles[16];
+uniform vec3 uHoles[48];
 uniform float uHN;
 uniform vec3 uC0;
 uniform vec3 uC1;
@@ -120,7 +120,7 @@ void main() {
 	c = mix(c, s2, ws * 0.6);
 	a = min(1.0, a * (1.0 + ws * 0.6));
 
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < 48; i++) {
 		if (float(i) >= uHN) break;
 		vec3 hl = uHoles[i];
 		a *= smoothstep(hl.z * 0.45, hl.z * 1.5, distance(w, hl.xy));
