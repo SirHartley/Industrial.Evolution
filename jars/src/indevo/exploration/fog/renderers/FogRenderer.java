@@ -32,6 +32,7 @@ public final class FogRenderer {
     public static final float NEBULA_LIGHT_WHITE = 0.3f;
     public static final int MAX_HOLES = 16;
     public static final int MAX_SUNS = 3;
+    public static final int MAX_RINGS = 32;
     // star icon colours are fully saturated, the light is that hue pulled this far to white
     public static final float SUN_WHITE = 0.35f;
     public static final float SUN_MIN_BRIGHTNESS = 0.5f;
@@ -47,7 +48,10 @@ public final class FogRenderer {
     private static final FloatBuffer HOLES = BufferUtils.createFloatBuffer(MAX_HOLES * 3);
     private static final FloatBuffer SUNS = BufferUtils.createFloatBuffer(MAX_SUNS * 4);
     private static final FloatBuffer SUN_COLOURS = BufferUtils.createFloatBuffer(MAX_SUNS * 9);
-    private static int uAnchor, uGO, uGS, uTime, uCell, uAlpha, uTex, uHoles, uHN, uC0, uC1, uC2, uSun, uSunC, uSunN;
+    private static final FloatBuffer RINGS = BufferUtils.createFloatBuffer(MAX_RINGS * 4);
+    private static final FloatBuffer RING_HAZE = BufferUtils.createFloatBuffer(MAX_RINGS * 3);
+    private static final int[] RING_PICK = new int[MAX_RINGS];
+    private static int uAnchor, uGO, uGS, uTime, uCell, uAlpha, uTex, uHoles, uHN, uC0, uC1, uC2, uSun, uSunC, uSunN, uRing, uRingH, uRN;
 
     private FogRenderer() {
     }
@@ -137,6 +141,9 @@ public final class FogRenderer {
         uSun = GL20.glGetUniformLocation(program, "uSun");
         uSunC = GL20.glGetUniformLocation(program, "uSunC");
         uSunN = GL20.glGetUniformLocation(program, "uSunN");
+        uRing = GL20.glGetUniformLocation(program, "uRing");
+        uRingH = GL20.glGetUniformLocation(program, "uRingH");
+        uRN = GL20.glGetUniformLocation(program, "uRN");
     }
 
     private static void renderShader(FogGrid grid, Vector2f anchor, float alphaMult, float[] holes, int holeCount, float time,
@@ -182,6 +189,7 @@ public final class FogRenderer {
         SUN_COLOURS.flip();
         GL20.glUniform3(uSunC, SUN_COLOURS);
         GL20.glUniform1f(uSunN, sunCount);
+        putRings(grid.shape.keep, x0 - anchor.x, y0 - anchor.y, x1 - anchor.x, y1 - anchor.y, grid.cell);
 
         // shader writes premultiplied colour
         GL11.glEnable(GL11.GL_BLEND);
@@ -196,6 +204,36 @@ public final class FogRenderer {
         GL20.glUseProgram(0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    // the clear rings that touch the drawn area; over the limit the widest win
+    private static void putRings(float[] keep, float x0, float y0, float x1, float y1, float margin) {
+        int stride = FogGrid.Shape.KEEP_STRIDE, count = 0;
+        for (int i = 0; i + stride <= keep.length; i += stride) {
+            float reach = keep[i + 3] + margin;
+            if (keep[i] + reach < x0 || keep[i] - reach > x1 || keep[i + 1] + reach < y0 || keep[i + 1] - reach > y1) continue;
+            int slot = count;
+            if (count < MAX_RINGS) count++;
+            else {
+                slot = 0;
+                for (int c = 1; c < MAX_RINGS; c++) if (keep[RING_PICK[c] + 3] < keep[RING_PICK[slot] + 3]) slot = c;
+                if (keep[RING_PICK[slot] + 3] >= keep[i + 3]) continue;
+            }
+            RING_PICK[slot] = i;
+        }
+        RINGS.clear();
+        RING_HAZE.clear();
+        for (int c = 0; c < MAX_RINGS; c++) {
+            int i = RING_PICK[c];
+            boolean used = c < count, haze = used && keep[i + 5] > 0f;
+            for (int f = 0; f < 4; f++) RINGS.put(used ? keep[i + f] : 0f);
+            RING_HAZE.put(haze ? keep[i + 4] : 0f).put(haze ? keep[i + 5] : 0f).put(haze ? (float) FogGrid.Shape.HAZE : 0f);
+        }
+        RINGS.flip();
+        RING_HAZE.flip();
+        GL20.glUniform4(uRing, RINGS);
+        GL20.glUniform3(uRingH, RING_HAZE);
+        GL20.glUniform1f(uRN, count);
     }
 
     private static void renderPlain(FogGrid grid, Vector2f anchor, float alphaMult, float[] holes, int holeCount,
@@ -229,7 +267,7 @@ public final class FogRenderer {
     private static void plainVertex(FogGrid grid, Vector2f anchor, int i, int j, float alphaMult, float[] holes, int holeCount,
                                     float r, float g, float b) {
         float x = grid.ox + (i + 0.5f) * grid.cell, y = grid.oy + (j + 0.5f) * grid.cell;
-        float d = Math.min(1f, grid.d[j * grid.n + i]);
+        float d = Math.min(1f, grid.d[j * grid.n + i] * grid.shape.keepAt(x, y));
         float c = Math.min(1f, d / 0.85f);
         float a = (float) Math.pow(c * c * (3 - 2 * c), 1.1) * 0.85f * alphaMult;
         for (int h = 0; h < holeCount; h++) {
