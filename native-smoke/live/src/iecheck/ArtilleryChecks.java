@@ -391,7 +391,6 @@ public final class ArtilleryChecks {
     }
 
     static void weights(VisionType vision) throws Exception {
-        Colony.setting(Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER, vision == VisionType.WATCHTOWER ? 1.0 : 0.0);
         Colony.setting(Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE, vision == VisionType.LIGHTHOUSE ? 1.0 : 0.0);
         Colony.setting(Setting.ARTILLERY_VISION_WEIGHT_DRONES, vision == VisionType.DRONES ? 1.0 : 0.0);
         Colony.setting(Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT, vision == VisionType.SEARCHLIGHT ? 1.0 : 0.0);
@@ -419,6 +418,12 @@ public final class ArtilleryChecks {
         s.addEntity(jp);
         p1.getMarket().getMemoryWithoutUpdate().set(ArtilleryStationScript.TYPE_KEY, type);
         s.autogenerateHyperspaceJumpPoints(false, false);
+
+        // procgen never rolls plain watchtowers, so they are placed by hand
+        if (vision == VisionType.WATCHTOWER) {
+            s.getMemoryWithoutUpdate().set(Ids.MEM_SYSTEM_ARTILLERY_VISION, VisionType.WATCHTOWER.name());
+            ArtilleryStationPlacer.placeTowers(s, Ids.DERELICT_FACTION_ID, WatchtowerEntityPlugin.ENTITY_ID, new java.util.Random());
+        }
 
         ArtilleryStationPlacer.addArtilleryToPlanet(p1, false);
         c.put("sys_" + key, name);
@@ -622,7 +627,7 @@ public final class ArtilleryChecks {
         nestDialog(steps);
         planetFleet(steps);
         steps.add(c -> {
-            for (Setting s : new Setting[]{Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER, Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_DRONES, Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT}) Colony.setting(s, 1.0);
+            for (Setting s : new Setting[]{Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_DRONES, Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT}) Colony.setting(s, 1.0);
             unpinAll();
             zoomReset();
             fastTime();
@@ -1985,9 +1990,9 @@ public final class ArtilleryChecks {
     public static List<Step> placement() {
         List<Step> steps = new ArrayList<>();
         steps.add(c -> {
-            c.expect(Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER.value() == 1f && Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value() == 1f && Setting.ARTILLERY_VISION_WEIGHT_DRONES.value() == 1f
+            c.expect(Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value() == 1f && Setting.ARTILLERY_VISION_WEIGHT_DRONES.value() == 1f
                             && Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT.value() == 1f,
-                    "placement ran with vision weights 1/1/1/1");
+                    "placement ran with vision weights 1/1/1");
             Map<String, Integer> types = new LinkedHashMap<>();
             int one = 0, two = 0, systems = 0, badNets = 0, unlabeled = 0;
             StringBuilder nests = new StringBuilder();
@@ -2015,7 +2020,8 @@ public final class ArtilleryChecks {
             c.note("N5 nests per drone system: " + nests.toString().trim());
             c.expect(one > 0 && two > 0, "H3 lighthouses roll 1 and 2 beams (" + one + " / " + two + ")");
             c.expect(badNets == 0 && nests.length() > 0, "N5 every drone system has 3 to 6 nests");
-            c.expect(types.size() >= 4, "every vision type placed with weights 1/1/1/1 (" + types + ")");
+            c.expect(types.size() >= 3, "every new vision type placed with weights 1/1/1 (" + types + ")");
+            c.expect(!types.containsKey(VisionType.WATCHTOWER.name()) || types.get(VisionType.WATCHTOWER.name()) <= 4, "procgen rolls no plain watchtowers, only the 4 core systems keep them (" + types + ")");
         });
         return steps;
     }
