@@ -377,6 +377,7 @@ Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a 
 Added - Mortar shells leave a short trail
 Adjusted - Thinner artillery target lines, shells, missiles and trails
 Adjusted - Railgun now fires an instant beam down its target line instead of shells
+Note - Railgun aims ahead as before, flying straight still dodges it
 Note - The target line stays until the shot, every fleet on it then is in the line of fire
 Adjusted - Uses vanilla star dialogs for better mod compatibility
 Adjusted - Artillery now targets fleets anywhere in the system (was 12000 units)

@@ -29,6 +29,8 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     public static final float MAX_RETICULE_ALPHA = 0.7f;
     // the old shells ran their clock at double speed, half the setting keeps that warning time
     public static final float LANCE_TIME_MULT = 0.5f;
+    // lead stays at the full setting time like the old shells, so a fleet flying straight is missed
+    public static final float LEAD_TIME_MULT = 1f;
 
 
     //dangerSign
@@ -96,7 +98,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
 
     public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
         Vector2f vel = entity.getVelocity();
-        float dist = vel.length() * (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + 1f) * LANCE_TIME_MULT;
+        float dist = vel.length() * (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + 1f) * LEAD_TIME_MULT;
         float currentNavigationAngle = Misc.getAngleInDegrees(vel);
         Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
         location.scale(dist);
@@ -108,7 +110,8 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
         boolean fuzz = true;
 
         for (int i = 1; i <= num; i++) {
-            float impactTimeSeconds = (float) (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + i + random()) * LANCE_TIME_MULT;
+            float shotTime = (float) (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + i + random());
+            float impactTimeSeconds = shotTime * LANCE_TIME_MULT;
 
             Vector2f vel = target.getVelocity();
 
@@ -121,7 +124,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
                 ModPlugin.log("fuzzing at " + fuzzMult);
             }
 
-            float dist = vel.length() * impactTimeSeconds * fuzzMult;
+            float dist = vel.length() * shotTime * LEAD_TIME_MULT * fuzzMult;
             float currentNavigationAngle = Misc.getAngleInDegrees(vel);
             Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
             location.scale(dist);
