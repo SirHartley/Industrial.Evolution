@@ -25,6 +25,7 @@ Inside fog the sensor range of a fleet and the range at which it is detected bot
 | `terrain/FogTerrainPlugin.java` | `BaseTerrain` for `IndEvo_fog`. Saved: kind, radius, seed, start timestamp, roll in, hold, fade. Strength from the clock, sensor cut, density lookup, feeds movers, abilities and clear patches into the grid, map disc, tooltip, removes itself when over |
 | `renderers/FogRenderer.java` | Static drawing helper called from the terrain's `render`: grid packed into one RGBA texture per frame, GraphicsLib shader program, plain vertex coloured mesh when the program is 0 |
 | `fleet/FogLurkerAssignmentAI.java` | `EveryFrameScript` on a lurker fleet: hold a post in the fog, chase a strong trail, return, leave and despawn when the fog ends |
+| `indevo/console/SpawnFog.java` | Console command `indevo_spawnFog [spell\|bank] [ambush]` for testing ([Console](../core/CONSOLE.md)) |
 | `data/shaders/indevo_fogVertex.shader`, `indevo_fogFragment.shader` | Fog shader, desktop GLSL port of the mockup's `FS`. Works in bank local coordinates |
 
 ## Data and ids
