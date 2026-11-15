@@ -11,6 +11,9 @@ uniform float uHN;
 uniform vec3 uC0;
 uniform vec3 uC1;
 uniform vec3 uC2;
+uniform vec4 uSun[3];
+uniform vec3 uSunC[9];
+uniform float uSunN;
 
 float h(vec2 p) {
 	p = fract(p * vec2(123.34, 456.21));
@@ -70,10 +73,31 @@ void main() {
 	float c2 = clamp(cover / 0.85, 0.0, 1.0);
 	float a = pow(c2 * c2 * (3.0 - 2.0 * c2), 1.1) * 0.94;
 
-	vec3 c = mix(uC0, uC1, smoothstep(0.2, 0.8, n1 * 0.7 + n3 * 0.3));
-	c = mix(c, uC2, clamp(0.18 + lit * 0.35 + rim * 0.5 + spd / 700.0, 0.0, 1.0) * 0.55);
+	// sunlight: fog near a star takes the star's shades and gets brighter, strongest star wins
+	float ws = 0.0;
+	vec3 s0 = uC0;
+	vec3 s1 = uC1;
+	vec3 s2 = uC2;
+	for (int i = 0; i < 3; i++) {
+		if (float(i) >= uSunN) break;
+		vec4 sun = uSun[i];
+		float sd = (distance(w, sun.xy) - sun.z) / max(1.0, sun.w - sun.z);
+		float l = 1.0 - smoothstep(0.0, 1.0, sd * (0.85 + 0.3 * n1));
+		if (l > ws) {
+			ws = l;
+			s0 = uSunC[i * 3];
+			s1 = uSunC[i * 3 + 1];
+			s2 = uSunC[i * 3 + 2];
+		}
+	}
+	vec3 k2 = mix(uC2, s2, ws);
+
+	vec3 c = mix(mix(uC0, s0, ws), mix(uC1, s1, ws), smoothstep(0.2, 0.8, n1 * 0.7 + n3 * 0.3));
+	c = mix(c, k2, clamp(0.18 + lit * 0.35 + rim * 0.5 + spd / 700.0, 0.0, 1.0) * 0.55);
 	c *= 1.0 - whorl * 0.28 * smoothstep(0.2, 0.6, d);
 	c *= 0.82 + 0.25 * smoothstep(0.2, 1.0, d);
+	c = mix(c, s2, ws * 0.6);
+	a = min(1.0, a * (1.0 + ws * 0.6));
 
 	for (int i = 0; i < 16; i++) {
 		if (float(i) >= uHN) break;

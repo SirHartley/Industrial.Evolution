@@ -67,6 +67,8 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float PLANET_FADE = 2.3f;
     public static final float STAR_FADE = 3f;
     public static final float MIN_FADE = 200f;
+    // a star lights the fog in its colour this many star diameters out from its surface
+    public static final float SUN_LIGHT_DIAMETERS = 1.5f;
     public static final float TELEPORT_DISTANCE = 600f;
     // meteor radius is twice the sprite, the cut is 1.2 sprite radii plus the pad
     public static final float ROCK_RADIUS_MULT = 0.4f;
@@ -109,6 +111,9 @@ public class FogTerrainPlugin extends BaseTerrain {
     private transient int patchCount;
     private transient int frame;
     private transient float[][] colours;
+    private transient float[] suns;
+    private transient float[] sunColours;
+    private transient int sunCount;
 
     public static class FogParams {
 
@@ -284,7 +289,29 @@ public class FogTerrainPlugin extends BaseTerrain {
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (grid == null || layer != CampaignEngineLayers.TERRAIN_8) return;
-        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours());
+        readSuns();
+        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours(), suns, sunCount, sunColours);
+    }
+
+    // up to three stars that light the fog: place, radius and light reach in bank local coordinates, shades per star
+    private void readSuns() {
+        if (suns == null) {
+            suns = new float[FogRenderer.MAX_SUNS * 4];
+            sunColours = new float[FogRenderer.MAX_SUNS * 9];
+        }
+        sunCount = 0;
+        Vector2f anchor = entity.getLocation();
+        for (PlanetAPI star : entity.getContainingLocation().getPlanets()) {
+            if (!star.isStar() || sunCount >= FogRenderer.MAX_SUNS) continue;
+            float[][] shades = FogRenderer.sunShades(star);
+            if (shades == null) continue;
+            suns[sunCount * 4] = star.getLocation().x - anchor.x;
+            suns[sunCount * 4 + 1] = star.getLocation().y - anchor.y;
+            suns[sunCount * 4 + 2] = star.getRadius();
+            suns[sunCount * 4 + 3] = star.getRadius() * (1f + SUN_LIGHT_DIAMETERS * 2f);
+            for (int i = 0; i < 9; i++) sunColours[sunCount * 9 + i] = shades[i / 3][i % 3];
+            sunCount++;
+        }
     }
 
     private float[][] getColours() {

@@ -3,6 +3,7 @@ package indevo.exploration.fog.renderers;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.combat.ViewportAPI;
@@ -30,6 +31,10 @@ public final class FogRenderer {
     public static final float NEBULA_LIGHT = 0.9f;
     public static final float NEBULA_LIGHT_WHITE = 0.3f;
     public static final int MAX_HOLES = 16;
+    public static final int MAX_SUNS = 3;
+    // star icon colours are fully saturated, the light is that hue pulled this far to white
+    public static final float SUN_WHITE = 0.35f;
+    public static final float SUN_MIN_BRIGHTNESS = 0.5f;
 
     private static final String VERTEX_PATH = "data/shaders/indevo_fogVertex.shader";
     private static final String FRAGMENT_PATH = "data/shaders/indevo_fogFragment.shader";
@@ -40,7 +45,9 @@ public final class FogRenderer {
     private static int texture = 0;
     private static ByteBuffer pixels;
     private static final FloatBuffer HOLES = BufferUtils.createFloatBuffer(MAX_HOLES * 3);
-    private static int uAnchor, uGO, uGS, uTime, uCell, uAlpha, uTex, uHoles, uHN, uC0, uC1, uC2;
+    private static final FloatBuffer SUNS = BufferUtils.createFloatBuffer(MAX_SUNS * 4);
+    private static final FloatBuffer SUN_COLOURS = BufferUtils.createFloatBuffer(MAX_SUNS * 9);
+    private static int uAnchor, uGO, uGS, uTime, uCell, uAlpha, uTex, uHoles, uHN, uC0, uC1, uC2, uSun, uSunC, uSunN;
 
     private FogRenderer() {
     }
@@ -53,23 +60,39 @@ public final class FogRenderer {
             if (params == null || params.cat == null || params.key == null) continue;
             Color avg = Global.getSettings().getSprite(params.cat, params.key).getAverageColor();
             if (avg == null) continue;
-            float r = avg.getRed() / 255f, g = avg.getGreen() / 255f, b = avg.getBlue() / 255f;
-            float max = Math.max(r, Math.max(g, b));
-            if (max <= 0.01f) continue;
-            r /= max;
-            g /= max;
-            b /= max;
-            float[] body = {r * NEBULA_BODY, g * NEBULA_BODY, b * NEBULA_BODY};
-            float[] dark = {body[0] * NEBULA_DARK, body[1] * NEBULA_DARK, body[2] * NEBULA_DARK};
-            float[] light = new float[3];
-            float[] hue = {r, g, b};
-            for (int i = 0; i < 3; i++) light[i] = hue[i] * NEBULA_LIGHT * (1f - NEBULA_LIGHT_WHITE) + NEBULA_LIGHT_WHITE;
-            return new float[][]{dark, body, light};
+            float[][] shades = shadesOf(avg.getRed() / 255f, avg.getGreen() / 255f, avg.getBlue() / 255f);
+            if (shades != null) return shades;
         }
         return GREY;
     }
 
-    public static void render(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time, float[][] colours) {
+    // dark, body and light shade of a hue; null for black
+    public static float[][] shadesOf(float r, float g, float b) {
+        float max = Math.max(r, Math.max(g, b));
+        if (max <= 0.01f) return null;
+        float[] hue = {r / max, g / max, b / max};
+        float[] dark = new float[3], body = new float[3], light = new float[3];
+        for (int i = 0; i < 3; i++) {
+            body[i] = hue[i] * NEBULA_BODY;
+            dark[i] = body[i] * NEBULA_DARK;
+            light[i] = hue[i] * NEBULA_LIGHT * (1f - NEBULA_LIGHT_WHITE) + NEBULA_LIGHT_WHITE;
+        }
+        return new float[][]{dark, body, light};
+    }
+
+    // shades of the light a star throws into fog, null for a star that gives none
+    public static float[][] sunShades(PlanetAPI star) {
+        if (star.getSpec().isNebulaCenter() || star.getSpec().isBlackHole()) return null;
+        Color icon = star.getSpec().getIconColor();
+        if (icon == null) return null;
+        float r = icon.getRed() / 255f, g = icon.getGreen() / 255f, b = icon.getBlue() / 255f;
+        if (Math.max(r, Math.max(g, b)) < SUN_MIN_BRIGHTNESS) return null;
+        return shadesOf(r + (1f - r) * SUN_WHITE, g + (1f - g) * SUN_WHITE, b + (1f - b) * SUN_WHITE);
+    }
+
+    // suns: x, y, radius, light reach per star in bank local coordinates; sunColours: 9 floats per star
+    public static void render(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time, float[][] colours,
+                              float[] suns, int sunCount, float[] sunColours) {
         float inset = grid.cell * 2f;
         float x0 = Math.max(anchor.x + grid.ox + inset, viewport.getLLX());
         float y0 = Math.max(anchor.y + grid.oy + inset, viewport.getLLY());
@@ -79,7 +102,7 @@ public final class FogRenderer {
 
         load();
         if (program == 0) renderPlain(grid, anchor, viewport.getAlphaMult(), holes, holeCount, colours, x0, y0, x1, y1);
-        else renderShader(grid, anchor, viewport.getAlphaMult(), holes, holeCount, time, colours, x0, y0, x1, y1);
+        else renderShader(grid, anchor, viewport.getAlphaMult(), holes, holeCount, time, colours, suns, sunCount, sunColours, x0, y0, x1, y1);
     }
 
     private static void load() {
@@ -111,10 +134,13 @@ public final class FogRenderer {
         uC0 = GL20.glGetUniformLocation(program, "uC0");
         uC1 = GL20.glGetUniformLocation(program, "uC1");
         uC2 = GL20.glGetUniformLocation(program, "uC2");
+        uSun = GL20.glGetUniformLocation(program, "uSun");
+        uSunC = GL20.glGetUniformLocation(program, "uSunC");
+        uSunN = GL20.glGetUniformLocation(program, "uSunN");
     }
 
     private static void renderShader(FogGrid grid, Vector2f anchor, float alphaMult, float[] holes, int holeCount, float time,
-                                     float[][] colours, float x0, float y0, float x1, float y1) {
+                                     float[][] colours, float[] suns, int sunCount, float[] sunColours, float x0, float y0, float x1, float y1) {
         int n = grid.n;
         if (texture == 0) {
             texture = GL11.glGenTextures();
@@ -147,6 +173,15 @@ public final class FogRenderer {
         GL20.glUniform3f(uC0, colours[0][0], colours[0][1], colours[0][2]);
         GL20.glUniform3f(uC1, colours[1][0], colours[1][1], colours[1][2]);
         GL20.glUniform3f(uC2, colours[2][0], colours[2][1], colours[2][2]);
+        SUNS.clear();
+        for (int i = 0; i < MAX_SUNS * 4; i++) SUNS.put(i < sunCount * 4 ? suns[i] : 0f);
+        SUNS.flip();
+        GL20.glUniform4(uSun, SUNS);
+        SUN_COLOURS.clear();
+        for (int i = 0; i < MAX_SUNS * 9; i++) SUN_COLOURS.put(i < sunCount * 9 ? sunColours[i] : 0f);
+        SUN_COLOURS.flip();
+        GL20.glUniform3(uSunC, SUN_COLOURS);
+        GL20.glUniform1f(uSunN, sunCount);
 
         // shader writes premultiplied colour
         GL11.glEnable(GL11.GL_BLEND);
