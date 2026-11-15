@@ -184,6 +184,10 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         if (hit != null) spawnExplosion();
     }
 
+    public boolean isFired() {
+        return fired;
+    }
+
     private float getAngle() {
         return Misc.getAngleInDegrees(originLocation, target);
     }

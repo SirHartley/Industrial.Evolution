@@ -3,12 +3,15 @@ package indevo.exploration.fog.terrain;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CustomCampaignEntityAPI;
+import com.fs.starfarer.api.campaign.CustomCampaignEntityPlugin;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.abilities.InterdictionPulseAbility;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
@@ -20,6 +23,11 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.fog.renderers.FogRenderer;
 import indevo.exploration.fog.sim.FogGrid;
 import indevo.exploration.meteor.MeteorSwarmManager;
+import indevo.industries.artillery.projectiles.MissileCarrierEntityPlugin;
+import indevo.industries.artillery.projectiles.MissileSubmunitionEntity;
+import indevo.industries.artillery.projectiles.MortarProjectileEntityPlugin;
+import indevo.industries.artillery.projectiles.RailgunProjectileEntityPlugin;
+import indevo.items.consumables.entities.BaseMissileEntityPlugin;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -56,9 +64,21 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float STAR_FADE = 3f;
     public static final float MIN_FADE = 200f;
     public static final float TELEPORT_DISTANCE = 600f;
-    // meteor radius is twice the sprite, rocks cut a thinner trail than a fleet
-    public static final float ROCK_RADIUS_MULT = 0.5f;
+    // meteor radius is twice the sprite, the cut is 1.2 sprite radii plus the pad
+    public static final float ROCK_RADIUS_MULT = 0.4f;
+    public static final float ROCK_PAD = 10f;
     public static final float ROCK_CUT = 0.8f;
+    // a shell crosses a cell in three frames, so it cuts harder than its speed alone would
+    public static final float SHELL_RADIUS = 14f;
+    public static final float SHELL_CUT = 4f;
+    public static final float CARRIER_RADIUS = 27f;
+    public static final float CARRIER_CUT = 2f;
+    public static final float MISSILE_RADIUS = 7f;
+    public static final float MAX_BLAST_RADIUS = 1200f;
+    public static final float BLAST_SPIN = 300f;
+    public static final float LANCE_INNER = 50f;
+    public static final float LANCE_OUTER = 130f;
+    public static final float LANCE_PUSH = 220f;
     public static final int MAP_CELLS = 40;
     public static final float MAP_REACH = 1.4f;
 
@@ -111,6 +131,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         float lastX, lastY;
         float ebLevel;
         boolean pulsed;
+        boolean fired;
         float seen;
         int frame;
     }
@@ -464,14 +485,16 @@ public class FogTerrainPlugin extends BaseTerrain {
             if (t.seen > 0f) addPatch(x, y, fleet.getRadius() * PATCH_RADIUS_MULT * t.seen, fleet == player);
         }
 
-        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), 1f, true, amount, dt);
+        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), FogGrid.Mover.PAD, 1f, true, amount, dt);
         for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) {
-            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), 1f, true, amount, dt);
+            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), FogGrid.Mover.PAD, 1f, true, amount, dt);
         }
         // shower and rogue rocks move by script, so their speed is taken frame to frame like a planet
         for (SectorEntityToken rock : loc.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) {
-            moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_CUT, false, amount, dt);
+            moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_PAD, ROCK_CUT, false, amount, dt);
         }
+        // no callback reports a new custom entity, so shots and explosions are found by plugin class each frame
+        for (CustomCampaignEntityAPI other : loc.getCustomEntities()) feedShot(other, amount, dt);
 
         tracked.values().removeIf(t -> t.frame != frame);
     }
@@ -503,7 +526,37 @@ public class FogTerrainPlugin extends BaseTerrain {
         t.pulsed = pulsed;
     }
 
-    private void moveBody(SectorEntityToken body, float bodyRadius, float cut, boolean wake, float amount, float dt) {
+    private void feedShot(CustomCampaignEntityAPI shot, float amount, float dt) {
+        CustomCampaignEntityPlugin plugin = shot.getCustomPlugin();
+        if (plugin instanceof ExplosionEntityPlugin) blastOnce(shot, plugin);
+        else if (plugin instanceof RailgunProjectileEntityPlugin) lanceOnce(shot, (RailgunProjectileEntityPlugin) plugin);
+        else if (plugin instanceof MortarProjectileEntityPlugin) moveBody(shot, SHELL_RADIUS, FogGrid.Mover.PAD, SHELL_CUT, false, amount, dt);
+        else if (plugin instanceof MissileCarrierEntityPlugin) moveBody(shot, CARRIER_RADIUS, FogGrid.Mover.PAD, CARRIER_CUT, false, amount, dt);
+        else if (plugin instanceof MissileSubmunitionEntity || plugin instanceof BaseMissileEntityPlugin) moveBody(shot, MISSILE_RADIUS, FogGrid.Mover.PAD, 1f, false, amount, dt);
+    }
+
+    private void blastOnce(SectorEntityToken explosion, CustomCampaignEntityPlugin plugin) {
+        float x = explosion.getLocation().x - entity.getLocation().x, y = explosion.getLocation().y - entity.getLocation().y;
+        if (!grid.inWindow(x, y)) return;
+        boolean seen = tracked.containsKey(explosion);
+        track(explosion, x, y);
+        if (seen) return;
+        // params has no getter, the render range is the entity radius plus three explosion radii
+        float r = (plugin.getRenderRange() - explosion.getRadius()) / 3f;
+        grid.blast(x, y, Math.min(MAX_BLAST_RADIUS, r), BLAST_SPIN);
+    }
+
+    // the lance entity sits at the station until it fires and at the beam end after, the beam can cross the window with both outside
+    private void lanceOnce(SectorEntityToken shot, RailgunProjectileEntityPlugin plugin) {
+        Vector2f anchor = entity.getLocation();
+        float x = shot.getLocation().x - anchor.x, y = shot.getLocation().y - anchor.y;
+        Tracked t = track(shot, x, y);
+        if (t.fired || !plugin.isFired()) return;
+        t.fired = true;
+        grid.lance(plugin.originLocation.x - anchor.x, plugin.originLocation.y - anchor.y, x, y, LANCE_INNER, LANCE_OUTER, LANCE_PUSH);
+    }
+
+    private void moveBody(SectorEntityToken body, float bodyRadius, float pad, float cut, boolean wake, float amount, float dt) {
         float x = body.getLocation().x - entity.getLocation().x, y = body.getLocation().y - entity.getLocation().y;
         if (!grid.inWindow(x, y)) return;
         Tracked t = track(body, x, y);
@@ -515,6 +568,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         m.x = x;
         m.y = y;
         m.r = bodyRadius;
+        m.pad = pad;
         m.cut = cut;
         m.body = wake;
         t.lastX = x;

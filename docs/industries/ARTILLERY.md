@@ -141,6 +141,8 @@ Volleys:
 - Railgun look: the warning line fades in over the first 10% and holds at `MAX_LINE_ALPHA`, orange to red. The beam (`IndEvo_stream_core` halo and glow, `IndEvo_line` white core, muzzle glow) is full for `BEAM_HOLD` (0.06 s), decays with `BEAM_DECAY` (0.11 s) and is gone after `BEAM_DURATION` (0.4 s). A thin afterglow with moving dashes fades over `AFTERGLOW_DURATION` (1.1 s), then the entity expires.
 - Missile: `MissileShotScript` spawns an even number of `MissileCarrierEntityPlugin` on three-point arcs (`TrigHelper`, see [Utils](../core/UTILS.md)); a carrier launches at `impactSeconds - flight time`, but never before 0.3 to 0.7 s (`MIN_LAUNCH_DELAY`, `LAUNCH_DELAY_SPREAD`), so the station wind-up always shows and a long flight lands later, with the danger sign held back until the warning time before impact; at launch `moveStartToStation` lays the arc again from the station's current location through the split point and the target, because the station orbits on while the carrier waits; at 30% of the remaining distance each splits into 3 `MissileSubmunitionEntity` that home on hostiles within 600 su; each ends in `ECMExplosion` (interdict like the interdiction mine, plus `IndEvo_slowfield` terrain for `IndEvo_Artillery_missile_duration` seconds).
 
+Shells, carriers, submunitions, lances and every explosion cut the fog weather: `FogTerrainPlugin.feedShot` finds them by plugin class and reads `RailgunProjectileEntityPlugin.isFired()` and `originLocation` ([FOG](../exploration/FOG.md)).
+
 Mortar and railgun explosions use `ExplosionFleetDamage.LOW` (`MortarProjectileEntityPlugin.java:313`, `RailgunProjectileEntityPlugin.fire`).
 
 ### Fire animation

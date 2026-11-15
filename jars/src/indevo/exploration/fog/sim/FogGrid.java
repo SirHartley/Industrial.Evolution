@@ -118,8 +118,11 @@ public class FogGrid {
 
     public static class Mover {
 
+        public static final float PAD = 60f;
+
         public float x, y, vx, vy, r;
         public float cut = 1f;
+        public float pad = PAD;
         public float shed = 0f;
         public float side = 1f;
         // planets, moons and stations: full cut at any speed and a wake along the path behind
@@ -200,9 +203,14 @@ public class FogGrid {
     public void mover(Mover b, float dt) {
         float sp = (float) Math.hypot(b.vx, b.vy);
         if (sp < 2f) return;
-        float rad = b.r * 1.5f + 60f, ux = b.vx / sp, uy = b.vy / sp;
+        float rad = b.r * 1.5f + b.pad, ux = b.vx / sp, uy = b.vy / sp, fill = 1f;
+        // a hole narrower than a cell would miss the cell centres, so it cuts the nearest cells at a share of the strength
+        if (rad < cell) {
+            fill = rad / cell;
+            rad = cell;
+        }
         float speedCut = Math.min(1.5f, sp / 170f);
-        float grab = Math.min(1f, dt * 9f), cut = (b.body ? Math.max(1f, speedCut) : speedCut) * b.cut;
+        float grab = Math.min(1f, dt * 9f) * fill, cut = (b.body ? Math.max(1f, speedCut) : speedCut) * b.cut * fill;
         float outer = rad * 1.5f;
 
         int i0 = Math.max(1, (int) Math.floor((b.x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((b.x + outer - ox) / cell));
@@ -216,7 +224,7 @@ public class FogGrid {
             u[k] += (b.vx * 0.85f - u[k]) * grab * ff;
             v[k] += (b.vy * 0.85f - v[k]) * grab * ff;
             if (dist < rad) {
-                src[k] += sp / rad * 0.55f * (1f - dist / rad) * dt * 6f;
+                src[k] += sp / rad * 0.55f * (1f - dist / rad) * dt * 6f * fill;
                 d[k] *= 1f - Math.min(1f, dt * 10f * cut * (1f - dist / rad));
             }
         }
@@ -228,7 +236,7 @@ public class FogGrid {
             b.shed -= 1f;
             b.side = -b.side;
             float px = -uy * b.side, py = ux * b.side;
-            swirl(b.x - ux * rad * 0.8f + px * rad * 0.55f, b.y - uy * rad * 0.8f + py * rad * 0.55f, rad * 1.7f, -b.side * sp * 1.25f);
+            swirl(b.x - ux * rad * 0.8f + px * rad * 0.55f, b.y - uy * rad * 0.8f + py * rad * 0.55f, rad * 1.7f, -b.side * sp * 1.25f * fill);
         }
     }
 
@@ -271,6 +279,26 @@ public class FogGrid {
         for (int a = 0; a < 6; a++) {
             double an = a / 6.0 * Math.PI * 2 + 0.4;
             swirl(x + (float) Math.cos(an) * rad * 1.05f, y + (float) Math.sin(an) * rad * 1.05f, rad * 0.75f, (a % 2 == 1 ? 1 : -1) * 330f);
+        }
+    }
+
+    // instant cut along a segment, full inside inner and gone at outer, pushed out to both sides
+    public void lance(float x0, float y0, float x1, float y1, float inner, float outer, float push) {
+        float len = (float) Math.hypot(x1 - x0, y1 - y0);
+        if (len < 1f) return;
+        float ux = (x1 - x0) / len, uy = (y1 - y0) / len;
+        for (int j = 1; j < n - 1; j++) for (int i = 1; i < n - 1; i++) {
+            float dx = ox + (i + 0.5f) * cell - x0, dy = oy + (j + 0.5f) * cell - y0;
+            float along = dx * ux + dy * uy;
+            if (along < 0f || along > len) continue;
+            float side = dx * uy - dy * ux, dist = Math.abs(side);
+            if (dist >= outer) continue;
+            int k = j * n + i;
+            float f = 1f - dist / outer, s = Math.signum(side) * push * f;
+            d[k] *= (float) smooth(inner, outer, dist);
+            src[k] += 3f * f;
+            u[k] += uy * s;
+            v[k] -= ux * s;
         }
     }
 
