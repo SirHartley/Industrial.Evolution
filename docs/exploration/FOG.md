@@ -11,7 +11,7 @@ On each economy tick `FogWeatherManager` may add fog to one star system within 2
 | Kind | Size and place | Timing | Lurkers | Cache |
 |---|---|---|---|---|
 | Spell | Whole system: centred on the system centre, radius = farthest planet or jump point + 2500, at least 8000 | Rolls in over 2 days, holds 25..35 days, fades over 8 days | `SPELL_AMBUSH_CHANCE` 35%: 1 or 2 fleets, else none | Never |
-| Bank | 5000..9000 across. 60% wrapped round a gas giant and moving with it, else on a slow orbit round the star between planet orbits | Rolls in over 2 days, holds 90..180 days, fades over 8 days | `BANK_AMBUSH_CHANCE` 20%: 1 fleet, else none | `BANK_CACHE_CHANCE` 15%: one small vanilla cache hidden inside, removed with the bank |
+| Bank | 5000..9000 across. 60% wrapped round a gas giant and moving with it, else on a slow orbit round the star between planet orbits | Rolls in over 2 days, holds 90..180 days, fades over 8 days | `BANK_AMBUSH_CHANCE` 10%: 1 fleet, else none | `BANK_CACHE_CHANCE` 15%: one small vanilla cache hidden inside, removed with the bank |
 
 Inside fog the sensor range of a fleet and the range at which it is detected both drop to `1 - 0.9 * density`, so two fleets in thick fog only see each other when they almost touch. Moving fleets, planets and stations push the fog, fleets leave trails, Emergency Burn blows a hole and Interdiction Pulse an expanding ring. The fog and its movement are the only sign of fleets the player cannot see.
 

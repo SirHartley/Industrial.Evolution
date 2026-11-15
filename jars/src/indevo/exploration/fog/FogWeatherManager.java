@@ -56,7 +56,7 @@ public class FogWeatherManager implements EconomyTickListener {
     public static final float BANK_ORBIT_DAYS_PER_UNIT = 0.1f;
 
     public static final float SPELL_AMBUSH_CHANCE = 0.35f;
-    public static final float BANK_AMBUSH_CHANCE = 0.20f;
+    public static final float BANK_AMBUSH_CHANCE = 0.10f;
     public static final float PIRATE_CHANCE = 0.7f;
     public static final float LURKER_MIN_POINTS = 30f;
     public static final float LURKER_MAX_POINTS = 70f;
