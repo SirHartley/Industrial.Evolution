@@ -22,6 +22,10 @@ public class FogGrid {
     public static final int WAKE_SAMPLES = 12;
     public static final float WAKE_STEP = 0.5f, WAKE_MIN_CELLS = 2.2f, WAKE_RATE = 3f;
     public static final int RECENTRE_CELLS = 8;
+    // roll in front: band width, and the fast fill behind it since there is no fog around yet that could flow in
+    public static final float FRONT_WIDTH = 1500f;
+    public static final float FRONT_TAU = 1.5f;
+    public static final float NO_FRONT = Float.MAX_VALUE;
 
     public final int n;
     public final float cell;
@@ -43,20 +47,28 @@ public class FogGrid {
         public static final float LOBE_REACH = 2.4f;
         // in lobe radii: solid inside EDGE_IN, gone at EDGE_OUT, arms end at ARM_REACH
         private static final double EDGE_IN = 0.62, EDGE_OUT = 1.3, ARM_REACH = 2.6;
+        // nebula cover at which fog starts to thin and at which it is gone
+        private static final double GATE_IN = 0.03, GATE_OUT = 0.4;
 
         public final int seed;
         public final float radius;
-        public final boolean wide;
-        // x, y, inner, outer per clear ring in bank local coordinates: no fog inside inner, full fog from outer
+        // x, y, inner, outer, hazeIn, hazeOut per clear ring in bank local coordinates: no fog inside inner, full fog from outer
+        // with hazeOut above 0 a thin haze of HAZE density starts at hazeIn, is full at hazeOut and fills the ring
+        public static final int KEEP_STRIDE = 6;
+        public static final double HAZE = 0.5;
         public float[] keep = new float[0];
+        // tile fields no fog may lie on, in system coordinates; anchor is the fog centre there
+        public FogCover[] covers = new FogCover[0];
+        public float anchorX, anchorY;
+        // roll in: fog only inside this distance of the centre, ragged; NO_FRONT once it is everywhere
+        public float front = NO_FRONT;
         // x, y, radius, angle, stretch per lobe
         private final float[] lobes;
 
-        public Shape(int seed, float radius, boolean wide) {
+        public Shape(int seed, float radius) {
             this.seed = seed;
             this.radius = radius;
-            this.wide = wide;
-            this.lobes = wide ? new float[0] : buildLobes(seed, radius / LOBE_REACH);
+            this.lobes = buildLobes(seed, radius / LOBE_REACH);
         }
 
         private static float[] buildLobes(int seed, float scale) {
@@ -76,20 +88,23 @@ public class FogGrid {
         }
 
         public float mask(double x, double y, double t) {
-            double body = wide ? spellBody(x, y, t) : bankBody(x, y, t);
+            double body = bankBody(x, y, t);
             if (body <= 0) return 0f;
+            if (front < NO_FRONT) {
+                double edge = front * (0.78 + 0.44 * fbm(x / 2100 + 5, y / 2100 + 9, seed + 61, 3));
+                body *= 1 - smooth(edge - FRONT_WIDTH, edge, Math.hypot(x, y));
+                if (body <= 0) return 0f;
+            }
             double inner = 0.5 + 0.7 * fbm(x / 1100 + 3 - t * 0.014, y / 1100 + 5 + t * 0.011, seed + 3, 4);
             double keepMult = 1;
             float[] k = keep;
-            for (int i = 0; i + 3 < k.length; i += 4) {
-                keepMult *= smooth(k[i + 2], k[i + 3], Math.hypot(x - k[i], y - k[i + 1]));
+            for (int i = 0; i + KEEP_STRIDE <= k.length; i += KEEP_STRIDE) {
+                double dist = Math.hypot(x - k[i], y - k[i + 1]);
+                double full = smooth(k[i + 2], k[i + 3], dist);
+                keepMult *= k[i + 5] > 0 ? HAZE * smooth(k[i + 4], k[i + 5], dist) + (1 - HAZE) * full : full;
             }
+            for (FogCover cover : covers) keepMult *= 1 - smooth(GATE_IN, GATE_OUT, cover.at((float) x + anchorX, (float) y + anchorY));
             return (float) Math.min(1, Math.max(0, body * inner * keepMult));
-        }
-
-        private double spellBody(double x, double y, double t) {
-            double edge = radius * (0.85 + 0.3 * fbm(x / 2400 + 11 + t * 0.012, y / 2400 + 7 - t * 0.009, seed, 3));
-            return 1 - smooth(edge * 0.85, edge, Math.hypot(x, y));
         }
 
         // stretched lobes in a slowly drifting warped space: solid middles, a noisy soft outline, ridged arms reaching out
@@ -302,6 +317,20 @@ public class FogGrid {
         }
     }
 
+    // outward flow in the band behind a roll in front of radius r, so the fog streams away from the centre
+    public void emanate(float r, float push, float dt) {
+        float grab = Math.min(1f, dt * 2f);
+        for (int j = 1; j < n - 1; j++) for (int i = 1; i < n - 1; i++) {
+            float dx = ox + (i + 0.5f) * cell, dy = oy + (j + 0.5f) * cell;
+            float dist = (float) Math.hypot(dx, dy);
+            float f = 1f - Math.abs(dist - (r - FRONT_WIDTH)) / FRONT_WIDTH;
+            if (f <= 0f || dist < 1f) continue;
+            int k = j * n + i;
+            u[k] += (dx / dist * push - u[k]) * grab * f;
+            v[k] += (dy / dist * push - v[k]) * grab * f;
+        }
+    }
+
     public void ring(float x, float y, float r0, float r1, float dt) {
         float outer = r1 + 160f;
         int i0 = Math.max(1, (int) Math.floor((x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + outer - ox) / cell));
@@ -384,7 +413,7 @@ public class FogGrid {
         advect(d, t1, dt);
         advect(gx, t3, dt);
         advect(gy, t4, dt);
-        float rl = 1f - (float) Math.exp(-dt / RELAX_TAU), dd = (float) Math.exp(-dt / DISP_TAU);
+        float rl = 1f - (float) Math.exp(-dt / (shape.front < NO_FRONT ? FRONT_TAU : RELAX_TAU)), dd = (float) Math.exp(-dt / DISP_TAU);
         for (int k = 0; k < nn; k++) {
             float x = t1[k] + (m[k] * st - t1[k]) * rl;
             d[k] = x < 0f ? 0f : Math.min(x, 1.3f);

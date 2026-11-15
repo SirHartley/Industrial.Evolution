@@ -3,6 +3,7 @@ package indevo.exploration.fog.terrain;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.CustomCampaignEntityAPI;
 import com.fs.starfarer.api.campaign.CustomCampaignEntityPlugin;
 import com.fs.starfarer.api.campaign.LocationAPI;
@@ -16,11 +17,14 @@ import com.fs.starfarer.api.impl.campaign.abilities.InterdictionPulseAbility;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseTerrain;
+import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.fog.renderers.FogRenderer;
+import indevo.exploration.fog.sim.FogCover;
 import indevo.exploration.fog.sim.FogGrid;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.industries.artillery.projectiles.MissileCarrierEntityPlugin;
@@ -61,8 +65,19 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float STATION_KEEP = 300f;
     // fog starts at a body's surface and is full at this many radii, at least MIN_FADE further out
     public static final float PLANET_FADE = 2.3f;
-    public static final float STAR_FADE = 3f;
     public static final float MIN_FADE = 200f;
+    // space round a star in units of its radius (at most STAR_UNIT_MAX) above the surface:
+    // thin haze from HAZE_IN, haze full at HAZE_OUT, fog thickens from GAP_IN and is full at GAP_OUT
+    public static final float STAR_UNIT_MAX = 550f;
+    public static final float STAR_HAZE_IN = 0.15f;
+    public static final float STAR_HAZE_OUT = 0.9f;
+    public static final float STAR_GAP_IN = 2f;
+    public static final float STAR_GAP_OUT = 5.5f;
+    // a star lights the fog in its colour this many star diameters out from its surface
+    public static final float SUN_LIGHT_DIAMETERS = 1.5f;
+    // the spell front ends this many radii out, where the last arms are; units per second pushed outward behind it
+    public static final float FRONT_REACH = 1.3f;
+    public static final float FRONT_PUSH = 320f;
     public static final float TELEPORT_DISTANCE = 600f;
     // meteor radius is twice the sprite, the cut is 1.2 sprite radii plus the pad
     public static final float ROCK_RADIUS_MULT = 0.4f;
@@ -105,6 +120,9 @@ public class FogTerrainPlugin extends BaseTerrain {
     private transient int patchCount;
     private transient int frame;
     private transient float[][] colours;
+    private transient float[] suns;
+    private transient float[] sunColours;
+    private transient int sunCount;
 
     public static class FogParams {
 
@@ -179,11 +197,19 @@ public class FogTerrainPlugin extends BaseTerrain {
         hideCache();
     }
 
+    // a bank thickens in place, a spell is at full strength behind its front from the start
     public float getStrength() {
         float e = getElapsedDays();
-        if (e < rollInDays) return e / rollInDays;
+        if (e < rollInDays) return kind == Kind.SPELL ? 1f : e / rollInDays;
         if (e < rollInDays + holdDays) return 1f;
         return Math.max(0f, 1f - (e - rollInDays - holdDays) / fadeDays);
+    }
+
+    // a spell rolls out of its centre during the roll in
+    private float getFront() {
+        float e = getElapsedDays();
+        if (kind != Kind.SPELL || e >= rollInDays) return FogGrid.NO_FRONT;
+        return (radius * FRONT_REACH + FogGrid.FRONT_WIDTH) * e / rollInDays;
     }
 
     public boolean isOver() {
@@ -197,6 +223,15 @@ public class FogTerrainPlugin extends BaseTerrain {
 
     public float getRestMaskAt(float localX, float localY) {
         return getShape().mask(localX, localY, getMaskTime());
+    }
+
+    // the mask without the roll in front, for picking posts at spawn
+    public float getFullMaskAt(float localX, float localY) {
+        FogGrid.Shape s = getShape();
+        s.front = FogGrid.NO_FRONT;
+        float mask = s.mask(localX, localY, getMaskTime());
+        s.front = getFront();
+        return mask;
     }
 
     public static float getSensorMult(float density) {
@@ -280,7 +315,29 @@ public class FogTerrainPlugin extends BaseTerrain {
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (grid == null || layer != CampaignEngineLayers.TERRAIN_8) return;
-        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours());
+        readSuns();
+        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours(), suns, sunCount, sunColours);
+    }
+
+    // up to three stars that light the fog: place, radius and light reach in bank local coordinates, shades per star
+    private void readSuns() {
+        if (suns == null) {
+            suns = new float[FogRenderer.MAX_SUNS * 4];
+            sunColours = new float[FogRenderer.MAX_SUNS * 9];
+        }
+        sunCount = 0;
+        Vector2f anchor = entity.getLocation();
+        for (PlanetAPI star : entity.getContainingLocation().getPlanets()) {
+            if (!star.isStar() || sunCount >= FogRenderer.MAX_SUNS) continue;
+            float[][] shades = FogRenderer.sunShades(star);
+            if (shades == null) continue;
+            suns[sunCount * 4] = star.getLocation().x - anchor.x;
+            suns[sunCount * 4 + 1] = star.getLocation().y - anchor.y;
+            suns[sunCount * 4 + 2] = star.getRadius();
+            suns[sunCount * 4 + 3] = star.getRadius() * (1f + SUN_LIGHT_DIAMETERS * 2f);
+            for (int i = 0; i < 9; i++) sunColours[sunCount * 9 + i] = shades[i / 3][i % 3];
+            sunCount++;
+        }
     }
 
     private float[][] getColours() {
@@ -367,14 +424,28 @@ public class FogTerrainPlugin extends BaseTerrain {
 
     private FogGrid.Shape getShape() {
         if (shape == null) {
-            shape = new FogGrid.Shape(seed, radius, kind == Kind.SPELL);
+            shape = new FogGrid.Shape(seed, radius);
+            shape.covers = computeCovers();
             keepStamp = 0;
         }
+        shape.anchorX = entity.getLocation().x;
+        shape.anchorY = entity.getLocation().y;
+        shape.front = getFront();
         if (Global.getSector().getClock().getElapsedDaysSince(keepStamp) > KEEP_REFRESH_DAYS) {
             shape.keep = computeKeep();
             keepStamp = Global.getSector().getClock().getTimestamp();
         }
         return shape;
+    }
+
+    // nebula tiles never change, so the covers are built once per shape
+    private FogCover[] computeCovers() {
+        List<FogCover> out = new ArrayList<>();
+        for (CampaignTerrainAPI terrain : entity.getContainingLocation().getTerrainCopy()) {
+            if (!Terrain.NEBULA.equals(terrain.getType()) || !(terrain.getPlugin() instanceof BaseTiledTerrain nebula)) continue;
+            out.add(new FogCover(nebula.getTiles(), nebula.getTileSize(), terrain.getLocation().x, terrain.getLocation().y));
+        }
+        return out.toArray(new FogCover[0]);
     }
 
     private float[] computeKeep() {
@@ -387,9 +458,13 @@ public class FogTerrainPlugin extends BaseTerrain {
         if (kind == Kind.BANK) for (MarketAPI market : Misc.getMarketsInLocation(loc)) marketEntities.add(market.getPrimaryEntity());
 
         for (PlanetAPI planet : loc.getPlanets()) {
+            if (planet.isStar() && !planet.getSpec().isNebulaCenter()) {
+                float r = planet.getRadius(), unit = Math.min(r, STAR_UNIT_MAX);
+                addKeep(out, planet, r + unit * STAR_GAP_IN, r + unit * STAR_GAP_OUT, r + unit * STAR_HAZE_IN, r + unit * STAR_HAZE_OUT, anchor, reach);
+                continue;
+            }
             float inner = planet.getRadius() + (marketEntities.contains(planet) ? STATION_KEEP : 0f);
-            float fade = planet.isStar() ? STAR_FADE : PLANET_FADE;
-            addKeep(out, planet, inner, Math.max(inner * fade, inner + MIN_FADE), anchor, reach);
+            addKeep(out, planet, inner, Math.max(inner * PLANET_FADE, inner + MIN_FADE), 0f, 0f, anchor, reach);
         }
 
         if (kind == Kind.BANK) {
@@ -406,16 +481,18 @@ public class FogTerrainPlugin extends BaseTerrain {
     }
 
     private void addSmallKeep(List<Float> out, SectorEntityToken other, float keepRadius, Vector2f anchor, float reach) {
-        addKeep(out, other, keepRadius * 1.05f, keepRadius * 1.7f, anchor, reach);
+        addKeep(out, other, keepRadius * 1.05f, keepRadius * 1.7f, 0f, 0f, anchor, reach);
     }
 
-    private void addKeep(List<Float> out, SectorEntityToken other, float inner, float outer, Vector2f anchor, float reach) {
+    private void addKeep(List<Float> out, SectorEntityToken other, float inner, float outer, float hazeIn, float hazeOut, Vector2f anchor, float reach) {
         float x = other.getLocation().x - anchor.x, y = other.getLocation().y - anchor.y;
         if (Math.hypot(x, y) - outer > reach) return;
         out.add(x);
         out.add(y);
         out.add(inner);
         out.add(outer);
+        out.add(hazeIn);
+        out.add(hazeOut);
     }
 
     private void advanceView(float amount) {
@@ -423,7 +500,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         Vector2f centre = Global.getSector().getViewport().getCenter();
         float cx = centre.x - anchor.x, cy = centre.y - anchor.y;
 
-        if (kind == Kind.BANK && Math.hypot(cx, cy) > getRenderRange()) {
+        if (Math.hypot(cx, cy) > getRenderRange()) {
             dropView();
             return;
         }
@@ -444,6 +521,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         float dt = Math.min(amount, FogGrid.MAX_DT);
         grid.setStrength(strength);
         grid.recentre(cx, cy);
+        if (s.front < FogGrid.NO_FRONT) grid.emanate(s.front, FRONT_PUSH, dt);
         feedMovers(amount, dt);
 
         for (Iterator<Ring> it = rings.iterator(); it.hasNext(); ) {

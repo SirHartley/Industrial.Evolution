@@ -55,8 +55,11 @@ public class FogWeatherManager implements EconomyTickListener {
     public static final float BANK_MIN_SIZE = 8000f;
     public static final float BANK_MAX_SIZE = 14000f;
     public static final float GAS_GIANT_CHANCE = 0.6f;
-    public static final float SPELL_MIN_RADIUS = 8000f;
-    public static final float SPELL_EDGE_EXTRA = 2500f;
+    public static final float SYSTEM_MIN_RADIUS = 8000f;
+    public static final float SYSTEM_EDGE_EXTRA = 2500f;
+    // a spell is an oversized bank on the star: its lobes reach about the system radius, the body covers less
+    public static final float SPELL_MIN_RADIUS = 9000f;
+    public static final float SPELL_MAX_RADIUS = 20000f;
     public static final float BANK_ORBIT_DAYS_PER_UNIT = 0.1f;
 
     public static final float SPELL_AMBUSH_CHANCE = 0.35f;
@@ -156,10 +159,10 @@ public class FogWeatherManager implements EconomyTickListener {
         float radius;
         int lurkers;
         if (kind == Kind.SPELL) {
-            radius = getSystemRadius(system);
+            radius = Math.max(SPELL_MIN_RADIUS, Math.min(SPELL_MAX_RADIUS, getSystemRadius(system)));
             float hold = MiscIE.getRandomInRange(SPELL_MIN_HOLD_DAYS, SPELL_MAX_HOLD_DAYS, random);
             fog = system.addTerrain(FogTerrainPlugin.TERRAIN_ID, new FogTerrainPlugin.FogParams(kind, radius, random.nextInt(), ROLL_IN_DAYS, hold, FADE_DAYS));
-            SectorEntityToken center = system.getCenter();
+            SectorEntityToken center = system.getStar() != null ? system.getStar() : system.getCenter();
             fog.setLocation(center.getLocation().x, center.getLocation().y);
             fog.setCircularOrbit(center, 0f, 0f, 100f);
             lurkers = forceAmbush || random.nextFloat() < SPELL_AMBUSH_CHANCE ? 1 + random.nextInt(2) : 0;
@@ -198,7 +201,7 @@ public class FogWeatherManager implements EconomyTickListener {
         float max = 0f;
         for (PlanetAPI planet : system.getPlanets()) max = Math.max(max, Misc.getDistance(planet, system.getCenter()) + planet.getRadius());
         for (SectorEntityToken jp : system.getJumpPoints()) max = Math.max(max, Misc.getDistance(jp, system.getCenter()));
-        return Math.max(SPELL_MIN_RADIUS, max + SPELL_EDGE_EXTRA);
+        return Math.max(SYSTEM_MIN_RADIUS, max + SYSTEM_EDGE_EXTRA);
     }
 
     private static void placeBank(StarSystemAPI system, SectorEntityToken fog, float radius, Random random) {
@@ -272,7 +275,7 @@ public class FogWeatherManager implements EconomyTickListener {
             float dist = MiscIE.getRandomInRange(minDist, maxDist, random);
             double angle = random.nextDouble() * Math.PI * 2;
             float x = (float) Math.cos(angle) * dist, y = (float) Math.sin(angle) * dist;
-            float mask = plugin.getRestMaskAt(x, y);
+            float mask = plugin.getFullMaskAt(x, y);
             if (mask > best) {
                 best = mask;
                 spot.set(x, y);
