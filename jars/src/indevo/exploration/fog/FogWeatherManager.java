@@ -275,7 +275,7 @@ public class FogWeatherManager implements EconomyTickListener {
             float dist = MiscIE.getRandomInRange(minDist, maxDist, random);
             double angle = random.nextDouble() * Math.PI * 2;
             float x = (float) Math.cos(angle) * dist, y = (float) Math.sin(angle) * dist;
-            float mask = plugin.getRestMaskAt(x, y);
+            float mask = plugin.getFullMaskAt(x, y);
             if (mask > best) {
                 best = mask;
                 spot.set(x, y);

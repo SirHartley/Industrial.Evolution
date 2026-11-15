@@ -22,6 +22,10 @@ public class FogGrid {
     public static final int WAKE_SAMPLES = 12;
     public static final float WAKE_STEP = 0.5f, WAKE_MIN_CELLS = 2.2f, WAKE_RATE = 3f;
     public static final int RECENTRE_CELLS = 8;
+    // roll in front: band width, and the fast fill behind it since there is no fog around yet that could flow in
+    public static final float FRONT_WIDTH = 1500f;
+    public static final float FRONT_TAU = 1.5f;
+    public static final float NO_FRONT = Float.MAX_VALUE;
 
     public final int n;
     public final float cell;
@@ -56,6 +60,8 @@ public class FogGrid {
         // tile fields no fog may lie on, in system coordinates; anchor is the fog centre there
         public FogCover[] covers = new FogCover[0];
         public float anchorX, anchorY;
+        // roll in: fog only inside this distance of the centre, ragged; NO_FRONT once it is everywhere
+        public float front = NO_FRONT;
         // x, y, radius, angle, stretch per lobe
         private final float[] lobes;
 
@@ -84,6 +90,11 @@ public class FogGrid {
         public float mask(double x, double y, double t) {
             double body = bankBody(x, y, t);
             if (body <= 0) return 0f;
+            if (front < NO_FRONT) {
+                double edge = front * (0.78 + 0.44 * fbm(x / 2100 + 5, y / 2100 + 9, seed + 61, 3));
+                body *= 1 - smooth(edge - FRONT_WIDTH, edge, Math.hypot(x, y));
+                if (body <= 0) return 0f;
+            }
             double inner = 0.5 + 0.7 * fbm(x / 1100 + 3 - t * 0.014, y / 1100 + 5 + t * 0.011, seed + 3, 4);
             double keepMult = 1;
             float[] k = keep;
@@ -306,6 +317,20 @@ public class FogGrid {
         }
     }
 
+    // outward flow in the band behind a roll in front of radius r, so the fog streams away from the centre
+    public void emanate(float r, float push, float dt) {
+        float grab = Math.min(1f, dt * 2f);
+        for (int j = 1; j < n - 1; j++) for (int i = 1; i < n - 1; i++) {
+            float dx = ox + (i + 0.5f) * cell, dy = oy + (j + 0.5f) * cell;
+            float dist = (float) Math.hypot(dx, dy);
+            float f = 1f - Math.abs(dist - (r - FRONT_WIDTH)) / FRONT_WIDTH;
+            if (f <= 0f || dist < 1f) continue;
+            int k = j * n + i;
+            u[k] += (dx / dist * push - u[k]) * grab * f;
+            v[k] += (dy / dist * push - v[k]) * grab * f;
+        }
+    }
+
     public void ring(float x, float y, float r0, float r1, float dt) {
         float outer = r1 + 160f;
         int i0 = Math.max(1, (int) Math.floor((x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + outer - ox) / cell));
@@ -388,7 +413,7 @@ public class FogGrid {
         advect(d, t1, dt);
         advect(gx, t3, dt);
         advect(gy, t4, dt);
-        float rl = 1f - (float) Math.exp(-dt / RELAX_TAU), dd = (float) Math.exp(-dt / DISP_TAU);
+        float rl = 1f - (float) Math.exp(-dt / (shape.front < NO_FRONT ? FRONT_TAU : RELAX_TAU)), dd = (float) Math.exp(-dt / DISP_TAU);
         for (int k = 0; k < nn; k++) {
             float x = t1[k] + (m[k] * st - t1[k]) * rl;
             d[k] = x < 0f ? 0f : Math.min(x, 1.3f);

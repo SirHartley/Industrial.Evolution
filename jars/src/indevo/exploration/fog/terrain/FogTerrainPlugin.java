@@ -75,6 +75,9 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float STAR_GAP_OUT = 5.5f;
     // a star lights the fog in its colour this many star diameters out from its surface
     public static final float SUN_LIGHT_DIAMETERS = 1.5f;
+    // the spell front ends this many radii out, where the last arms are; units per second pushed outward behind it
+    public static final float FRONT_REACH = 1.3f;
+    public static final float FRONT_PUSH = 320f;
     public static final float TELEPORT_DISTANCE = 600f;
     // meteor radius is twice the sprite, the cut is 1.2 sprite radii plus the pad
     public static final float ROCK_RADIUS_MULT = 0.4f;
@@ -194,11 +197,19 @@ public class FogTerrainPlugin extends BaseTerrain {
         hideCache();
     }
 
+    // a bank thickens in place, a spell is at full strength behind its front from the start
     public float getStrength() {
         float e = getElapsedDays();
-        if (e < rollInDays) return e / rollInDays;
+        if (e < rollInDays) return kind == Kind.SPELL ? 1f : e / rollInDays;
         if (e < rollInDays + holdDays) return 1f;
         return Math.max(0f, 1f - (e - rollInDays - holdDays) / fadeDays);
+    }
+
+    // a spell rolls out of its centre during the roll in
+    private float getFront() {
+        float e = getElapsedDays();
+        if (kind != Kind.SPELL || e >= rollInDays) return FogGrid.NO_FRONT;
+        return (radius * FRONT_REACH + FogGrid.FRONT_WIDTH) * e / rollInDays;
     }
 
     public boolean isOver() {
@@ -212,6 +223,15 @@ public class FogTerrainPlugin extends BaseTerrain {
 
     public float getRestMaskAt(float localX, float localY) {
         return getShape().mask(localX, localY, getMaskTime());
+    }
+
+    // the mask without the roll in front, for picking posts at spawn
+    public float getFullMaskAt(float localX, float localY) {
+        FogGrid.Shape s = getShape();
+        s.front = FogGrid.NO_FRONT;
+        float mask = s.mask(localX, localY, getMaskTime());
+        s.front = getFront();
+        return mask;
     }
 
     public static float getSensorMult(float density) {
@@ -410,6 +430,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         }
         shape.anchorX = entity.getLocation().x;
         shape.anchorY = entity.getLocation().y;
+        shape.front = getFront();
         if (Global.getSector().getClock().getElapsedDaysSince(keepStamp) > KEEP_REFRESH_DAYS) {
             shape.keep = computeKeep();
             keepStamp = Global.getSector().getClock().getTimestamp();
@@ -500,6 +521,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         float dt = Math.min(amount, FogGrid.MAX_DT);
         grid.setStrength(strength);
         grid.recentre(cx, cy);
+        if (s.front < FogGrid.NO_FRONT) grid.emanate(s.front, FRONT_PUSH, dt);
         feedMovers(amount, dt);
 
         for (Iterator<Ring> it = rings.iterator(); it.hasNext(); ) {
