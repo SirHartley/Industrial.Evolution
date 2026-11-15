@@ -47,7 +47,7 @@ public class FogGrid {
         public final int seed;
         public final float radius;
         public final boolean wide;
-        // x, y, radius triples in bank local coordinates
+        // x, y, inner, outer per clear ring in bank local coordinates: no fog inside inner, full fog from outer
         public float[] keep = new float[0];
         // x, y, radius, angle, stretch per lobe
         private final float[] lobes;
@@ -81,8 +81,8 @@ public class FogGrid {
             double inner = 0.5 + 0.7 * fbm(x / 1100 + 3 - t * 0.014, y / 1100 + 5 + t * 0.011, seed + 3, 4);
             double keepMult = 1;
             float[] k = keep;
-            for (int i = 0; i + 2 < k.length; i += 3) {
-                keepMult *= smooth(k[i + 2] * 1.05, k[i + 2] * 1.7, Math.hypot(x - k[i], y - k[i + 1]));
+            for (int i = 0; i + 3 < k.length; i += 4) {
+                keepMult *= smooth(k[i + 2], k[i + 3], Math.hypot(x - k[i], y - k[i + 1]));
             }
             return (float) Math.min(1, Math.max(0, body * inner * keepMult));
         }

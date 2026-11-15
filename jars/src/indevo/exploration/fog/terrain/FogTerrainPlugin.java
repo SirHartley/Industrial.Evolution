@@ -51,6 +51,10 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float KEEP_REFRESH_DAYS = 0.1f;
     public static final float JUMP_POINT_KEEP = 400f;
     public static final float STATION_KEEP = 300f;
+    // fog starts at a body's surface and is full at this many radii, at least MIN_FADE further out
+    public static final float PLANET_FADE = 2.3f;
+    public static final float STAR_FADE = 3f;
+    public static final float MIN_FADE = 200f;
     public static final float TELEPORT_DISTANCE = 600f;
     // meteor radius is twice the sprite, rocks cut a thinner trail than a fleet
     public static final float ROCK_RADIUS_MULT = 0.5f;
@@ -363,15 +367,16 @@ public class FogTerrainPlugin extends BaseTerrain {
         if (kind == Kind.BANK) for (MarketAPI market : Misc.getMarketsInLocation(loc)) marketEntities.add(market.getPrimaryEntity());
 
         for (PlanetAPI planet : loc.getPlanets()) {
-            float extra = marketEntities.contains(planet) ? STATION_KEEP : 0f;
-            addKeep(out, planet, planet.getRadius() + extra, anchor, reach);
+            float inner = planet.getRadius() + (marketEntities.contains(planet) ? STATION_KEEP : 0f);
+            float fade = planet.isStar() ? STAR_FADE : PLANET_FADE;
+            addKeep(out, planet, inner, Math.max(inner * fade, inner + MIN_FADE), anchor, reach);
         }
 
         if (kind == Kind.BANK) {
-            for (SectorEntityToken jp : loc.getJumpPoints()) addKeep(out, jp, jp.getRadius() + JUMP_POINT_KEEP, anchor, reach);
-            for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) addKeep(out, station, station.getRadius() + STATION_KEEP, anchor, reach);
+            for (SectorEntityToken jp : loc.getJumpPoints()) addSmallKeep(out, jp, jp.getRadius() + JUMP_POINT_KEEP, anchor, reach);
+            for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) addSmallKeep(out, station, station.getRadius() + STATION_KEEP, anchor, reach);
             for (SectorEntityToken market : marketEntities) {
-                if (market != null && !(market instanceof PlanetAPI)) addKeep(out, market, market.getRadius() + STATION_KEEP, anchor, reach);
+                if (market != null && !(market instanceof PlanetAPI)) addSmallKeep(out, market, market.getRadius() + STATION_KEEP, anchor, reach);
             }
         }
 
@@ -380,12 +385,17 @@ public class FogTerrainPlugin extends BaseTerrain {
         return keep;
     }
 
-    private void addKeep(List<Float> out, SectorEntityToken other, float keepRadius, Vector2f anchor, float reach) {
+    private void addSmallKeep(List<Float> out, SectorEntityToken other, float keepRadius, Vector2f anchor, float reach) {
+        addKeep(out, other, keepRadius * 1.05f, keepRadius * 1.7f, anchor, reach);
+    }
+
+    private void addKeep(List<Float> out, SectorEntityToken other, float inner, float outer, Vector2f anchor, float reach) {
         float x = other.getLocation().x - anchor.x, y = other.getLocation().y - anchor.y;
-        if (Math.hypot(x, y) - keepRadius * 1.7f > reach) return;
+        if (Math.hypot(x, y) - outer > reach) return;
         out.add(x);
         out.add(y);
-        out.add(keepRadius);
+        out.add(inner);
+        out.add(outer);
     }
 
     private void advanceView(float amount) {
