@@ -76,6 +76,18 @@ public class DroneNetScript implements EveryFrameScript {
         public float pingCooldown;
     }
 
+    public static class NestRespawn {
+        public final float radius;
+        public final float orbitDays;
+        public final long destroyedAt;
+
+        public NestRespawn(float radius, float orbitDays, long destroyedAt) {
+            this.radius = radius;
+            this.orbitDays = orbitDays;
+            this.destroyedAt = destroyedAt;
+        }
+    }
+
     public static final String MEM_KEY = "$IndEvo_droneNet";
     public static final String NEST_ENTITY_ID = "IndEvo_DroneNest";
     public static final String SPOTTER_ENTITY_ID = "IndEvo_SpotterDrone";
@@ -102,6 +114,7 @@ public class DroneNetScript implements EveryFrameScript {
     public static final float NEST_TURN_RATE = 45f;
     public static final float NEST_TRACK_REACH = 1.3f;
     public static final float RELAUNCH_DAYS = 3f;
+    public static final float NEST_RESPAWN_DAYS = 60f;
     public static final int MIN_NEST_RELICS = 1;
     public static final int MAX_NEST_RELICS = 4;
     public static final int NEST_MACHINERY_VALUE = 1500;
@@ -150,6 +163,7 @@ public class DroneNetScript implements EveryFrameScript {
     private final String factionId;
     private final List<SectorEntityToken> nests = new ArrayList<>();
     private final List<Spotter> spotters = new ArrayList<>();
+    private final List<NestRespawn> respawns = new ArrayList<>();
     private SectorEntityToken cones;
 
     private boolean active;
@@ -212,6 +226,9 @@ public class DroneNetScript implements EveryFrameScript {
     public void destroyNest(SectorEntityToken nest, boolean withDebris) {
         if (!nests.remove(nest)) return;
         if (nestLights != null) nestLights.remove(nest);
+
+        float radius = Misc.getDistance(nest, system.getCenter());
+        respawns.add(new NestRespawn(radius, nest.getOrbit().getOrbitalPeriod(), Global.getSector().getClock().getTimestamp()));
 
         spawnExplosion(nest.getLocation(), NEST_EXPLOSION_SIZE);
         if (withDebris) addDebris(nest);
@@ -368,8 +385,9 @@ public class DroneNetScript implements EveryFrameScript {
         popBonked();
         popPulsed();
         relaunch();
+        respawnNests();
 
-        if (nests.isEmpty() && getLiveSpotterCount() == 0) {
+        if (nests.isEmpty() && getLiveSpotterCount() == 0 && respawns.isEmpty()) {
             finish();
             return;
         }
@@ -412,6 +430,7 @@ public class DroneNetScript implements EveryFrameScript {
 
         nests.clear();
         spotters.clear();
+        respawns.clear();
         finish();
 
         system.getMemoryWithoutUpdate().set(Ids.MEM_SYSTEM_ARTILLERY_VISION, ArtilleryStationPlacer.VisionType.WATCHTOWER.name());
@@ -480,6 +499,18 @@ public class DroneNetScript implements EveryFrameScript {
 
             if (!nests.contains(spotter.nest)) iterator.remove();
             else if (Global.getSector().getClock().getElapsedDaysSince(spotter.lostAt) >= RELAUNCH_DAYS) launch(spotter);
+        }
+    }
+
+    // same orbit radius and period as the destroyed nest, at a new angle
+    private void respawnNests() {
+        Iterator<NestRespawn> iterator = respawns.iterator();
+        while (iterator.hasNext()) {
+            NestRespawn respawn = iterator.next();
+            if (Global.getSector().getClock().getElapsedDaysSince(respawn.destroyedAt) < NEST_RESPAWN_DAYS) continue;
+
+            iterator.remove();
+            addNest(Misc.random.nextFloat() * 360f, respawn.radius, respawn.orbitDays, Misc.random);
         }
     }
 
