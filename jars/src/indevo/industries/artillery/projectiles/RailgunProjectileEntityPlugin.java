@@ -177,7 +177,9 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         entity.setLocation(end.x, end.y);
 
         ArtilleryFireRenderer.reportShot(origin, ArtilleryStationEntityPlugin.TYPE_RAILGUN, angle);
-        Global.getSoundPlayer().playSound("IndEvo_railgun_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, originLocation, Misc.ZERO);
+        // sound from the beam point nearest the listener so the whole lance is heard
+        Vector2f soundLoc = Misc.closestPointOnSegmentToPoint(originLocation, end, Global.getSoundPlayer().getListenerPos());
+        Global.getSoundPlayer().playSound("IndEvo_railgun_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, soundLoc, Misc.ZERO);
 
         if (hit != null) spawnExplosion();
     }
