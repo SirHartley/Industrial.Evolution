@@ -1,6 +1,7 @@
 package indevo.exploration.fog.sim;
 
 import java.nio.ByteBuffer;
+import java.util.Random;
 
 import static indevo.exploration.fog.sim.FogNoise.fbm;
 import static indevo.exploration.fog.sim.FogNoise.smooth;
@@ -35,28 +36,42 @@ public class FogGrid {
 
     public static class Shape {
 
+        // a bank's lobes reach about this many lobe scales from its centre, radius is that reach
+        public static final float LOBE_REACH = 2.4f;
+
         public final int seed;
         public final float radius;
         public final boolean wide;
         // x, y, radius triples in bank local coordinates
         public float[] keep = new float[0];
+        // x, y, radius, angle, stretch per lobe
+        private final float[] lobes;
 
         public Shape(int seed, float radius, boolean wide) {
             this.seed = seed;
             this.radius = radius;
             this.wide = wide;
+            this.lobes = wide ? new float[0] : buildLobes(seed, radius / LOBE_REACH);
+        }
+
+        private static float[] buildLobes(int seed, float scale) {
+            Random random = new Random(seed);
+            int count = 5 + random.nextInt(3);
+            float[] out = new float[count * 5];
+            for (int i = 0; i < count; i++) {
+                double angle = random.nextDouble() * Math.PI * 2;
+                float dist = i == 0 ? 0f : scale * (0.4f + 0.6f * random.nextFloat());
+                out[i * 5] = (float) Math.cos(angle) * dist;
+                out[i * 5 + 1] = (float) Math.sin(angle) * dist;
+                out[i * 5 + 2] = scale * (0.24f + 0.2f * random.nextFloat());
+                out[i * 5 + 3] = (float) (random.nextDouble() * Math.PI);
+                out[i * 5 + 4] = 1.6f + 1.6f * random.nextFloat();
+            }
+            return out;
         }
 
         public float mask(double x, double y, double t) {
-            double r = Math.hypot(x, y);
-            double body;
-            if (wide) {
-                double edge = radius * (0.85 + 0.3 * fbm(x / 2400 + 11 + t * 0.012, y / 2400 + 7 - t * 0.009, seed, 3));
-                body = 1 - smooth(edge * 0.85, edge, r);
-            } else {
-                double edge = radius * (0.6 + 0.6 * fbm(x / 2400 + 11 + t * 0.012, y / 2400 + 7 - t * 0.009, seed, 3));
-                body = 1 - smooth(edge * 0.68, edge, r);
-            }
+            double body = wide ? spellBody(x, y, t) : bankBody(x, y, t);
             if (body <= 0) return 0f;
             double inner = 0.5 + 0.7 * fbm(x / 1100 + 3 - t * 0.014, y / 1100 + 5 + t * 0.011, seed + 3, 4);
             double keepMult = 1;
@@ -65,6 +80,31 @@ public class FogGrid {
                 keepMult *= smooth(k[i + 2] * 1.05, k[i + 2] * 1.7, Math.hypot(x - k[i], y - k[i + 1]));
             }
             return (float) Math.min(1, Math.max(0, body * inner * keepMult));
+        }
+
+        private double spellBody(double x, double y, double t) {
+            double edge = radius * (0.85 + 0.3 * fbm(x / 2400 + 11 + t * 0.012, y / 2400 + 7 - t * 0.009, seed, 3));
+            return 1 - smooth(edge * 0.85, edge, Math.hypot(x, y));
+        }
+
+        // stretched lobes in a slowly drifting warped space, bays cut in, ridged arms reaching out
+        private double bankBody(double x, double y, double t) {
+            double scale = radius / LOBE_REACH;
+            double wx = x + (fbm(x / 3400 + 41 + t * 0.006, y / 3400 + 3, seed + 21, 3) - 0.5) * scale * 0.9;
+            double wy = y + (fbm(x / 3400 + 9, y / 3400 + 57 - t * 0.005, seed + 22, 3) - 0.5) * scale * 0.9;
+            double core = 0, reach = 0;
+            float[] l = lobes;
+            for (int i = 0; i + 4 < l.length; i += 5) {
+                double dx = wx - l[i], dy = wy - l[i + 1], c = Math.cos(l[i + 3]), s = Math.sin(l[i + 3]);
+                double q = Math.hypot((dx * c + dy * s) / l[i + 4], -dx * s + dy * c) / l[i + 2];
+                core = Math.max(core, 1 - smooth(0.2, 1.25, q));
+                reach = Math.max(reach, 1 - smooth(0.7, 2.6, q));
+            }
+            if (reach <= 0) return 0;
+            double body = core * smooth(0.28, 0.5, fbm(wx / 2600 + 71 - t * 0.004, wy / 2600 + 13, seed + 41, 3));
+            double rn = fbm(wx / 1100 + t * 0.012, wy / 1100 - t * 0.009, seed + 33, 4);
+            double ridge = Math.pow(1 - Math.abs(2 * rn - 1), 4);
+            return Math.max(body, ridge * reach * 0.8);
         }
 
         public float curl(double x, double y, double t) {

@@ -1,6 +1,10 @@
 package indevo.exploration.fog.renderers;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
+import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Terrain;
+import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import indevo.exploration.fog.sim.FogGrid;
 import indevo.exploration.fog.sim.FogNoise;
@@ -12,16 +16,19 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Vector2f;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 public final class FogRenderer {
 
-    public static final float[] DARK = {0.04f, 0.13f, 0.10f};
-    public static final float[] BODY = {0.11f, 0.33f, 0.24f};
-    public static final float[] LIGHT = {0.36f, 0.62f, 0.48f};
-    public static final float[] MAP_COLOUR = LIGHT;
+    // dark, body and light shade of fog in a system without a nebula
+    public static final float[][] GREY = {{0.08f, 0.085f, 0.095f}, {0.27f, 0.28f, 0.30f}, {0.64f, 0.65f, 0.68f}};
+    public static final float NEBULA_BODY = 0.44f;
+    public static final float NEBULA_DARK = 0.28f;
+    public static final float NEBULA_LIGHT = 0.9f;
+    public static final float NEBULA_LIGHT_WHITE = 0.3f;
     public static final int MAX_HOLES = 16;
 
     private static final String VERTEX_PATH = "data/shaders/indevo_fogVertex.shader";
@@ -38,7 +45,31 @@ public final class FogRenderer {
     private FogRenderer() {
     }
 
-    public static void render(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time) {
+    // fog takes the average colour of the system's nebula texture, grey without one
+    public static float[][] coloursFor(LocationAPI loc) {
+        for (CampaignTerrainAPI terrain : loc.getTerrainCopy()) {
+            if (!Terrain.NEBULA.equals(terrain.getType()) || !(terrain.getPlugin() instanceof BaseTiledTerrain nebula)) continue;
+            BaseTiledTerrain.TileParams params = nebula.getParams();
+            if (params == null || params.cat == null || params.key == null) continue;
+            Color avg = Global.getSettings().getSprite(params.cat, params.key).getAverageColor();
+            if (avg == null) continue;
+            float r = avg.getRed() / 255f, g = avg.getGreen() / 255f, b = avg.getBlue() / 255f;
+            float max = Math.max(r, Math.max(g, b));
+            if (max <= 0.01f) continue;
+            r /= max;
+            g /= max;
+            b /= max;
+            float[] body = {r * NEBULA_BODY, g * NEBULA_BODY, b * NEBULA_BODY};
+            float[] dark = {body[0] * NEBULA_DARK, body[1] * NEBULA_DARK, body[2] * NEBULA_DARK};
+            float[] light = new float[3];
+            float[] hue = {r, g, b};
+            for (int i = 0; i < 3; i++) light[i] = hue[i] * NEBULA_LIGHT * (1f - NEBULA_LIGHT_WHITE) + NEBULA_LIGHT_WHITE;
+            return new float[][]{dark, body, light};
+        }
+        return GREY;
+    }
+
+    public static void render(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time, float[][] colours) {
         float inset = grid.cell * 2f;
         float x0 = Math.max(anchor.x + grid.ox + inset, viewport.getLLX());
         float y0 = Math.max(anchor.y + grid.oy + inset, viewport.getLLY());
@@ -47,8 +78,8 @@ public final class FogRenderer {
         if (x0 >= x1 || y0 >= y1) return;
 
         load();
-        if (program == 0) renderPlain(grid, anchor, viewport.getAlphaMult(), holes, holeCount, x0, y0, x1, y1);
-        else renderShader(grid, anchor, viewport.getAlphaMult(), holes, holeCount, time, x0, y0, x1, y1);
+        if (program == 0) renderPlain(grid, anchor, viewport.getAlphaMult(), holes, holeCount, colours, x0, y0, x1, y1);
+        else renderShader(grid, anchor, viewport.getAlphaMult(), holes, holeCount, time, colours, x0, y0, x1, y1);
     }
 
     private static void load() {
@@ -83,7 +114,7 @@ public final class FogRenderer {
     }
 
     private static void renderShader(FogGrid grid, Vector2f anchor, float alphaMult, float[] holes, int holeCount, float time,
-                                     float x0, float y0, float x1, float y1) {
+                                     float[][] colours, float x0, float y0, float x1, float y1) {
         int n = grid.n;
         if (texture == 0) {
             texture = GL11.glGenTextures();
@@ -113,9 +144,9 @@ public final class FogRenderer {
         HOLES.flip();
         GL20.glUniform3(uHoles, HOLES);
         GL20.glUniform1f(uHN, holeCount);
-        GL20.glUniform3f(uC0, DARK[0], DARK[1], DARK[2]);
-        GL20.glUniform3f(uC1, BODY[0], BODY[1], BODY[2]);
-        GL20.glUniform3f(uC2, LIGHT[0], LIGHT[1], LIGHT[2]);
+        GL20.glUniform3f(uC0, colours[0][0], colours[0][1], colours[0][2]);
+        GL20.glUniform3f(uC1, colours[1][0], colours[1][1], colours[1][2]);
+        GL20.glUniform3f(uC2, colours[2][0], colours[2][1], colours[2][2]);
 
         // shader writes premultiplied colour
         GL11.glEnable(GL11.GL_BLEND);
@@ -133,14 +164,15 @@ public final class FogRenderer {
     }
 
     private static void renderPlain(FogGrid grid, Vector2f anchor, float alphaMult, float[] holes, int holeCount,
-                                    float x0, float y0, float x1, float y1) {
+                                    float[][] colours, float x0, float y0, float x1, float y1) {
         int n = grid.n;
         float cell = grid.cell;
         int i0 = Math.max(1, (int) Math.floor((x0 - anchor.x - grid.ox) / cell - 0.5f));
         int i1 = Math.min(n - 2, (int) Math.ceil((x1 - anchor.x - grid.ox) / cell - 0.5f));
         int j0 = Math.max(1, (int) Math.floor((y0 - anchor.y - grid.oy) / cell - 0.5f));
         int j1 = Math.min(n - 2, (int) Math.ceil((y1 - anchor.y - grid.oy) / cell - 0.5f));
-        float r = BODY[0] + (LIGHT[0] - BODY[0]) * 0.3f, g = BODY[1] + (LIGHT[1] - BODY[1]) * 0.3f, b = BODY[2] + (LIGHT[2] - BODY[2]) * 0.3f;
+        float[] body = colours[1], light = colours[2];
+        float r = body[0] + (light[0] - body[0]) * 0.3f, g = body[1] + (light[1] - body[1]) * 0.3f, b = body[2] + (light[2] - body[2]) * 0.3f;
 
         boolean textured = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -163,7 +195,8 @@ public final class FogRenderer {
                                     float r, float g, float b) {
         float x = grid.ox + (i + 0.5f) * grid.cell, y = grid.oy + (j + 0.5f) * grid.cell;
         float d = Math.min(1f, grid.d[j * grid.n + i]);
-        float a = (float) FogNoise.smooth(0.06, 0.8, d) * 0.85f * alphaMult;
+        float c = Math.min(1f, d / 0.85f);
+        float a = (float) Math.pow(c * c * (3 - 2 * c), 1.1) * 0.85f * alphaMult;
         for (int h = 0; h < holeCount; h++) {
             float hr = holes[h * 3 + 2];
             a *= (float) FogNoise.smooth(hr * 0.45, hr * 1.5, Math.hypot(x - holes[h * 3], y - holes[h * 3 + 1]));
