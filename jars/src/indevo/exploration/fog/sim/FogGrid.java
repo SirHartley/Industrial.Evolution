@@ -49,7 +49,10 @@ public class FogGrid {
         public final int seed;
         public final float radius;
         public final boolean wide;
-        // x, y, inner, outer per clear ring in bank local coordinates: no fog inside inner, full fog from outer
+        // x, y, inner, outer, hazeIn, hazeOut per clear ring in bank local coordinates: no fog inside inner, full fog from outer
+        // with hazeOut above 0 a thin haze of HAZE density starts at hazeIn, is full at hazeOut and fills the ring
+        public static final int KEEP_STRIDE = 6;
+        public static final double HAZE = 0.5;
         public float[] keep = new float[0];
         // tile fields no fog may lie on, in system coordinates; anchor is the fog centre there
         public FogCover[] covers = new FogCover[0];
@@ -86,8 +89,10 @@ public class FogGrid {
             double inner = 0.5 + 0.7 * fbm(x / 1100 + 3 - t * 0.014, y / 1100 + 5 + t * 0.011, seed + 3, 4);
             double keepMult = 1;
             float[] k = keep;
-            for (int i = 0; i + 3 < k.length; i += 4) {
-                keepMult *= smooth(k[i + 2], k[i + 3], Math.hypot(x - k[i], y - k[i + 1]));
+            for (int i = 0; i + KEEP_STRIDE <= k.length; i += KEEP_STRIDE) {
+                double dist = Math.hypot(x - k[i], y - k[i + 1]);
+                double full = smooth(k[i + 2], k[i + 3], dist);
+                keepMult *= k[i + 5] > 0 ? HAZE * smooth(k[i + 4], k[i + 5], dist) + (1 - HAZE) * full : full;
             }
             for (FogCover cover : covers) keepMult *= 1 - smooth(GATE_IN, GATE_OUT, cover.at((float) x + anchorX, (float) y + anchorY));
             return (float) Math.min(1, Math.max(0, body * inner * keepMult));

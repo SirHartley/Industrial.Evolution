@@ -65,8 +65,14 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float STATION_KEEP = 300f;
     // fog starts at a body's surface and is full at this many radii, at least MIN_FADE further out
     public static final float PLANET_FADE = 2.3f;
-    public static final float STAR_FADE = 3f;
     public static final float MIN_FADE = 200f;
+    // space round a star in units of its radius (at most STAR_UNIT_MAX) above the surface:
+    // thin haze from HAZE_IN, haze full at HAZE_OUT, fog thickens from GAP_IN and is full at GAP_OUT
+    public static final float STAR_UNIT_MAX = 550f;
+    public static final float STAR_HAZE_IN = 0.15f;
+    public static final float STAR_HAZE_OUT = 0.9f;
+    public static final float STAR_GAP_IN = 2f;
+    public static final float STAR_GAP_OUT = 5.5f;
     // a star lights the fog in its colour this many star diameters out from its surface
     public static final float SUN_LIGHT_DIAMETERS = 1.5f;
     public static final float TELEPORT_DISTANCE = 600f;
@@ -431,9 +437,13 @@ public class FogTerrainPlugin extends BaseTerrain {
         if (kind == Kind.BANK) for (MarketAPI market : Misc.getMarketsInLocation(loc)) marketEntities.add(market.getPrimaryEntity());
 
         for (PlanetAPI planet : loc.getPlanets()) {
+            if (planet.isStar() && !planet.getSpec().isNebulaCenter()) {
+                float r = planet.getRadius(), unit = Math.min(r, STAR_UNIT_MAX);
+                addKeep(out, planet, r + unit * STAR_GAP_IN, r + unit * STAR_GAP_OUT, r + unit * STAR_HAZE_IN, r + unit * STAR_HAZE_OUT, anchor, reach);
+                continue;
+            }
             float inner = planet.getRadius() + (marketEntities.contains(planet) ? STATION_KEEP : 0f);
-            float fade = planet.isStar() ? STAR_FADE : PLANET_FADE;
-            addKeep(out, planet, inner, Math.max(inner * fade, inner + MIN_FADE), anchor, reach);
+            addKeep(out, planet, inner, Math.max(inner * PLANET_FADE, inner + MIN_FADE), 0f, 0f, anchor, reach);
         }
 
         if (kind == Kind.BANK) {
@@ -450,16 +460,18 @@ public class FogTerrainPlugin extends BaseTerrain {
     }
 
     private void addSmallKeep(List<Float> out, SectorEntityToken other, float keepRadius, Vector2f anchor, float reach) {
-        addKeep(out, other, keepRadius * 1.05f, keepRadius * 1.7f, anchor, reach);
+        addKeep(out, other, keepRadius * 1.05f, keepRadius * 1.7f, 0f, 0f, anchor, reach);
     }
 
-    private void addKeep(List<Float> out, SectorEntityToken other, float inner, float outer, Vector2f anchor, float reach) {
+    private void addKeep(List<Float> out, SectorEntityToken other, float inner, float outer, float hazeIn, float hazeOut, Vector2f anchor, float reach) {
         float x = other.getLocation().x - anchor.x, y = other.getLocation().y - anchor.y;
         if (Math.hypot(x, y) - outer > reach) return;
         out.add(x);
         out.add(y);
         out.add(inner);
         out.add(outer);
+        out.add(hazeIn);
+        out.add(hazeOut);
     }
 
     private void advanceView(float amount) {
