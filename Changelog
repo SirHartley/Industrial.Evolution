@@ -372,6 +372,7 @@ Added - Searchlights: towers sweep orange and purple lights over some derelict a
 Note - Orange lights see moving fleets, purple lights see fleets at burn 2 or less, dimmed lights see nothing
 Note - A light that sees you turns red and follows you, stop or start moving to shake it off
 Note - Chaff Clouds block the lights, going dark does not help, a hack turns a tower off
+Note - Small spikes on the tower point at its lights, longer for lights further out
 Added - Settings for vision type weights, lighthouse beams and drone cones
 Added - Artillery fire animation: muzzle flash and smoke per shot, the station glows hot and vents
 Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a slow discharge all around
