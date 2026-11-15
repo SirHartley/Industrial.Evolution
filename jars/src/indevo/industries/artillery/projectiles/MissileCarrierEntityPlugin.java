@@ -44,7 +44,6 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         public float impactSeconds;
         public SectorEntityToken track;
         public Vector2f trackOffset;
-        public boolean ping;
 
         public MissileParams(SectorEntityToken origin, Vector2f target, float impactSeconds, Vector2f trajectoryCenter, float trajectoryRadius, float splitAngleOnTrajectory) {
             this.origin = origin;
@@ -109,7 +108,6 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     public float warningSeconds;
     public float revealSeconds;
     public boolean revealed = false;
-    public boolean ping = false;
 
     //player carriers aim again when the danger sign shows
     public SectorEntityToken track;
@@ -139,7 +137,6 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
             this.warningSeconds = impactSeconds;
             this.track = ((MissileParams) pluginParams).track;
             this.trackOffset = ((MissileParams) pluginParams).trackOffset;
-            this.ping = ((MissileParams) pluginParams).ping;
 
             trailID = MagicCampaignTrailPlugin.getUniqueID();
 
@@ -262,7 +259,6 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     private void reveal() {
         revealed = true;
-        if (ping) ArtilleryStationEntityPlugin.playWarningPing();
 
         boolean launched = timePassedSeconds > projectileDelaySeconds && !sound;
         if (!launched || finishing || track == null || trackOffset == null || !track.isAlive() || track.getContainingLocation() != entity.getContainingLocation()) return;
