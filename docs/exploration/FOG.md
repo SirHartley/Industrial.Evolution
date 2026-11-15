@@ -1,0 +1,108 @@
+# Fog
+
+Fog weather in star systems near the player: the roll, the fog terrain and its sensor cut, the fluid solver that moves the fog, the shader that draws it, and the lurker fleets that ambush inside it. Read it before touching `indevo/exploration/fog/` or `IndEvo_fog_enabled`. It does not cover the Chaff Cloud consumable ([Consumables](../items/CONSUMABLES.md)), which keeps its own terrain and renderer.
+
+Checked against Starsector 0.98a-RC8 (knowledge skill build 0.98.5a-RC4) and IE `779055f`. Recheck engine facts after a game update. Not yet seen in game.
+
+## Overview
+
+On each economy tick `FogWeatherManager` may add fog to one star system within 20 light years of the player. Fog comes in two kinds:
+
+| Kind | Size and place | Timing | Lurkers |
+|---|---|---|---|
+| Spell | Whole system: centred on the system centre, radius = farthest planet or jump point + 2500, at least 8000 | Rolls in over 2 days, holds 25..35 days, fades over 8 days | `SPELL_AMBUSH_CHANCE` 35%: 1 or 2 fleets, else none |
+| Bank | 5000..9000 across. 60% wrapped round a gas giant and moving with it, else on a slow orbit round the star between planet orbits | Rolls in over 2 days, holds 90..180 days, fades over 8 days | `BANK_AMBUSH_CHANCE` 20%: 1 fleet, else none |
+
+Inside fog the sensor range of a fleet and the range at which it is detected both drop to `1 - 0.9 * density`, so two fleets in thick fog only see each other when they almost touch. Moving fleets, planets and stations push the fog, fleets leave trails, Emergency Burn blows a hole and Interdiction Pulse an expanding ring. The fog and its movement are the only sign of fleets the player cannot see.
+
+## Files
+
+| File | Owner / role |
+|---|---|
+| `indevo/exploration/fog/FogWeatherManager.java` | Transient `EconomyTickListener`. Roll, system choice, spell and bank placement, lurker spawn, the list of active fog in persistent data |
+| `sim/FogNoise.java` | Hash, value noise, fbm, smoothstep. No engine imports |
+| `sim/FogGrid.java` | Fluid solver on a scrolling window, port of the mockup's `sim_inline.js`. Nested `Shape` (rest mask and ambient curl, a pure function of local position, seed and time) and `Mover`. No engine imports, runs headless |
+| `terrain/FogTerrainPlugin.java` | `BaseTerrain` for `IndEvo_fog`. Saved: kind, radius, seed, start timestamp, roll in, hold, fade. Strength from the clock, sensor cut, density lookup, feeds movers, abilities and clear patches into the grid, map disc, tooltip, removes itself when over |
+| `renderers/FogRenderer.java` | Static drawing helper called from the terrain's `render`: grid packed into one RGBA texture per frame, GraphicsLib shader program, plain vertex coloured mesh when the program is 0 |
+| `fleet/FogLurkerAssignmentAI.java` | `EveryFrameScript` on a lurker fleet: hold a post in the fog, chase a strong trail, return, leave and despawn when the fog ends |
+| `data/shaders/indevo_fogVertex.shader`, `indevo_fogFragment.shader` | Fog shader, desktop GLSL port of the mockup's `FS`. Works in bank local coordinates |
+
+## Data and ids
+
+| Kind | Id / key | Where |
+|---|---|---|
+| Setting | `IndEvo_fog_enabled` (true), Quick Settings | `data/config/LunaSettings.csv:9`, `indevo/config/Setting.java:23` |
+| Terrain | `IndEvo_fog` -> `FogTerrainPlugin` | `data/campaign/terrain.json:47` |
+| Description | `IndEvo_fog` `TERRAIN` (tooltip text) | `data/strings/descriptions.csv:73` |
+| Effect category | `IndEvo_fog` (`$terrain_IndEvo_fog` per fleet) | `FogTerrainPlugin.EFFECT_CATEGORY` |
+| Stat mods | `IndEvo_fog_stat_mod_1` (detected range), `_2` (sensor range), temporary mults for 0.1 days | `FogTerrainPlugin.applyEffect` |
+| Persistent data | `IndEvo_fogTerrains` (`List<SectorEntityToken>` of fog terrain entities) | `FogWeatherManager.DATA_KEY` |
+| Memory key | `$IndEvo_fogLurker` (true on lurker fleets) | `FogLurkerAssignmentAI.MEM_LURKER` |
+
+Tuning constants are public statics on their owner: roll chances, caps, durations, sizes, ambush chances and lurker size on `FogWeatherManager`; sensor cut, density threshold, window size, keep disc margins on `FogTerrainPlugin`; solver constants on `FogGrid`; notice range and chase time on `FogLurkerAssignmentAI`.
+
+## Registration and lifecycle
+
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> FogWeatherManager.register()` adds a transient listener if none is there. Old saves get fog from the next economy tick.
+- Fog is a terrain entity added with `addTerrain`, saved with its plugin. It orbits the system centre or a gas giant (`setCircularOrbit(focus, 0, 0, 100)` like vanilla magnetic fields, or a star orbit with period `0.1 * radius` days).
+- Lurkers are fleets with a saved `FogLurkerAssignmentAI` script.
+- The grid, movers, rings, clear patches and the keep discs are transient fields of the plugin, built while the player is in the system and dropped when the player leaves. GL objects are static in `FogRenderer`, created once per application.
+
+`reportEconomyTick -> getActiveFog (prune) -> [IndEvo_fog_enabled] roll -> spawnNearPlayer -> isValidSystem -> spawn -> addTerrain + placeBank -> spawnLurker -> FogTerrainPlugin.advance -> BaseTerrain.advance (applyEffect) -> advanceView -> FogGrid.step -> render -> FogRenderer.render`
+
+## Flow
+
+### Roll
+
+- `reportEconomyTick` (`FogWeatherManager.java:70`): prunes dead entries, returns if the setting is off, counts spells and banks. Spell 15% while fewer than 3, bank 10% while fewer than 6, each tick.
+- `isValidSystem` (`:107`): not `THEME_CORE`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`, `SYSTEM_CUT_OFF_FROM_HYPER`, not a `NEBULA` type system, no `nebula` terrain, no fog yet. Markets do not block fog, so player colonies outside the core can get it. Candidates within 20 light years of the player fleet's hyperspace position, one picked at random.
+- `spawn` (`:122`) throws if the system already has fog.
+- `placeBank` (`:169`): a random gas giant with 60%, else a star orbit at the midpoint between two adjacent planet orbits or beyond the outermost, at least star radius + bank radius + 500 out.
+
+### Strength and density
+
+- Strength: 0 to 1 over the roll in, 1 during hold, 1 to 0 over the fade, from `getElapsedDaysSince(start)`. At the end the terrain removes its entity and the manager drops it on the next tick.
+- Rest mask (`FogGrid.Shape.mask`): in bank local coordinates (position minus the terrain entity's location), time = elapsed days times seconds per day. Bank: ragged disc, edge at 0.6..1.2 radius. Spell: ragged disc, edge at 0.85..1.15 radius. Both times a 0.5..1.2 inner noise and the keep discs. Keep discs: spells keep planet bodies clear (planets poke out); banks also keep jump points (radius + 400), stations and market entities (radius + 300) clear. Refreshed every 0.1 days.
+- `getDensityAt` (`FogTerrainPlugin.java:148`): the grid inside its window, else rest mask times strength. Stats, the tooltip, `containsPoint` (density above 0.05) and lurkers all read it, so they match what the player sees.
+
+### Sensor cut
+
+`applyEffect` (`:192`) adds `1 - 0.9 * density` as a 0.1 day temporary mult to `getDetectedRangeMod()` and `getSensorRangeMod()`, as the vanilla abyss does. While a fleet's Active Sensor Burst is active or in progress the sensor range mult is skipped; the detected range mult stays. `BaseTerrain.advance` applies one terrain per effect category per fleet per frame, so fog never stacks with itself.
+
+### Grid and drawing
+
+- `advanceView` (`:334`), only in the player's location and, for a bank, while the view centre is within the render range. 128 x 128 cells of 80 units in bank local coordinates, recentred by whole cells when the view centre drifts more than 8 cells; cells that scroll in start at the rest mask, border cells are held at the rest mask. One solver step per frame, `dt` clamped to `FogGrid.MAX_DT` (0.1 s).
+- Movers (`feedMovers`, `:374`): every fleet in the window with its velocity minus the bank's own velocity; planets and stations with their frame to frame speed (jumps over 600 units count as no motion).
+- Abilities (`readAbilities`, `:425`): Emergency Burn blasts when its level reaches 1; Interdiction Pulse rings out to `InterdictionPulseAbility.getRange` over 0.6 s when `$justDidInterdictionPulse` appears. Polled per fleet in the window: no callback reports NPC ability use, and the pulse's level is 1 for at most a frame (duration 0.001 days, `abilities.csv`), so the memory flag is the reliable signal.
+- Clear patches: the player fleet always, other fleets while the player can see them (fade in 0.5 s, out 0.8 s), up to 16, radius 2.6 x fleet radius.
+- `render` draws on `TERRAIN_8` (above `FLEETS`) one world space quad over the visible part of the window. The texture packs density / 1.3, the advected detail offset and the flow speed. Shader colours: `FogRenderer.DARK`, `BODY`, `LIGHT` (the mockup's green).
+- `renderOnMap` draws a soft disc over the bank or the spell radius, alpha 0.3 x strength.
+
+### Lurkers
+
+- Built with `FleetFactoryV3`, pirates 70% else Luddic Path, 30..70 combat points, fleet type `patrolMedium`, transponder off, `$IndEvo_fogLurker`. The post is a random point in the fog (best rest mask of 30 tries, 0.2..0.7 radius out), kept as an offset from the fog centre so it moves with a bank.
+- `FogLurkerAssignmentAI.advance` (`FogLurkerAssignmentAI.java:50`): `HOLD` at the post (re-issued when the post moved more than 600 units). A trail is noticed (`noticesTrail`, `:98`) only for the player fleet, within 1500 units, not `Misc.isSlowMoving`, inside fog (density above 0.05), and only if `fleet.isHostileTo(player)`. Then `INTERCEPT` the player; 2 days after the last such sighting it returns to the post. When the fog is gone it goes to the nearest jump point (else the system centre) with `GO_TO_LOCATION_AND_DESPAWN`.
+- `HOLD` never engages, so a player going slow or dark past a lurker is safe; the vanilla game never reads `TerrainAIFlags`, so this script is the only fog behaviour NPCs have.
+
+## Contracts
+
+- `FogGrid` and `FogNoise` import nothing from the game. Keep it that way: the headless check compiles them alone.
+- The rest mask is a pure function of local position, seed and time, so the shape follows an orbiting bank and is the same after a load. The grid is never saved.
+- Strength, the end of the fog and the mask time come only from the saved start timestamp and the campaign clock.
+- Effects run for fleets within `getRenderRange()` (`:208`) of the fog centre: `BaseTerrain.advance` skips fleets farther out (knowledge skill `api/impl/campaign/terrain/BaseTerrain.java:89`), and `CampaignTerrain.render` only calls `render` when the centre is within it of the viewport (`obf/campaign/CampaignTerrain.java:88`).
+- Spot range is `(observer sensor strength + target profile) x target detected range mods x observer sensor range mods` (knowledge skill `obf/campaign/BaseCampaignEntity.java:1089`), so the cut on both sides multiplies.
+- `ShaderLib.loadShader` returns 0 when the shader fails (GraphicsLib 1.9.0). `FogRenderer` then logs a warning once and draws the plain mesh.
+- Fog shader uniforms and the texture layout are coupled between `FogRenderer.renderShader`, `FogGrid.pack` and `indevo_fogFragment.shader`.
+- Couplings: `MiscIE.getRandomInRange` ([Utils](../core/UTILS.md)); `Setting.FOG_ENABLED` ([Settings](../core/SETTINGS.md)).
+
+## Known issues and dormant code
+
+| Item | State |
+|---|---|
+| Not seen in game | Shader look, layer order against fleets and other terrain, frame time, window edge at full zoom out, ambush behaviour and `INTERCEPT` on a fleet the lurker cannot see are unverified |
+| Window size | 128 x 80 = 10240 units. A view wider than about 10000 units shows the fog cut at the window edge |
+| Chaff Cloud | Still uses its own renderer; moving it to the fog renderer is a later task |
+
+## Maintenance
+
+Update this doc when a fog kind, a timing, the sensor cut, the solver constants, the shader or the lurker behaviour changes. Setting mechanics belong in [Settings](../core/SETTINGS.md), console commands in [Console](../core/CONSOLE.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
