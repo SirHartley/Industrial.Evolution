@@ -95,7 +95,7 @@ Non-missile use: right-click works in the cargo tab with no dialog open, only if
 
 Missile targeting is the skillshot framework ([README](../../jars/src/indevo/skillshot/README.md#how-it-works)): click the ability and click the map, or hold its hotkey (1 to 9) and release. Firing runs `forceActivation()`: `onSkillshotFired(target, angle)`, `onConsume()` (removes one item) and the cooldown. Missile `isUsable` also needs an item, no live targeting session (in IE or a mod holding the [cross mod lock](../../jars/src/indevo/skillshot/README.md#cross-mod-lock)) and no open dialog or core tab. A slot ability tagged `IndEvo_skillshot` whose plugin is not a `SkillshotAbility` throws (`IllegalStateException`) on its hotkey, since only an IE bug gets there.
 
-Missile entities (`BaseMissileEntityPlugin`): fly straight for 4 s, explode on `shouldExplode`, timeout, or reaching the target point (AOE types aim at the cursor). Entities within radius + 50 along the path get `$missile_bonked`; `MeteorEntity.java:71-72` reads it ([Meteor](../exploration/METEOR.md)). Trails use `MagicCampaignTrailPlugin`.
+Missile entities (`BaseMissileEntityPlugin`): fly straight for 4 s, explode on `shouldExplode`, timeout, or reaching the target point (AOE types aim at the cursor). Entities within radius + 50 along the path get `$missile_bonked`; `MeteorEntity.java:100-101` reads it ([Meteor](../exploration/METEOR.md)). Trails use `MagicCampaignTrailPlugin`.
 
 | Type | Speed | Effect |
 |---|---|---|

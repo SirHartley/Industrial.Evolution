@@ -44,6 +44,9 @@ Fixed - Mines no longer cluster in one spot of the belt
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
 Added - Catch.Release harpoons can now break meteors
+Added - NPC fleets now steer out of the way of incoming meteors
+Added - Rogue Asteroids: small groups of rocks in seven shapes cross systems without warning, colonies included, sometimes carrying treasure. Now and then a system gets a drizzle of small rocks for 5 to 15 days instead. Rare, the chance is a setting in the Meteor Swarms tab.
+Adjusted - Meteors now break on stations without damaging or pushing them
 Fixed - Tutorial intel can no longer show duplicate notifications
 Fixed - Planetoid swarms no longer leave planets, rings and loot stations behind
 Fixed - Rogue planets and swarm rocks no longer vanish right after they spawn
@@ -52,6 +55,7 @@ Fixed - Meteor Shower intel now shows the right arrival date and expires on time
 Fixed - Crash when the roider tutorial faction has no markets
 Fixed - Impact dust clouds no longer pile up in saves and slow the game down
 Fixed - Large swarms on screen no longer slow the game down
+Fixed - Swarm warning path and radiation no longer linger from scattered treasure rock debris
 
 Pets
 Fixed - Animal market now gets correctly removed if Animal Center is removed or pets disabled

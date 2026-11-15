@@ -22,6 +22,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.meteor.MeteorSwarmManager;
+import indevo.exploration.meteor.rogue.RogueDrizzleSpawner;
 import indevo.ids.Ids;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -128,12 +129,12 @@ public class ShuttleNetwork {
         for (ShuttleAnchor anchor : anchors.values()) anchor.updateMotion(seconds);
     }
 
-    // meteor swarms have no callback for their movement, so this runs with the fleet scan
+    // meteor swarms have no callback for their movement, so this runs with the fleet scan; drizzle rocks never close a pad
     public void updateSwarms(LocationAPI location) {
         boolean had = !meteors.isEmpty();
         meteors.clear();
         for (SectorEntityToken meteor : location.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) {
-            if (meteor.isAlive()) meteors.add(meteor);
+            if (meteor.isAlive() && !meteor.hasTag(RogueDrizzleSpawner.TAG_ROCK)) meteors.add(meteor);
         }
 
         if (meteors.isEmpty() && !had) return;

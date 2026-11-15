@@ -1,5 +1,6 @@
 package indevo.exploration.meteor.movement;
 
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.CircularArc;
 
@@ -13,7 +14,11 @@ public class ArcOnOrbitLossMovement extends ArcingMovementModule{
 
     @Override
     public void advance(float amount) {
-        if (entity.getOrbit() != null) return;
+        if (entity.getOrbit() != null) {
+            SectorEntityToken focus = entity.getOrbit().getFocus();
+            if (focus == null || focus.isAlive()) return;
+            entity.setOrbit(null);
+        }
 
         if (!hasReset) {
             CircularArc newArc = arc.getModifiedRadiusArc(Misc.getDistance(entity.getLocation(), arc.center));
