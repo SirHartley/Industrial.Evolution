@@ -2,11 +2,7 @@ package indevo.abilities.splitfleet.fleetManagement;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
-import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.ui.Alignment;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import org.apache.log4j.Logger;
@@ -72,10 +68,10 @@ public class Behaviour {
     public static Map<FleetBehaviour, Color> behaviourColourMap = new HashMap<FleetBehaviour, Color>() {{
         put(FleetBehaviour.STAY, new Color(50, 150, 0, 255));
         put(FleetBehaviour.FOLLOW, new Color(0, 150, 150, 255));
-        put(FleetBehaviour.HIDE, Color.BLUE);
-        put(FleetBehaviour.ESCORT, Color.ORANGE);
-        put(FleetBehaviour.INTERCEPT, Color.RED);
-        put(FleetBehaviour.TRANSPORT, Color.MAGENTA);
+        put(FleetBehaviour.HIDE, new Color(70, 90, 255, 255));
+        put(FleetBehaviour.ESCORT, new Color(255, 200, 0, 255));
+        put(FleetBehaviour.INTERCEPT, new Color(255, 60, 40, 255));
+        put(FleetBehaviour.TRANSPORT, new Color(255, 60, 255, 255));
     }};
 
     public static Color getColourForBehaviour(FleetBehaviour behaviour) {
@@ -84,28 +80,6 @@ public class Behaviour {
 
     public static Color getColourForBehaviour(int i) {
         return behaviourColourMap.get(getBehaviourForIndex(i));
-    }
-
-    public static void addBehaviourListTooltip(TextPanelAPI text) {
-        float opad = 10f;
-        float spad = 3f;
-
-        TooltipMakerAPI tooltip = text.beginTooltip();
-
-        tooltip.addSectionHeading("Behaviour modes", Alignment.MID, opad);
-        text.addTooltip();
-
-        text.setFontSmallInsignia();
-
-        for (int i = 1; i <= Behaviour.behaviourIndexMap.size(); i++) {
-            FleetBehaviour b = Behaviour.getBehaviourForIndex(i);
-            String s = Misc.ucFirst(b.toString().toLowerCase());
-
-            text.addPara(s + " - " + Behaviour.behaviourTooltipMap.get(i));
-            text.highlightInLastPara(Behaviour.getColourForBehaviour(b), s);
-        }
-
-        text.setFontInsignia();
     }
 
     public static FleetBehaviour getBehaviourForIndex(int num) {

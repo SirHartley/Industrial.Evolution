@@ -86,7 +86,14 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 |---|---|
 | `commerce` | One per system, alpha core tariff, Improve, Holosuite, setting off, open market, reload |
 | `meteor` | Rogue planet despawn, reload mid flight, intel timing, dust clouds, radiation, type roll. Run it last: it leaves delayed swarms behind |
-| `shuttle` | Shuttle traffic cost at Sindria: ms per frame at traffic 0 and 80, read with the profile. Not in the full set |
+| `artillery` | Artillery vision and fire animation, one fresh derelict test system per case (vision type forced through the `IndEvo_Artillery_visionWeight_*` settings): fire animation phases per station type with captures, shots per volley, vent timing, pause and x2, station orbit per frame; reload during a mortar volley; eye fill and lock times for watchtowers, lighthouse beams, nest lights and spotter cones, the shot after a lock, the jump to hyperspace; hack, beaten station, Go Dark and NPC fleets against beams; line of sight through planets and chaff; spotter and nest destruction, chain, debris loot, relaunch, colony conversion, nest dialog through its rules rows; lighthouse and drone net reloads; live settings; system map captures. Starts with S4, which only holds on a base save from before lighthouses and drone nets. Run with `--limit 2400`. Not in the full set |
+| `artilleryplace` | Vision placement across a new sector (`--newgame`, weights 1/1/1/1): vision types, lighthouses with 1 and 2 beams, nests per drone system. Not in the full set |
+| `artillerynest` | D4 alone: the drone nest dialog through its rules rows (Open fire, Salvage loot screen, Leave debris) and the R1 planet capture. Not in the full set |
+| `holdnest` | A drone system with the fleet 250 su east of a nest, left open (`HELD`) for `gamectl` clicks on the nest. Not in the full set |
+| `shuttle` | Shuttle traffic cost at Sindria: ms per frame at traffic 0 and 80, read with the profile; a note with the craft per route kind and a check that local flights (pickets, cruises, mining) still launch at 80. Not in the full set |
+| `traffic` | Shuttle traffic at setting 80 in Aztlan, Arcadia, Askonia and Corvus: route demand, max and active per kind and per market, craft per budget group, craft near the player and within radius + 800 su of each market, world speed per kind, parked `ORBIT_PASSIVE` fleets and their speed. Notes, one check per system, and a check that Chicomoztoc has at least twice the craft of Citadel Arcadia around it on the mean of 4 samples. Not in the full set |
+| `trafficapproach` | What a player gets at a hub: enter Aztlan, Askonia and Corvus 9000 su from the hub, wait 60 s, sit 3600 su out for 10 s, then arrive. Checks the craft within radius + 800 su on arrival (Chicomoztoc 20, Sindria 16, Jangala 8 or more). The `traffic` group jumps straight to the market, which warm starts everything and hides a hub that fills too late. Not in the full set |
+| `trafficperf` | Shuttle traffic worst case in Askonia, run with `--perf`: ms per frame at traffic 0 and 80, then a fresh scene per setting (0, 80, 120) with six parked Diktat fleets at Sindria, two 16 carrier NPC battles beside the player and escape pods near their cap. Read the profile filtered to `indevo.ambience.shuttletraffic`. Not in the full set |
 | `path` | Swarm path indicator on real swarms, sampled per frame |
 | `arcmath` | Real `ArcingMovementModule` over 4000 random arcs |
 | `pets` | Stored pets eat from their storage, starve, die |
@@ -108,6 +115,16 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `nextuse` | Museum, minefield and meteor settings on next use |
 | `newgame` | IE content on the base save. With `NEWGAME=1 SWITCHES=off` a new game without any |
 | `boot` | Just the load. With `STAGE=<folder>` the release layout |
+| `uiacademy` | Academy panel views ([Panel views](#panel-views-and-the-layout-audit)): officers, scrolled list, Neural Interface and alpha core slots, stored rows with the Holobench, many skills, trainee, paused, Accelerate used and short, blocked Train and Retrieve, NPC Academy without credits, administrators, governor, admin trainee, worst case, empty. Not in the full set |
+| `uidetach` | Detachment panel views: setup, blocked, Take, 30 ships, worst case, deployed, met in space, attack order, dormant and returning, empty. Not in the full set |
+| `uicourier` | Courier Port panel views: contract list, by load, stockpiles, invalid contract, Remove confirm, beta and alpha core, new contract steps, 11 storages and the expanded `+N` tiles, 60 contracts, worst case, empty. Not in the full set |
+| `uisalvage` | Salvage Yards panel views: empty assembly, D-mod and S-mod tabs without and with matching ships, blocked S-mod target, a confirmed order, sliders, 12 scrapped ships, over budget, no credits, story point confirm, Accelerate armed, 40 lines and 5 orders in progress, Wreck Registry empty, few and filled, worst case. Not in the full set |
+| `uiedict` | Senate Edict panel views: preview with met requirements, an unmet Edict, Labour Restrictions on a colony with 12 industries, active before and after the minimum term, bribe short of Relic Components, one colony view, worst case, a Senate with no colony in range. Not in the full set |
+| `uilab` | Ancient Laboratory relic panel views: both tabs empty, six Forge Templates, a level 1 template, short of Relic Components, nothing picked, automated ships, result line, 40 ships, worst case. Not in the full set |
+| `uihub` | Engineering Hub panel views: hullmods empty, 8 and 60 recovered hullmods, short of Relic Components, reverse engineering idle, in work with progress, relic payment, a hull below 100%, 200 cruiser blueprints, 40 dropped off ships, blocked Finish and Accelerate, worst case. Not in the full set |
+| `uistyle` | One dialog with kit headings, the panel strips (heading note, Edict, Research card, Detachment, title), every button kind and the green and amber fills at 100, 75 and 60 % beside widgets built the way vanilla intel builds them, sizes logged as `STYLE` notes; a second dialog (`style-bars`) with every kit bar colour beside the vanilla bar widget `com.fs.starfarer.campaign.ui.N` at 0, 35, 70 and 100 %. Not in the full set |
+| `uiresearch` | Research Tracts side panel at the Galatia Academy (`UiViews.side`, captured as the whole screen): cards, Info open, Project Reforge without a Corrupted Nanoforge, item rows, scrolled with a Stock click, empty. Not in the full set |
+| `holdacademy` ... `holdresearch`, `holdvanilla` | Build one panel's state, open it (`holdvanilla`: a player colony with vanilla industries and 10 officers, no panel), log the click targets and leave the game open (`HELD`) for `gamectl`. Not in the full set |
 
 Day skips run at 60x. Fleets can overshoot the 50 unit arrival check at that speed and never land, so set `Time.mult = 3f` around a fleet arriving somewhere.
 
@@ -116,3 +133,19 @@ A new check goes in the group of its feature, or in a new `<Feature>Checks.java`
 ## Live sessions
 
 Use the skill's live mode (`references/live-game.md`) against the modding install. The mod set links the repository folder as it is, so IE loads `jars/IndEvo.jar` (the `mod_info.json` entry, gitignored): build the IDE artifact or copy the checked jar from `out/release-build-*` there first. Console commands for a session go in the skill's test mod, never in IE.
+
+## Panel views and the layout audit
+
+The `ui<panel>` groups open each view of a kit panel through its static `show` with a view state (`UiViews.view`): open, wait 120 frames (the dialog fades in for about a second, earlier captures show its noise texture), optionally act on the drawn panel (a click through the `Runnable` the kit stores as button data, `UiAudit.click`), audit, capture `check-<panel>-<view>.png`, close through the dialog's `dismissCustomDialog(1)`. The note `rect <view> x y w h` is the dialog rectangle in screen pixels from the top left, for cropping.
+
+`UiAudit` walks the component tree from the custom dialog under the current interaction dialog (dialogs keep their content in `getInnerPanel`, which `getChildrenCopy` does not list) and reports, with x and y from the content panel's top left:
+
+- two labels whose drawn text rectangles intersect (width from `computeTextWidth`, line height from the label, position from its alignment),
+- one line text wider than its box or wrapping, wrapped text taller than its box,
+- text, buttons, custom panels and leaf components outside the panel, or outside their scroll area horizontally (vertical overflow inside a scroll area is scrolling),
+- sibling buttons that partly intersect (a button fully inside another one, like a stepper on a row, is allowed),
+- a labelled button, a text, or an image or box (a custom panel without children) that its scroll area cuts while every scroll area above it is at offset 0 (what the player sees first),
+- a kit progress bar whose shown fraction (`UiCanvas.shown`) differs by more than 1 % from its label ("a / b", "Day d of t", "N%"); every bar is logged as a `BAR` note,
+- text that ends in `...` (a `Ui.fit` cut; button labels such as "Cargo..." are button text, not labels). Over long test names registered with `UiAudit.acceptLong` (longer than the game or the player can produce) are logged as `accepted: long name`, not as findings.
+
+Hidden components (opacity 0) and anything fully scrolled out of view are skipped; tooltips are not in the tree. A view passes only with zero findings, and every capture is still opened and compared with its board: the audit does not see text over icons or wrong wording.

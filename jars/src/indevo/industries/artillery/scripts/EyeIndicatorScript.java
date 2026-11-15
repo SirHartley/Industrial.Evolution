@@ -7,6 +7,8 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.artillery.entities.LighthouseEntityPlugin;
+import indevo.industries.artillery.entities.SearchlightEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEyeIndicator;
 import indevo.utils.ModPlugin;
@@ -21,6 +23,10 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     public static final float BASE_NPC_KNOWN_DURATION = 5f;
     public static final float MAX_TIME_TO_TARGET_LOCK = 20f; //10s per day
     public static final float DISTANCE_MOD = 2; //max mult for distance
+    public static final float DRONE_FILL_MULT = 2f;
+    public static final float SEARCHLIGHT_FILL_MULT = 4f;
+    public static final float DRAIN_RATE = 1f / 1.2f;
+    public static final float SEEN_DAYS = 0.6f;
 
     private SectorEntityToken indicator;
     public IntervalUtil checkInterval = new IntervalUtil(0.5f, 0.5f);
@@ -81,7 +87,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         amount += checkInterval.getIntervalDuration(); //increment by interval since the amount is missing from last advance
         cycleActions();
 
-        boolean inFleetRange = false;
+        boolean spotted = false;
         for (CampaignFleetAPI f : loc.getFleets()) {
             //check if visible to other fleet
             for (CampaignFleetAPI otherFLeet : loc.getFleets()) {
@@ -95,7 +101,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
                     if (f.isPlayerFleet()) {
                         elapsed = MAX_TIME_TO_TARGET_LOCK;
                         isLocked = true;
-                        inFleetRange = true;
+                        spotted = true;
 
                         ModPlugin.log("in fleet range, is seen");
 
@@ -106,32 +112,45 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         }
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
-        if (watchtowerList.isEmpty()) return;
 
-        float closestDist = Float.MIN_VALUE;
-        SectorEntityToken closestTower = null;
+        // a source fills the eye at 1 + the share of its range the player is inside, drones twice and searchlights four times as fast; the fastest source counts
+        float bestRate = -1f;
+
+        DroneNetScript droneNet = DroneNetScript.get(loc);
+        if (droneNet != null && droneNet.getPlayerFraction() >= 0f) bestRate = DRONE_FILL_MULT * (1f + droneNet.getPlayerFraction());
 
         for (SectorEntityToken t : watchtowerList) {
             WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) t.getCustomPlugin();
 
-            float dist = Misc.getDistance(t, player);
-            if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value()) {
-                if (dist > closestDist) {
-                    closestDist = dist;
-                    closestTower = t;
+            if (p instanceof LighthouseEntityPlugin lighthouse && lighthouse.isLit()) {
+                if (lighthouse.beamSees(player)) {
+                    elapsed = MAX_TIME_TO_TARGET_LOCK;
+                    isLocked = true;
+                    spotted = true;
                 }
+                continue;
             }
+
+            if (p instanceof SearchlightEntityPlugin searchlight && searchlight.isLit()) {
+                bestRate = Math.max(bestRate, SEARCHLIGHT_FILL_MULT * searchlight.getPlayerRate());
+                continue;
+            }
+
+            float dist = Misc.getDistance(t, player);
+            if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value())
+                bestRate = Math.max(bestRate, 2f - dist / Setting.ARTILLERY_WATCHTOWER_RANGE.value());
         }
 
-        float addition = 0f;
+        float addition;
 
-        if (closestTower == null && !inFleetRange) { //null means we are out of range of any tower
-            addition = -amount;
+        if (bestRate < 0f && !spotted) { //out of range of every source
+            addition = -amount * DRAIN_RATE;
 
-        } else { //at this point we are in range because there is a closest hostile tower
-            float distanceFraction = 1 - closestDist / Setting.ARTILLERY_WATCHTOWER_RANGE.value();
-            float mult = 1 + distanceFraction;
-            addition = amount * mult;
+        } else if (bestRate < 0f) {
+            addition = amount;
+
+        } else {
+            addition = amount * bestRate;
         }
 
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);
@@ -157,7 +176,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         } else if (elapsed == MAX_TIME_TO_TARGET_LOCK) {
             isLocked = true;
-            player.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, 0.5f);
+            player.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, SEEN_DAYS);
         }
 
         transferStateToEntity(state, isLocked);
@@ -181,9 +200,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
         fleet.getMemoryWithoutUpdate().unset(WAS_SEEN_BY_HOSTILE_ENTITY);
 
-        if (fleet.isPlayerFleet()) {
-            transferStateToEntity(WatchtowerEyeIndicator.State.NONE, false);
-        }
+        if (fleet.isPlayerFleet()) reset();
     }
 
     @Override

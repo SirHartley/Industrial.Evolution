@@ -12,7 +12,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | File | Owner / role |
 |---|---|
-| `indevo/config/Setting.java` | One constant per LunaLib field (152): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
+| `indevo/config/Setting.java` | One constant per LunaLib field (161): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()` |
 | `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back, `applyCampaignSettings` |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `indevo/tools/SettingsChecks.java` | Build gate checks of the CSV against `Setting` ([Settings checks](#settings-checks)); never shipped |
@@ -26,11 +26,11 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | Tab | Fields | Content |
 |---|---|---|
-| Quick Settings | 16 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic, meteor and artillery spawn chance, derelict station and automated shipyard amounts |
+| Quick Settings | 17 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_fog_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic, meteor and artillery spawn chance, derelict station and automated shipyard amounts |
 | Exploration & Items | 11 | Salvage specials, derelict stations, relic components, `IndEvo_consumables_*` |
-| Meteor Swarms | 16 | `IndEvo_meteor_*` tuning |
+| Meteor Swarms | 17 | `IndEvo_meteor_*` tuning, rogue asteroid chance |
 | Minefields | 10 | `IndEvo_Minefield_*` |
-| Artillery | 24 | `IndEvo_Artillery_*` tuning, watchtower |
+| Artillery | 32 | `IndEvo_Artillery_*` tuning, watchtower, vision type weights, lighthouse beams, drone net |
 | Industries | 26 | One enable toggle per industry (`IndEvo_AdManuf`, `IndEvo_embassy`, ...), governance, world wonders |
 | Production | 21 | Variable industries, supercomputer, salvage yards, engineering hub, restoration docks |
 | Derelict Industries | 19 | Derelict industry tuning |

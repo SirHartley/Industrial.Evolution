@@ -42,7 +42,10 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     public static final float TRACKING_DISTANCE = 600f;
 
     //trail
-    public static final float TRAIL_TIME = 0.4f;
+    public static final float TRAIL_TIME = 0.3f;
+    public static final float TRAIL_WIDTH = 5f;
+    public static final float PROJECTILE_WIDTH = 8f;
+    public static final float PROJECTILE_HEIGHT = 18f;
     public static final Color BASE_TRAIL_COLOUR = new Color(100, 200, 255, 255);
     public static final Color HOSTILE_TRAIL_COLOUR = new Color(255, 50, 50, 255);
 
@@ -207,7 +210,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
 
         missileSprite.setNormalBlend();
         missileSprite.setAngle(entity.getFacing() - 90f);
-        missileSprite.setSize(12, 26);
+        missileSprite.setSize(PROJECTILE_WIDTH, PROJECTILE_HEIGHT);
         missileSprite.setAlphaMult(alphaMult);
         missileSprite.renderAtCenter(entity.getLocation().x, entity.getLocation().y);
     }
@@ -235,7 +238,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
                 entity.getLocation(),
                 0f,
                 entity.getFacing(),
-                12f,
+                TRAIL_WIDTH,
                 1f,
                 currentTarget == null ? BASE_TRAIL_COLOUR : HOSTILE_TRAIL_COLOUR,
                 0.9f,

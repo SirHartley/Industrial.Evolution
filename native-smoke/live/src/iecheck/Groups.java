@@ -13,6 +13,7 @@ public final class Groups {
             return all;
         }
 
+
         switch (group) {
             case "commerce":
                 return CommerceChecks.steps();
@@ -64,6 +65,48 @@ public final class Groups {
                 return RelicChecks.steps();
             case "meteor":
                 return MeteorChecks.steps();
+            case "trafficperf":
+                return TrafficPerfChecks.steps();
+            case "trafficapproach":
+                return TrafficChecks.approachSteps();
+            case "traffic":
+                return TrafficChecks.steps();
+            case "uiacademy":
+                return AcademyUiChecks.steps();
+            case "uidetach":
+                return DetachmentUiChecks.steps();
+            case "uicourier":
+                return CourierUiChecks.steps();
+            case "uisalvage":
+                return SalvageUiChecks.steps();
+            case "uiedict":
+                return EdictUiChecks.steps();
+            case "uilab":
+                return LabUiChecks.steps();
+            case "uihub":
+                return HubUiChecks.steps();
+            case "uiresearch":
+                return ResearchUiChecks.steps();
+            case "uistyle":
+                return StyleChecks.steps();
+            case "holdnest":
+                return ArtilleryChecks.holdNest();
+            case "holdacademy":
+            case "holddetach":
+            case "holdcourier":
+            case "holdsalvage":
+            case "holdedict":
+            case "holdlab":
+            case "holdhub":
+            case "holdresearch":
+            case "holdvanilla":
+                return HoldChecks.steps(group.substring(4));
+            case "artillery":
+                return ArtilleryChecks.steps();
+            case "artillerynest":
+                return ArtilleryChecks.nest();
+            case "artilleryplace":
+                return ArtilleryChecks.placement();
             case "shuttle":
                 return ShuttleChecks.steps();
             default:

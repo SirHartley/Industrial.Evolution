@@ -8,12 +8,14 @@ import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI.ShipTypeHints;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.HullMods;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.FighterWingSpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.utils.helper.ReflectionUtils;
+import indevo.utils.helper.StarReflectionUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,13 +39,17 @@ public final class ShuttleHullPool {
     private static final String ENGINE_STYLES_PATH = "data/config/engine_styles.json";
     private static final String SMALL_FRIGATE = "kite";
     private static final String POD_HULL = "mining_drone";
+    private static final String REMNANT_STYLE = "HIGH_TECH";
     private static final float POD_LENGTH = 3f;
     private static final Color DEFAULT_GLOW = new Color(255, 145, 75, 255);
     private static final Logger log = Global.getLogger(ShuttleHullPool.class);
 
-    private static final Map<String, ShuttleHull> hulls = new HashMap<>();
-    private static final Map<String, List<ShuttleHull>> factionPools = new HashMap<>();
-    private static final Map<ShuttleHull, Float> baseWeights = new HashMap<>();
+    private static final Map<String, ShuttleHull.Look> looks = new HashMap<>();
+    // Remnant entries get their own looks: another faction may fly the same hull in its own colours
+    private static final Map<String, ShuttleHull.Look> remnantLooks = new HashMap<>();
+    private static final Map<String, FactionPool> factionPools = new HashMap<>();
+    private static final Map<String, ShuttleHull> baseEntries = new HashMap<>();
+    private static final Map<String, Float> baseWeights = new HashMap<>();
     private static List<ShuttleHull> basePool;
     private static ShuttleHull podHull;
     private static boolean podChecked = false;
@@ -51,12 +57,20 @@ public final class ShuttleHullPool {
     private static JSONObject engineStyles;
     private static boolean reflectionWarned = false;
 
+    private record FactionPool(FactionAPI faction, int ships, int fighters, List<ShuttleHull> hulls) {
+    }
+
+    private record EngineLook(Color glow, Color trail, boolean additive) {
+    }
+
     private ShuttleHullPool() {
     }
 
     public static void reset() {
-        hulls.clear();
+        looks.clear();
+        remnantLooks.clear();
         factionPools.clear();
+        baseEntries.clear();
         baseWeights.clear();
         basePool = null;
         podHull = null;
@@ -67,22 +81,27 @@ public final class ShuttleHullPool {
 
     public static ShuttleHull rollCargo(FactionAPI faction, Random random, float baseShare, boolean smallOnly) {
         ShuttleHull hull = null;
-        if (faction != null && random.nextFloat() >= baseShare) hull = pick(getFactionPool(faction, true), random, h -> h.civilian && (!smallOnly || h.small));
-        if (hull == null) hull = pick(getBasePool(), random, h -> !smallOnly || h.small);
+        if (faction != null && (isRemnant(faction) || random.nextFloat() >= baseShare)) hull = pick(getFactionPool(faction, true), random, h -> h.civilian && (!smallOnly || h.small));
+        if (hull == null && !isRemnant(faction)) hull = pick(getBasePool(), random, h -> !smallOnly || h.small);
         return hull;
     }
 
     public static ShuttleHull rollSmall(FactionAPI faction, Random random) {
         ShuttleHull hull = faction != null ? pick(getFactionPool(faction, true), random, h -> h.small) : null;
-        if (hull == null) hull = pick(getBasePool(), random, h -> h.small);
+        if (hull == null && !isRemnant(faction)) hull = pick(getBasePool(), random, h -> h.small);
         return hull;
     }
 
     public static ShuttleHull rollAny(FactionAPI faction, Random random, float baseShare, boolean crewed) {
         ShuttleHull hull = null;
-        if (faction != null && random.nextFloat() >= baseShare) hull = pick(getFactionPool(faction, crewed), random, h -> true);
-        if (hull == null) hull = pick(getBasePool(), random, h -> true);
+        if (faction != null && (isRemnant(faction) || random.nextFloat() >= baseShare)) hull = pick(getFactionPool(faction, crewed), random, h -> true);
+        if (hull == null && !isRemnant(faction)) hull = pick(getBasePool(), random, h -> true);
         return hull;
+    }
+
+    // every Remnant craft is blue and never falls back to a base pool hull
+    public static boolean isRemnant(FactionAPI faction) {
+        return faction != null && Factions.REMNANTS.equals(faction.getId());
     }
 
     public static ShuttleHull rollBase(Random random, Set<String> hullIds) {
@@ -94,6 +113,22 @@ public final class ShuttleHullPool {
 
         ShipHullSpecAPI spec = Global.getSettings().getHullSpec(hullId);
         return createHull(spec, fighter, wingSize, false, fighter);
+    }
+
+    // a fitted wing as a craft in its fleet's look, Remnant wings in the Remnant look; null when the wing has no usable hull
+    public static ShuttleHull getWingHull(String wingId, FactionAPI faction) {
+        FighterWingSpecAPI wing = Global.getSettings().getFighterWingSpec(wingId);
+        ShipVariantAPI variant = wing != null ? wing.getVariant() : null;
+        if (variant == null || variant.getHullSpec() == null) return null;
+
+        getBasePool();
+        return forFaction(faction, createHull(variant.getHullSpec(), true, Math.max(1, Math.min(3, wing.getNumFighters())), false, true));
+    }
+
+    // a faction that learned a hull or wing since its pool was built gets a new pool
+    public static void dropStaleFactionPools() {
+        factionPools.values().removeIf(pool -> pool.faction().getKnownShips().size() != pool.ships()
+                || pool.faction().getKnownFighters().size() != pool.fighters());
     }
 
     // the vanilla mining drone sprite at a fixed length, null when a mod removed the hull
@@ -108,9 +143,10 @@ public final class ShuttleHullPool {
             return null;
         }
 
-        EngineLook look = getEngineLook(spec);
+        EngineLook engine = getEngineLook(spec);
         float width = POD_LENGTH * sprite.getWidth() / Math.max(1f, sprite.getHeight());
-        podHull = new ShuttleHull(POD_HULL, sprite, true, false, true, false, false, 1, look.glow, look.trail, look.additive, width, POD_LENGTH);
+        ShuttleHull.Look look = new ShuttleHull.Look(POD_HULL, sprite, engine.glow, engine.trail, engine.additive);
+        podHull = new ShuttleHull(look, true, false, true, false, false, 1, width, POD_LENGTH);
         return podHull;
     }
 
@@ -153,11 +189,15 @@ public final class ShuttleHullPool {
                 continue;
             }
 
-            ShuttleHull hull = createHull(spec, spec.getHullSize() == HullSize.FIGHTER, 1, true, row.optBoolean("small", false));
-            if (hull == null) continue;
+            ShuttleHull.Look look = getLook(spec);
+            if (look == null) continue;
 
+            EnumSet<ShipTypeHints> hints = spec.getHints();
+            ShuttleHull hull = new ShuttleHull(look, spec.getHullSize() == HullSize.FIGHTER, true, row.optBoolean("small", false),
+                    hints.contains(ShipTypeHints.LINER), hints.contains(ShipTypeHints.FREIGHTER), 1);
             basePool.add(hull);
-            baseWeights.put(hull, (float) row.optDouble("weight", 1d));
+            baseEntries.putIfAbsent(hullId, hull);
+            baseWeights.put(hullId, (float) row.optDouble("weight", 1d));
         }
 
         return basePool;
@@ -165,12 +205,12 @@ public final class ShuttleHullPool {
 
     public static List<ShuttleHull> getFactionPool(FactionAPI faction, boolean crewed) {
         String key = faction.getId() + (crewed ? "" : "|any");
-        List<ShuttleHull> pool = factionPools.get(key);
-        if (pool != null) return pool;
+        FactionPool cached = factionPools.get(key);
+        if (cached != null) return cached.hulls();
 
         // base rows first, shared hulls keep their csv flags
         getBasePool();
-        pool = new ArrayList<>();
+        List<ShuttleHull> pool = new ArrayList<>();
 
         for (String wingId : faction.getKnownFighters()) {
             FighterWingSpecAPI wing = Global.getSettings().getFighterWingSpec(wingId);
@@ -179,8 +219,8 @@ public final class ShuttleHullPool {
             ShipVariantAPI variant = wing.getVariant();
             if (variant == null || variant.getHullSpec() == null || (crewed && !isCrewed(variant.getHullSpec()))) continue;
 
-            ShuttleHull hull = createHull(variant.getHullSpec(), true, Math.max(1, Math.min(3, wing.getNumFighters())), false, true);
-            if (hull != null && !pool.contains(hull)) pool.add(hull);
+            ShuttleHull hull = forFaction(faction, createHull(variant.getHullSpec(), true, Math.max(1, Math.min(3, wing.getNumFighters())), false, true));
+            if (hull != null && !contains(pool, hull)) pool.add(hull);
         }
 
         for (String hullId : faction.getKnownShips()) {
@@ -192,16 +232,31 @@ public final class ShuttleHullPool {
             EnumSet<ShipTypeHints> hints = spec.getHints();
             if (hints.contains(ShipTypeHints.STATION) || hints.contains(ShipTypeHints.MODULE)) continue;
 
-            ShuttleHull hull = createHull(spec, false, 1, isCivilian(hints), SMALL_FRIGATE.equals(spec.getBaseHullId()));
-            if (hull != null && !pool.contains(hull)) pool.add(hull);
+            ShuttleHull hull = forFaction(faction, createHull(spec, false, 1, isCivilian(hints), SMALL_FRIGATE.equals(spec.getBaseHullId())));
+            if (hull != null && !contains(pool, hull)) pool.add(hull);
         }
 
-        factionPools.put(key, pool);
+        factionPools.put(key, new FactionPool(faction, faction.getKnownShips().size(), faction.getKnownFighters().size(), pool));
         return pool;
     }
 
+    private static ShuttleHull forFaction(FactionAPI faction, ShuttleHull hull) {
+        if (hull == null || !isRemnant(faction)) return hull;
+
+        ShuttleHull.Look look = remnantLooks.computeIfAbsent(hull.hullId, id -> {
+            EngineLook engine = getStyleLook(REMNANT_STYLE, null);
+            return new ShuttleHull.Look(id, hull.sprite, engine.glow, engine.trail, engine.additive);
+        });
+        return hull.withLook(look);
+    }
+
+    private static boolean contains(List<ShuttleHull> pool, ShuttleHull hull) {
+        for (ShuttleHull entry : pool) if (entry.hullId.equals(hull.hullId) && entry.wingSize == hull.wingSize) return true;
+        return false;
+    }
+
     private static float getWeight(ShuttleHull hull) {
-        Float base = baseWeights.get(hull);
+        Float base = baseWeights.get(hull.hullId);
         if (base != null) return base;
         if (hull.civilian) return 3f;
         if (hull.fighter) return 2f;
@@ -226,24 +281,33 @@ public final class ShuttleHullPool {
         return hullId != null && knownHullIds.contains(hullId);
     }
 
+    // a hull with a csv row keeps the csv flags in every pool, the wing size is per entry
     private static ShuttleHull createHull(ShipHullSpecAPI spec, boolean fighter, int wingSize, boolean civilian, boolean small) {
+        ShuttleHull base = baseEntries.get(spec.getHullId());
+        if (base != null) return base.withWingSize(wingSize);
+
+        ShuttleHull.Look look = getLook(spec);
+        if (look == null) return null;
+
+        EnumSet<ShipTypeHints> hints = spec.getHints();
+        return new ShuttleHull(look, fighter, civilian, small, hints.contains(ShipTypeHints.LINER), hints.contains(ShipTypeHints.FREIGHTER), wingSize);
+    }
+
+    private static ShuttleHull.Look getLook(ShipHullSpecAPI spec) {
         String key = spec.getHullId();
-        if (hulls.containsKey(key)) return hulls.get(key);
+        if (looks.containsKey(key)) return looks.get(key);
 
         SpriteAPI sprite = loadSprite(spec.getSpriteName());
         if (sprite == null) {
             log.warn("Shuttle traffic: no sprite for hull " + key);
-            hulls.put(key, null);
+            looks.put(key, null);
             return null;
         }
 
-        EnumSet<ShipTypeHints> hints = spec.getHints();
-        EngineLook look = getEngineLook(spec);
-        ShuttleHull hull = new ShuttleHull(key, sprite, fighter, civilian, small, hints.contains(ShipTypeHints.LINER),
-                hints.contains(ShipTypeHints.FREIGHTER), wingSize, look.glow, look.trail, look.additive);
-
-        hulls.put(key, hull);
-        return hull;
+        EngineLook engine = getEngineLook(spec);
+        ShuttleHull.Look look = new ShuttleHull.Look(key, sprite, engine.glow, engine.trail, engine.additive);
+        looks.put(key, look);
+        return look;
     }
 
     private static SpriteAPI loadSprite(String path) {
@@ -266,14 +330,12 @@ public final class ShuttleHullPool {
         String styleId = null;
         Color slotColor = null;
 
-        // ShipHullSpecAPI has no engine slots, the game's hull spec class does; names are not obfuscated
         try {
-            Object slots = ReflectionUtils.invoke("getEngineSlots", spec, new Object[0], false);
-            if (slots instanceof List<?> list && !list.isEmpty()) {
-                Object slot = list.get(0);
+            EngineSlotAPI slot = getFirstEngineSlot(spec);
+            if (slot != null) {
                 Object id = ReflectionUtils.invoke("getStyleId", slot, new Object[0], false);
                 if (id instanceof String s) styleId = s;
-                if (slot instanceof EngineSlotAPI api) slotColor = api.getColor();
+                slotColor = slot.getColor();
             }
         } catch (Throwable t) {
             if (!reflectionWarned) log.warn("Shuttle traffic: engine slot lookup failed, using manufacturer styles", t);
@@ -282,7 +344,26 @@ public final class ShuttleHullPool {
         }
 
         if (styleId == null) styleId = getStyleForManufacturer(spec.getManufacturer());
+        return getStyleLook(styleId, slotColor);
+    }
 
+    // ShipHullSpecAPI has no engine slots, the game's hull spec class does (getEngineSlots, not obfuscated)
+    // its list holds obfuscated slot specs, not EngineSlot: their one no arg method returning EngineSlotAPI builds the slot
+    private static EngineSlotAPI getFirstEngineSlot(ShipHullSpecAPI spec) {
+        Object slots = ReflectionUtils.invoke("getEngineSlots", spec, new Object[0], false);
+        if (!(slots instanceof List<?> list) || list.isEmpty()) return null;
+
+        Object slot = list.get(0);
+        if (slot instanceof EngineSlotAPI api) return api;
+
+        for (StarReflectionUtils.ReflectedMethod method : StarReflectionUtils.getMethodsMatching(slot, null, EngineSlotAPI.class, 0)) {
+            if (method.invoke(slot) instanceof EngineSlotAPI api) return api;
+        }
+
+        throw new IllegalStateException("no EngineSlotAPI method on " + slot.getClass().getName());
+    }
+
+    private static EngineLook getStyleLook(String styleId, Color slotColor) {
         JSONObject style = getEngineStyles().optJSONObject(styleId);
         if (style == null) {
             Color base = slotColor != null ? slotColor : DEFAULT_GLOW;
@@ -299,7 +380,7 @@ public final class ShuttleHullPool {
 
     private static String getStyleForManufacturer(String manufacturer) {
         if ("Low Tech".equals(manufacturer)) return "LOW_TECH";
-        if ("High Tech".equals(manufacturer)) return "HIGH_TECH";
+        if ("High Tech".equals(manufacturer) || "Remnant".equals(manufacturer)) return "HIGH_TECH";
         return "MIDLINE";
     }
 
@@ -325,8 +406,5 @@ public final class ShuttleHullPool {
 
     private static int clamp(int value) {
         return Math.max(0, Math.min(255, value));
-    }
-
-    private record EngineLook(Color glow, Color trail, boolean additive) {
     }
 }

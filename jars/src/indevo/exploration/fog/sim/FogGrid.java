@@ -1,0 +1,390 @@
+package indevo.exploration.fog.sim;
+
+import java.nio.ByteBuffer;
+
+import static indevo.exploration.fog.sim.FogNoise.fbm;
+import static indevo.exploration.fog.sim.FogNoise.smooth;
+
+public class FogGrid {
+
+    public static final float REFILL = 0.3f;
+    public static final float RELAX_TAU = 14f;
+    public static final float DRAG = 0.45f;
+    public static final float CONFINE = 0.55f;
+    public static final float AMBIENT = 300f;
+    public static final float AMBIENT_RATE = 0.5f;
+    public static final int ITER = 10;
+    public static final float EB_RADIUS = 420f;
+    public static final float DISP_TAU = 6f;
+    public static final float MAX_DT = 0.1f;
+    public static final int RECENTRE_CELLS = 8;
+
+    public final int n;
+    public final float cell;
+    public final float size;
+    public final Shape shape;
+
+    public float ox;
+    public float oy;
+    private float strength;
+    private float time;
+    private int row = 0;
+
+    public final float[] m, d, u, v, gx, gy;
+    private final float[] t1, t2, t3, t4, p, div, src, w, psi;
+
+    public static class Shape {
+
+        public final int seed;
+        public final float radius;
+        public final boolean wide;
+        // x, y, radius triples in bank local coordinates
+        public float[] keep = new float[0];
+
+        public Shape(int seed, float radius, boolean wide) {
+            this.seed = seed;
+            this.radius = radius;
+            this.wide = wide;
+        }
+
+        public float mask(double x, double y, double t) {
+            double r = Math.hypot(x, y);
+            double body;
+            if (wide) {
+                double edge = radius * (0.85 + 0.3 * fbm(x / 2400 + 11 + t * 0.012, y / 2400 + 7 - t * 0.009, seed, 3));
+                body = 1 - smooth(edge * 0.85, edge, r);
+            } else {
+                double edge = radius * (0.6 + 0.6 * fbm(x / 2400 + 11 + t * 0.012, y / 2400 + 7 - t * 0.009, seed, 3));
+                body = 1 - smooth(edge * 0.68, edge, r);
+            }
+            if (body <= 0) return 0f;
+            double inner = 0.5 + 0.7 * fbm(x / 1100 + 3 - t * 0.014, y / 1100 + 5 + t * 0.011, seed + 3, 4);
+            double keepMult = 1;
+            float[] k = keep;
+            for (int i = 0; i + 2 < k.length; i += 3) {
+                keepMult *= smooth(k[i + 2] * 1.05, k[i + 2] * 1.7, Math.hypot(x - k[i], y - k[i + 1]));
+            }
+            return (float) Math.min(1, Math.max(0, body * inner * keepMult));
+        }
+
+        public float curl(double x, double y, double t) {
+            return (float) (fbm(x / 1300 + 31 + t * 0.02, y / 1300 + 17 - t * 0.017, seed + 9, 2) * 1300);
+        }
+    }
+
+    public static class Mover {
+
+        public float x, y, vx, vy, r;
+        public float cut = 1f;
+        public float shed = 0f;
+        public float side = 1f;
+    }
+
+    public FogGrid(int n, float cell, Shape shape, float cx, float cy, float strength, float time) {
+        this.n = n;
+        this.cell = cell;
+        this.size = n * cell;
+        this.shape = shape;
+        this.strength = strength;
+        this.time = time;
+        this.ox = snap(cx - size / 2f);
+        this.oy = snap(cy - size / 2f);
+
+        int nn = n * n;
+        m = new float[nn]; d = new float[nn]; u = new float[nn]; v = new float[nn];
+        gx = new float[nn]; gy = new float[nn];
+        t1 = new float[nn]; t2 = new float[nn]; t3 = new float[nn]; t4 = new float[nn];
+        p = new float[nn]; div = new float[nn]; src = new float[nn]; w = new float[nn]; psi = new float[nn];
+
+        refresh(n);
+        fill();
+    }
+
+    public void setStrength(float strength) {
+        this.strength = strength;
+    }
+
+    public void fill() {
+        for (int k = 0; k < d.length; k++) d[k] = m[k] * strength;
+    }
+
+    public boolean inWindow(float x, float y) {
+        float margin = cell * 2f;
+        return x > ox + margin && y > oy + margin && x < ox + size - margin && y < oy + size - margin;
+    }
+
+    public float density(float x, float y) {
+        return Math.min(1f, Math.max(0f, sample(d, x, y)));
+    }
+
+    public void recentre(float cx, float cy) {
+        float half = size / 2f, limit = RECENTRE_CELLS * cell;
+        if (Math.abs(cx - (ox + half)) < limit && Math.abs(cy - (oy + half)) < limit) return;
+
+        float nox = snap(cx - half), noy = snap(cy - half);
+        int si = Math.round((nox - ox) / cell), sj = Math.round((noy - oy) / cell);
+        ox = nox;
+        oy = noy;
+
+        if (Math.abs(si) >= n || Math.abs(sj) >= n) {
+            for (float[] a : new float[][]{u, v, gx, gy, p, src}) java.util.Arrays.fill(a, 0f);
+            refresh(n);
+            fill();
+            return;
+        }
+
+        for (float[] a : new float[][]{m, d, u, v, gx, gy, p, src, psi}) shift(a, si, sj);
+
+        for (int j = 0; j < n; j++) {
+            boolean newRow = j + sj < 0 || j + sj >= n;
+            for (int i = 0; i < n; i++) {
+                if (!newRow && i + si >= 0 && i + si < n) continue;
+                int k = j * n + i;
+                double x = ox + (i + 0.5) * cell, y = oy + (j + 0.5) * cell;
+                m[k] = shape.mask(x, y, time);
+                psi[k] = shape.curl(x, y, time);
+                d[k] = m[k] * strength;
+            }
+        }
+    }
+
+    // a moving thing drags fog along, shoves it aside and sheds eddies off its tail
+    public void mover(Mover b, float dt) {
+        float sp = (float) Math.hypot(b.vx, b.vy);
+        if (sp < 2f) return;
+        float rad = b.r * 1.5f + 60f, ux = b.vx / sp, uy = b.vy / sp;
+        float grab = Math.min(1f, dt * 9f), cut = Math.min(1.5f, sp / 170f) * b.cut;
+        float outer = rad * 1.5f;
+
+        int i0 = Math.max(1, (int) Math.floor((b.x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((b.x + outer - ox) / cell));
+        int j0 = Math.max(1, (int) Math.floor((b.y - outer - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((b.y + outer - oy) / cell));
+        for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
+            float dx = ox + (i + 0.5f) * cell - b.x, dy = oy + (j + 0.5f) * cell - b.y;
+            float dist = (float) Math.hypot(dx, dy);
+            if (dist >= outer) continue;
+            int k = j * n + i;
+            float f = Math.max(0f, 1f - dist / outer), ff = f * f;
+            u[k] += (b.vx * 0.85f - u[k]) * grab * ff;
+            v[k] += (b.vy * 0.85f - v[k]) * grab * ff;
+            if (dist < rad) {
+                src[k] += sp / rad * 0.55f * (1f - dist / rad) * dt * 6f;
+                d[k] *= 1f - Math.min(1f, dt * 10f * cut * (1f - dist / rad));
+            }
+        }
+
+        b.shed += sp * dt / (rad * 2.6f);
+        if (b.shed >= 1f) {
+            b.shed -= 1f;
+            b.side = -b.side;
+            float px = -uy * b.side, py = ux * b.side;
+            swirl(b.x - ux * rad * 0.8f + px * rad * 0.55f, b.y - uy * rad * 0.8f + py * rad * 0.55f, rad * 1.7f, -b.side * sp * 1.25f);
+        }
+    }
+
+    public void blast(float x, float y, float rad, float spin) {
+        float outer = rad * 1.3f;
+        int i0 = Math.max(1, (int) Math.floor((x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + outer - ox) / cell));
+        int j0 = Math.max(1, (int) Math.floor((y - outer - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((y + outer - oy) / cell));
+        for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
+            float dist = (float) Math.hypot(ox + (i + 0.5f) * cell - x, oy + (j + 0.5f) * cell - y);
+            if (dist >= outer) continue;
+            int k = j * n + i;
+            src[k] += 5.5f * Math.max(0f, 1f - dist / outer);
+            d[k] *= (float) smooth(rad * 0.5, rad * 1.05, dist);
+        }
+        swirl(x, y, rad * 1.8f, spin);
+        for (int a = 0; a < 6; a++) {
+            double an = a / 6.0 * Math.PI * 2 + 0.4;
+            swirl(x + (float) Math.cos(an) * rad * 1.05f, y + (float) Math.sin(an) * rad * 1.05f, rad * 0.75f, (a % 2 == 1 ? 1 : -1) * 330f);
+        }
+    }
+
+    public void ring(float x, float y, float r0, float r1, float dt) {
+        float outer = r1 + 160f;
+        int i0 = Math.max(1, (int) Math.floor((x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + outer - ox) / cell));
+        int j0 = Math.max(1, (int) Math.floor((y - outer - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((y + outer - oy) / cell));
+        for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
+            float dx = ox + (i + 0.5f) * cell - x, dy = oy + (j + 0.5f) * cell - y;
+            float dist = (float) Math.hypot(dx, dy);
+            if (dist >= outer) continue;
+            int k = j * n + i;
+            if (dist < r1) d[k] *= (float) (0.75 * smooth(r0 * 0.8, r1, dist) + 0.25 * smooth(r1 * 0.5, r1 + 40, dist));
+            float band = Math.max(0f, 1f - Math.abs(dist - r1) / 160f);
+            src[k] += 22f * band * dt;
+            if (dist > 1f) {
+                float tw = 260f * band * dt * ((((int) (Math.atan2(dy, dx) * 5)) % 2 != 0) ? 1f : -1f);
+                u[k] -= dy / dist * tw;
+                v[k] += dx / dist * tw;
+            }
+        }
+    }
+
+    public void step(float dt, float maskTime) {
+        dt = Math.min(dt, MAX_DT);
+        if (dt <= 0f) return;
+        time = maskTime;
+        refresh(Math.max(1, Math.round(n * dt * 2)));
+
+        float h = cell, st = strength;
+        int nn = n * n;
+        float i2h = 1f / (2f * h), amb = Math.min(1f, AMBIENT_RATE * dt);
+        for (int j = 1; j < n - 1; j++) for (int i = 1; i < n - 1; i++) {
+            int k = j * n + i;
+            w[k] = (v[k + 1] - v[k - 1] - u[k + n] + u[k - n]) * i2h;
+            float tu = (psi[k + n] - psi[k - n]) * i2h * AMBIENT, tv = -(psi[k + 1] - psi[k - 1]) * i2h * AMBIENT;
+            float wt = amb * Math.min(1f, d[k] * 1.5f + 0.15f);
+            u[k] += (tu - u[k]) * wt * 0.25f + tu * wt * 0.08f;
+            v[k] += (tv - v[k]) * wt * 0.25f + tv * wt * 0.08f;
+        }
+
+        float ce = CONFINE * h * dt;
+        for (int j = 2; j < n - 2; j++) for (int i = 2; i < n - 2; i++) {
+            int k = j * n + i;
+            float nx = Math.abs(w[k + 1]) - Math.abs(w[k - 1]), ny = Math.abs(w[k + n]) - Math.abs(w[k - n]);
+            float l = (float) Math.hypot(nx, ny) + 1e-6f;
+            nx /= l;
+            ny /= l;
+            u[k] += ny * w[k] * ce;
+            v[k] -= nx * w[k] * ce;
+        }
+
+        advect(u, t1, dt);
+        advect(v, t2, dt);
+        float drag = (float) Math.exp(-DRAG * dt);
+        for (int k = 0; k < nn; k++) {
+            u[k] = t1[k] * drag;
+            v[k] = t2[k] * drag;
+        }
+
+        // projection to a target divergence: holes pull fog in, blasts push it out
+        float sd = (float) Math.exp(-dt * 7);
+        for (int j = 1; j < n - 1; j++) for (int i = 1; i < n - 1; i++) {
+            int k = j * n + i;
+            float s = src[k] - REFILL * (m[k] * st - d[k]);
+            if (s > 6f) s = 6f;
+            else if (s < -1.5f) s = -1.5f;
+            div[k] = ((u[k + 1] - u[k - 1] + v[k + n] - v[k - n]) * i2h - s) * h * h;
+            src[k] *= sd;
+        }
+        for (int it = 0; it < ITER; it++) for (int c = 0; c < 2; c++) {
+            for (int j = 1; j < n - 1; j++) for (int i = 1 + ((j + c) & 1); i < n - 1; i += 2) {
+                int k = j * n + i;
+                p[k] = (p[k - 1] + p[k + 1] + p[k - n] + p[k + n] - div[k]) * 0.25f;
+            }
+        }
+        for (int j = 1; j < n - 1; j++) for (int i = 1; i < n - 1; i++) {
+            int k = j * n + i;
+            u[k] -= (p[k + 1] - p[k - 1]) * i2h;
+            v[k] -= (p[k + n] - p[k - n]) * i2h;
+        }
+
+        advect(d, t1, dt);
+        advect(gx, t3, dt);
+        advect(gy, t4, dt);
+        float rl = 1f - (float) Math.exp(-dt / RELAX_TAU), dd = (float) Math.exp(-dt / DISP_TAU);
+        for (int k = 0; k < nn; k++) {
+            float x = t1[k] + (m[k] * st - t1[k]) * rl;
+            d[k] = x < 0f ? 0f : Math.min(x, 1.3f);
+            gx[k] = (t3[k] + u[k] * dt) * dd;
+            gy[k] = (t4[k] + v[k] * dt) * dd;
+        }
+
+        // border cells stand for the fog outside the window, which sits at the rest mask
+        for (int i = 0; i < n; i++) {
+            setBorder(i);
+            setBorder((n - 1) * n + i);
+            setBorder(i * n);
+            setBorder(i * n + n - 1);
+        }
+    }
+
+    private void setBorder(int k) {
+        d[k] = m[k] * strength;
+        u[k] = 0f;
+        v[k] = 0f;
+    }
+
+    // rgba per cell: density / 1.3, detail offset x and y around 128, flow speed
+    public void pack(ByteBuffer out) {
+        out.clear();
+        for (int k = 0; k < n * n; k++) {
+            out.put(toByte(d[k] / 1.3f * 255f));
+            out.put(toByte(128f + gx[k] / 700f * 127f));
+            out.put(toByte(128f + gy[k] / 700f * 127f));
+            out.put(toByte((float) Math.hypot(u[k], v[k]) / 400f * 255f));
+        }
+        out.flip();
+    }
+
+    private static byte toByte(float x) {
+        return (byte) (x < 0f ? 0 : x > 255f ? 255 : (int) x);
+    }
+
+    private float snap(float x) {
+        return (float) Math.floor(x / cell) * cell;
+    }
+
+    private void refresh(int rows) {
+        for (int c = 0; c < rows; c++) {
+            int j = row;
+            row = (row + 1) % n;
+            double y = oy + (j + 0.5) * cell;
+            for (int i = 0; i < n; i++) {
+                double x = ox + (i + 0.5) * cell;
+                m[j * n + i] = shape.mask(x, y, time);
+                psi[j * n + i] = shape.curl(x, y, time);
+            }
+        }
+    }
+
+    private void shift(float[] a, int si, int sj) {
+        for (int j = 0; j < n; j++) {
+            int sy = j + sj;
+            for (int i = 0; i < n; i++) {
+                int sx = i + si;
+                div[j * n + i] = sx >= 0 && sx < n && sy >= 0 && sy < n ? a[sy * n + sx] : 0f;
+            }
+        }
+        System.arraycopy(div, 0, a, 0, a.length);
+    }
+
+    private float sample(float[] arr, float wx, float wy) {
+        float x = (wx - ox) / cell - 0.5f, y = (wy - oy) / cell - 0.5f;
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x > n - 1.001f) x = n - 1.001f;
+        if (y > n - 1.001f) y = n - 1.001f;
+        int i = (int) x, j = (int) y, k = j * n + i;
+        float fx = x - i, fy = y - j;
+        return (arr[k] * (1 - fx) + arr[k + 1] * fx) * (1 - fy) + (arr[k + n] * (1 - fx) + arr[k + n + 1] * fx) * fy;
+    }
+
+    private void swirl(float x, float y, float rad, float gamma) {
+        int i0 = Math.max(1, (int) Math.floor((x - rad - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + rad - ox) / cell));
+        int j0 = Math.max(1, (int) Math.floor((y - rad - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((y + rad - oy) / cell));
+        for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
+            float dx = ox + (i + 0.5f) * cell - x, dy = oy + (j + 0.5f) * cell - y;
+            float dist = (float) Math.hypot(dx, dy);
+            if (dist >= rad) continue;
+            int k = j * n + i;
+            float f = 1f - dist / rad, g = gamma * f * f / rad;
+            u[k] -= dy * g * 2f;
+            v[k] += dx * g * 2f;
+        }
+    }
+
+    private void advect(float[] from, float[] to, float dt) {
+        float inv = dt / cell;
+        for (int j = 1; j < n - 1; j++) for (int i = 1; i < n - 1; i++) {
+            int k = j * n + i;
+            float x = i - u[k] * inv, y = j - v[k] * inv;
+            if (x < 0.5f) x = 0.5f;
+            if (y < 0.5f) y = 0.5f;
+            if (x > n - 1.5f) x = n - 1.5f;
+            if (y > n - 1.5f) y = n - 1.5f;
+            int a = (int) x, b = (int) y, q = b * n + a;
+            float fx = x - a, fy = y - b;
+            to[k] = (from[q] * (1 - fx) + from[q + 1] * fx) * (1 - fy) + (from[q + n] * (1 - fx) + from[q + n + 1] * fx) * fy;
+        }
+    }
+}

@@ -30,10 +30,10 @@ Renderers keep the sprite in a `transient` field and fetch it lazily in `render`
 |---|---|
 | `helper/MiscIE.java` | General campaign helpers, table below |
 | `helper/BillingHelper.java` | Monthly report lines and immediate credit charges, section below |
-| `helper/RelicHelper.java` | Relic Component payments for colony side sinks: `getName()`, `getAvailable(market)` (colony storage through `MiscIE.getStorageCargo`, so RAT settlement storage counts, plus fleet cargo; `market` null means fleet cargo only), `canAfford(market, amount)`, `take(market, amount)` (storage first, throws when short, call `canAfford` first), `addCostLine(info, market, cost, pad)` (`Cost: X Relic Components (Available: Y)`, cost green or red). Users: [Economy](ECONOMY.md#relic-speed-up) relic speed up and refit build in (`RelicBuildInPatch`), Senate `EdictPanelDelegate`, Ancient Laboratory relic services, Salvage Yards S-mod transfer, Orbital Works slot, Engineering Hub hullmod extraction |
+| `helper/RelicHelper.java` | Relic Component payments for colony side sinks: `getName()`, `getAvailable(market)` (colony storage through `MiscIE.getStorageCargo`, so RAT settlement storage counts, plus fleet cargo; `market` null means fleet cargo only), `canAfford(market, amount)`, `take(market, amount)` (storage first, throws when short, call `canAfford` first), `addCostLine(info, market, cost, pad)` (`Cost: X Relic Components (Available: Y)`, cost green or red). Users: [Economy](ECONOMY.md#relic-speed-up) relic speed up and refit build in (`RelicBuildInPatch`), Tech Mining Boost Extraction, the Senate Edict, Academy, Ancient Laboratory, Salvage Yards and Engineering Hub panels, Orbital Works slot, the kit's relic cost rows (`UiData`) |
 | `helper/StringHelper.java` | String lookup and token substitution, table below |
 | `helper/TrigHelper.java` | Geometry, table below |
-| `helper/Circle.java` | `center`, `radius`; `getPointForAngle(angle)`, `getAngleForPoint(point)` |
+| `helper/Circle.java` | `center`, `radius`; `getPointForAngle(angle)`, `getAngleForPoint(point)` (strict `atan2`: `Misc.getAngleInDegrees` reads a lookup table that is off by up to about 0.06 degrees, hundreds of su on the rogue asteroid arcs of radius 150000 to 400000) |
 | `helper/CircularArc.java` | `Circle` plus normalized `startAngle`, `endAngle`; travel direction is the short way round (`getAngleTravelDir()` 1 or -1) |
 | `helper/ReflectionUtils.java` | Static helpers (Lukas04 style) by field or method name: `get(name, instance)`, `set(name, instance, value)`, `setWithSuper(name, instance, value, limit, clazz)`, `invoke(name, instance, args, declared)`, `hasMethodOfName(name, instance, contains)`, `hasVariableOfName`, `instantiate`, `getFieldsOfType`, `findFieldsOfType`. Uses the method handles of `StarReflectionUtils`. User: `senate/conditions/Edict_FastBuild.java:92` |
 | `helper/StarReflectionUtils.java` | Java port of Starficz's Kotlin reflection utils (LGPL-3.0, keep the header): type based matching for obfuscated members. Static `get(instance, name, type, searchSuperclass)`, `set(...)`, `invoke(instance or class, name, args...)`, `getFieldsMatching`, `getFieldsWithMethodsMatching`, `getMethodsMatching`, `getConstructorsMatching`, each with shorter overloads that drop trailing arguments; results cached per signature; wrappers `ReflectedField`, `ReflectedMethod`, `ReflectedConstructor`. Users: `economy/listeners/RelicBuildTimeReductionButtonAdder.java:114`, `senate/conditions/Edict_FastBuild.java:88` |
@@ -108,7 +108,7 @@ Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/s
 
 ### CircularArc
 
-`getModifiedRadiusArc(r)`, `isPointOnArc(p)`, `getTraversalProgress(point or angle)` (0 to 1), `convertToDegreesPerSecond(units)`, `getArcCircumference()`, `getEvenlySpacedLocationsOnArc(dist)`, `getPerpendicularLineAtAngle(angle, len)`, `getDistanceFromCenterLine(p)`. Users: `exploration/meteor/movement/*`, `MeteorSwarmManager`, artillery `MissileShotScript`.
+`getModifiedRadiusArc(r)`, `isPointOnArc(p)`, `getTraversalProgress(point or angle)` (0 to 1), `convertToDegreesPerSecond(units)`, `getArcCircumference()`, `getEvenlySpacedLocationsOnArc(dist)`, `getPerpendicularLineAtAngle(angle, len)`, `getDistanceFromCenterLine(p)`. Users: `exploration/meteor/movement/*`, `MeteorSwarmManager`, `exploration/meteor/rogue/*`, artillery `MissileShotScript`.
 
 ## memory
 
@@ -162,7 +162,11 @@ Fixed copy of MagicLib's campaign trail plugin (Nicke535, fix by President Matt 
 | `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:504`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
 | `trails/MagicCustomCampaignTrailEntityScript.java` | Plugin of custom entity `IndEvo_campaign_trail_custom_entity` (`data/config/custom_entities.json`); forwards `render` to the trail plugin. The plugin moves this entity to the player's location each frame |
 
-Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
+Users: artillery projectiles (`MortarProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
+
+## ui
+
+Shared UI kit for IE panels (`Ui`, `UiButtons`, `UiImages`, `UiData`, `UiFrame`, `UiScroll`, `UiRoot`, `UiCanvas`, `UiDraw`). Owned by [UI](UI.md): helpers, layout contract, rebuild and scroll pattern.
 
 ## update
 

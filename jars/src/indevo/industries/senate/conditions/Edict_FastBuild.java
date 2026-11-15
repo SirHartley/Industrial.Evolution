@@ -1,10 +1,14 @@
 package indevo.industries.senate.conditions;
 
+import indevo.industries.senate.EdictEffect;
+import indevo.industries.senate.EdictSupplyChange;
+
+import java.util.ArrayList;
+import java.util.List;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.ReflectionUtils;
 import indevo.utils.helper.StarReflectionUtils;
@@ -93,9 +97,16 @@ public class Edict_FastBuild extends BaseEdict {
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        tooltip.addPara("Construction times on this colony %s.", pad, Misc.getPositiveHighlightColor(), "reduced by " + Math.round((1 - FAST_BUILD_MULT) * 100) + "%");
-        tooltip.addPara("All industries on this colony have their output and demand %s.", 3f, Misc.getNegativeHighlightColor(), "decreased by " + Math.round((1 - OUTPUT_DECREASE_MULT) * 100) + "%");
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
+        effects.add(EdictEffect.good("Construction time", percent(-(1 - FAST_BUILD_MULT))));
+        effects.add(EdictEffect.bad("Supply and demand of all industries", "x" + Misc.getRoundedValueMaxOneAfterDecimal(OUTPUT_DECREASE_MULT)));
+        return effects;
+    }
+
+    @Override
+    public List<EdictSupplyChange> getSupplyChanges(MarketAPI market) {
+        return getSupplyChanges(market, true, null, s -> s.modifyMult(getModId(), OUTPUT_DECREASE_MULT));
     }
 
     @Override

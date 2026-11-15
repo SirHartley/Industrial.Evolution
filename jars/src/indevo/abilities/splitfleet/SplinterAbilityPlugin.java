@@ -4,14 +4,15 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.impl.campaign.abilities.BaseDurationAbility;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import indevo.abilities.splitfleet.dialogue.AbilityPanelDialoguePlugin;
+import indevo.abilities.splitfleet.dialogue.DetachmentDialogPlugin;
+import indevo.abilities.splitfleet.dialogue.DetachmentView;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 
 public class SplinterAbilityPlugin extends BaseDurationAbility {
 
     @Override
     protected void activateImpl() {
-        Global.getSector().getCampaignUI().showInteractionDialog(new AbilityPanelDialoguePlugin(), Global.getSector().getPlayerFleet());
+        DetachmentDialogPlugin.show(new DetachmentView());
     }
 
     @Override

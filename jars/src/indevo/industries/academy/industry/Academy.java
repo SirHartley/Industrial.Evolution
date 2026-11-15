@@ -559,7 +559,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     public static boolean personHasSkill(PersonAPI person, SkillSpecAPI skill) {
         for (MutableCharacterStatsAPI.SkillLevelAPI skillLevelAPI : person.getStats().getSkillsCopy()) {
-            if (skillLevelAPI.getSkill() == skill) {
+            if (skillLevelAPI.getSkill() == skill && skillLevelAPI.getLevel() > 0f) {
                 return true;
             }
         }

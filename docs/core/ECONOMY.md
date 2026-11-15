@@ -79,7 +79,7 @@ Shared by construction and the IE timers. Constants on `RelicSpeedUpTarget`: `RE
 | Hull Deconstructor | Accelerate | `HullDeconstructor` | Industry option |
 | Ancient Laboratory template repair | Accelerate | `AncientLaboratory` | Industry option |
 | Rift Generator cooldown | Recharge | `RiftGenerator`, `isSpeedUpInstant()` | Industry option |
-| Academy officer and admin training | Accelerate | `Academy.TrainingSpeedUp` (`getTrainingSpeedUp(admin)`) | Button in the training slot of the Academy panel, see [Academy](../industries/ACADEMY.md) |
+| Academy officer and admin training | Accelerate | `Academy.TrainingSpeedUp` (`getTrainingSpeedUp(admin)`) | One click button in the trainee detail of the Academy panel (`RelicSpeedUpDialog.apply`, no dialog), see [Academy](../industries/ACADEMY.md) |
 | Salvage Yards order delivery | Accelerate Construction | `YardsCustomProductionIntel` | Intel button with a confirm prompt and an option in the ship assembly dialog, see [Salvage Yards](../industries/SALVAGE_YARDS.md) |
 
 - Halving: days after `left - left / 2`, cost `left * RELICS_PER_DAY`. Instant (Rift Generator): days after 0, cost `left * RELICS_PER_DAY_INSTANT`.
