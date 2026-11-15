@@ -36,15 +36,15 @@ On player markets the Museum adds a hidden ship storage submarket (`IndEvo_Museu
 | Market tag | `indEvo_on_parade` on the parade target market | `ParadeFleetProfile.spawnFleet()` |
 | Fleet tag | `indEvo_parade_returning` after recall | `ParadeFleetAssignmentAI.forceReturnToSource()` |
 | Settings | `IndEvo_museum_maxAdditionalCredits` 1950, `_minAdditionalCredits` 50, `_defaultMaxParades` 1, `_defaultParadeMembersMax` 15, `_minShipsForParade` 3, `_topShipPoolAmtForParadeSelection` 20, `_paradeFleetImmigrationBonus` 5, `_paradeFleetStabilityBonus` 1, `_improveExtraParades` 1, `_alphaCoreExtraParades` 1, `_betaCoreIncomePerStability` 20000, `_betaCoreIncomePerPointImmigration` 3000, `_gammaCoreIncomeMult` 1.3, `_uniqueShipValueMult` 2 | `data/config/LunaSettings.csv:175-188`; read at use time |
-| Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:109`; read at use time in `Museum.isAvailableToBuild()` and `showWhenUnavailable()` (`Museum.java:140`, `:145`) |
+| Setting | `IndEvo_museum_enabled` | `LunaSettings.csv:109`; read at use time in `Museum.isAvailableToBuild()` and `showWhenUnavailable()` (`Museum.java:142`, `:147`) |
 | Setting | `IndEvo_shipPickerRowCount` | ship picker layout |
 
 ## Registration and lifecycle
 
 - Industry, submarket and condition plugins from CSV plugin columns.
 - `MuseumManageParadeOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:483`), transient.
-- `Museum.apply()` (player markets only) refreshes the hull value table, adds itself as a persistent listener (`addListener(this)`, `Museum.java:77`) and as a transient immigration modifier, and sets income. `unapply()` removes all three.
-- `Museum.advance()` adds the submarket through `IndustrySubmarkets.ensure` once functional and player owned (`:133`). `notifyBeingRemoved()` despawns parades, clears the parade tags and calls `IndustrySubmarkets.release`, which moves the stored ships to the market storage and removes the submarket (`:403`); `advance()` also calls it when the market changes owner.
+- `Museum.apply()` (player markets only) refreshes the hull value table, adds itself as a persistent listener (`addListener(this)`, `Museum.java:79`) and as a transient immigration modifier, and sets income. `unapply()` removes all three.
+- `Museum.advance()` adds the submarket through `IndustrySubmarkets.ensure` once functional and player owned (`:135`). `notifyBeingRemoved()` despawns parades, clears the parade tags and calls `IndustrySubmarkets.release`, which moves the stored ships to the market storage and removes the submarket (`:420`); `advance()` also calls it when the market changes owner.
 - Parade fleets carry the `ParadeFleetAssignmentAI` script and two fleet event listeners (the profile and the AI).
 
 Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> store lastParadeCheck -> fill profiles -> pick enabled idle profiles -> ParadeFleetProfile.spawnFleet -> getNewParadeFleetFromPresetData -> getLaunchBlocker -> FleetFactoryV3 + cloned members -> ParadeFleetAssignmentAI -> addParadeConditionToMarket -> ... -> GO_TO_LOCATION_AND_DESPAWN -> reportFleetDespawnedToListener -> clear tags and condition`.
@@ -53,8 +53,9 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> store lastParadeChec
 
 ### Income
 
-- `updateShipValueStatistics()` (`:356`): per hull size, max and average `getBaseValue()` over `MiscIE.getAllLearnableShipHulls()`, ignoring hulls above 2,000,000.
-- `getValueForShip()` (`:306`): 1 for `Tags.SHIP_UNIQUE_SIGNATURE` variants; else `(value - avg)/(max - avg)` clamped to 0..1, value x `uniqueShipValueMult` for hulls tagged both `no_sell` and `no_dealer`.
+- `updateShipValueStatistics()` (`:358`): per hull size, max and average `getBaseValue()` over `MiscIE.getAllLearnableShipHulls()`, ignoring hulls above that size's cap.
+- `getHullSizeValueCaps()` (`:383`): cap per hull size = `VANILLA_SHIP_VALUE_CAP_MULT` (1.5) x the highest base value among learnable vanilla hulls (`getSourceMod() == null`). Computed once per game launch into a static map, never saved. A size with no vanilla hull uses `FALLBACK_SHIP_VALUE_CAP` (2,000,000). Vanilla 0.98.5a gives about 142,500 / 180,000 / 375,000 / 1,050,000.
+- `getValueForShip()` (`:308`): 1 for `Tags.SHIP_UNIQUE_SIGNATURE` variants; else `(value - avg)/(max - avg)` clamped to 0..1, value x `uniqueShipValueMult` for hulls tagged both `no_sell` and `no_dealer`.
 - `getCreditsForValue()` = `(min + max x value) x incomeMult`. `getTotalShipValue()` sums one entry per hull spec (duplicates ignored). Applied as `income.modifyFlat(modId, total, "Exhibition Income")`.
 
 ### Parades
@@ -67,8 +68,8 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> store lastParadeChec
 
 ### Launch feedback
 
-- `reportEconomyTick(5)` stores the clock timestamp in `lastParadeCheck` on every tick 5, before the functional check (`Museum.java:96`). Tick 5 of 10 lands about mid month: ticks are spread over the days left in the month (`com.fs.starfarer.campaign.econ.reach.ReachEconomyStepper.nextFrame`, game internals).
-- Industry tooltip, Parade Fleets section (`addNextParadeTooltip()`, `:196`): "Parades are turned off" while `flyParades` is false. With a free slot: the distinct blockers of the enabled idle profiles when none can launch (a fresh random profile stands in when no enabled profile is idle, as the next check adds one), else "Next parade in about N days" (`PARADE_CHECK_DAYS` 31 minus days since the last check, at least 1), or "Next parade: mid month" before the first check or when the last check is older than 31 days.
+- `reportEconomyTick(5)` stores the clock timestamp in `lastParadeCheck` on every tick 5, before the functional check (`Museum.java:98`). Tick 5 of 10 lands about mid month: ticks are spread over the days left in the month (`com.fs.starfarer.campaign.econ.reach.ReachEconomyStepper.nextFrame`, game internals).
+- Industry tooltip, Parade Fleets section (`addNextParadeTooltip()`, `:198`): "Parades are turned off" while `flyParades` is false. With a free slot: the distinct blockers of the enabled idle profiles when none can launch (a fresh random profile stands in when no enabled profile is idle, as the next check adds one), else "Next parade in about N days" (`PARADE_CHECK_DAYS` 31 minus days since the last check, at least 1), or "Next parade: mid month" before the first check or when the last check is older than 31 days.
 - Manager panel: an idle profile with a blocker gets a "Cannot launch: <reason>" line below Options; its entry grows by `BLOCKER_HEIGHT` (`ParadeManagementDialogueDelegate.java:147`, `:427`). Disabled profiles show it too.
 
 ### AI cores and improvement
@@ -93,9 +94,9 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> store lastParadeChec
 
 | Item | State |
 |---|---|
-| Profile growth | `reportEconomyTick()` adds one new profile per month while enabled profiles < max (`:105`), so disabled profiles pile up |
-| `getValueForShip()` | Logs on every call (`:320`), including every tooltip row |
-| Comment blocks in `Museum.java:42-50`, `:437-439` | Design notes, partly outdated (gamma "3000 max") |
+| Profile growth | `reportEconomyTick()` adds one new profile per month while enabled profiles < max (`:107`), so disabled profiles pile up |
+| `getValueForShip()` | Logs on every call (`:322`), including every tooltip row |
+| Comment blocks in `Museum.java:42-50`, `:454-456` | Design notes, partly outdated (gamma "3000 max") |
 | Next parade estimate | A flat 31 day interval; the real gap between two tick 5s is about 30 to 31 days (28 day months less), so the tooltip says "about" |
 | Changelog_todo | "Add settings to museum" |
 
