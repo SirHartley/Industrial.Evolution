@@ -104,9 +104,9 @@ public class FogWeatherManager implements EconomyTickListener {
         return false;
     }
 
-    public static boolean isValidSystem(StarSystemAPI system) {
-        if (system.hasTag(Tags.THEME_CORE)
-                || system.hasTag(Tags.THEME_HIDDEN)
+    public static boolean isValidSystem(StarSystemAPI system, Kind kind) {
+        if (kind == Kind.SPELL && system.hasTag(Tags.THEME_CORE)) return false;
+        if (system.hasTag(Tags.THEME_HIDDEN)
                 || system.hasTag(Tags.THEME_SPECIAL)
                 || system.hasTag(Tags.SYSTEM_ABYSSAL)
                 || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
@@ -153,7 +153,7 @@ public class FogWeatherManager implements EconomyTickListener {
         WeightedRandomPicker<StarSystemAPI> picker = new WeightedRandomPicker<>(random);
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
             if (Misc.getDistanceLY(player.getLocationInHyperspace(), system.getLocation()) > MAX_DISTANCE_LY) continue;
-            if (isValidSystem(system)) picker.add(system);
+            if (isValidSystem(system, kind)) picker.add(system);
         }
         if (picker.isEmpty()) return;
         spawn(picker.pick(), kind, random, false);
