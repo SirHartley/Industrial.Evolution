@@ -13,6 +13,9 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.exploration.meteor.intel.MeteorShowerLocationIntel;
+import indevo.exploration.meteor.renderers.MeteorSwarmWarningPathRenderer;
+import indevo.exploration.meteor.rogue.RogueAsteroidSpawner;
+import indevo.exploration.meteor.rogue.RogueFormation;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.meteor.spawners.*;
 import indevo.utils.ModPlugin;
@@ -41,6 +44,8 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final String MEM_METEOR_TUTORIAL = "$IndEvo_MeteorTutorialComplete";
     public static final String MEM_RANDOM = "$IndEvo_MeteorRandom";
     public static final String MEM_TIMEOUT = "$IndEvo_MeteorTimeout";
+    public static final String MEM_ROGUE_TIMEOUT = "$IndEvo_RogueMeteorTimeout";
+    public static final float ROGUE_LOCATION_TIMEOUT_DAYS = 30f;
 
     public static class MeteorShowerData {
         public float chance;
@@ -80,40 +85,84 @@ public class MeteorSwarmManager implements EconomyTickListener {
         if (!Setting.METEOR_ENABLED.enabled()) return;
 
         LocationAPI loc = Global.getSector().getCurrentLocation();
-
-        if (!isValidMeteorLoc(loc)) return;
-
         Random random = getRandom();
-        boolean spawn = random.nextFloat() < (Global.getSettings().isDevMode() ? 0.1f : Setting.METEOR_BASE_CHANCE_PER_ECONOMY_TICK.value());
+        boolean showerRolled = false;
 
-        //spawn tutorial if none has been spawned yet
-        MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-        if (!mem.getBoolean(MEM_METEOR_TUTORIAL)) {
-            Global.getSector().addScript(new TutorialEncounterScript());
-            mem.set(MEM_METEOR_TUTORIAL, true);
+        if (isValidMeteorLoc(loc)) {
+            boolean spawn = random.nextFloat() < (Global.getSettings().isDevMode() ? 0.1f : Setting.METEOR_BASE_CHANCE_PER_ECONOMY_TICK.value());
+
+            //spawn tutorial if none has been spawned yet
+            MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
+            if (!mem.getBoolean(MEM_METEOR_TUTORIAL)) {
+                Global.getSector().addScript(new TutorialEncounterScript());
+                mem.set(MEM_METEOR_TUTORIAL, true);
+            }
+
+            if (spawn) {
+                spawnShower(loc);
+                showerRolled = true;
+            }
         }
 
-        if (spawn) spawnShower(loc);
+        if (!showerRolled && isValidRogueLoc(loc) && random.nextFloat() < Setting.METEOR_ROGUE_CHANCE_PER_ECONOMY_TICK.value()) {
+            spawnRogue((StarSystemAPI) loc, random);
+        }
     }
 
     public static boolean isValidMeteorLoc(LocationAPI loc){
         MemoryAPI locMem = loc.getMemoryWithoutUpdate();
         MemoryAPI globalMem = Global.getSector().getMemoryWithoutUpdate();
 
+        return isSuitableForRocks(loc)
+                && !globalMem.getBoolean(MEM_TIMEOUT)
+                && !locMem.getBoolean(MEM_TIMEOUT)
+                && Misc.getMarketsInLocation(loc).isEmpty();
+    }
+
+    //inhabited systems and shower timeouts are fine, a running shower or a recent rogue is not
+    public static boolean isValidRogueLoc(LocationAPI loc){
+        MemoryAPI locMem = loc.getMemoryWithoutUpdate();
+
+        return loc instanceof StarSystemAPI
+                && isSuitableForRocks(loc)
+                && !locMem.contains(MeteorSwarmWarningPathRenderer.MEM_INSTANCE)
+                && !locMem.getBoolean(MEM_ROGUE_TIMEOUT);
+    }
+
+    private static boolean isSuitableForRocks(LocationAPI loc){
         //no pulsar systems
         for (PlanetAPI p : loc.getPlanets()) {
             PlanetSpecAPI spec = ((PlanetAPI) p).getSpec();
             if (spec.isPulsar()) return false;
         }
 
-        return !globalMem.getBoolean(MEM_TIMEOUT)
-                && !locMem.getBoolean(MEM_TIMEOUT)
-                && !loc.isHyperspace()
-                && Misc.getMarketsInLocation(loc).isEmpty()
+        return !loc.isHyperspace()
                 && !loc.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
                 && !loc.hasTag(Tags.THEME_HIDDEN)
                 && !loc.hasTag(Tags.THEME_SPECIAL)
                 && !loc.hasTag(Tags.SYSTEM_ABYSSAL);
+    }
+
+    public void spawnRogue(StarSystemAPI system, Random random){
+        MeteroidShowerType type = pickRogueType(random);
+        RogueFormation formation = pickRogueFormation(random);
+
+        if (RogueAsteroidSpawner.spawn(system, formation, type, random)) {
+            system.getMemoryWithoutUpdate().set(MEM_ROGUE_TIMEOUT, true, ROGUE_LOCATION_TIMEOUT_DAYS);
+        }
+    }
+
+    public static RogueFormation pickRogueFormation(Random random){
+        WeightedRandomPicker<RogueFormation> picker = new WeightedRandomPicker<>(random);
+        for (RogueFormation formation : RogueFormation.values()) picker.add(formation, formation.weight);
+        return picker.pick();
+    }
+
+    //planetoids are a shower, not a rock type
+    public static MeteroidShowerType pickRogueType(Random random){
+        WeightedRandomPicker<MeteroidShowerType> picker = new WeightedRandomPicker<>(random);
+        for (MeteroidShowerType type : MeteroidShowerType.values()) if (type != MeteroidShowerType.PLANETOID) picker.add(type, type.chance);
+        return picker.pick();
     }
 
     public void spawnShower(LocationAPI loc){

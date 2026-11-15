@@ -44,7 +44,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | Exploration | [CRUCIBLE](exploration/CRUCIBLE.md) | Crucible and catapults (dormant) | `exploration/crucible` |
 | | [DISTRESS](exploration/DISTRESS.md) | Ghost ship distress calls (excluded, does not compile) | `exploration/distress` |
 | | [GACHA](exploration/GACHA.md) | Automated shipyard stations | `exploration/gacha` |
-| | [METEOR](exploration/METEOR.md) | Meteor swarms and treasure | `exploration/meteor` |
+| | [METEOR](exploration/METEOR.md) | Meteor swarms, rogue asteroids and treasure | `exploration/meteor` |
 | | [MINEFIELDS](exploration/MINEFIELDS.md) | Mine belts and mine fields | `exploration/minefields` |
 | | [SALVAGE](exploration/SALVAGE.md) | Salvage specials, relic recovery of story point derelicts | `exploration/salvage` |
 | | [STATIONS](exploration/STATIONS.md) | Derelict lab, arsenal and pet center stations | `exploration/stations` |
@@ -83,7 +83,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | `getIndustry("population" / "mining" / "refining")` returns an IE class | Switchables return the vanilla id ([contract](#industries-and-markets)) |
 | Detachment AI | `Behaviour.changeBehaviourAndUpdateAI -> DetachmentAI` ([SPLIT_FLEET](abilities/SPLIT_FLEET.md)) |
 | Artillery not firing | `CampaignAttackScript -> EyeIndicatorScript / WatchtowerEntityPlugin / LighthouseEntityPlugin / SearchlightEntityPlugin / DroneNetScript -> ArtilleryStationScript` ([ARTILLERY](industries/ARTILLERY.md)) |
-| Meteor shower spawn | `MeteorSwarmManager.reportEconomyTick -> spawnShower -> <Type>SwarmSpawner` ([METEOR](exploration/METEOR.md)) |
+| Meteor shower or rogue asteroid spawn | `MeteorSwarmManager.reportEconomyTick -> spawnShower -> <Type>SwarmSpawner`, or `-> spawnRogue -> RogueAsteroidSpawner` ([METEOR](exploration/METEOR.md)) |
 | Dialogue or rules row | `rules.csv` block map -> command class ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
 ## Registration and lifecycle
@@ -202,6 +202,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 - IntelliJ module `IndEvo.iml`: source root `jars/src`, JDK 17, output `jars/` (`.idea/misc.xml`), artifact `IndEvo:jar` writes `jars/IndEvo.jar` (gitignored). Libraries are IntelliJ application libraries; the same jars for agent builds are in `lib/`. Full dependency list and gate: [CLAUDE.md](../CLAUDE.md#building).
 - Release builder `indevo/tools/ReleaseBuild.java` (run as a single-file program, never shipped): `compile` is the agent compile gate and runs `indevo/tools/SettingsChecks` (standalone checks of the CSV, the `Setting` enum, `sanitize` and the pair rule against the compiled classes; they do not start the game or LunaLib and do not check the rendered menu), `build` writes the committed release jar `jars/release/IndEvo.jar`, `package` writes the release zip. It compiles the same files as the IntelliJ module by reading its `excludeFolder` entries. [RELEASE.md](RELEASE.md).
 - `indevo/tools/ShuttleTrafficChecks.java`: headless shuttle path, state, dodge, steering and dogfight checks, run by hand after the compile gate, never shipped. [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md#checks).
+- `indevo/tools/RogueAsteroidChecks.java`: headless rogue asteroid shape, path, placement and meteor dodge checks, run by hand after the compile gate, never shipped. [METEOR](exploration/METEOR.md#checks).
 - Java only, no Kotlin ([CLAUDE.md](../CLAUDE.md#code-layout)).
 - `native-smoke/`: test-only probes, the smoke test wrapper and the scripted live checks (`native-smoke/live/`). Never compiled by the builder or shipped. [SMOKE_TESTS.md](SMOKE_TESTS.md).
 - `IndEvo.iml` `excludeFolder` entries that exist: `WIP/converters`, `exploration/WIP`, `exploration/distress`, `exploration/salvage/specials/WIP`, `items/consumables/itemAbilities/WIP`, `industries/academy/rules/WIP`, `industries/derelicts/industry/WIP`, `industries/warehouses/plugin/wi`. The others point at old paths. Excluded code does not compile and must not be referenced. The release builder reads the same entries, so change exclusions in `IndEvo.iml` only.
