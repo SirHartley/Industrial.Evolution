@@ -1606,7 +1606,7 @@ public final class ArtilleryChecks {
                     }
                     case "mortar" -> {
                         pinPlayer(() -> HIDE);
-                        MortarProjectileEntityPlugin.spawn(s, station(s), new Vector2f(q), 3f, null, null, false);
+                        MortarProjectileEntityPlugin.spawn(s, station(s), new Vector2f(q), 3f, null, null);
                     }
                 }
                 c.until(() -> sp.entity == null, 2f, "D1 " + how + " blows a spotter", () -> {

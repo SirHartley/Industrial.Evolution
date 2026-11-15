@@ -8,7 +8,6 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
-import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -74,7 +73,6 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
         }
 
         initProjectiles(target);
-        if (target.isPlayerFleet()) ArtilleryStationEntityPlugin.playWarningPing();
 
         readResolve();
     }
