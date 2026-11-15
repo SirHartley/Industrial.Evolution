@@ -2,11 +2,11 @@
 
 Fog weather in star systems near the player: the roll, the fog terrain and its sensor cut, the fluid solver that moves the fog, the shader that draws it, and the lurker fleets that ambush inside it. Read it before touching `indevo/exploration/fog/` or `IndEvo_fog_enabled`. It does not cover the Chaff Cloud consumable ([Consumables](../items/CONSUMABLES.md)), which keeps its own terrain and renderer.
 
-Checked against Starsector 0.98a-RC8 (knowledge skill build 0.98.5a-RC4) and IE `8a6d804`. Recheck engine facts after a game update. Not yet seen in game.
+Checked against Starsector 0.98a-RC8 (knowledge skill build 0.98.5a-RC4) and IE `8e0518c`. Recheck engine facts after a game update. Not yet seen in game.
 
 ## Overview
 
-On each economy tick `FogWeatherManager` may add fog to one star system within 20 light years of the player. Fog comes in two kinds:
+On each economy tick `FogWeatherManager` may add fog to one star system within 20 light years of the player. Core systems only get banks, never a spell. Fog comes in two kinds:
 
 | Kind | Size and place | Timing | Lurkers |
 |---|---|---|---|
@@ -56,7 +56,7 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 ### Roll
 
 - `reportEconomyTick` (`FogWeatherManager.java:70`): prunes dead entries, returns if the setting is off, counts spells and banks. Spell 15% while fewer than 3, bank 10% while fewer than 6, each tick.
-- `isValidSystem` (`:107`): not `THEME_CORE`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`, `SYSTEM_CUT_OFF_FROM_HYPER`, not a `NEBULA` type system, no `nebula` terrain, no fog yet. Markets do not block fog, so player colonies outside the core can get it. Candidates within 20 light years of the player fleet's hyperspace position, one picked at random.
+- `isValidSystem(system, kind)` (`:107`): spells never in `THEME_CORE` systems, banks are allowed there; for both not `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`, `SYSTEM_CUT_OFF_FROM_HYPER`, not a `NEBULA` type system, no `nebula` terrain, no fog yet. Markets do not block fog: core colonies can get a bank, player colonies outside the core a bank or a spell. Candidates within 20 light years of the player fleet's hyperspace position, one picked at random.
 - `spawn` (`:122`) throws if the system already has fog.
 - `placeBank` (`:169`): a random gas giant with 60%, else a star orbit at the midpoint between two adjacent planet orbits or beyond the outermost, at least star radius + bank radius + 500 out.
 
