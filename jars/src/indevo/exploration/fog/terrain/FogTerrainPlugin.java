@@ -3,6 +3,7 @@ package indevo.exploration.fog.terrain;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.CustomCampaignEntityAPI;
 import com.fs.starfarer.api.campaign.CustomCampaignEntityPlugin;
 import com.fs.starfarer.api.campaign.LocationAPI;
@@ -16,11 +17,14 @@ import com.fs.starfarer.api.impl.campaign.abilities.InterdictionPulseAbility;
 import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseTerrain;
+import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.fog.renderers.FogRenderer;
+import indevo.exploration.fog.sim.FogCover;
 import indevo.exploration.fog.sim.FogGrid;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.industries.artillery.projectiles.MissileCarrierEntityPlugin;
@@ -368,13 +372,26 @@ public class FogTerrainPlugin extends BaseTerrain {
     private FogGrid.Shape getShape() {
         if (shape == null) {
             shape = new FogGrid.Shape(seed, radius, kind == Kind.SPELL);
+            shape.covers = computeCovers();
             keepStamp = 0;
         }
+        shape.anchorX = entity.getLocation().x;
+        shape.anchorY = entity.getLocation().y;
         if (Global.getSector().getClock().getElapsedDaysSince(keepStamp) > KEEP_REFRESH_DAYS) {
             shape.keep = computeKeep();
             keepStamp = Global.getSector().getClock().getTimestamp();
         }
         return shape;
+    }
+
+    // nebula tiles never change, so the covers are built once per shape
+    private FogCover[] computeCovers() {
+        List<FogCover> out = new ArrayList<>();
+        for (CampaignTerrainAPI terrain : entity.getContainingLocation().getTerrainCopy()) {
+            if (!Terrain.NEBULA.equals(terrain.getType()) || !(terrain.getPlugin() instanceof BaseTiledTerrain nebula)) continue;
+            out.add(new FogCover(nebula.getTiles(), nebula.getTileSize(), terrain.getLocation().x, terrain.getLocation().y));
+        }
+        return out.toArray(new FogCover[0]);
     }
 
     private float[] computeKeep() {

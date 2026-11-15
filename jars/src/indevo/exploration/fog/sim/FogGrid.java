@@ -43,12 +43,17 @@ public class FogGrid {
         public static final float LOBE_REACH = 2.4f;
         // in lobe radii: solid inside EDGE_IN, gone at EDGE_OUT, arms end at ARM_REACH
         private static final double EDGE_IN = 0.62, EDGE_OUT = 1.3, ARM_REACH = 2.6;
+        // nebula cover at which fog starts to thin and at which it is gone
+        private static final double GATE_IN = 0.03, GATE_OUT = 0.4;
 
         public final int seed;
         public final float radius;
         public final boolean wide;
         // x, y, inner, outer per clear ring in bank local coordinates: no fog inside inner, full fog from outer
         public float[] keep = new float[0];
+        // tile fields no fog may lie on, in system coordinates; anchor is the fog centre there
+        public FogCover[] covers = new FogCover[0];
+        public float anchorX, anchorY;
         // x, y, radius, angle, stretch per lobe
         private final float[] lobes;
 
@@ -84,6 +89,7 @@ public class FogGrid {
             for (int i = 0; i + 3 < k.length; i += 4) {
                 keepMult *= smooth(k[i + 2], k[i + 3], Math.hypot(x - k[i], y - k[i + 1]));
             }
+            for (FogCover cover : covers) keepMult *= 1 - smooth(GATE_IN, GATE_OUT, cover.at((float) x + anchorX, (float) y + anchorY));
             return (float) Math.min(1, Math.max(0, body * inner * keepMult));
         }
 
