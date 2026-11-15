@@ -15,7 +15,9 @@ import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
+import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
+import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
@@ -41,6 +43,8 @@ public class FogWeatherManager implements EconomyTickListener {
     // banks stop spawning once this share of the fog capable systems in range has one
     public static final float BANK_SHARE = 0.33f;
     public static final float MAX_DISTANCE_LY = 20f;
+    // no fog where nebula tiles cover more than this share of the disc a spell would fill
+    public static final float MAX_NEBULA_COVER = 0.1f;
 
     public static final float ROLL_IN_DAYS = 2f;
     public static final float FADE_DAYS = 8f;
@@ -121,7 +125,28 @@ public class FogWeatherManager implements EconomyTickListener {
                 || system.hasTag(Tags.THEME_SPECIAL)
                 || system.hasTag(Tags.SYSTEM_ABYSSAL)
                 || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)) return false;
-        return !hasFog(system);
+        return !hasFog(system) && getNebulaCover(system) <= MAX_NEBULA_COVER;
+    }
+
+    public static float getNebulaCover(StarSystemAPI system) {
+        Vector2f centre = system.getCenter().getLocation();
+        float radius = getSystemRadius(system);
+        float covered = 0f;
+        for (CampaignTerrainAPI terrain : system.getTerrainCopy()) {
+            if (!Terrain.NEBULA.equals(terrain.getType()) || !(terrain.getPlugin() instanceof BaseTiledTerrain nebula)) continue;
+            int[][] tiles = nebula.getTiles();
+            float size = nebula.getTileSize();
+            float x0 = terrain.getLocation().x - centre.x - tiles.length * size / 2f + size / 2f;
+            float y0 = terrain.getLocation().y - centre.y - tiles[0].length * size / 2f + size / 2f;
+            int inside = 0;
+            for (int i = 0; i < tiles.length; i++) {
+                for (int j = 0; j < tiles[i].length; j++) {
+                    if (tiles[i][j] >= 0 && Math.hypot(x0 + i * size, y0 + j * size) <= radius) inside++;
+                }
+            }
+            covered += inside * size * size;
+        }
+        return covered / (float) (Math.PI * radius * radius);
     }
 
     public static SectorEntityToken spawn(StarSystemAPI system, Kind kind, Random random, boolean forceAmbush, boolean forceCache) {
