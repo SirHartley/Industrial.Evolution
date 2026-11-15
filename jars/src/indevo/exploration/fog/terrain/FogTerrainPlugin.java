@@ -38,6 +38,8 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final String TERRAIN_ID = "IndEvo_fog";
     public static final String EFFECT_CATEGORY = "IndEvo_fog";
     public static final float SENSOR_CUT = 0.9f;
+    public static final float CACHE_SENSOR_CUT = 0.7f;
+    public static final String CACHE_MOD_ID = "IndEvo_fog_cache";
     public static final float CONTAINS_THRESHOLD = 0.05f;
     public static final int GRID_CELLS = 128;
     public static final float CELL_SIZE = 80f;
@@ -58,6 +60,7 @@ public class FogTerrainPlugin extends BaseTerrain {
     protected float rollInDays;
     protected float holdDays;
     protected float fadeDays;
+    protected SectorEntityToken cache;
 
     // view state, rebuilt while the player is in this system and never saved
     private transient FogGrid.Shape shape;
@@ -134,6 +137,15 @@ public class FogTerrainPlugin extends BaseTerrain {
         return radius;
     }
 
+    public SectorEntityToken getCache() {
+        return cache;
+    }
+
+    public void setCache(SectorEntityToken cache) {
+        this.cache = cache;
+        hideCache();
+    }
+
     public float getStrength() {
         float e = getElapsedDays();
         if (e < rollInDays) return e / rollInDays;
@@ -166,6 +178,7 @@ public class FogTerrainPlugin extends BaseTerrain {
 
         if (isOver()) {
             dropView();
+            if (cache != null && cache.isAlive()) Misc.fadeAndExpire(cache);
             entity.getContainingLocation().removeEntity(entity);
             return;
         }
@@ -176,6 +189,21 @@ public class FogTerrainPlugin extends BaseTerrain {
         }
 
         advanceView(amount);
+        hideCache();
+    }
+
+    // while the fog rolls in the cache counts as covered, it must not sit in the open first
+    private void hideCache() {
+        if (cache == null) return;
+        if (!cache.isAlive()) {
+            cache = null;
+            return;
+        }
+        Vector2f loc = cache.getLocation();
+        float density = getElapsedDays() < rollInDays
+                ? getRestMaskAt(loc.x - entity.getLocation().x, loc.y - entity.getLocation().y)
+                : getDensityAt(loc);
+        cache.getDetectedRangeMod().modifyMult(CACHE_MOD_ID, 1f - CACHE_SENSOR_CUT * Math.min(1f, Math.max(0f, density)), "In fog");
     }
 
     @Override
