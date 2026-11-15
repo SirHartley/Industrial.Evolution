@@ -140,7 +140,6 @@ public class DroneConeTerrain extends BaseRingTerrain {
 
         for (SectorEntityToken nest : net.getNests()) {
             Vector2f loc = nest.getLocation();
-            if (nest.isDiscoverable()) continue;
             if (!viewport.isNearViewport(loc, length * DroneNetScript.NEST_TRACK_REACH * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
 
             DroneNetScript.NestLights lights = net.getNestLights(nest);

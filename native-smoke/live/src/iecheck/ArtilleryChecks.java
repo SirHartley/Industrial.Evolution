@@ -1688,11 +1688,11 @@ public final class ArtilleryChecks {
                 c.expect(min >= lo && max <= hi, "D3 debris field holds " + lo + " to " + hi + " " + RELICS + " (6 to 10 x" + easy + ", 40 rolls: " + min + " to " + max + ")");
                 int dmin = Integer.MAX_VALUE, dmax = 0;
                 for (int i = 0; i < 40; i++) {
-                    int n = Math.round(SalvageEntity.generateSalvage(new java.util.Random(), 1f, 1f, 1f, null, List.of(DroneNetScript.createNestDrop())).getCommodityQuantity(RELICS));
+                    int n = Math.round(SalvageEntity.generateSalvage(new java.util.Random(), 1f, 1f, 1f, null, DroneNetScript.createNestDrops()).getCommodityQuantity(RELICS));
                     dmin = Math.min(dmin, n);
                     dmax = Math.max(dmax, n);
                 }
-                c.note("D3 for comparison, DroneNetScript.createNestDrop (the nest dialog's salvage) over 40 rolls: " + dmin + " to " + dmax);
+                c.note("D3 for comparison, DroneNetScript.createNestDrops (the nest dialog's salvage) over 40 rolls: " + dmin + " to " + dmax);
             }
             unpinAll();
             fastTime();
@@ -1710,6 +1710,7 @@ public final class ArtilleryChecks {
             for (DroneNetScript.Spotter sp : live(net)) if (sp.nest == nest) a = sp;
             park(net, List.of());
             keep.put("d5nest", nest);
+            keep.put("d5count", net.getNests().size());
             DroneNetScript.reportBlast(s, new Vector2f(a.entity.getLocation()), 10f);
             DroneNetScript.Spotter dead = a;
             c.until(() -> dead.entity == null, 0.2f, "D5 one spotter blown");
@@ -1768,7 +1769,7 @@ public final class ArtilleryChecks {
             keep.put("d5net", net);
             for (DroneNetScript.Spotter sp : live(net)) DroneNetScript.reportBlast(s, new Vector2f(sp.entity.getLocation()), 10f);
             realTime();
-            c.until(() -> net.isDone() && DroneNetScript.get(s) == null, 0.3f, "D5 destroying every nest and spotter ends the script");
+            c.until(() -> net.getNests().isEmpty() && live(net).isEmpty(), 0.3f, "D5 every nest and spotter destroyed");
         });
         steps.add(c -> hold(c, 0.2f, "D5 explosions fade"));
         steps.add(c -> {
@@ -1776,9 +1777,17 @@ public final class ArtilleryChecks {
             DroneNetScript net = (DroneNetScript) keep.get("d5net");
             boolean listed = false;
             for (EveryFrameScript script : s.getScripts()) if (script == net) listed = true;
-            c.expect(!listed, "D5 drone net script removed from the system");
+            c.expect(listed && !net.isDone(), "D5 drone net script stays while nests wait to respawn");
             c.expect(count(s, DroneNetScript.NEST_ENTITY_ID) == 0 && count(s, DroneNetScript.SPOTTER_ENTITY_ID) == 0, "D5 no nest or spotter entity left");
             fastTime();
+            c.days(DroneNetScript.NEST_RESPAWN_DAYS + 1f);
+        });
+        steps.add(c -> {
+            StarSystemAPI s = sys(c, "dl");
+            DroneNetScript net = (DroneNetScript) keep.get("d5net");
+            int count = (Integer) keep.get("d5count");
+            c.expect(net.getNests().size() == count, "D5 every destroyed nest respawns after 60 days (" + net.getNests().size() + " of " + count + ")");
+            c.expect(live(net).size() == count * DroneNetScript.SPOTTERS_PER_NEST, "D5 respawned nests launch two spotters each (" + live(net).size() + ")");
         });
     }
 
