@@ -23,7 +23,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
     public static final String TERRAIN_ID = "IndEvo_lighthouse_beam";
     public static final float INNER_RADIUS = 40f;
     public static final float FADE_SECONDS = 1f;
-    public static final int MAX_BEAMS = 2;
+    public static final int MAX_BEAMS = 3;
     public static final LightConeRenderer.Style LIGHT = new LightConeRenderer.Style();
     public static final float LAMP_SIZE = 220f;
     public static final float LAMP_ALPHA = 0.6f;
@@ -95,6 +95,10 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         return beamCount;
     }
 
+    private float getBeamAngle(int index) {
+        return angle + 360f / beamCount * index;
+    }
+
     public void setBeamCount(int beamCount) {
         this.beamCount = Math.max(1, Math.min(MAX_BEAMS, beamCount));
     }
@@ -147,7 +151,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
 
         float arc = getArc() + 360f * checkSeconds / Setting.ARTILLERY_LIGHTHOUSE_TURN_TIME.value();
         for (int i = 0; i < beamCount; i++) {
-            if (Misc.isInArc(angle + 180f * i, arc, loc, point)) return !VisionBlockers.isBlocked(getBlockers(), loc, point);
+            if (Misc.isInArc(getBeamAngle(i), arc, loc, point)) return !VisionBlockers.isBlocked(getBlockers(), loc, point);
         }
 
         return false;
@@ -163,7 +167,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
 
         float[] angles = new float[beamCount];
         for (int i = 0; i < beamCount; i++) {
-            angles[i] = angle + 180f * i;
+            angles[i] = getBeamAngle(i);
             LightConeRenderer.draw(loc, angles[i], getArc(), getLength(), getBlockers(), LIGHT, color, alpha);
         }
 
@@ -213,7 +217,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
         for (int i = 0; i < beamCount; i++) {
-            float start = angle + 180f * i - arc / 2f;
+            float start = getBeamAngle(i) - arc / 2f;
 
             GL11.glBegin(GL11.GL_TRIANGLE_FAN);
             GL11.glColor4f(r, g, b, MAP_ALPHA * alphaMult);
