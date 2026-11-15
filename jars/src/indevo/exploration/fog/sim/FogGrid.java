@@ -38,6 +38,8 @@ public class FogGrid {
 
         // a bank's lobes reach about this many lobe scales from its centre, radius is that reach
         public static final float LOBE_REACH = 2.4f;
+        // in lobe radii: solid inside EDGE_IN, gone at EDGE_OUT, arms end at ARM_REACH
+        private static final double EDGE_IN = 0.62, EDGE_OUT = 1.3, ARM_REACH = 2.6;
 
         public final int seed;
         public final float radius;
@@ -87,24 +89,23 @@ public class FogGrid {
             return 1 - smooth(edge * 0.85, edge, Math.hypot(x, y));
         }
 
-        // stretched lobes in a slowly drifting warped space, bays cut in, ridged arms reaching out
+        // stretched lobes in a slowly drifting warped space: solid middles, a noisy soft outline, ridged arms reaching out
         private double bankBody(double x, double y, double t) {
             double scale = radius / LOBE_REACH;
             double wx = x + (fbm(x / 3400 + 41 + t * 0.006, y / 3400 + 3, seed + 21, 3) - 0.5) * scale * 0.9;
             double wy = y + (fbm(x / 3400 + 9, y / 3400 + 57 - t * 0.005, seed + 22, 3) - 0.5) * scale * 0.9;
-            double core = 0, reach = 0;
+            double q = Double.MAX_VALUE;
             float[] l = lobes;
             for (int i = 0; i + 4 < l.length; i += 5) {
                 double dx = wx - l[i], dy = wy - l[i + 1], c = Math.cos(l[i + 3]), s = Math.sin(l[i + 3]);
-                double q = Math.hypot((dx * c + dy * s) / l[i + 4], -dx * s + dy * c) / l[i + 2];
-                core = Math.max(core, 1 - smooth(0.2, 1.25, q));
-                reach = Math.max(reach, 1 - smooth(0.7, 2.6, q));
+                q = Math.min(q, Math.hypot((dx * c + dy * s) / l[i + 4], -dx * s + dy * c) / l[i + 2]);
             }
-            if (reach <= 0) return 0;
-            double body = core * smooth(0.28, 0.5, fbm(wx / 2600 + 71 - t * 0.004, wy / 2600 + 13, seed + 41, 3));
+            if (q >= ARM_REACH) return 0;
+            double outline = fbm(wx / 2000 + 71 - t * 0.004, wy / 2000 + 13, seed + 41, 3);
+            double body = 1 - smooth(EDGE_IN, EDGE_OUT, q * (0.45 + 1.3 * (1 - outline)));
             double rn = fbm(wx / 1100 + t * 0.012, wy / 1100 - t * 0.009, seed + 33, 4);
             double ridge = Math.pow(1 - Math.abs(2 * rn - 1), 4);
-            return Math.max(body, ridge * reach * 0.8);
+            return Math.max(body, ridge * (1 - smooth(0.7, ARM_REACH, q)) * 0.8);
         }
 
         public float curl(double x, double y, double t) {
