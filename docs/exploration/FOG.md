@@ -2,11 +2,11 @@
 
 Fog weather in star systems near the player: the roll, the fog terrain and its sensor cut, the fluid solver that moves the fog, the shader that draws it, and the lurker fleets that ambush inside it. Read it before touching `indevo/exploration/fog/` or `IndEvo_fog_enabled`. It does not cover the Chaff Cloud consumable ([Consumables](../items/CONSUMABLES.md)), which keeps its own terrain and renderer.
 
-Checked against Starsector 0.98a-RC8 (knowledge skill build 0.98.5a-RC4) and IE `8e0518c`. Recheck engine facts after a game update. Not yet seen in game.
+Checked against Starsector 0.98a-RC8 (knowledge skill build 0.98.5a-RC4) and IE `70c1b31`. Recheck engine facts after a game update. Not yet seen in game.
 
 ## Overview
 
-On each economy tick `FogWeatherManager` may add fog to one star system within 20 light years of the player. Core systems only get banks, never a spell. Fog comes in two kinds:
+On each economy tick `FogWeatherManager` may add fog to one star system within 20 light years of the player. Core systems only get banks, never a spell. Banks are common (about one system in three near the player), spells rare (at most 3 at a time). Fog comes in two kinds:
 
 | Kind | Size and place | Timing | Lurkers | Cache |
 |---|---|---|---|---|
@@ -57,10 +57,10 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 
 ### Roll
 
-- `reportEconomyTick` (`FogWeatherManager.java:77`): prunes dead entries, returns if the setting is off, counts spells and banks. Spell 15% while fewer than 3, bank 10% while fewer than 6, each tick.
-- `isValidSystem(system, kind)` (`:114`): spells never in `THEME_CORE` systems, banks are allowed there; for both not `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`, `SYSTEM_CUT_OFF_FROM_HYPER`, not a `NEBULA` type system, no `nebula` terrain, no fog yet. Markets do not block fog: core colonies can get a bank, player colonies outside the core a bank or a spell. Candidates within 20 light years of the player fleet's hyperspace position, one picked at random.
-- `spawn` (`:129`) throws if the system already has fog.
-- `placeBank` (`:177`): a random gas giant with 60%, else a star orbit at the midpoint between two adjacent planet orbits or beyond the outermost, at least star radius + bank radius + 500 out.
+- `reportEconomyTick` (`FogWeatherManager.java:79`): prunes dead entries, returns if the setting is off, counts spells and banks. Each tick (10 per month, `economyIterPerMonth`): spell 15% while fewer than 3 are active; bank 50% while fewer than 40 are active and, in `spawnNearPlayer`, fewer than `BANK_SHARE` 33% of the systems in range that can hold a bank (banked plus valid) have one. Near a player who stays in one area that is a new bank about every 6 days until one system in three has one.
+- `isValidSystem(system, kind)` (`:120`): spells never in `THEME_CORE` systems, banks are allowed there; for both not `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`, `SYSTEM_CUT_OFF_FROM_HYPER`, not a `NEBULA` type system, no `nebula` terrain, no fog yet. Markets do not block fog: core colonies can get a bank, player colonies outside the core a bank or a spell. Candidates within 20 light years of the player fleet's hyperspace position, one picked at random.
+- `spawn` (`:135`) throws if the system already has fog.
+- `placeBank` (`:187`): a random gas giant with 60%, else a star orbit at the midpoint between two adjacent planet orbits or beyond the outermost, at least star radius + bank radius + 500 out.
 
 ### Strength and density
 
@@ -83,7 +83,7 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 
 ### Cache
 
-- `spawnCache` (`FogWeatherManager.java:230`): banks only, `BANK_CACHE_CHANCE` 15%. One of `supply_cache_small`, `equipment_cache_small`, `weapons_cache_small` through `BaseThemeGenerator.addSalvageEntity` (faction neutral, vanilla salvage and discovery). Placed at the thickest rest mask of up to 30 tries, 0.1..0.35 radius from the centre, on a 300 day orbit round the fog entity so it moves with the bank.
+- `spawnCache` (`FogWeatherManager.java:240`): banks only, `BANK_CACHE_CHANCE` 15%. One of `supply_cache_small`, `equipment_cache_small`, `weapons_cache_small` through `BaseThemeGenerator.addSalvageEntity` (faction neutral, vanilla salvage and discovery). Placed at the thickest rest mask of up to 30 tries, 0.1..0.35 radius from the centre, on a 300 day orbit round the fog entity so it moves with the bank.
 - `hideCache` (`FogTerrainPlugin.java:196`), each frame in the player's location and once at spawn: `1 - 0.7 * density` as a mult on the cache's `getDetectedRangeMod()`. Density is `getDensityAt`, so a hole blown next to the cache shows it; during the roll in the rest mask is used without the strength, so the cache never sits in the open first. During the fade the cut shrinks with the fog.
 - Spot range of a small cache is `(sensor strength + profile 1 + 1200) x cache mult x own sensor mult` (`BaseCampaignEntity.getBaseSensorRangeToDetect`, `getMaxSensorRangeToDetect`, knowledge skill `obf/campaign/BaseCampaignEntity.java:1089`; detection range 1200 from `salvage_entity_gen_data.csv`). Estimate for a fleet sensor strength of 450..1050: 1650..2250 in the open, 500..675 from outside thick fog, 50..70 from inside it, about 1400..1600 with Active Sensor Burst (3000 flat, own cut skipped).
 - When the fog is over the plugin calls `Misc.fadeAndExpire` on a cache that is still there. A looted cache expires the vanilla way and the plugin drops its reference.

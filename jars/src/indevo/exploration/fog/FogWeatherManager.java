@@ -37,9 +37,11 @@ public class FogWeatherManager implements EconomyTickListener {
     public static final String DATA_KEY = "IndEvo_fogTerrains";
 
     public static final float SPELL_CHANCE = 0.15f;
-    public static final float BANK_CHANCE = 0.10f;
+    public static final float BANK_CHANCE = 0.5f;
     public static final int MAX_SPELLS = 3;
-    public static final int MAX_BANKS = 6;
+    public static final int MAX_BANKS = 40;
+    // banks stop spawning once this share of the fog capable systems in range has one
+    public static final float BANK_SHARE = 0.33f;
     public static final float MAX_DISTANCE_LY = 20f;
 
     public static final float ROLL_IN_DAYS = 2f;
@@ -105,10 +107,14 @@ public class FogWeatherManager implements EconomyTickListener {
     }
 
     public static boolean hasFog(LocationAPI loc) {
+        return getFog(loc) != null;
+    }
+
+    public static FogTerrainPlugin getFog(LocationAPI loc) {
         for (CampaignTerrainAPI terrain : loc.getTerrainCopy()) {
-            if (FogTerrainPlugin.TERRAIN_ID.equals(terrain.getType())) return true;
+            if (FogTerrainPlugin.TERRAIN_ID.equals(terrain.getType())) return getPlugin(terrain);
         }
-        return false;
+        return null;
     }
 
     public static boolean isValidSystem(StarSystemAPI system, Kind kind) {
@@ -159,11 +165,15 @@ public class FogWeatherManager implements EconomyTickListener {
         if (player == null) return;
 
         WeightedRandomPicker<StarSystemAPI> picker = new WeightedRandomPicker<>(random);
+        int banked = 0;
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
             if (Misc.getDistanceLY(player.getLocationInHyperspace(), system.getLocation()) > MAX_DISTANCE_LY) continue;
+            FogTerrainPlugin fog = getFog(system);
+            if (fog != null && fog.getKind() == Kind.BANK) banked++;
             if (isValidSystem(system, kind)) picker.add(system);
         }
         if (picker.isEmpty()) return;
+        if (kind == Kind.BANK && banked >= BANK_SHARE * (banked + picker.getItems().size())) return;
         spawn(picker.pick(), kind, random, false, false);
     }
 
