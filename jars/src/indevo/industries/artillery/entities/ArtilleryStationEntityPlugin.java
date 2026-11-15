@@ -26,11 +26,16 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
     public static final String TYPE_MORTAR = "mortar";
     public static final String TYPE_MISSILE = "missile";
     public static final String WARNING_PING_SOUND = "mine_ping";
-    public static final float WARNING_PING_VOLUME = 0.7f;
+    public static final float WARNING_PING_VOLUME = 0.8f;
 
     private String type;
 
     public boolean disrupted = true;
+
+    // mine_ping is a mono combat sound and ui sounds want stereo files, so it plays at the listener like vanilla salvage hits
+    public static void playWarningPing() {
+        Global.getSoundPlayer().playSound(WARNING_PING_SOUND, 1f, WARNING_PING_VOLUME, Global.getSoundPlayer().getListenerPos(), Misc.ZERO);
+    }
 
     @Override
     public void init(SectorEntityToken entity, Object pluginParams) {
