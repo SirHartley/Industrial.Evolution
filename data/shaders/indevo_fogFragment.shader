@@ -6,7 +6,7 @@ uniform float uTime;
 uniform float uCell;
 uniform float uAlpha;
 uniform sampler2D uTex;
-uniform vec3 uHoles[16];
+uniform vec3 uHoles[48];
 uniform float uHN;
 uniform vec3 uC0;
 uniform vec3 uC1;
@@ -46,7 +46,22 @@ float fbm(vec2 p) {
 vec4 g(vec2 q) {
 	vec2 t = (q - uGO) / uGS;
 	if (t.x < 0.0 || t.y < 0.0 || t.x > 1.0 || t.y > 1.0) return vec4(0.0, 0.502, 0.502, 0.0);
-	return texture2D(uTex, t);
+	float px = uCell / uGS;
+	vec2 st = t / px - 0.5;
+	vec2 i = floor(st);
+	vec2 f = st - i;
+	vec2 f2 = f * f;
+	vec2 f3 = f2 * f;
+	vec2 w0 = (1.0 - 3.0 * f + 3.0 * f2 - f3) / 6.0;
+	vec2 w1 = (4.0 - 6.0 * f2 + 3.0 * f3) / 6.0;
+	vec2 w3 = f3 / 6.0;
+	vec2 w2 = 1.0 - w0 - w1 - w3;
+	vec2 a0 = w0 + w1;
+	vec2 a1 = w2 + w3;
+	vec2 p0 = (i - 0.5 + w1 / a0) * px;
+	vec2 p1 = (i + 1.5 + w3 / a1) * px;
+	return a0.y * (a0.x * texture2D(uTex, vec2(p0.x, p0.y)) + a1.x * texture2D(uTex, vec2(p1.x, p0.y)))
+		+ a1.y * (a0.x * texture2D(uTex, vec2(p0.x, p1.y)) + a1.x * texture2D(uTex, vec2(p1.x, p1.y)));
 }
 
 // clear rings round bodies, exact per pixel: a ring is only a few grid cells wide. same math as FogGrid.Shape.keepAt
@@ -120,7 +135,7 @@ void main() {
 	c = mix(c, s2, ws * 0.6);
 	a = min(1.0, a * (1.0 + ws * 0.6));
 
-	for (int i = 0; i < 16; i++) {
+	for (int i = 0; i < 48; i++) {
 		if (float(i) >= uHN) break;
 		vec3 hl = uHoles[i];
 		a *= smoothstep(hl.z * 0.45, hl.z * 1.5, distance(w, hl.xy));

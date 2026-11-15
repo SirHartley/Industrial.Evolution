@@ -30,7 +30,7 @@ public final class FogRenderer {
     public static final float NEBULA_DARK = 0.28f;
     public static final float NEBULA_LIGHT = 0.9f;
     public static final float NEBULA_LIGHT_WHITE = 0.3f;
-    public static final int MAX_HOLES = 16;
+    public static final int MAX_HOLES = 48;
     public static final int MAX_SUNS = 3;
     public static final int MAX_RINGS = 32;
     // star icon colours are fully saturated, the light is that hue pulled this far to white

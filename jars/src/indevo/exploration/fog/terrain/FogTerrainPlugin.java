@@ -57,23 +57,28 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float FULL_SOUND_DENSITY = 0.6f;
     public static final int GRID_CELLS = 128;
     public static final float CELL_SIZE = 80f;
-    public static final int MAX_CLEAR_PATCHES = 16;
+    public static final int MAX_CLEAR_PATCHES = FogRenderer.MAX_HOLES;
     public static final float PATCH_RADIUS_MULT = 2.6f;
     public static final float RING_SECONDS = 0.6f;
     public static final float KEEP_REFRESH_DAYS = 0.1f;
-    public static final float JUMP_POINT_KEEP = 400f;
-    public static final float STATION_KEEP = 300f;
+    public static final float JUMP_POINT_KEEP = 150f;
+    public static final float STATION_KEEP = 100f;
     // fog starts at a body's surface and is full at this many radii, at least MIN_FADE further out
     public static final float PLANET_FADE = 2.3f;
-    public static final float MIN_FADE = 200f;
-    // space round a star in units of its radius (at most STAR_UNIT_MAX) above the surface:
+    public static final float MIN_FADE = 100f;
+    // planets, moons and stations cut the grid out to 1.2 radii plus the pad, inside their clear ring
+    public static final float BODY_RADIUS_MULT = 0.8f;
+    public static final float BODY_PAD = 20f;
+    // space round a star in units of its radius (held to STAR_UNIT_MIN..STAR_UNIT_MAX) above the surface:
     // thin haze from HAZE_IN, haze full at HAZE_OUT, fog thickens from GAP_IN and is full at GAP_OUT
+    // the floor keeps the lit haze of a small star outside its corona, which is at least 300 units wide
+    public static final float STAR_UNIT_MIN = 350f;
     public static final float STAR_UNIT_MAX = 550f;
     public static final float STAR_HAZE_IN = 0.15f;
     public static final float STAR_HAZE_OUT = 0.9f;
     public static final float STAR_GAP_IN = 2f;
     public static final float STAR_GAP_OUT = 5.5f;
-    // a star lights the fog in its colour this many star diameters out from its surface
+    // a star lights the fog in its colour this many star diameters out from its surface, a small star as one of STAR_UNIT_MIN radius
     public static final float SUN_LIGHT_DIAMETERS = 1.5f;
     // the spell front ends this many radii out, where the last arms are; units per second pushed outward behind it
     public static final float FRONT_REACH = 1.3f;
@@ -83,6 +88,8 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float ROCK_RADIUS_MULT = 0.4f;
     public static final float ROCK_PAD = 10f;
     public static final float ROCK_CUT = 0.8f;
+    // a rock's own space is a clear patch drawn per pixel: gone inside 0.36 entity radii, full fog from 1.2
+    public static final float ROCK_PATCH_MULT = 0.8f;
     // a shell crosses a cell in three frames, so it cuts harder than its speed alone would
     public static final float SHELL_RADIUS = 14f;
     public static final float SHELL_CUT = 4f;
@@ -322,6 +329,10 @@ public class FogTerrainPlugin extends BaseTerrain {
     }
 
     // up to three stars that light the fog: place, radius and light reach in bank local coordinates, shades per star
+    private static float starUnit(PlanetAPI star) {
+        return Math.max(STAR_UNIT_MIN, Math.min(STAR_UNIT_MAX, star.getRadius()));
+    }
+
     private void readSuns() {
         if (suns == null) {
             suns = new float[FogRenderer.MAX_SUNS * 4];
@@ -336,7 +347,7 @@ public class FogTerrainPlugin extends BaseTerrain {
             suns[sunCount * 4] = star.getLocation().x - anchor.x;
             suns[sunCount * 4 + 1] = star.getLocation().y - anchor.y;
             suns[sunCount * 4 + 2] = star.getRadius();
-            suns[sunCount * 4 + 3] = star.getRadius() * (1f + SUN_LIGHT_DIAMETERS * 2f);
+            suns[sunCount * 4 + 3] = star.getRadius() + Math.max(STAR_UNIT_MIN, star.getRadius()) * SUN_LIGHT_DIAMETERS * 2f;
             for (int i = 0; i < 9; i++) sunColours[sunCount * 9 + i] = shades[i / 3][i % 3];
             sunCount++;
         }
@@ -462,7 +473,7 @@ public class FogTerrainPlugin extends BaseTerrain {
 
         for (PlanetAPI planet : loc.getPlanets()) {
             if (planet.isStar() && !planet.getSpec().isNebulaCenter()) {
-                float r = planet.getRadius(), unit = Math.min(r, STAR_UNIT_MAX);
+                float r = planet.getRadius(), unit = starUnit(planet);
                 addKeep(out, bodies, planet, r + unit * STAR_GAP_IN, r + unit * STAR_GAP_OUT, r + unit * STAR_HAZE_IN, r + unit * STAR_HAZE_OUT, anchor, reach);
                 continue;
             }
@@ -470,9 +481,11 @@ public class FogTerrainPlugin extends BaseTerrain {
             addKeep(out, bodies, planet, inner, Math.max(inner * PLANET_FADE, inner + MIN_FADE), 0f, 0f, anchor, reach);
         }
 
+        for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) {
+            if (!(station instanceof CampaignFleetAPI)) addSmallKeep(out, bodies, station, station.getRadius() + STATION_KEEP, anchor, reach);
+        }
         if (kind == Kind.BANK) {
             for (SectorEntityToken jp : loc.getJumpPoints()) addSmallKeep(out, bodies, jp, jp.getRadius() + JUMP_POINT_KEEP, anchor, reach);
-            for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) addSmallKeep(out, bodies, station, station.getRadius() + STATION_KEEP, anchor, reach);
             for (SectorEntityToken market : marketEntities) {
                 if (market != null && !(market instanceof PlanetAPI)) addSmallKeep(out, bodies, market, market.getRadius() + STATION_KEEP, anchor, reach);
             }
@@ -580,13 +593,15 @@ public class FogTerrainPlugin extends BaseTerrain {
             if (t.seen > 0f) addPatch(x, y, fleet.getRadius() * PATCH_RADIUS_MULT * t.seen, fleet == player);
         }
 
-        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), FogGrid.Mover.PAD, 1f, true, amount, dt);
+        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius() * BODY_RADIUS_MULT, BODY_PAD, 1f, true, amount, dt);
         for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) {
-            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), FogGrid.Mover.PAD, 1f, true, amount, dt);
+            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius() * BODY_RADIUS_MULT, BODY_PAD, 1f, true, amount, dt);
         }
         // shower and rogue rocks move by script, so their speed is taken frame to frame like a planet
         for (SectorEntityToken rock : loc.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) {
-            moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_PAD, ROCK_CUT, false, amount, dt);
+            if (moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_PAD, ROCK_CUT, false, amount, dt)) {
+                addPatch(rock.getLocation().x - anchor.x, rock.getLocation().y - anchor.y, rock.getRadius() * ROCK_PATCH_MULT, false);
+            }
         }
         // no callback reports a new custom entity, so shots and explosions are found by plugin class each frame
         for (CustomCampaignEntityAPI other : loc.getCustomEntities()) feedShot(other, amount, dt);
@@ -651,9 +666,10 @@ public class FogTerrainPlugin extends BaseTerrain {
         grid.lance(plugin.originLocation.x - anchor.x, plugin.originLocation.y - anchor.y, x, y, LANCE_INNER, LANCE_OUTER, LANCE_PUSH);
     }
 
-    private void moveBody(SectorEntityToken body, float bodyRadius, float pad, float cut, boolean wake, float amount, float dt) {
+    // false when the body is outside the grid window
+    private boolean moveBody(SectorEntityToken body, float bodyRadius, float pad, float cut, boolean wake, float amount, float dt) {
         float x = body.getLocation().x - entity.getLocation().x, y = body.getLocation().y - entity.getLocation().y;
-        if (!grid.inWindow(x, y)) return;
+        if (!grid.inWindow(x, y)) return false;
         Tracked t = track(body, x, y);
         FogGrid.Mover m = t.mover;
         boolean jumped = Math.hypot(x - t.lastX, y - t.lastY) > TELEPORT_DISTANCE;
@@ -669,6 +685,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         t.lastX = x;
         t.lastY = y;
         grid.mover(m, dt);
+        return true;
     }
 
     private void addPatch(float x, float y, float r, boolean player) {
