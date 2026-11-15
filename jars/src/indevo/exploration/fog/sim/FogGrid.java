@@ -48,7 +48,6 @@ public class FogGrid {
 
         public final int seed;
         public final float radius;
-        public final boolean wide;
         // x, y, inner, outer, hazeIn, hazeOut per clear ring in bank local coordinates: no fog inside inner, full fog from outer
         // with hazeOut above 0 a thin haze of HAZE density starts at hazeIn, is full at hazeOut and fills the ring
         public static final int KEEP_STRIDE = 6;
@@ -60,11 +59,10 @@ public class FogGrid {
         // x, y, radius, angle, stretch per lobe
         private final float[] lobes;
 
-        public Shape(int seed, float radius, boolean wide) {
+        public Shape(int seed, float radius) {
             this.seed = seed;
             this.radius = radius;
-            this.wide = wide;
-            this.lobes = wide ? new float[0] : buildLobes(seed, radius / LOBE_REACH);
+            this.lobes = buildLobes(seed, radius / LOBE_REACH);
         }
 
         private static float[] buildLobes(int seed, float scale) {
@@ -84,7 +82,7 @@ public class FogGrid {
         }
 
         public float mask(double x, double y, double t) {
-            double body = wide ? spellBody(x, y, t) : bankBody(x, y, t);
+            double body = bankBody(x, y, t);
             if (body <= 0) return 0f;
             double inner = 0.5 + 0.7 * fbm(x / 1100 + 3 - t * 0.014, y / 1100 + 5 + t * 0.011, seed + 3, 4);
             double keepMult = 1;
@@ -96,11 +94,6 @@ public class FogGrid {
             }
             for (FogCover cover : covers) keepMult *= 1 - smooth(GATE_IN, GATE_OUT, cover.at((float) x + anchorX, (float) y + anchorY));
             return (float) Math.min(1, Math.max(0, body * inner * keepMult));
-        }
-
-        private double spellBody(double x, double y, double t) {
-            double edge = radius * (0.85 + 0.3 * fbm(x / 2400 + 11 + t * 0.012, y / 2400 + 7 - t * 0.009, seed, 3));
-            return 1 - smooth(edge * 0.85, edge, Math.hypot(x, y));
         }
 
         // stretched lobes in a slowly drifting warped space: solid middles, a noisy soft outline, ridged arms reaching out

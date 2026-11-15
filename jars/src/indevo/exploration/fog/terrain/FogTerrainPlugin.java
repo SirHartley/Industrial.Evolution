@@ -404,7 +404,7 @@ public class FogTerrainPlugin extends BaseTerrain {
 
     private FogGrid.Shape getShape() {
         if (shape == null) {
-            shape = new FogGrid.Shape(seed, radius, kind == Kind.SPELL);
+            shape = new FogGrid.Shape(seed, radius);
             shape.covers = computeCovers();
             keepStamp = 0;
         }
@@ -479,7 +479,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         Vector2f centre = Global.getSector().getViewport().getCenter();
         float cx = centre.x - anchor.x, cy = centre.y - anchor.y;
 
-        if (kind == Kind.BANK && Math.hypot(cx, cy) > getRenderRange()) {
+        if (Math.hypot(cx, cy) > getRenderRange()) {
             dropView();
             return;
         }
