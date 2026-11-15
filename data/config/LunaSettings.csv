@@ -47,7 +47,7 @@ IndEvo_meteor_maxDistanceFromSun,[Meteor Swarms] Max Distance From Star,Double,1
 IndEvo_meteor_minDistanceFromSun,[Meteor Swarms] Min Distance From Star,Double,3000,,"Minimum swarm path distance from the system center before adding half the shower width, in game units. Default 3000.",100,26000,Meteor Swarms
 IndEvo_meteor_maxAngle,[Meteor Swarms] Maximum Path Half-Angle,Double,80,,"Maximum half-angle of the swarm path, in degrees. Default 80.",1,360,Meteor Swarms
 IndEvo_meteor_minAngle,[Meteor Swarms] Minimum Path Half-Angle,Double,50,,"Minimum half-angle of the swarm path, in degrees. Default 50.",1,360,Meteor Swarms
-IndEvo_meteor_rogueChancePerEconomyTick,[Meteor Swarms] Rogue Asteroid Chance,Double,0.05,,"Chance per economy tick that a small group of rogue asteroids crosses the current system without warning, inhabited systems included. 0.05 = 5%% per tick, with 10 ticks per month. 0 turns rogue asteroids off. Default 0.05.",0,0.3,Meteor Swarms
+IndEvo_meteor_rogueChancePerEconomyTick,[Meteor Swarms] Rogue Asteroid Chance,Double,0.1,,"Chance per economy tick that a small group of rogue asteroids crosses the current system without warning, inhabited systems included. 0.1 = 10%% per tick, with 10 ticks per month. 0 turns rogue asteroids off. Default 0.1.",0,0.3,Meteor Swarms
 ,,,,,,,,
 IndEvo_header4,Minefields,Header,Minefields,,,,,Minefields
 IndEvo_minefields_disclaimer,,Text,Tip: You can disable minefields temporarily with an interdiction pulse.,,,,,Minefields

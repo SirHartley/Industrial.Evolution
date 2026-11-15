@@ -173,7 +173,7 @@ Philipp's calls (2026-11-15):
 
 **Plan**
 
-- Roll: a second roll in `reportEconomyTick`, also in systems where showers are not valid, and only when no shower was rolled that tick. New setting `IndEvo_meteor_rogueChancePerEconomyTick`, default 0.05 (one rogue per about 60 days spent in valid systems; with 30% aimed at the player that is about one near the player per 200 days), range 0 to 0.3, 0 turns rogues off. Also gated by `IndEvo_meteor_enabled`.
+- Roll: a second roll in `reportEconomyTick`, also in systems where showers are not valid, and only when no shower was rolled that tick. New setting `IndEvo_meteor_rogueChancePerEconomyTick`, default 0.1 (one rogue per about 30 days spent in valid systems; with 30% aimed at the player that is about one near the player per 100 days), range 0 to 0.3, 0 turns rogues off. Also gated by `IndEvo_meteor_enabled`.
 - Location: `isValidRogueLoc` is `isValidMeteorLoc` without the market rule and the shower timeouts, plus: a star system, no `$IndEvo_warningRenderer` in the location (no rogue during a shower) and an own location timeout `$IndEvo_RogueMeteorTimeout`, 30 days (drizzle: its duration plus 30). A rogue sets no shower timeout.
 - Pick: shape by weight: Scatter 20, Cluster 20, Teardrop 20, Wall 10, Chevron 10, Pair 10, Escort 5, Drizzle 10.
 - No warning: no intel, no warning path, no sign, no sound, no delay. The rocks are on the system map like shower rocks (Q16).
@@ -228,7 +228,7 @@ Save: `RogueDrizzleSpawner` is saved with its location; rocks save their movemen
 12. Rogues in colonies: rocks break on station fleets with glow and fragments but no damage (built this way: a cluster can otherwise take a colony's station down to 1% hull, a few percent per rock), or same damage as on fleets?
 13. Drizzle: 5 to 15 days, medium volume, and no terrain or tooltip like the other rogues (built this way), or the system wide terrain with name and end time from the terrain plan?
 14. Rogue treasure: 20% per formation, never in drizzle (built this way). Right level?
-15. Decided in direction (Philipp, 2026-11-15): rare enough to not be annoying. Built as 5% per economy tick and a 30 day location timeout, with the chance as a setting. Right level?
+15. Decided in direction (Philipp, 2026-11-15): rare enough to not be annoying. First built as 5% per economy tick and a 30 day location timeout, with the chance as a setting. Decided after his first play (Philipp, 2026-11-15): not common enough, 10% per tick. The timeout is unchanged.
 16. Rogue rocks on the system map like shower rocks (built this way, the only tell), or hidden?
 
 ## 3. Suggested order

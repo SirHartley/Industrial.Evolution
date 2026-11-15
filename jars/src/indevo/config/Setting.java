@@ -37,7 +37,7 @@ public enum Setting {
     METEOR_MIN_DISTANCE_FROM_SUN("IndEvo_meteor_minDistanceFromSun", 3000.0, 100, 26000),
     METEOR_MAX_ANGLE("IndEvo_meteor_maxAngle", 80.0, 1, 360),
     METEOR_MIN_ANGLE("IndEvo_meteor_minAngle", 50.0, 1, 360),
-    METEOR_ROGUE_CHANCE_PER_ECONOMY_TICK("IndEvo_meteor_rogueChancePerEconomyTick", 0.05, 0, 0.3),
+    METEOR_ROGUE_CHANCE_PER_ECONOMY_TICK("IndEvo_meteor_rogueChancePerEconomyTick", 0.1, 0, 0.3),
     ENABLE_MINEFIELDS("IndEvo_Enable_minefields", true),
     MINEFIELD_DISABLE_DURATION("IndEvo_Minefield_disable_duration", 5.0, 1, 30),
     MINEFIELD_HITCHANCE_FRIGATE("IndEvo_Minefield_HitChance_frigate", 0.02, 0, 1),
