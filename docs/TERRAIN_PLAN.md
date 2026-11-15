@@ -67,7 +67,7 @@ Plan:
 
 ### 1.3 Meteor drizzle: moved
 
-Moved to the rogue asteroids entry in NEW_FEATURES.md (PR #117) as one of its formations (Philipp, 2026-11-15). The number stays so item and question numbers do not shift.
+Moved to the rogue asteroids entry, NEW_FEATURES.md 1.4 (PR #117), as one of its rogue types (Philipp, 2026-11-15). The number stays so item and question numbers do not shift.
 
 ### 1.4 Unstable fabric (hyperspace rifts)
 
@@ -206,7 +206,7 @@ Each has a recommended answer.
 2. Nanite drift (1.7): reuses the cloud from step 1 and the Nanites repair code.
 3. Solar flares (1.5): vanilla wavefront and storm strike models to copy.
 4. Currents (1.6): starts with the probe that puts a vanilla stream in a system.
-5. Black hole maelstroms (1.2): reuses IE meteors; comes after the rogue asteroids work in NEW_FEATURES.md, which adds the movement module without a warning path.
+5. Black hole maelstroms (1.2): reuses IE meteors; comes after the rogue asteroids work (NEW_FEATURES.md 1.4), whose warning path fix makes the renderer take reports only from rocks on its own arc, so whirlpool rocks never light up a swarm's path. The orbit movement inside a whirlpool is still a new module here.
 6. Unstable fabric (1.4): own heightmap, shader and jump handling.
 7. Fog banks (1.1): the grid simulation and shader are the most work; tune against the video.
 
