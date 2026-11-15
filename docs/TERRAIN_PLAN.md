@@ -63,20 +63,9 @@ Plan:
 - Debris: a transient Luna renderer drawing a particle spiral per whirlpool, only while on screen.
 - `MaelstromTerrain extends BaseTerrain` with a circular orbit around the black hole; AI flag `AVOID_VERY_CAREFULLY` for the core like the event horizon (`EventHorizonPlugin.java:51`).
 
-### 1.3 Meteor drizzle (system wide light showers)
+### 1.3 Meteor drizzle: moved
 
-**Status: proposed (Philipp, 2026-11-09). Not implemented.**
-
-Philipp: "full-system low volume meteor showers that just have small 'roids across the entire system and no treasureoids".
-
-Plan:
-
-- A thin, steady rain of small asteroids (`IndEvo_meteor_1` and `_2` only) across the whole system for some days. No treasureoids, no arc, no warning path or sign.
-- Rocks cross the system on straight lines in one general direction per shower with some spread, at mixed speeds.
-- Only rocks the player can see exist: a spawner keeps a target count of meteors in a ring just outside the viewport, spawns at the edge on lines that cross the view, and removes rocks once they are well off screen. Cost stays flat whatever the system size, and NPC fleets off screen are not hit, same as the big swarms (collision only near the viewport, `MeteorEntity.java:107`).
-- A system wide terrain `IndEvo_meteor_drizzle` (radius 50000 at the centre, same as `RadioactiveTerrain`) carries the tooltip, the effect category and the end time, so the player can see it on hover and in the system. It removes itself and the spawner at the end.
-- Rolled from `MeteorSwarmManager.reportEconomyTick` with its own chance and timeout; uses `isValidMeteorLoc` so it shares the swarm rules.
-- Needs a movement module that does not report to the warning path. The rogue asteroid entry (NEW_FEATURES.md 1.3, PR #117) needs the same module; build it once.
+Moved to the rogue asteroids entry in NEW_FEATURES.md (PR #117) as one of its formations (Philipp, 2026-11-15). The number stays so item and question numbers do not shift.
 
 ### 1.4 Unstable fabric (hyperspace rifts)
 
@@ -186,8 +175,8 @@ Each has a recommended answer.
 7. Maelstrom: damage only in the core with pull and drag everywhere in the whirlpool (recommended), or damage in the whole whirlpool?
 8. Maelstrom: every black hole system (recommended, there are few), or a roll?
 9. Maelstrom: asteroids as real IE meteors that collide (recommended), or vanilla belt dice rolls?
-10. Drizzle: a timed event of 5 to 15 days rolled on the economy tick (recommended), or a permanent trait of some systems?
-11. Drizzle: uninhabited systems only like the big swarms (recommended, same rule as rogue asteroids Q10 in NEW_FEATURES.md), or inhabited too?
+10. Moved with 1.3.
+11. Moved with 1.3.
 12. Rifts: throw the player and their detachments only (recommended; NPC fleets get the avoid AI flag and are not thrown, so patrols and quest fleets do not vanish), or every fleet?
 13. Rifts: cost of being thrown. Recommended: none besides the trip back, no fuel. Alternative: a small CR hit like a jump without a jump point.
 14. Rifts: grace before the throw. Recommended 0.5 s inside with a strong shimmer and sound, so clipping an edge is not punished.
@@ -211,13 +200,12 @@ Each has a recommended answer.
 
 ## 3. Suggested order
 
-1. Meteor drizzle (1.3): smallest, reuses the meteor code; build the no warning movement module with the rogue asteroids (NEW_FEATURES.md 1.3).
-2. Ion storms (1.8): ability blocks are a few vanilla calls; builds the shared drifting cloud.
-3. Nanite drift (1.7): reuses the cloud from step 2 and the Nanites repair code.
-4. Solar flares (1.5): vanilla wavefront and storm strike models to copy.
-5. Currents (1.6): starts with the probe that puts a vanilla stream in a system.
-6. Black hole maelstroms (1.2): reuses meteors from step 1.
-7. Unstable fabric (1.4): own heightmap, shader and jump handling.
-8. Fog banks (1.1): the grid simulation and shader are the most work; tune against the video.
+1. Ion storms (1.8): ability blocks are a few vanilla calls; builds the shared drifting cloud.
+2. Nanite drift (1.7): reuses the cloud from step 1 and the Nanites repair code.
+3. Solar flares (1.5): vanilla wavefront and storm strike models to copy.
+4. Currents (1.6): starts with the probe that puts a vanilla stream in a system.
+5. Black hole maelstroms (1.2): reuses IE meteors; comes after the rogue asteroids work in NEW_FEATURES.md, which adds the movement module without a warning path.
+6. Unstable fabric (1.4): own heightmap, shader and jump handling.
+7. Fog banks (1.1): the grid simulation and shader are the most work; tune against the video.
 
 Each step: feature doc, ARCHITECTURE.md row, settings, changelog, live test by Philipp.
