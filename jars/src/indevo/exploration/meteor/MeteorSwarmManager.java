@@ -15,6 +15,7 @@ import indevo.config.Setting;
 import indevo.exploration.meteor.intel.MeteorShowerLocationIntel;
 import indevo.exploration.meteor.renderers.MeteorSwarmWarningPathRenderer;
 import indevo.exploration.meteor.rogue.RogueAsteroidSpawner;
+import indevo.exploration.meteor.rogue.RogueDrizzleSpawner;
 import indevo.exploration.meteor.rogue.RogueFormation;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.meteor.spawners.*;
@@ -145,11 +146,24 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
     public void spawnRogue(StarSystemAPI system, Random random){
         MeteroidShowerType type = pickRogueType(random);
-        RogueFormation formation = pickRogueFormation(random);
+        MemoryAPI locMem = system.getMemoryWithoutUpdate();
 
-        if (RogueAsteroidSpawner.spawn(system, formation, type, random)) {
-            system.getMemoryWithoutUpdate().set(MEM_ROGUE_TIMEOUT, true, ROGUE_LOCATION_TIMEOUT_DAYS);
+        if (isDrizzleRoll(random)) {
+            RogueDrizzleSpawner drizzle = RogueDrizzleSpawner.start(system, type, random);
+            locMem.set(MEM_ROGUE_TIMEOUT, true, drizzle.durationDays + ROGUE_LOCATION_TIMEOUT_DAYS);
+            return;
         }
+
+        RogueFormation formation = pickRogueFormation(random);
+        if (RogueAsteroidSpawner.spawn(system, formation, type, random)) {
+            locMem.set(MEM_ROGUE_TIMEOUT, true, ROGUE_LOCATION_TIMEOUT_DAYS);
+        }
+    }
+
+    public static boolean isDrizzleRoll(Random random){
+        float total = RogueDrizzleSpawner.WEIGHT;
+        for (RogueFormation formation : RogueFormation.values()) total += formation.weight;
+        return random.nextFloat() * total < RogueDrizzleSpawner.WEIGHT;
     }
 
     public static RogueFormation pickRogueFormation(Random random){

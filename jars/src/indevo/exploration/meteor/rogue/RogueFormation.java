@@ -218,7 +218,6 @@ public enum RogueFormation {
         return null;
     }
 
-    // the solo rock if there is one, else the first rock that does not orbit
     public static int getTreasureIndex(List<Rock> rocks) {
         for (int i = 0; i < rocks.size(); i++) if (rocks.get(i).solo()) return i;
         for (int i = 0; i < rocks.size(); i++) if (!rocks.get(i).isOrbiting()) return i;

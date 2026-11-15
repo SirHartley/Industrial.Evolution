@@ -4,9 +4,11 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.SettingsAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.meteor.MeteorSwarmManager.MeteroidShowerType;
+import indevo.exploration.meteor.entities.IcyRockEntity;
 import indevo.exploration.meteor.entities.MeteorEntity;
 import indevo.exploration.meteor.rogue.RogueAsteroidSpawner;
 import indevo.exploration.meteor.rogue.RogueAsteroidSpawner.Placement;
+import indevo.exploration.meteor.rogue.RogueDrizzleSpawner;
 import indevo.exploration.meteor.rogue.RogueFormation;
 import indevo.exploration.meteor.rogue.RogueFormation.Rock;
 import indevo.utils.helper.CircularArc;
@@ -26,7 +28,8 @@ public final class RogueAsteroidChecks {
     private static final Map<RogueFormation, Float> WEIGHTS = new EnumMap<>(Map.of(
             RogueFormation.SCATTER, 20f, RogueFormation.CLUSTER, 20f, RogueFormation.TEARDROP, 20f,
             RogueFormation.WALL, 10f, RogueFormation.CHEVRON, 10f, RogueFormation.PAIR, 10f, RogueFormation.ESCORT, 5f));
-    private static final float TOTAL_WEIGHT = 95f;
+    private static final float DRIZZLE_WEIGHT = 10f;
+    private static final float TOTAL_WEIGHT = 105f;
 
     private final List<String> problems = new ArrayList<>();
     private int checks = 0;
@@ -51,6 +54,7 @@ public final class RogueAsteroidChecks {
             run.checkStartSearch();
             run.checkCourseAim();
             run.checkDodge();
+            run.checkDrizzle();
         } finally {
             Global.setSettings(null);
         }
@@ -71,7 +75,9 @@ public final class RogueAsteroidChecks {
             check(WEIGHTS.getOrDefault(formation, -1f) == formation.weight, formation + " weight " + formation.weight);
             total += formation.weight;
         }
-        check(Math.abs(total - TOTAL_WEIGHT) < EPS, "formation weights sum to " + TOTAL_WEIGHT + ", got " + total);
+        check(RogueDrizzleSpawner.WEIGHT == DRIZZLE_WEIGHT, "drizzle weight " + RogueDrizzleSpawner.WEIGHT);
+        total += RogueDrizzleSpawner.WEIGHT;
+        check(Math.abs(total - TOTAL_WEIGHT) < EPS, "rogue weights sum to " + TOTAL_WEIGHT + ", got " + total);
     }
 
     private void checkShapes() {
@@ -347,6 +353,64 @@ public final class RogueAsteroidChecks {
 
         Vector2f diagonal = MeteorEntity.getClosestApproach(new Vector2f(100f, 100f), new Vector2f(-50f, -50f), new Vector2f(0f, 40f), 4f, 100f);
         check(diagonal != null && Math.abs(diagonal.x - 20f) < 0.1f && Math.abs(diagonal.y - 20f) < 0.1f, "diagonal lane closest point " + diagonal);
+    }
+
+    private void checkDrizzle() {
+        int medium = RogueDrizzleSpawner.getTargetCount(3840f, 2160f);
+        check(medium >= 30 && medium <= 36, "about 34 rocks at 1920 x 1080 and zoom 2 with the margin, got " + medium);
+        check(RogueDrizzleSpawner.getTargetCount(100000f, 100000f) == RogueDrizzleSpawner.MAX_ROCKS, "rock cap " + RogueDrizzleSpawner.MAX_ROCKS);
+        check(RogueDrizzleSpawner.MAX_ROCK_SIZE < IcyRockEntity.MIN_RADIUS_FOR_EXTRAS, "drizzle ice rocks never splinter");
+
+        Random random = new Random(5);
+        int found = 0;
+        for (int i = 0; i < 2000; i++) {
+            List<Vector2f> centres = RogueDrizzleSpawner.createLaneCentres(random);
+            check(centres.size() >= RogueDrizzleSpawner.MIN_LANE_SETS && centres.size() <= RogueDrizzleSpawner.MAX_LANE_SETS, "two or three lane sets");
+
+            float dist = centres.get(0).length();
+            check(dist >= RogueAsteroidSpawner.MIN_ARC_RADIUS - 1f && dist <= RogueAsteroidSpawner.MAX_ARC_RADIUS + 1f, "lane centre far out, got " + dist);
+            for (Vector2f a : centres) {
+                check(Math.abs(a.length() - dist) < 1f, "lane centres share the distance");
+                for (Vector2f b : centres) {
+                    float spread = Misc.getAngleDiff(Misc.getAngleInDegreesStrict(a), Misc.getAngleInDegreesStrict(b));
+                    check(spread <= RogueDrizzleSpawner.MAX_LANE_SPREAD + EPS, "lane sets at most 8 degrees apart, got " + spread);
+                }
+            }
+
+            float w = 2000f + random.nextFloat() * 6000f;
+            float h = 1000f + random.nextFloat() * 4000f;
+            float llx = (random.nextFloat() * 2f - 1f) * 26000f;
+            float lly = (random.nextFloat() * 2f - 1f) * 26000f;
+            int dir = random.nextBoolean() ? 1 : -1;
+            Vector2f centre = centres.get(random.nextInt(centres.size()));
+
+            Vector2f p = RogueDrizzleSpawner.pickSpawnPoint(llx, lly, w, h, centre, dir, random);
+            if (p == null) continue;
+            found++;
+
+            check(RogueAsteroidSpawner.isInRect(p, llx, lly, w, h, RogueDrizzleSpawner.MARGIN) && !RogueAsteroidSpawner.isInRect(p, llx, lly, w, h, 0f), "spawn point in the margin, out of view");
+
+            Vector2f heading = RogueDrizzleSpawner.getLaneHeading(centre, p, dir);
+            boolean crosses = false;
+            for (float t = 0f; t <= 2f * (w + h + 4f * RogueDrizzleSpawner.MARGIN); t += 2f) {
+                if (RogueAsteroidSpawner.isInRect(new Vector2f(p.x + heading.x * t, p.y + heading.y * t), llx, lly, w, h, 1f)) {
+                    crosses = true;
+                    break;
+                }
+            }
+            check(crosses, "lane from the spawn point crosses the view");
+        }
+        check(found > 1980, "spawn points found for nearly every view, got " + found + " of 2000");
+
+        int ice = 0;
+        int irradiated = 0;
+        for (int i = 0; i < 20000; i++) {
+            if (RogueDrizzleSpawner.pickKind(MeteroidShowerType.ICEROID, random) == MeteroidShowerType.ICEROID) ice++;
+            if (RogueDrizzleSpawner.pickKind(MeteroidShowerType.IRRADIOID, random) == MeteroidShowerType.IRRADIOID) irradiated++;
+            check(RogueDrizzleSpawner.pickKind(MeteroidShowerType.ASTEROID, random) == MeteroidShowerType.ASTEROID, "asteroid drizzle has only asteroids");
+        }
+        check(ice > 9500 && ice < 10500, "half of an ice drizzle is ice, got " + ice);
+        check(irradiated > 5600 && irradiated < 6400, "30% of an irradiated drizzle is irradiated, got " + irradiated);
     }
 
     private void count(String id, List<Rock> rocks, int min, int max) {

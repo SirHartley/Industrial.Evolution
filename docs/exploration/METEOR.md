@@ -8,9 +8,9 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 On each economy tick while the player is in a valid system, `MeteorSwarmManager` rolls a shower. A shower is an arc across the system (start and end on the grid boundary, through a point 3000..10000 from the centre); after a 2..5 day delay a spawner script moves meteors along it for a runtime in seconds. Meteors that touch fleets or stations push them, damage ships and break into fragments; station fleets only take the glow and fragments. NPC fleets steer out of a meteor's lane. Treasure meteors drop salvage on impact. The first valid tick also spawns a roider fleet that sells concussive missiles and schedules a tutorial shower.
 
-Type roll weights (`MeteorSwarmManager.java:61-64`): `ASTEROID` 12, `ICEROID` 3, `IRRADIOID` 3, `PLANETOID` 3. The tutorial forces `ASTEROID`.
+Type roll weights (`MeteorSwarmManager.java:62-65`): `ASTEROID` 12, `ICEROID` 3, `IRRADIOID` 3, `PLANETOID` 3. The tutorial forces `ASTEROID`.
 
-Rogue asteroids: on a tick with no shower roll, a second roll can send a small formation of rocks across the system on a nearly straight path, inhabited systems included, with no warning, intel, sign or sound. Shapes and numbers are under [Rogue asteroids](#rogue-asteroids).
+Rogue asteroids: on a tick with no shower roll, a second roll can send a small formation of rocks across the system on a nearly straight path, or start a drizzle of single small rocks around the player for 5 to 15 days. Inhabited systems are included; there is no warning, intel, sign or sound. Shapes and numbers are under [Rogue asteroids](#rogue-asteroids).
 
 ## Files
 
@@ -53,6 +53,7 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 | `helper/MeteorFactory.java` | Size -> custom entity id lookup per type |
 | `rogue/RogueFormation.java` | Enum of the seven formation shapes with their roll weight; `generate(Random)` gives each rock an offset along (`x`, lead at the front) and across (`y`) the path and a size; Escort rocks orbit the big rock. Ports of the approved mockup generators (project file `ie/ROGUE_FORMATIONS_REFERENCE.js`), kept as drawn: outlines filled at random, no even spacing |
 | `rogue/RogueAsteroidSpawner.java` | Static. Aim point, path arc, start distance, rock types, treasure; places one formation at once |
+| `rogue/RogueDrizzleSpawner.java` | Saved location script: a drizzle's lanes, end time and rocks; keeps a rock density around the viewport while the player is in the system |
 | `indevo/console/SpawnRogue.java` | Console command `indevo_spawnRogue` ([Console](../core/CONSOLE.md)) |
 | `indevo/tools/RogueAsteroidChecks.java` | Headless checks, never shipped ([Checks](#checks)) |
 
@@ -63,10 +64,10 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 | Settings | `IndEvo_meteor_enabled` (true), `_baseChancePerEconomyTick` (0.02), `_immediateMode` (false), `_minIntensity` (1), `_maxIntensity` (3), `_baseShowerWidth` (5000), `_intensityWidthModifier` (1000), `_maxDensity` (2.5), `_maxRuntimeMult` (2.5), `_baseRuntime` (50 s), `_locationTimeoutAfterSpawnDays` (186), `_generalTimeoutAfterSpawnDays` (31), `_gridLimit` (26000), `_maxDistanceFromSun` (10000), `_minDistanceFromSun` (3000), `_maxAngle` (80), `_minAngle` (50), `_rogueChancePerEconomyTick` (0.05, 0 to 0.3, 0 turns rogues off) | `data/config/LunaSettings.csv:8`, `:14`, `:34-49`, constants in `indevo/config/Setting.java:22-39`, read at use time in `MeteorSwarmManager.java` and `RogueAsteroidSpawner.java` (`_gridLimit`) |
 | Custom entities | `IndEvo_meteor_1..4` (`MeteorEntity`), `IndEvo_icy_rock_1..6` (`IcyRockEntity`), `IndEvo_spicy_rock_1..4` (`SpicyRockEntity`), `IndEvo_spicy_rock_5` (`TreasuradoidEntity`), `IndEvo_meteor_treasure_1` (`TreasuroidEntity`), `IndEvo_meteor_treasure_2` (`IceTreasureoidEntity`), `IndEvo_warning_sign`, `IndEvo_token` | `data/config/custom_entities.json:30-316`, `:410` |
 | Terrain | `IndEvo_radioactive_field` -> `RadioactiveTerrain` | `data/campaign/terrain.json:6` |
-| Memory key | `$IndEvo_MeteorTimeout` (global and location, expiring) | `MeteorSwarmManager.java:46`, set `:225-226` |
-| Memory key | `$IndEvo_RogueMeteorTimeout` (location, expiring, 30 days) | `MeteorSwarmManager.java:47`, set `:151` |
+| Memory key | `$IndEvo_MeteorTimeout` (global and location, expiring) | `MeteorSwarmManager.java:47`, set `:239-240` |
+| Memory key | `$IndEvo_RogueMeteorTimeout` (location, expiring, 30 days) | `MeteorSwarmManager.java:48`, set `:153`, `:159` |
 | Memory key | `$IndEvo_MeteorTutorialComplete` (global) | `MeteorSwarmManager.java:40` |
-| Persistent data | `$IndEvo_MeteorRandom` (shared `Random`) | `MeteorSwarmManager.java:45`, `:243` |
+| Persistent data | `$IndEvo_MeteorRandom` (shared `Random`) | `MeteorSwarmManager.java:46`, `:257` |
 | Console | `indevo_spawnRogue <shape> [asteroid\|ice\|irradiated] [treasure]` | `data/console/commands.csv` |
 | Memory key | `$IndEvo_RadEffectLevel` (per fleet, 0..1) | `RadiationEffectHandler.java:29` |
 | Memory key | `$IndEvo_warningRenderer` (location, the path renderer instance) | `MeteorSwarmWarningPathRenderer.java:23` |
@@ -86,15 +87,15 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 
 `reportEconomyTick -> isValidMeteorLoc -> roll -> spawnShower -> DelayedActionScript(daysLeft) -> <Type>SwarmSpawner.advance -> init() (warning path, sign, terrain) -> advanceSpawner -> MeteorFactory / Treasure*.spawn -> MeteorEntity.advance -> setCollidingAndFade -> MeteorImpact + MeteorDebrisRenderer`
 
-`reportEconomyTick (no shower rolled) -> isValidRogueLoc -> roll -> spawnRogue -> RogueAsteroidSpawner.spawn -> MeteorFactory / Treasure*.spawn (all rocks at once) -> MeteorEntity.advance`
+`reportEconomyTick (no shower rolled) -> isValidRogueLoc -> roll -> spawnRogue -> RogueAsteroidSpawner.spawn -> MeteorFactory / Treasure*.spawn (all rocks at once) -> MeteorEntity.advance`, or `spawnRogue -> isDrizzleRoll -> RogueDrizzleSpawner.start (location script) -> advance -> MeteorFactory.spawn`
 
 ## Flow
 
 ### Roll and parameters
 
-- `reportEconomyTick` (`MeteorSwarmManager.java:78`): skip if `IndEvo_meteor_enabled` false or location invalid. Chance per tick `IndEvo_meteor_baseChancePerEconomyTick` (0.1 in dev mode). First valid tick adds `TutorialEncounterScript` and sets `$IndEvo_MeteorTutorialComplete`.
-- `isValidMeteorLoc` (`:98`): no pulsar planet, no global or location timeout, not hyperspace, no markets, not `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`.
-- `spawnShower` (`:122`): `width = baseWidth + modifier * intensity`, `lootAmt = max(1, round(intensity * treasureModifier))`, `density = min(maxDensity, intensity)`, `runtime = baseRuntime * min(maxRuntimeMult, intensity)` in seconds. Arc centre at random distance and angle; start and end at `angleToCenter +- (50..80)` intersected with the `gridLimit` square (`intersectWithGridBoundary`), circle through the three points (`TrigHelper.findThreePointCircle`). Delay `max(2, nextInt(6))` days, 0 in immediate mode.
+- `reportEconomyTick` (`MeteorSwarmManager.java:85`): skip if `IndEvo_meteor_enabled` false or location invalid. Chance per tick `IndEvo_meteor_baseChancePerEconomyTick` (0.1 in dev mode). First valid tick adds `TutorialEncounterScript` and sets `$IndEvo_MeteorTutorialComplete`.
+- `isValidMeteorLoc` (`:113`): no pulsar planet, no global or location timeout, not hyperspace, no markets, not `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`.
+- `spawnShower` (`:186`): `width = baseWidth + modifier * intensity`, `lootAmt = max(1, round(intensity * treasureModifier))`, `density = min(maxDensity, intensity)`, `runtime = baseRuntime * min(maxRuntimeMult, intensity)` in seconds. Arc centre at random distance and angle; start and end at `angleToCenter +- (50..80)` intersected with the `gridLimit` square (`intersectWithGridBoundary`), circle through the three points (`TrigHelper.findThreePointCircle`). Delay `max(2, nextInt(6))` days, 0 in immediate mode.
 
 ### Collision
 
@@ -113,15 +114,16 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 
 ### Rogue asteroids
 
-- Roll (`MeteorSwarmManager.java:107`): only when no shower was rolled that tick, chance `IndEvo_meteor_rogueChancePerEconomyTick`, also gated by `IndEvo_meteor_enabled`. At 0.05 that is one rogue per about 60 days spent in valid systems.
-- Location (`isValidRogueLoc`, `:123`): a star system, no pulsar, not hyperspace, `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL` or `SYSTEM_ABYSSAL` (shared with showers in `isSuitableForRocks`), no `$IndEvo_warningRenderer` (no rogue during a shower) and no `$IndEvo_RogueMeteorTimeout`. Markets and the shower timeouts do not matter. A rogue sets only its own 30 day location timeout, no shower timeout.
-- Pick: shape by `RogueFormation.weight` (Scatter 20, Cluster 20, Teardrop 20, Wall 10, Chevron 10, Pair 10, Escort 5); type `ASTEROID`, `ICEROID` or `IRRADIOID` by the shower weights (`pickRogueType`). `PLANETOID` is a shower, not a rock type.
+- Roll (`MeteorSwarmManager.java:108`): only when no shower was rolled that tick, chance `IndEvo_meteor_rogueChancePerEconomyTick`, also gated by `IndEvo_meteor_enabled`. At 0.05 that is one rogue per about 60 days spent in valid systems.
+- Location (`isValidRogueLoc`, `:124`): a star system, no pulsar, not hyperspace, `SYSTEM_CUT_OFF_FROM_HYPER`, `THEME_HIDDEN`, `THEME_SPECIAL` or `SYSTEM_ABYSSAL` (shared with showers in `isSuitableForRocks`), no `$IndEvo_warningRenderer` (no rogue during a shower) and no `$IndEvo_RogueMeteorTimeout`. Markets and the shower timeouts do not matter. A rogue sets only its own 30 day location timeout, no shower timeout.
+- Pick: a drizzle (`RogueDrizzleSpawner.WEIGHT` 10, `isDrizzleRoll`, `MeteorSwarmManager.java:163`) or a shape by `RogueFormation.weight` (Scatter 20, Cluster 20, Teardrop 20, Wall 10, Chevron 10, Pair 10, Escort 5); type `ASTEROID`, `ICEROID` or `IRRADIOID` by the shower weights (`pickRogueType`). `PLANETOID` is a shower, not a rock type. A drizzle sets the rogue timeout to its duration plus 30 days (`:153`).
 - Aim (`RogueAsteroidSpawner.spawn`, `:66`): 30% aim at the player: a point 0 to 8000 su ahead on the course (`getHeadingTarget`: the current course target if it is in this system, else `getMoveDestination()`, which is the fleet itself when unset), never past that target, plus up to 1500 su spread (`getCourseAimPoint`). Otherwise a random point within 20000 su of the centre. The aim point is clamped to 500 su inside the `IndEvo_meteor_gridLimit` square.
 - Path (`createPath`, `:215`): a circle of radius 150000 to 400000 su through the aim point with a random heading as its tangent there, cut where it leaves the grid square. The arc is nearly straight and all arc code works on it: movement, splinters, removal at the arc end.
 - Start (`findStartDistance`, `:281`): aimed rogues start `speed x (fleet distance to the aim / fleet speed)` back from the aim point (0 for a fleet slower than 10 su/s), others at the path start on the system edge. The start then moves back until the whole formation is at least 2000 su outside the viewport, at most to the path start; if the path start is in view too, it moves ahead past the view instead; if nothing is out of view, nothing spawns.
 - Formation (`getPlacement`, `:301`): the across offset becomes the arc radius (`getModifiedRadiusArc`, same centre), the along offset the start angle. One speed per formation, 250 to 400 su/s, scaled by each rock's arc radius, so every rock has the same angular speed and the shape holds. Escort rocks orbit the big rock (`ArcOnOrbitLossMovement`) and fly on along the path once it breaks.
 - Rock types (`assignKinds`, `:165`): as in the showers: an ice rogue makes half its non orbiting rocks ice rocks at double size (at most 200), an irradiated rogue makes 30% of its rocks irradiated, the rest are asteroids. Ice rocks below size 100 get `IndEvo_IceRockNoSplinters`; larger ones keep their splinters. Irradiated rogues add no `RadioactiveTerrain`: glow, radiation sound and screen effect, no CR loss. Sizes below 20 from the generators are raised to 20 (`MeteorEntity.MIN_SIZE`).
 - Treasure: 20% per formation, on the solo rock (Escort) or the first rock that does not orbit: `TreasuroidEntity` for asteroid and irradiated rogues, `IceTreasureoidEntity` for ice. `TreasuradoidEntity` stays with the showers.
+- Drizzle (`RogueDrizzleSpawner`): 5 to 15 days, no terrain or tooltip, never treasure. Rocks of size 20 to 48 (below the ice splinter size), speed 200 to 500 su/s each, one type for the drizzle with the same mix as a formation (half ice, or 30% irradiated). Lanes are concentric arcs around a far centre (150000 to 400000 su out); two or three lane sets with centres rotated up to 8 degrees apart give the spread (`createLaneCentres`, `:171`). Every 0.25 s while the player is in the system (`advance`, `:88`): rocks that broke, faded or are more than 1000 su outside the margin go (`removeFarRocks`); the target is 1 rock per 500000 su2 of the view plus a 600 su margin, at most 80 (`getTargetCount`, `:186`, about 34 at 1920 x 1080 and zoom 2); new rocks spawn in the margin strips on lanes that run into the view (`pickSpawnPoint`, `:191`), at up to twice the rate at which rocks cross the view, so the view fills over a few seconds instead of in one wave. Cost depends on the view, not the system size. With the player elsewhere it removes its rocks and waits (`:97`); it ends by its timestamp and lets the last rocks fly out to their arc end.
 - No warning: no intel, warning path, sign, sound or delay. Rocks show on the system map like shower rocks (`showIconOnMap`). Hits, station fleets, the dodge and the shuttle traffic closure work as for shower rocks; in colonies station fleets break rocks without damage.
 
 ### Checks
@@ -132,7 +134,7 @@ After the compile gate (`java jars/src/indevo/tools/ReleaseBuild.java compile`),
 java -cp "out/release-build-<n>/classes:lib/*" indevo.tools.RogueAsteroidChecks
 ```
 
-Use `;` in place of `:` on Windows. It prints `Rogue asteroids: N checks passed` or every failure and exits 1. It refuses to run inside the game. It covers the shape weights, rock counts, bounds and sizes per shape over 2000 seeds, lead ordering of Teardrop and Chevron, the Escort orbits, rock types and ice sizes, the path (through the aim point, heading, start and end on the grid edge, nearly straight), the placement of every rock against its offsets, the start search, the course aim point and the closest approach maths of the dodge. It does not spawn entities or run anything in game.
+Use `;` in place of `:` on Windows. It prints `Rogue asteroids: N checks passed` or every failure and exits 1. It refuses to run inside the game. It covers the shape and drizzle weights, rock counts, bounds and sizes per shape over 2000 seeds, lead ordering of Teardrop and Chevron, the Escort orbits, rock types and ice sizes, the path (through the aim point, heading, start and end on the grid edge, nearly straight), the placement of every rock against its offsets, the start search, the course aim point, the closest approach maths of the dodge, and the drizzle rock count, lane sets, spawn points and type mix. It does not spawn entities or run anything in game.
 
 ## Contracts
 
@@ -144,7 +146,7 @@ Use `;` in place of `:` on Windows. It prints `Rogue asteroids: N checks passed`
 - Planetoid swarm planets carry `PlanetoidSwarmSpawner.PLANETOID_TAG` (`indevo_planetoid`); the planetoid dialog rules key on it (`rules.csv` `IndEvo_isPlanetoid*`).
 - Spawners use a seeded `Random` per shower; the manager uses one saved `Random` in persistent data, which rogue rolls and `RogueAsteroidSpawner` share.
 - Rogue paths have arc radii of 150000 to 400000 su. `Circle.getAngleForPoint` uses strict `atan2` (`Misc.getAngleInDegreesStrict`): the game's fast angle lookup is off by up to about 0.06 degrees, a few hundred su on such an arc. Rogue rocks have arc centres far from any shower's, so they never report to a shower's warning path.
-- Save: rogue rocks are ordinary meteor entities that save their movement module. `RogueFormation` and `RogueAsteroidSpawner` hold no saved state. `MeteorEntity` gained the float `dodgeTimer`, which loads as 0 from older saves.
+- Save: rogue rocks are ordinary meteor entities that save their movement module. `RogueFormation` and `RogueAsteroidSpawner` hold no saved state. `RogueDrizzleSpawner` is a new saved location script (lanes, end time, its rock list). Nothing saved before this changed shape apart from the field below. `MeteorEntity` gained the float `dodgeTimer`, which loads as 0 from older saves.
 - Java 17 features (switch expressions, `instanceof` patterns) are used; the project language level is `JDK_17` (`.idea/misc.xml:6`).
 - Other mods break a meteor by setting `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` (`$missile_bonked`, a `Vector2f` hit point) in its memory. The next `MeteorEntity.advance` collides it with a token at that point, as for a missile: fragments, impact sound, treasure drop, no fleet damage. They find meteors by `METEOR_TAG`. Catch.Release's harpoon uses both as strings, so keep the key, the value type and the tag value. See [Compatibility](../core/COMPATIBILITY.md).
 - Couplings: `MissileMemFlags` ([Consumables](../items/CONSUMABLES.md)); `CircularArc`, `TrigHelper`, `MiscIE`, `NebulaParticle` ([Utils](../core/UTILS.md)); `Ids.LAB_ENTITY`, `Ids.ARSENAL_ENTITY`, `Ids.ABANDONED_PETSHOP_ENTITY` loot stations ([Stations](STATIONS.md)); vanilla `AbyssalRogueStellarObjectEPEC.PLANETOID_TYPES` for planetoid types.
@@ -154,7 +156,7 @@ Use `;` in place of `:` on Windows. It prints `Rogue asteroids: N checks passed`
 | Item | State |
 |---|---|
 | `RelativeArcingMovement`, `RadiationTrailRenderer` | Dead code |
-| Rogue asteroids | Untested in game: all of it, including the dodge and the station fleet rule. Rocks of a rogue keep flying when the player leaves the system; off screen they move in the 60 frame steps of a far location |
+| Rogue asteroids | Untested in game: all of it, including the drizzle, the dodge and the station fleet rule. Every NPC fleet in view dodges drizzle rocks too, which may make traffic in a drizzle look busy. Rocks of a rogue keep flying when the player leaves the system; off screen they move in the 60 frame steps of a far location |
 | Rogue generator sizes | Teardrop tails and Chevron arms go down to size 16 in the approved generators; the spawner raises them to 20. The generators' formation yaw (`angle`, up to 20 degrees, in `build()` of the mockup reference) is not used: the plan has the formation follow the path |
 | Tutorial rules text | Promises a "core-fragment" swarm (`rules.csv:23`, `:37`) but the tutorial forces `ASTEROID` |
 | Changelog_todo | "bump default meteor storm min treasure to 2" (`Changelog_todo:5`), "Meteor shower bar event" (`Changelog_todo:53`) |
