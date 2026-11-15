@@ -19,6 +19,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.exploration.fog.renderers.FogRenderer;
 import indevo.exploration.fog.sim.FogGrid;
+import indevo.exploration.meteor.MeteorSwarmManager;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -50,6 +51,11 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float JUMP_POINT_KEEP = 400f;
     public static final float STATION_KEEP = 300f;
     public static final float TELEPORT_DISTANCE = 600f;
+    // meteor radius is twice the sprite, rocks cut a thinner trail than a fleet
+    public static final float ROCK_RADIUS_MULT = 0.5f;
+    public static final float ROCK_CUT = 0.8f;
+    public static final int MAP_CELLS = 40;
+    public static final float MAP_REACH = 1.4f;
 
     private static final EnumSet<CampaignEngineLayers> LAYERS = EnumSet.of(CampaignEngineLayers.TERRAIN_8);
 
@@ -73,6 +79,7 @@ public class FogTerrainPlugin extends BaseTerrain {
     private transient float[] patches;
     private transient int patchCount;
     private transient int frame;
+    private transient float[][] colours;
 
     public static class FogParams {
 
@@ -240,41 +247,54 @@ public class FogTerrainPlugin extends BaseTerrain {
     @Override
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (grid == null || layer != CampaignEngineLayers.TERRAIN_8) return;
-        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime());
+        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours());
+    }
+
+    private float[][] getColours() {
+        if (colours == null) colours = FogRenderer.coloursFor(entity.getContainingLocation());
+        return colours;
     }
 
     @Override
     public void renderOnMap(float factor, float alphaMult) {
         float strength = getStrength();
         if (strength <= 0f) return;
-        float x = entity.getLocation().x * factor, y = entity.getLocation().y * factor;
-        float inner = radius * (kind == Kind.SPELL ? 0.85f : 0.6f) * factor, outer = radius * factor;
-        float[] c = FogRenderer.MAP_COLOUR;
-        float a = 0.3f * strength * alphaMult;
-        int segments = 64;
+        // coarse grid of the rest mask, so the map shows the bank's real outline
+        float cx = entity.getLocation().x, cy = entity.getLocation().y;
+        float reach = radius * MAP_REACH, step = reach * 2f / MAP_CELLS, time = getMaskTime();
+        FogGrid.Shape s = getShape();
+        float[] c = getColours()[2];
+        float a = 0.35f * strength * alphaMult;
+        float[] row = new float[MAP_CELLS + 1], next = new float[MAP_CELLS + 1];
+        for (int i = 0; i <= MAP_CELLS; i++) row[i] = s.mask(-reach + i * step, -reach, time);
 
         boolean textured = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
-        GL11.glColor4f(c[0], c[1], c[2], a);
-        GL11.glVertex2f(x, y);
-        for (int i = 0; i <= segments; i++) {
-            double an = i * Math.PI * 2 / segments;
-            GL11.glVertex2f(x + (float) Math.cos(an) * inner, y + (float) Math.sin(an) * inner);
-        }
-        GL11.glEnd();
-        GL11.glBegin(GL11.GL_TRIANGLE_STRIP);
-        for (int i = 0; i <= segments; i++) {
-            float cos = (float) Math.cos(i * Math.PI * 2 / segments), sin = (float) Math.sin(i * Math.PI * 2 / segments);
-            GL11.glColor4f(c[0], c[1], c[2], a);
-            GL11.glVertex2f(x + cos * inner, y + sin * inner);
-            GL11.glColor4f(c[0], c[1], c[2], 0f);
-            GL11.glVertex2f(x + cos * outer, y + sin * outer);
+        GL11.glBegin(GL11.GL_QUADS);
+        for (int j = 0; j < MAP_CELLS; j++) {
+            float y0 = -reach + j * step, y1 = y0 + step;
+            for (int i = 0; i <= MAP_CELLS; i++) next[i] = s.mask(-reach + i * step, y1, time);
+            for (int i = 0; i < MAP_CELLS; i++) {
+                if (row[i] + row[i + 1] + next[i] + next[i + 1] <= 0f) continue;
+                float x0 = -reach + i * step, x1 = x0 + step;
+                mapVertex(c, a * row[i], cx + x0, cy + y0, factor);
+                mapVertex(c, a * row[i + 1], cx + x1, cy + y0, factor);
+                mapVertex(c, a * next[i + 1], cx + x1, cy + y1, factor);
+                mapVertex(c, a * next[i], cx + x0, cy + y1, factor);
+            }
+            float[] swap = row;
+            row = next;
+            next = swap;
         }
         GL11.glEnd();
         if (textured) GL11.glEnable(GL11.GL_TEXTURE_2D);
+    }
+
+    private static void mapVertex(float[] c, float a, float x, float y, float factor) {
+        GL11.glColor4f(c[0], c[1], c[2], a);
+        GL11.glVertex2f(x * factor, y * factor);
     }
 
     @Override
@@ -327,7 +347,7 @@ public class FogTerrainPlugin extends BaseTerrain {
     private float[] computeKeep() {
         LocationAPI loc = entity.getContainingLocation();
         Vector2f anchor = entity.getLocation();
-        float reach = radius * 1.3f;
+        float reach = radius * MAP_REACH;
         List<Float> out = new ArrayList<>();
 
         Set<SectorEntityToken> marketEntities = new HashSet<>();
@@ -426,9 +446,13 @@ public class FogTerrainPlugin extends BaseTerrain {
             if (t.seen > 0f) addPatch(x, y, fleet.getRadius() * PATCH_RADIUS_MULT * t.seen, fleet == player);
         }
 
-        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), amount, dt);
+        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), 1f, amount, dt);
         for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) {
-            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), amount, dt);
+            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), 1f, amount, dt);
+        }
+        // shower and rogue rocks move by script, so their speed is taken frame to frame like a planet
+        for (SectorEntityToken rock : loc.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) {
+            moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_CUT, amount, dt);
         }
 
         tracked.values().removeIf(t -> t.frame != frame);
@@ -461,7 +485,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         t.pulsed = pulsed;
     }
 
-    private void moveBody(SectorEntityToken body, float bodyRadius, float amount, float dt) {
+    private void moveBody(SectorEntityToken body, float bodyRadius, float cut, float amount, float dt) {
         float x = body.getLocation().x - entity.getLocation().x, y = body.getLocation().y - entity.getLocation().y;
         if (!grid.inWindow(x, y)) return;
         Tracked t = track(body, x, y);
@@ -472,6 +496,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         m.x = x;
         m.y = y;
         m.r = bodyRadius;
+        m.cut = cut;
         t.lastX = x;
         t.lastY = y;
         grid.mover(m, dt);

@@ -15,8 +15,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
-import com.fs.starfarer.api.impl.campaign.ids.Terrain;
-import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
@@ -50,8 +48,8 @@ public class FogWeatherManager implements EconomyTickListener {
     public static final float SPELL_MAX_HOLD_DAYS = 35f;
     public static final float BANK_MIN_HOLD_DAYS = 90f;
     public static final float BANK_MAX_HOLD_DAYS = 180f;
-    public static final float BANK_MIN_SIZE = 5000f;
-    public static final float BANK_MAX_SIZE = 9000f;
+    public static final float BANK_MIN_SIZE = 8000f;
+    public static final float BANK_MAX_SIZE = 14000f;
     public static final float GAS_GIANT_CHANCE = 0.6f;
     public static final float SPELL_MIN_RADIUS = 8000f;
     public static final float SPELL_EDGE_EXTRA = 2500f;
@@ -122,14 +120,8 @@ public class FogWeatherManager implements EconomyTickListener {
         if (system.hasTag(Tags.THEME_HIDDEN)
                 || system.hasTag(Tags.THEME_SPECIAL)
                 || system.hasTag(Tags.SYSTEM_ABYSSAL)
-                || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)
-                || system.getType() == StarSystemGenerator.StarSystemType.NEBULA) return false;
-
-        for (CampaignTerrainAPI terrain : system.getTerrainCopy()) {
-            String type = terrain.getType();
-            if (Terrain.NEBULA.equals(type) || FogTerrainPlugin.TERRAIN_ID.equals(type)) return false;
-        }
-        return true;
+                || system.hasTag(Tags.SYSTEM_CUT_OFF_FROM_HYPER)) return false;
+        return !hasFog(system);
     }
 
     public static SectorEntityToken spawn(StarSystemAPI system, Kind kind, Random random, boolean forceAmbush, boolean forceCache) {
