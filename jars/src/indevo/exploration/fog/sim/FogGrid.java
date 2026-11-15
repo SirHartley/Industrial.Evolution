@@ -18,6 +18,9 @@ public class FogGrid {
     public static final float EB_RADIUS = 420f;
     public static final float DISP_TAU = 6f;
     public static final float MAX_DT = 0.1f;
+    // body wake: samples along the path, spacing and least width in wake radii and cells, cut per second
+    public static final int WAKE_SAMPLES = 12;
+    public static final float WAKE_STEP = 0.5f, WAKE_MIN_CELLS = 2.2f, WAKE_RATE = 3f;
     public static final int RECENTRE_CELLS = 8;
 
     public final int n;
@@ -119,6 +122,14 @@ public class FogGrid {
         public float cut = 1f;
         public float shed = 0f;
         public float side = 1f;
+        // planets, moons and stations: full cut at any speed and a wake along the path behind
+        public boolean body = false;
+        private final float[] trail = new float[WAKE_SAMPLES * 2];
+        private int trailCount = 0;
+
+        public void clearTrail() {
+            trailCount = 0;
+        }
     }
 
     public FogGrid(int n, float cell, Shape shape, float cx, float cy, float strength, float time) {
@@ -194,7 +205,8 @@ public class FogGrid {
         float sp = (float) Math.hypot(b.vx, b.vy);
         if (sp < 2f) return;
         float rad = b.r * 1.5f + 60f, ux = b.vx / sp, uy = b.vy / sp;
-        float grab = Math.min(1f, dt * 9f), cut = Math.min(1.5f, sp / 170f) * b.cut;
+        float speedCut = Math.min(1.5f, sp / 170f);
+        float grab = Math.min(1f, dt * 9f), cut = (b.body ? Math.max(1f, speedCut) : speedCut) * b.cut;
         float outer = rad * 1.5f;
 
         int i0 = Math.max(1, (int) Math.floor((b.x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((b.x + outer - ox) / cell));
@@ -213,12 +225,38 @@ public class FogGrid {
             }
         }
 
+        if (b.body) wake(b, rad, dt);
+
         b.shed += sp * dt / (rad * 2.6f);
         if (b.shed >= 1f) {
             b.shed -= 1f;
             b.side = -b.side;
             float px = -uy * b.side, py = ux * b.side;
             swirl(b.x - ux * rad * 0.8f + px * rad * 0.55f, b.y - uy * rad * 0.8f + py * rad * 0.55f, rad * 1.7f, -b.side * sp * 1.25f);
+        }
+    }
+
+    // an orbiting body is too slow to outrun the refill, so it holds a tapering wake open along the path it came
+    private void wake(Mover b, float rad, float dt) {
+        float base = Math.max(rad, cell * WAKE_MIN_CELLS), step = base * WAKE_STEP;
+        float[] t = b.trail;
+        if (b.trailCount == 0 || Math.hypot(b.x - t[0], b.y - t[1]) >= step) {
+            b.trailCount = Math.min(WAKE_SAMPLES, b.trailCount + 1);
+            System.arraycopy(t, 0, t, 2, (b.trailCount - 1) * 2);
+            t[0] = b.x;
+            t[1] = b.y;
+        }
+        float frac = (float) Math.hypot(b.x - t[0], b.y - t[1]) / step;
+        for (int s = 0; s < b.trailCount; s++) {
+            float f = 1f - (s + frac) / WAKE_SAMPLES;
+            if (f <= 0f) continue;
+            float x = t[s * 2], y = t[s * 2 + 1], r = base * (0.55f + 0.45f * f);
+            int i0 = Math.max(1, (int) Math.floor((x - r - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + r - ox) / cell));
+            int j0 = Math.max(1, (int) Math.floor((y - r - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((y + r - oy) / cell));
+            for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
+                float dist = (float) Math.hypot(ox + (i + 0.5f) * cell - x, oy + (j + 0.5f) * cell - y);
+                if (dist < r) d[j * n + i] *= 1f - Math.min(1f, dt * WAKE_RATE * f * (1f - dist / r));
+            }
         }
     }
 
