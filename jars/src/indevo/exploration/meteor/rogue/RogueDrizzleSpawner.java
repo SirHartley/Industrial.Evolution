@@ -23,6 +23,7 @@ import java.util.Random;
 
 public class RogueDrizzleSpawner implements EveryFrameScript {
 
+    public static final String TAG_ROCK = "IndEvo_DrizzleRock";
     public static final float WEIGHT = 10f;
     public static final float MIN_DAYS = 5f;
     public static final float MAX_DAYS = 15f;
@@ -157,6 +158,7 @@ public class RogueDrizzleSpawner implements EveryFrameScript {
         if (kind == MeteroidShowerType.IRRADIOID) rock.setFaction(Factions.LUDDIC_PATH);
         if (rock.getCustomPlugin() instanceof IcyRockEntity && size < RogueAsteroidSpawner.ICE_SPLINTER_MIN_SIZE) rock.addTag(IcyRockEntity.TAG_NO_SPLINTERS);
 
+        rock.addTag(TAG_ROCK);
         rock.setLocation(p.x, p.y);
         rocks.add(rock);
     }
