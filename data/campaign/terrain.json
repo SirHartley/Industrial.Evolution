@@ -44,6 +44,10 @@
 	"musicSuppression":0.60,
 	},
 
+	"IndEvo_fog":{
+		"plugin":"indevo.exploration.fog.terrain.FogTerrainPlugin",
+	},
+
 	"crucible_field":{
 	"plugin":"indevo.exploration.crucible.terrain.CrucibleFieldTerrainPlugin",
 	"musicSuppression":0.5,

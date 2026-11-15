@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-Eight commands in `indevo/console/`, listed in `data/console/commands.csv`. Console Commands reads that CSV and instantiates the class; IE has no Java registration. Console Commands is not in `mod_info.json` dependencies: without it the CSV is ignored and the classes are never loaded (inferred; the classes import `org.lazywizard.console` and only that mod reads the CSV). See [Compatibility](COMPATIBILITY.md).
+Nine commands in `indevo/console/`, listed in `data/console/commands.csv`. Console Commands reads that CSV and instantiates the class; IE has no Java registration. Console Commands is not in `mod_info.json` dependencies: without it the CSV is ignored and the classes are never loaded (inferred; the classes import `org.lazywizard.console` and only that mod reads the CSV). See [Compatibility](COMPATIBILITY.md).
 
 ## Files
 
@@ -20,13 +20,14 @@ Eight commands in `indevo/console/`, listed in `data/console/commands.csv`. Cons
 | `indevo/console/PrintRaidTimeout.java` | `indevo_printRaidTimeout`: prints the player and AI raid timeout maps of `RaidTimeout`. See [Utils](UTILS.md#timers), [Privateer](../industries/PRIVATEER.md) |
 | `indevo/console/PrintModData.java` | `indevo_printModData`: counts IE custom entities, scripts (sector, location, entity) and listeners by class name containing `indevo` or `splinterfleet`, plus ambassador count (`AmbassadorItemHelper.POST_AMBASSADOR`). Debug aid for script and listener leaks |
 | `indevo/console/SpawnRogue.java` | `indevo_spawnRogue <shape> [asteroid\|ice\|irradiated] [treasure]`: star systems only; spawns one rogue asteroid formation aimed at the player's course through `RogueAsteroidSpawner.spawn`, ignoring the chance and the timeouts and setting none. Shapes: `scatter`, `cluster`, `teardrop`, `wall`, `chevron`, `pair`, `escort`; `drizzle` starts a drizzle (`RogueDrizzleSpawner.start`) instead and refuses `treasure`. No type rolls one by the shower weights; no `treasure` means none. Fails with a message when no start out of view exists. See [Meteor swarms](../exploration/METEOR.md#rogue-asteroids) |
+| `indevo/console/SpawnFog.java` | `indevo_spawnFog [spell\|bank] [ambush]`: star systems only, refuses a system that already has fog. Calls `FogWeatherManager.spawn` (spell by default); `ambush` forces lurker fleets. Ignores `IndEvo_fog_enabled` and the distance and system rules. See [Fog](../exploration/FOG.md) |
 | `indevo/console/SetMarketGrowthProgress.java` | `indevo_setMarketGrowth <0..1>`: sets `PopulationComposition` weight between the current and next size thresholds from `CoreImmigrationPluginImpl.getWeightForMarketSizeStatic`. Market only |
 
 ## Data and ids
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Command | `indevo_assignSalvageSpecials`, `indevo_spawnStation`, `indevo_clearDisruption`, `indevo_spawnRuins`, `indevo_printRaidTimeout`, `indevo_printModData`, `indevo_setMarketGrowth`, `indevo_spawnRogue` | `data/console/commands.csv` |
+| Command | `indevo_assignSalvageSpecials`, `indevo_spawnStation`, `indevo_clearDisruption`, `indevo_spawnRuins`, `indevo_printRaidTimeout`, `indevo_printModData`, `indevo_setMarketGrowth`, `indevo_spawnRogue`, `indevo_spawnFog` | `data/console/commands.csv` |
 | Memory key | `$IndEvo_RaidTimeout`, `$IndEvo_RaidTimeout_AI` (read) | `PrintRaidTimeout` |
 | Condition | `Ids.COND_RUINS` | `SpawnRuins` |
 

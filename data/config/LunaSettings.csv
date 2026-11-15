@@ -6,6 +6,7 @@ IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,
 IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Enable artillery stations and watchtowers. Disabling prevents construction and stops existing stations from firing. Default on. Placement needs a new game.,,,Quick Settings
 IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Enable planetary minefields. Existing mines stop hitting fleets when disabled. Default on. Placement needs a new game.,,,Quick Settings
 IndEvo_meteor_enabled,[Meteor Swarms] Spawn Meteor Swarms,Boolean,TRUE,,Allow new meteor swarms to spawn. Default on.,,,Quick Settings
+IndEvo_fog_enabled,[Fog] Fog Weather,Boolean,TRUE,,"Allow fog to roll into systems near you: sometimes a whole system for about a month, sometimes a local bank for several months. Sensors are nearly useless inside. Fog that already exists runs out when disabled. Default on.",,,Quick Settings
 IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Enable pets, Animal Centers, pet management, Project Navi and abandoned pet stations. Default on. Placement needs a new game.",,,Quick Settings
 IndEvo_header1,General,Header,General,,,,,Quick Settings
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,"Limit Commerce to one per faction per system, reduce its improvement bonus, and replace the player alpha core income bonus with a 25%% tariff reduction. Disable to restore vanilla Commerce; re-docking may be needed. Default on.",,,Quick Settings

@@ -41,6 +41,7 @@ import indevo.economy.listeners.TechMiningRelicOptionProvider;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
+import indevo.exploration.fog.FogWeatherManager;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -490,6 +491,7 @@ public class ModPlugin extends BaseModPlugin {
         ShieldVisualsOptionProvider.register();
         MilitaryRelay.RelayItemRemovalButtonListener.register();
         MeteorSwarmManager.register();
+        FogWeatherManager.register();
         ShuttleTrafficRenderer.register();
         RemoveIndustryOptionWarningProvider.register();
         WarehouseAddSubmarketOptionProvider.register();
