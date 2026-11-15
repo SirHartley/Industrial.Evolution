@@ -11,7 +11,7 @@ Tracking doc for new campaign terrain, kept like [NEW_FEATURES.md](NEW_FEATURES.
 Every item below is a terrain plugin under a new package `indevo/exploration/terrain/<feature>/`, a `data/campaign/terrain.json` row and a `descriptions.csv` row, with its own feature doc under `docs/exploration/` once implemented.
 
 - Placement: seeded in `ModPlugin.onNewGameAfterEconomyLoad` (`indevo/utils/ModPlugin.java:295`) for new games, never in core worlds (`theme_core`). Existing saves get nothing unless Q2 says otherwise.
-- Simulation and rendering run only in the player's location, near the viewport. Everything that moves (fog density, rift heightmap phase, vortex debris) is transient and rebuilt from saved params and the clock on load, so saves only hold seeds and params.
+- Simulation and rendering run only in the player's location, near the viewport. Everything that moves (cloud drift, rift heightmap phase, vortex debris) is transient and rebuilt from saved params and the clock on load, so saves only hold seeds and params.
 - Layers: vanilla nebula draws in `TERRAIN_2` and `TERRAIN_8` (`impl/campaign/terrain/NebulaTerrainPlugin.java:49`). `TERRAIN_8` is above `FLEETS` (`campaign/CampaignEngineLayers.java`), which is what lets a terrain cover fleets.
 - Each item gets a LunaLib toggle and an intensity setting in the exploration tab (`docs/core/SETTINGS.md`).
 - Damage that hits ships follows the vanilla hyperspace storm strike (`impl/campaign/terrain/HyperspaceTerrainPlugin.java:1455-1550`): CR loss plus armour scaled hull damage, scaled by `Stats.CORONA_EFFECT_MULT` (Solar Shielding), hull never below 1%. Confirmed.
@@ -21,31 +21,9 @@ Every item below is a terrain plugin under a new package `indevo/exploration/ter
 
 ## 1. Planned terrain
 
-### 1.1 Fog banks (nebula smoke)
+### 1.1 Fog: built
 
-**Status: proposed (Philipp, 2026-11-09). Not implemented.**
-
-Philipp: "nebula / smoke that reduces visibility and behaves like vid attached".
-
-What the video shows: a thick, low lying green fog over a floor. It has slow swirling eddies and darker whorls, and it is opaque enough that the floor is hidden. Walking through it pushes it aside a little and leaves a soft wake. A spin attack blows it outward in a spiral and clears a full circle down to the floor; the fog flows back into the hole within about a second and the surface is smooth again. A sword beam cuts a short straight lane that also closes up.
-
-Campaign version:
-
-- Fog banks of 4000 to 12000 units, drawn over fleets (`TERRAIN_8`), so a fleet inside is actually hidden on screen, not only on sensors. Darker whorls drift and turn slowly.
-- A fleet moving through the fog pushes it aside and leaves a wake that refills. Bigger and faster fleets push more.
-- Burst actions blow a clear circle that refills over a few seconds, like the spin attack: Emergency Burn and Interdiction Pulse. Exact list in Q3.
-- Effect scales with local density: detected range of fleets inside x0.5 at full density, and their own sensor range x0.5 (Q4). The nebula value is 0.5 (`NebulaTerrainPlugin.java:26`); abyssal hyperspace cuts own sensor range the same way (`HyperspaceTerrainPlugin.java:1398-1402`). Effect category `nebula-like`, so it does not stack with a nebula, same as the Chaff Cloud (`indevo/items/consumables/terrain/SmokeCloudTerrain.java:101`).
-- The play: hide a fleet in the fog, or burn through it and give away where you are.
-
-How (inferred):
-
-- `FogBankTerrain extends BaseTerrain`. Saved: centre, radius, seed. Transient: a density grid (about 100 units per cell, so a 12000 bank is 120 x 120) and a velocity grid.
-- Rest state is a seeded noise mask. Each frame the grid relaxes back to that mask, is moved by a slow curl noise flow (the swirl), and gets impulses: a radial push around each moving fleet in the bank and a strong radial blast for burst actions. Semi Lagrangian advection and a relax step are enough; no real fluid solver.
-- Burst actions come from `CampaignEventListener.reportPlayerActivatedAbility` for the player; NPC Emergency Burn needs a check of active abilities on fleets inside the bank, only while the bank is on screen.
-- Render: the density grid is uploaded as a small texture each frame and multiplied into a scrolling cloud texture in a shader. Two cloud layers at different scroll speeds give the depth seen in the video.
-- `containsPoint` and the stat effect read the CPU grid, so what you see is what hides you.
-- AI flag `REDUCES_DETECTABILITY` so NPC fleets use it the way they use nebulae.
-- Off screen the grid is dropped; it is rebuilt at rest state when the player comes back.
+Built as fog weather (system wide spells and local banks) in PR #161; the feature doc is [FOG](exploration/FOG.md). Not seen in game yet. The number stays so item and question numbers do not shift.
 
 ### 1.2 Black hole maelstroms
 
@@ -170,10 +148,10 @@ Each has a recommended answer.
 
 1. Doc home: this separate doc (recommended, the five share placement, rendering and damage rules), or items in NEW_FEATURES.md?
 2. Existing saves: new games only (recommended, saves may break anyway), or also seed systems on first entry in old saves?
-3. Fog: which actions blow a hole? Recommended: fleet movement (small wake), Emergency Burn and Interdiction Pulse (big blast). Sensor Burst and Sustained Burn do nothing.
-4. Fog: hide on screen and cut both detected range and own sensor range x0.5 at full density (recommended), or detected range only like a nebula?
-5. Fog: where? Recommended: 1 to 3 banks in nebula systems and around gas giants, outside core worlds.
-6. Fog: should the Chaff Cloud consumable later use the fog renderer? Recommended yes, as a follow up.
+3. Closed with 1.1, see [FOG](exploration/FOG.md).
+4. Closed with 1.1, see [FOG](exploration/FOG.md).
+5. Closed with 1.1, see [FOG](exploration/FOG.md).
+6. Closed with 1.1, see [FOG](exploration/FOG.md).
 7. Maelstrom: damage only in the core with pull and drag everywhere in the whirlpool (recommended), or damage in the whole whirlpool?
 8. Maelstrom: every black hole system (recommended, there are few), or a roll?
 9. Maelstrom: asteroids as real IE meteors that collide (recommended), or vanilla belt dice rolls?
@@ -197,17 +175,16 @@ Each has a recommended answer.
 27. Ion storms: blocked abilities. Recommended Go Dark, Sustained Burn, Emergency Burn, Sensor Burst and Interdiction Pulse. Not Transverse Jump, so there is always a way out, and not IE consumables.
 28. Ion storms: transponder flicker for the player only (recommended), or a short detected range spike for every fleet instead?
 29. Ion storms: harmless apart from the blocks and flicker (recommended), or a small CR loss per strike?
-30. Fog banks, nanite drift and ion storms share one cloud shape and drift helper, each with its own look and effect (recommended)?
+30. Nanite drift and ion storms: reuse the fog code for cloud shape and drift (`FogNoise` and `FogGrid.Shape` in `indevo/exploration/fog/sim/`, the seeded mask and curl), each with its own lighter renderer and no fluid solver (recommended), reuse the whole fog grid and shader with another colour, or write own code? Not answered in the fog thread.
 31. Currents on the map: hidden (recommended, they are found by flying), a faint line once the player has ridden one, or always shown like vanilla streams?
 
 ## 3. Suggested order
 
-1. Ion storms (1.8): ability blocks are a few vanilla calls; builds the shared drifting cloud.
+1. Ion storms (1.8): ability blocks are a few vanilla calls; cloud shape and drift per Q30.
 2. Nanite drift (1.7): reuses the cloud from step 1 and the Nanites repair code.
 3. Solar flares (1.5): vanilla wavefront and storm strike models to copy.
 4. Currents (1.6): starts with the probe that puts a vanilla stream in a system.
 5. Black hole maelstroms (1.2): reuses IE meteors; comes after the rogue asteroids work (NEW_FEATURES.md 1.4), whose warning path fix makes the renderer take reports only from rocks on its own arc, so whirlpool rocks never light up a swarm's path. The orbit movement inside a whirlpool is still a new module here.
 6. Unstable fabric (1.4): own heightmap, shader and jump handling.
-7. Fog banks (1.1): the grid simulation and shader are the most work; tune against the video.
 
 Each step: feature doc, ARCHITECTURE.md row, settings, changelog, live test by Philipp.
