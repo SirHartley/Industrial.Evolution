@@ -14,7 +14,7 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 |---|---|
 | `indevo/items/installable/SpecialItemEffectsRepo.java` | `ITEM_EFFECTS` map of the effect classes below, merged into vanilla repo; `initEffectListeners()` registers colony factor listeners; shared constants |
 | `indevo/items/installable/LogCoreEffect.java`, `SimulatorEffect.java`, `TransmitterEffect.java`, `NeuralCompoundsEffect.java`, `HolobenchEffect.java`, `SalvageDronesEffect.java`, `WormholeAnchorEffect.java` | `BaseInstallableItemEffect` per vanilla style item |
-| `indevo/items/installable/BlueprintInstallableItemPlugin.java` | Blueprint slot for `EngineeringHub`: `BLUEPRINT_IDS` (`IndEvo_relicSpecialItem`, `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp`), `isBlueprint`, `addBlueprintDescription`; `getIndustry()` for the relic dialog patch |
+| `indevo/items/installable/BlueprintInstallableItemPlugin.java` | Blueprint slot for `EngineeringHub`: `BLUEPRINT_IDS` (`ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp`), `isBlueprint`, `addBlueprintDescription`, `getIndustry()` |
 | `indevo/items/installable/NamedItemSlotPlugin.java` | `GenericInstallableItemPlugin` with the item name in the menu texts and an own menu tooltip line; used by forge template users, the Embassy and the variable industries |
 | `indevo/items/installable/ForgeTemplateEffect.java` | `BaseInstallableItemEffect` for the three forge template ids; description only, no apply |
 | `indevo/items/installable/AmbassadorEffect.java` | `BaseInstallableItemEffect` for `IndEvo_amb`; description only, no apply |
@@ -45,7 +45,6 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 | `IndEvo_holobench` | `GenericSpecialItemPlugin` | `colony_item`; `IndEvo_Academy`; [Academy](../industries/ACADEMY.md#holobench) | 53 |
 | `IndEvo_drones` | `GenericSpecialItemPlugin` | `colony_item`; `IndEvo_ScrapYard`; [Salvage Yards](../industries/SALVAGE_YARDS.md#salvage-drone-replicator) | 55 |
 | `IndEvo_alpha_core`, `IndEvo_beta_core`, `IndEvo_gamma_core` | `GenericSpecialItemPlugin` | `no_drop`, display only: `ItemIds.convertAICoreToSpecial`, shown by `Supercomputer.getVisibleInstalledItems` | 41-43 |
-| `IndEvo_relicSpecialItem` | `GenericSpecialItemPlugin` | relic mode for the Engineering Hub blueprint slot, never in cargo, listed by `RelicInstallDialogPatch` ([Engineering Hub](../industries/ENGINEERING_HUB.md#relic-components-in-the-install-dialog)); params `IndEvo_Warehouse, IndEvo_Warphouse` | 44 |
 | `IndEvo_debug` | `GenericSpecialItemPlugin` | Debug Fish, `no_drop` | 46 |
 | `#wormhole_anchor` | `WormholeAnchorItemPlugin` | commented out; [Warehouses](../industries/WAREHOUSES.md) | 49 |
 
@@ -89,7 +88,7 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 ### Blueprint install slot
 
 - `isInstallableItem` checks the stack id against `BLUEPRINT_IDS`. `get/setCurrentlyInstalledItemData` read and write the industry's `getSpecialItem` / `setSpecialItem`.
--  `IndEvo_relicSpecialItem` is added to the pick list by a PatchLib patch on the vanilla dialog, not through cargo; see [Engineering Hub](../industries/ENGINEERING_HUB.md#relic-components-in-the-install-dialog).
+- The hub takes the installed item as one way to pay for a finished hull; see [Engineering Hub](../industries/ENGINEERING_HUB.md#completion).
 
 ### VPCs
 

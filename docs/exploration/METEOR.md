@@ -63,7 +63,7 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 | Memory key | `$IndEvo_RadEffectLevel` (per fleet, 0..1) | `RadiationEffectHandler.java:29` |
 | Memory key | `$IndEvo_warningRenderer` (location, the path renderer instance) | `MeteorSwarmWarningPathRenderer.java:23` |
 | Memory key | `$IndEvo_roider_tutorial`, `$IndEvo_supplyTradeAmt` (tutorial fleet) | `TutorialEncounterScript.java:79-80` |
-| Tag | `IndEvo_MeteorSwarm` (`MeteorSwarmManager.METEOR_TAG`) on every meteor, added in `MeteorEntity.init(SectorEntityToken, Object)`; read by Catch.Release | `MeteorEntity`, `MeteorSwarmManager` |
+| Tag | `IndEvo_MeteorSwarm` (`MeteorSwarmManager.METEOR_TAG`) on every meteor, added in `MeteorEntity.init(SectorEntityToken, Object)`; read by Catch.Release and by shuttle traffic ([SHUTTLE_TRAFFIC](../core/SHUTTLE_TRAFFIC.md#anchors-and-routes)) | `MeteorEntity`, `MeteorSwarmManager` |
 | Tags | `indevo_planetoid`, `IndEvo_IceRockNoSplinters`, `IndEvo_IceEntourage_<id>`, `IndEvo_TreasureoidEntrouage_<id>`; loot station id `<entity id>_loot` | spawners and entities |
 | Rules | `IndEvo_roiderTutorial_*` (offer 5 `IndEvo_consumable_missile_concussive` for 10% of supplies, max 100) | `data/campaign/rules.csv:6-62` |
 | Rule command package | `indevo.exploration.meteor.rules` | `data/config/settings.json:45` |

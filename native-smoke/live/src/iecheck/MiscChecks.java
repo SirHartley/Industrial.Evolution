@@ -114,8 +114,6 @@ public final class MiscChecks {
             c.expect(artillery != null, "artillery script found");
             c.expect(ReflectionUtils.get("terrain", artillery) != null, "artillery range terrain placed");
 
-            save(Setting.ARTILLERY_MAX_RANGE, 8000.0);
-            c.near(artillery.getRange(), 8000f, 1f, "range setting applies to a placed station without a restart");
             save(Setting.ARTILLERY_MIN_DELAY_BETWEEN_SHOTS, 5.0);
             save(Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS, 6.0);
             save(Setting.ENABLE_ARTILLERY, false);

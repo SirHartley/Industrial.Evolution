@@ -23,6 +23,7 @@ import indevo.ids.Ids;
 import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.industries.senate.EdictHelper;
 import indevo.industries.senate.dialogue.EdictPanelDelegate;
+import indevo.industries.senate.dialogue.EdictView;
 import indevo.industries.senate.conditions.Edict_FastBuild;
 import indevo.utils.helper.ReflectionUtils;
 import indevo.utils.timers.TimeTracker;
@@ -157,8 +158,8 @@ public final class SenateChecks {
 
             java.util.Set<String> tags = new java.util.HashSet<>(a.getTags());
             int conditions = a.getConditions().size();
-            new EdictPanelDelegate(a);
-            new EdictPanelDelegate(b);
+            new EdictPanelDelegate(a, new EdictView(), null);
+            new EdictPanelDelegate(b, new EdictView(), null);
             c.expect(new java.util.HashSet<>(a.getTags()).equals(tags) && a.getConditions().size() == conditions, "edict panel: previews leave the colony untouched");
         });
         steps.add(c -> {

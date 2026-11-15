@@ -32,7 +32,6 @@ The industry is unreleased: it only shows in the build list if the player factio
 | Tag | `IndEvo_warehouse` | industry tag that both option providers match |
 | Memory key | `$IndEvo_LinkedStoragePluginInstance` (`LinkedStorageManager.MEMORY_KEY`) | sector memory |
 | Item | `wormhole_anchor` row with `WormholeAnchorItemPlugin` | `data/campaign/special_items.csv:72`, commented out |
-| Item | `IndEvo_relicSpecialItem`, params `IndEvo_Warehouse, IndEvo_Warphouse` | `data/campaign/special_items.csv:50`; dummy item, see [Installables](../items/INSTALLABLES.md) |
 
 CSV rows starting with `#` are skipped by the loader (skill `docs/concepts/spec-loading.md:14`).
 
@@ -86,7 +85,6 @@ Then `updateLinkedStorages()`: on `IndEvo_Warphouse` with `shouldLinkLocalStorag
 | Item | State |
 |---|---|
 | Wormhole Complex | dormant: `#IndEvo_Warphouse` row, `#wormhole_anchor` row and `adjustWormholeAnchorSpec` call are all commented out; `startUpgrading(Ids.WARPHOUSE)` would look up a missing spec |
-| `IndEvo_relicSpecialItem` params list `IndEvo_Warehouse` | if the dummy relic item were installed in a warehouse, `apply()` would start the missing upgrade (suspected; item is `no_drop`) |
 | `SpecialItemEffectsRepo` `wormhole_anchor` effect | still added to vanilla `ItemEffectsRepo` with "linked storages" text; see [Installables](../items/INSTALLABLES.md) |
 | `WormholeAnchorItemPlugin.getName` (`WormholeAnchorItemPlugin.java:25`) | null guard calls `super.getName()` without `return`, then NPEs |
 | `WarehouseManagementDialogueDelegate` | excluded by `IndEvo.iml:19`; copy of the museum parade delegate calling methods `Warehouses` lacks (`setFlyParades`, `getParadeFleetProfiles`, `getMaxParades`, `getSubmarket`); does not compile |

@@ -30,6 +30,7 @@ After reading this file, use the task to choose the next document. Read the rele
 | Add, rename or read a player setting, whitelist or `settings.json` key | [SETTINGS.md](docs/core/SETTINGS.md) |
 | Change the settings mechanism (reader, cache, LunaLib listener, settings checks) | [SETTINGS.md](docs/core/SETTINGS.md), then [SETTINGS_REWORK.md](docs/core/SETTINGS_REWORK.md) for the decisions behind it. SETTINGS.md describes current behavior; the rework doc is the record of decisions and the baseline it replaced. |
 | Add or reuse a helper, timer, memory accessor, animation or trail | [UTILS.md](docs/core/UTILS.md) before writing a new helper. |
+| Build or change a custom panel, custom dialog or side panel UI | [UI.md](docs/core/UI.md) (kit, layout contract, rebuild pattern), then the feature doc. |
 | Work on `rules.csv`, dialogue or a rule command | [RULE_COMMANDS.md](docs/dialogue/RULE_COMMANDS.md), the feature doc, and the `starsector-rules-writing` skill. |
 | Touch another mod's integration (Nexerelin, Console Commands, Vayra, Prism, Shadowyards, BetterColonies) | [COMPATIBILITY.md](docs/core/COMPATIBILITY.md) |
 | Write or change a PatchLib patch | [ARCHITECTURE.md](docs/ARCHITECTURE.md#patches), the feature doc, and the `patchlib` skill. |
@@ -94,6 +95,7 @@ Update documents automatically as part of each relevant change. Before committin
 | `docs/NEW_FEATURES.md` | New feature plans: decisions, open questions, staged plans | Record decisions when made; when a stage merges, move its technical detail to the feature doc and ARCHITECTURE.md and leave a pointer. |
 | `docs/core/SETTINGS_REWORK.md` | Settings rework record: decisions, the baseline it replaced, staged plan | Record decisions; tick subtasks as they merge and move implemented detail to SETTINGS.md and ARCHITECTURE.md. Does not govern setting values or help text. |
 | `docs/core/UTILS.md` | Shared helpers in `indevo/utils` | Update when a helper is added, removed or changes its contract. |
+| `docs/core/UI.md` | Shared UI kit in `indevo/utils/ui`, layout contract for IE panels | Update when a kit helper is added, removed or changes its contract, or the layout contract changes. Feature panels stay in their feature docs. |
 | `docs/core/COMPATIBILITY.md` | Integrations with other mods | Update when an integration, a hard or optional dependency, or a config file for another mod changes. |
 | `docs/RELEASE.md` | Version numbers, release builder, package contents, release workflow, version file and publishing | Keep it in step with the `ReleaseBuild` constants, `.github/workflows/release.yml` and `IndEvo.version`; change them together. |
 | `docs/SMOKE_TESTS.md` | Smoke test setup, the `native-smoke/` wrapper and probes, reading and reporting results | Update when `native-smoke/` changes, the modding install or dependency set changes, or the skill's runner contract changes. |

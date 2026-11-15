@@ -31,7 +31,7 @@ public class AcademyOptionProvider extends SingleIndustrySimpifiedOptionProvider
 
     @Override
     public void onClick(IndustryOptionData opt, DialogCreatorUI ui) {
-        ui.showDialog(null, new AcademyDialogPlugin((Academy) opt.ind));
+        ui.showDialog(null, new AcademyDialogPlugin((Academy) opt.ind, new AcademyView()));
     }
 
     @Override

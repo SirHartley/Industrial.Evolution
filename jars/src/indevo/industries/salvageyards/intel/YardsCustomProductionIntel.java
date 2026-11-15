@@ -28,7 +28,7 @@ import indevo.economy.RelicSpeedUpTarget;
 import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.ids.Ids;
 import indevo.industries.salvageyards.memory.WreckRegistry;
-import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
+import indevo.industries.salvageyards.memory.YardsProductionData;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
@@ -57,13 +57,13 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
     boolean isDone = false;
     protected Random genRandom = new Random();
     protected MarketAPI market;
-    protected IndEvo_InitSYCustomProductionDiag.YardsProductionData data;
+    protected YardsProductionData data;
     protected CargoAPI tooltipCargo;
     protected long relicSpeedUpTimestamp = 0L;
 
     private Stage currentStage;
 
-    public YardsCustomProductionIntel(MarketAPI deliverToMarket, IndEvo_InitSYCustomProductionDiag.YardsProductionData data) {
+    public YardsCustomProductionIntel(MarketAPI deliverToMarket, YardsProductionData data) {
         this.market = deliverToMarket;
         this.data = data;
     }
@@ -229,6 +229,14 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         return market;
     }
 
+    public YardsProductionData getData() {
+        return data;
+    }
+
+    public boolean isWaiting() {
+        return currentStage == Stage.WAITING;
+    }
+
     @Override
     public String getSpeedUpId() {
         return "yardsOrder";
@@ -320,7 +328,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         }
     }
 
-    protected CargoAPI convertProdToCargo(IndEvo_InitSYCustomProductionDiag.YardsProductionData prod) {
+    protected CargoAPI convertProdToCargo(YardsProductionData prod) {
         CargoAPI cargo = Global.getFactory().createCargo(true);
         cargo.initMothballedShips(Global.getSector().getPlayerFaction().getId());
 
@@ -351,7 +359,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         return cargo;
     }
 
-    private void addRegistryParts(CargoAPI cargo, IndEvo_InitSYCustomProductionDiag.YardsProductionData prod) {
+    private void addRegistryParts(CargoAPI cargo, YardsProductionData prod) {
         if (prod.registryOrder == null) return;
 
         for (Map.Entry<String, Integer> e : prod.registryOrder.weapons.entrySet()) cargo.addWeapons(e.getKey(), e.getValue());
@@ -359,7 +367,7 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
     }
 
     //alex did it like this, fuck do I know why, I'll just do my own thing
-    protected CargoAPI convertProdToCargoForTooltip(IndEvo_InitSYCustomProductionDiag.YardsProductionData prod) {
+    protected CargoAPI convertProdToCargoForTooltip(YardsProductionData prod) {
         CargoAPI cargo = Global.getFactory().createCargo(true);
         cargo.initMothballedShips(Global.getSector().getPlayerFaction().getId());
 

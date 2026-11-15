@@ -2,7 +2,9 @@ package indevo.industries.senate.conditions;
 
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import indevo.industries.senate.EdictEffect;
 import indevo.industries.senate.EdictRequirement;
+import indevo.industries.senate.EdictSupplyChange;
 
 import java.util.List;
 
@@ -13,15 +15,19 @@ public interface EdictAPI {
 
     boolean isPresenceConditionMet(MarketAPI market);
 
-    void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad);
+    List<EdictEffect> getEffects(MarketAPI market);
 
-    boolean hasOtherColonyEffects(MarketAPI market);
-
-    void addOtherColonyEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad);
+    List<EdictSupplyChange> getSupplyChanges(MarketAPI market);
 
     void addRuntimeText(TooltipMakerAPI tooltip, MarketAPI market, float pad);
 
     int getMinRuntime(MarketAPI market);
+
+    boolean endsOnItsOwn();
+
+    int getFinishUnrest(MarketAPI market);
+
+    int getMaxEarlyRemovalUnrest(MarketAPI market);
 
     int getDaysPassed();
 

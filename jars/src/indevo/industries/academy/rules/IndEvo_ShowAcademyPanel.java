@@ -10,6 +10,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.academy.plugins.AcademyDialogPlugin;
+import indevo.industries.academy.plugins.AcademyView;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class IndEvo_ShowAcademyPanel extends BaseCommandPlugin {
         Academy academy = Academy.get(getAcademyMarket(memoryMap));
         if (academy == null) return false;
 
-        AcademyDialogPlugin plugin = new AcademyDialogPlugin(academy, dialog.getPlugin(), memoryMap, returnOption);
+        AcademyDialogPlugin plugin = new AcademyDialogPlugin(academy, new AcademyView(), dialog.getPlugin(), memoryMap, returnOption);
         dialog.setPlugin(plugin);
         plugin.init(dialog);
         return true;

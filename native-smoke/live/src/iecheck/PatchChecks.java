@@ -9,7 +9,6 @@ import indevo.economy.patches.RelicBuildInCounterPatch;
 import indevo.economy.patches.RelicBuildInPatch;
 import indevo.exploration.salvage.patches.RelicDerelictRecoveryPatch;
 import indevo.industries.artillery.patches.WatchtowerStableLocationPatch;
-import indevo.industries.engineeringhub.patches.RelicInstallDialogPatch;
 import indevo.industries.patches.CommerceBalancePatch;
 import indevo.industries.patches.DealmakerHolosuitePatch;
 import indevo.industries.privateer.patches.PrivateerIndustrySlotPatch;
@@ -25,7 +24,7 @@ import java.util.List;
 
 public final class PatchChecks {
     private static final Class<?>[] PATCHES = {
-            MicromanagementRemoteItemPatch.class, WatchtowerStableLocationPatch.class, RelicInstallDialogPatch.class,
+            MicromanagementRemoteItemPatch.class, WatchtowerStableLocationPatch.class,
             CommerceBalancePatch.class, DealmakerHolosuitePatch.class, PrivateerIndustrySlotPatch.class,
             FastBuildPickerRowPatch.class, FastBuildQueuedIndustryPatch.class, FastBuildTooltipPatch.class,
             FastBuildUpgradeConfirmPatch.class, CloudPainterShieldPatch.class, DetachmentCargoPickerPatch.class,

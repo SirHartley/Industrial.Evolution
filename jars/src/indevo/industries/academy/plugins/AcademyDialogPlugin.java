@@ -4,16 +4,14 @@ import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemKeys;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.impl.campaign.rulecmd.FireAll;
 import com.fs.starfarer.api.impl.campaign.rulecmd.ShowDefaultVisual;
 import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.sidepanel.EscapeBlockingDialoguePluginAPI;
-import indevo.economy.RelicSpeedUpTarget;
-import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.listener.EscapeInterceptListener;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
@@ -24,29 +22,30 @@ import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_E
 
 public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
-    private final Academy academy;
     private final InteractionDialogPlugin originalPlugin;
     private final Map<String, MemoryAPI> memoryMap;
     private final String returnOption;
 
-    private InteractionDialogAPI dialog;
     private final AcademyPanelDelegate panel;
-    private AcademyTrainingPopupDelegate popup;
-    private AcademyAdminTrainingConfirm adminConfirm;
-    private RelicSpeedUpDialog relicDialog;
-    private boolean showPanelPending = false;
+    private InteractionDialogAPI dialog;
     private boolean returnPending = false;
 
-    public AcademyDialogPlugin(Academy academy) {
-        this(academy, null, null, null);
+    public AcademyDialogPlugin(Academy academy, AcademyView view) {
+        this(academy, view, null, null, null);
     }
 
-    public AcademyDialogPlugin(Academy academy, InteractionDialogPlugin originalPlugin, Map<String, MemoryAPI> memoryMap, String returnOption) {
-        this.academy = academy;
+    public AcademyDialogPlugin(Academy academy, AcademyView view, InteractionDialogPlugin originalPlugin, Map<String, MemoryAPI> memoryMap, String returnOption) {
         this.originalPlugin = originalPlugin;
         this.memoryMap = memoryMap;
         this.returnOption = returnOption;
-        this.panel = new AcademyPanelDelegate(academy, this);
+        this.panel = new AcademyPanelDelegate(academy, view, this::leave);
+    }
+
+    // opens the panel for the market's Academy in the given view, for code and tests
+    public static boolean show(MarketAPI market, AcademyView view) {
+        Academy academy = Academy.get(market);
+        if (academy == null) return false;
+        return Global.getSector().getCampaignUI().showInteractionDialog(new AcademyDialogPlugin(academy, view), market.getPrimaryEntity());
     }
 
     @Override
@@ -73,41 +72,13 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
         showPanel();
     }
 
-    public void showPanel() {
-        popup = null;
-        adminConfirm = null;
-        relicDialog = null;
-        dialog.showCustomDialog(AcademyPanelDelegate.getWidth(), panel.getHeight(), panel);
-    }
-
-    public void showPanelNextFrame() {
-        popup = null;
-        adminConfirm = null;
-        relicDialog = null;
-        showPanelPending = true;
-    }
-
-    public void showTrainingPopup(PersonAPI officer) {
-        popup = new AcademyTrainingPopupDelegate(academy, this, officer);
-        dialog.showCustomDialog(AcademyTrainingPopupDelegate.WIDTH, popup.getHeight(), popup);
-    }
-
-    public void showAdminTraining(PersonAPI admin) {
-        adminConfirm = new AcademyAdminTrainingConfirm(academy, this, admin);
-        dialog.showCustomDialog(AcademyAdminTrainingConfirm.WIDTH, adminConfirm.getHeight(), adminConfirm);
-    }
-
-    public void showRelicDialog(RelicSpeedUpTarget target) {
-        relicDialog = new RelicSpeedUpDialog(target, this::showPanelNextFrame);
-        relicDialog.show(dialog);
+    private void showPanel() {
+        dialog.showCustomDialog(AcademyPanelDelegate.getWidth(), AcademyPanelDelegate.getHeight(), panel);
     }
 
     @Override
     public void close() {
-        if (adminConfirm != null && adminConfirm.isOpen()) adminConfirm.cancel();
-        else if (relicDialog != null && relicDialog.isOpen()) relicDialog.cancel();
-        else if (popup != null && popup.isOpen()) popup.cancel();
-        else if (panel.isOpen()) panel.cancel();
+        if (panel.isOpen()) panel.cancel();
         else leave();
     }
 
@@ -135,12 +106,6 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
         if (returnPending) {
             returnPending = false;
             returnToRules();
-            return;
-        }
-
-        if (showPanelPending) {
-            showPanelPending = false;
-            showPanel();
         }
     }
 

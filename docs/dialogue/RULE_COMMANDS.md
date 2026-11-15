@@ -63,10 +63,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_GeneratorReadyToFire` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftControlMenuPoint:773` | [Derelicts](../industries/DERELICTS.md) |
 | `IndEvo_MoreThanTwoColonies` | `indevo.industries.derelicts.rules` | 2 | `IndEvo_RiftTarget_COLONY:731` | [Derelicts](../industries/DERELICTS.md) |
 | `IndEvo_RiftInit` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftTarget_COLONY_init:755` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_InitSYCustomProductionDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYCustomProductionPanel_init:564` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_InitSYMoveDModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveDMods_init:565` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_SYTransferOption` | `indevo.industries.salvageyards.rules` | 2 | `IndEvo_SYMoveDMods:560`, `IndEvo_SYMoveSMods:561` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_InitSYMoveSModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveSMods_init:566` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
+| `IndEvo_ShowSalvageYardsPanel` | `indevo.industries.salvageyards.rules` | 3 | `IndEvo_SYCustomProductionPanel_init:564`, `IndEvo_SYMoveDMods_init:565`, `IndEvo_SYMoveSMods_init:566` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
 | `IndEvo_addAmbassadorToCargo` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorConfirm:610` | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_ambFactionMismatch` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorGreetingWar:578` | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_ambassadorRemoval` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorRemovalConfirm:662` | [Embassy](../industries/EMBASSY.md) |

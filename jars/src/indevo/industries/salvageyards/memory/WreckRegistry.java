@@ -16,7 +16,7 @@ import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.loading.WeaponSlotAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.RestorationDocks;
-import indevo.industries.salvageyards.rules.IndEvo_InitSYMoveDModDiag;
+import indevo.industries.salvageyards.plugins.ModTransfer;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.submarkets.impl.ReverseEngineeringSubmarketPlugin;
 
@@ -68,6 +68,18 @@ public class WreckRegistry {
             return hullId;
         }
 
+        public Collection<String> getWeapons() {
+            return Collections.unmodifiableCollection(weapons.values());
+        }
+
+        public List<String> getWings() {
+            return Collections.unmodifiableList(wings);
+        }
+
+        public List<String> getHullmods() {
+            return Collections.unmodifiableList(hullmods);
+        }
+
         public float getValue() {
             float value = 0f;
             for (String id : weapons.values()) value += Global.getSettings().getWeaponSpec(id).getBaseValue();
@@ -77,7 +89,7 @@ public class WreckRegistry {
 
         public FleetMemberAPI createMember(MutableCharacterStatsAPI stats) {
             FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, ForgeTemplateItemPlugin.getValidVariantIdForHullId(hullId));
-            IndEvo_InitSYMoveDModDiag.cycleToCustomVariant(member);
+            ModTransfer.cycleToCustomVariant(member);
 
             ShipVariantAPI variant = member.getVariant();
             variant.setSource(VariantSource.REFIT);

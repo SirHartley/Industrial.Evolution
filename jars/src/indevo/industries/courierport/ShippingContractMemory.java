@@ -24,27 +24,20 @@ public class ShippingContractMemory {
     }
 
     public static void addOrReplaceContract(ShippingContract contract) {
-        ModPlugin.log("adding contract " + contract.name);
+        if (!contract.isValid()) {
+            ModPlugin.log("refused invalid contract " + contract.name);
+            return;
+        }
 
-        if (contract.isValid()) {
-            List<ShippingContract> contractList = getContractList();
-
-            ShippingContract toRemove = null;
-            for (ShippingContract c : contractList) {
-                if (c.getId().equals(contract.getId())) {
-                    toRemove = c;
-                    ModPlugin.log("replacing old one");
-                    break;
-                }
+        List<ShippingContract> contractList = getContractList();
+        for (int i = 0; i < contractList.size(); i++) {
+            if (contractList.get(i).getId().equals(contract.getId())) {
+                contractList.set(i, contract);
+                return;
             }
+        }
 
-            if (toRemove != null) contractList.remove(toRemove);
-            contractList.add(contract);
-
-            ModPlugin.log("success");
-        } else ModPlugin.log("failed");
-
-        ModPlugin.log(getContractList().size() + " contracts on the list");
+        contractList.add(contract);
     }
 
     public static ShippingContract getContract(String id) {
