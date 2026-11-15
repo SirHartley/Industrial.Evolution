@@ -64,8 +64,9 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float STAR_FADE = 3f;
     public static final float MIN_FADE = 200f;
     public static final float TELEPORT_DISTANCE = 600f;
-    // meteor radius is twice the sprite, rocks cut a thinner trail than a fleet
-    public static final float ROCK_RADIUS_MULT = 0.5f;
+    // meteor radius is twice the sprite, the cut is 1.2 sprite radii plus the pad
+    public static final float ROCK_RADIUS_MULT = 0.4f;
+    public static final float ROCK_PAD = 10f;
     public static final float ROCK_CUT = 0.8f;
     // a shell crosses a cell in three frames, so it cuts harder than its speed alone would
     public static final float SHELL_RADIUS = 14f;
@@ -484,13 +485,13 @@ public class FogTerrainPlugin extends BaseTerrain {
             if (t.seen > 0f) addPatch(x, y, fleet.getRadius() * PATCH_RADIUS_MULT * t.seen, fleet == player);
         }
 
-        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), 1f, true, amount, dt);
+        for (PlanetAPI planet : loc.getPlanets()) moveBody(planet, planet.getRadius(), FogGrid.Mover.PAD, 1f, true, amount, dt);
         for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) {
-            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), 1f, true, amount, dt);
+            if (!(station instanceof CampaignFleetAPI)) moveBody(station, station.getRadius(), FogGrid.Mover.PAD, 1f, true, amount, dt);
         }
         // shower and rogue rocks move by script, so their speed is taken frame to frame like a planet
         for (SectorEntityToken rock : loc.getEntitiesWithTag(MeteorSwarmManager.METEOR_TAG)) {
-            moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_CUT, false, amount, dt);
+            moveBody(rock, rock.getRadius() * ROCK_RADIUS_MULT, ROCK_PAD, ROCK_CUT, false, amount, dt);
         }
         // no callback reports a new custom entity, so shots and explosions are found by plugin class each frame
         for (CustomCampaignEntityAPI other : loc.getCustomEntities()) feedShot(other, amount, dt);
@@ -529,9 +530,9 @@ public class FogTerrainPlugin extends BaseTerrain {
         CustomCampaignEntityPlugin plugin = shot.getCustomPlugin();
         if (plugin instanceof ExplosionEntityPlugin) blastOnce(shot, plugin);
         else if (plugin instanceof RailgunProjectileEntityPlugin) lanceOnce(shot, (RailgunProjectileEntityPlugin) plugin);
-        else if (plugin instanceof MortarProjectileEntityPlugin) moveBody(shot, SHELL_RADIUS, SHELL_CUT, false, amount, dt);
-        else if (plugin instanceof MissileCarrierEntityPlugin) moveBody(shot, CARRIER_RADIUS, CARRIER_CUT, false, amount, dt);
-        else if (plugin instanceof MissileSubmunitionEntity || plugin instanceof BaseMissileEntityPlugin) moveBody(shot, MISSILE_RADIUS, 1f, false, amount, dt);
+        else if (plugin instanceof MortarProjectileEntityPlugin) moveBody(shot, SHELL_RADIUS, FogGrid.Mover.PAD, SHELL_CUT, false, amount, dt);
+        else if (plugin instanceof MissileCarrierEntityPlugin) moveBody(shot, CARRIER_RADIUS, FogGrid.Mover.PAD, CARRIER_CUT, false, amount, dt);
+        else if (plugin instanceof MissileSubmunitionEntity || plugin instanceof BaseMissileEntityPlugin) moveBody(shot, MISSILE_RADIUS, FogGrid.Mover.PAD, 1f, false, amount, dt);
     }
 
     private void blastOnce(SectorEntityToken explosion, CustomCampaignEntityPlugin plugin) {
@@ -555,7 +556,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         grid.lance(plugin.originLocation.x - anchor.x, plugin.originLocation.y - anchor.y, x, y, LANCE_INNER, LANCE_OUTER, LANCE_PUSH);
     }
 
-    private void moveBody(SectorEntityToken body, float bodyRadius, float cut, boolean wake, float amount, float dt) {
+    private void moveBody(SectorEntityToken body, float bodyRadius, float pad, float cut, boolean wake, float amount, float dt) {
         float x = body.getLocation().x - entity.getLocation().x, y = body.getLocation().y - entity.getLocation().y;
         if (!grid.inWindow(x, y)) return;
         Tracked t = track(body, x, y);
@@ -567,6 +568,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         m.x = x;
         m.y = y;
         m.r = bodyRadius;
+        m.pad = pad;
         m.cut = cut;
         m.body = wake;
         t.lastX = x;
