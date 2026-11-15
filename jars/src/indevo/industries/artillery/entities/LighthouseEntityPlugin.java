@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.terrain.LighthouseBeamTerrain;
+import org.lazywizard.lazylib.MathUtils;
 
 public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
 
@@ -53,6 +54,12 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
 
     public boolean beamSees(SectorEntityToken target) {
         return lit && beam != null && getBeamPlugin().sees(target.getLocation(), target.getRadius(), CHECK_SECONDS);
+    }
+
+    // 1 at the lighthouse, 0 at the end of the beam, below 0 outside every beam
+    public float getBeamFraction(SectorEntityToken target) {
+        if (!beamSees(target)) return -1f;
+        return MathUtils.clamp(1f - Misc.getDistance(entity, target) / LighthouseBeamTerrain.getLength(), 0f, 1f);
     }
 
     private void markFleetsInBeam(LighthouseBeamTerrain terrain) {

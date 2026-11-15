@@ -359,10 +359,11 @@ Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
 Fixed - Ship parts from wrecks now roll per wreck instead of once per session
 
 Artillery
-Added - Lighthouses: one to three rotating beams guard some derelict artillery systems and spot you at once (new game)
+Added - Lighthouses: one to three rotating beams guard some derelict artillery systems and spot you within seconds (new game)
+Note - A beam spots you in half a second next to the lighthouse, 3 seconds at its far end
 Note - Planets and Chaff Clouds block the beams, going dark does not help, a hack turns a lighthouse off
 Added - Drone nets: nests launch spotter drones with vision cones in some derelict artillery systems (new game)
-Note - A spotter that sees you follows you, the eye fills twice as fast as under a watchtower
+Note - A spotter that sees you follows you, it spots you in half a second up close, 3 seconds at the edge of its cone
 Note - Planets and Chaff Clouds block the cones, going dark shortens them, a Sensor Decoy pulls spotters away
 Note - Spotters explode when interdicted or hit by a missile or an artillery shell, and take nearby spotters with them
 Note - Nests sweep three searchlights around them, a fast fleet can slip through the gaps
@@ -370,7 +371,7 @@ Note - A nest light that catches you locks on and follows you, reaching 30% furt
 Note - Shoot a nest for Relic Components, by missile or by flying up to it
 Added - Searchlights: towers sweep orange and purple lights over some derelict artillery systems (new game)
 Note - Orange lights see moving fleets, purple lights see fleets at burn 2 or less, dimmed lights see nothing
-Note - A light that sees you turns red and follows you, stop or start moving to shake it off
+Note - A light that has spotted you turns red and follows you, stop or start moving to shake it off
 Note - Chaff Clouds block the lights, going dark does not help, a hack turns a tower off
 Note - Small spikes on the tower point at its lights, longer for lights further out
 Added - Settings for vision type weights, lighthouse beams and drone cones

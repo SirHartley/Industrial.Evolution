@@ -239,7 +239,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
     private void reveal() {
         revealed = true;
-        if (ping) Global.getSoundPlayer().playUISound(ArtilleryStationEntityPlugin.WARNING_PING_SOUND, 1f, ArtilleryStationEntityPlugin.WARNING_PING_VOLUME);
+        if (ping) ArtilleryStationEntityPlugin.playWarningPing();
 
         if (track == null || trackOffset == null || finishing || !track.isAlive() || track.getContainingLocation() != entity.getContainingLocation()) return;
 

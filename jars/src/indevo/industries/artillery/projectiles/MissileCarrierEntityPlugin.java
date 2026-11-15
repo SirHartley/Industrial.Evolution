@@ -262,7 +262,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
 
     private void reveal() {
         revealed = true;
-        if (ping) Global.getSoundPlayer().playUISound(ArtilleryStationEntityPlugin.WARNING_PING_SOUND, 1f, ArtilleryStationEntityPlugin.WARNING_PING_VOLUME);
+        if (ping) ArtilleryStationEntityPlugin.playWarningPing();
 
         boolean launched = timePassedSeconds > projectileDelaySeconds && !sound;
         if (!launched || finishing || track == null || trackOffset == null || !track.isAlive() || track.getContainingLocation() != entity.getContainingLocation()) return;

@@ -74,7 +74,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
         }
 
         initProjectiles(target);
-        if (target.isPlayerFleet()) Global.getSoundPlayer().playUISound(ArtilleryStationEntityPlugin.WARNING_PING_SOUND, 1f, ArtilleryStationEntityPlugin.WARNING_PING_VOLUME);
+        if (target.isPlayerFleet()) ArtilleryStationEntityPlugin.playWarningPing();
 
         readResolve();
     }
