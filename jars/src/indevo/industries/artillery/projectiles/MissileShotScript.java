@@ -106,6 +106,7 @@ public class MissileShotScript implements EveryFrameScript {
 
             params.track = track;
             params.trackOffset = Vector2f.sub(fuzzedTarget, anticipatedTargetLoc, null);
+            params.ping = track != null && i == 0;
             MissileCarrierEntityPlugin.spawn(params);
         }
 
