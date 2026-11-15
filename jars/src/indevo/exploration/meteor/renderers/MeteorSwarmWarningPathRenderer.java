@@ -21,6 +21,7 @@ public class MeteorSwarmWarningPathRenderer implements EveryFrameScript {
     public static final String WARNING_SIGN_ENTITY_ID = "IndEvo_warning_sign";
     public static final String MEM_INSTANCE = "$IndEvo_warningRenderer";
     public static final float DISTANCE_BETWEEN_SIGNS = 2000f;
+    public static final float SAME_CENTRE_TOLERANCE = 1f;
 
     public boolean done = false;
     public boolean spawnedSigns = false;
@@ -51,9 +52,14 @@ public class MeteorSwarmWarningPathRenderer implements EveryFrameScript {
         return false;
     }
 
-    public static void reportAngle(LocationAPI loc, float angle) {
+    public static void reportAngle(LocationAPI loc, CircularArc arc, float angle) {
         MeteorSwarmWarningPathRenderer renderer = (MeteorSwarmWarningPathRenderer) loc.getMemoryWithoutUpdate().get(MEM_INSTANCE);
-        if (renderer != null) renderer.addAngle(angle);
+        if (renderer != null && renderer.isOwnArc(arc)) renderer.addAngle(angle);
+    }
+
+    // rocks of one swarm share the arc centre, every other path has its own
+    public boolean isOwnArc(CircularArc other) {
+        return other != null && Misc.getDistance(arc.center, other.center) < SAME_CENTRE_TOLERANCE;
     }
 
     @Override

@@ -31,6 +31,7 @@ public class MeteorImpact implements EveryFrameScript {
     public MeteorImpact(SectorEntityToken target, SectorEntityToken meteor, boolean dealDamage) {
         this.fleet = target;
         boolean isFleet = target instanceof CampaignFleetAPI;
+        boolean isStation = isFleet && ((CampaignFleetAPI) target).isStationMode();
 
         Vector2f velocity = target.getVelocity();
         Vector2f meteorVel = meteor.getVelocity();
@@ -62,7 +63,7 @@ public class MeteorImpact implements EveryFrameScript {
         }
 
         if (target.isInCurrentLocation()) {
-            if (isFleet && dealDamage) applyDamage();
+            if (isFleet && dealDamage && !isStation) applyDamage();
             if (!dealDamage && target.isPlayerFleet()) notifyPlayer();
 
             playImpactSound(mult, dealDamage);
@@ -187,9 +188,7 @@ public class MeteorImpact implements EveryFrameScript {
 
     @Override
     public void advance(float amount) {
-        if (fleet instanceof CampaignFleetAPI){
-            CampaignFleetAPI fleet = (CampaignFleetAPI) this.fleet;
-
+        if (fleet instanceof CampaignFleetAPI fleet && !fleet.isStationMode()){
             fleet.setOrbit(null);
             Vector2f velocity = fleet.getVelocity();
             fleet.setVelocity(velocity.x + dV.x * amount, velocity.y + dV.y * amount);

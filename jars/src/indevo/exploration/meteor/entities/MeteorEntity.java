@@ -1,8 +1,10 @@
 package indevo.exploration.meteor.entities;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.ai.ModularFleetAIAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
@@ -24,9 +26,15 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
     public static final float MIN_SIZE = 20F;
     public static final float BASE_SPEED = 500f;
 
+    public static final float DODGE_INTERVAL = 0.2f;
+    public static final float DODGE_LOOKAHEAD_SECONDS = 4f;
+    public static final float DODGE_CLEARANCE = 150f;
+    public static final float DODGE_DURATION_DAYS = 0.03f;
+
     public float size, angle, angleRotation;
     public boolean colliding = false;
     public MeteorMovementModuleAPI movement;
+    public float dodgeTimer = 0f;
 
     public void init(){
         angleRotation = 0.1f + MAX_ROTATION_PER_SEC - (MAX_ROTATION_PER_SEC * (entity.getRadius() / MAX_SIZE));
@@ -105,10 +113,18 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
 
             //disable collision checks if out of sensor range
             if (Global.getSector().getViewport().isNearViewport(entity.getLocation(), 1000f)){
-                for (SectorEntityToken t : getCollisionRelevantEntities(entity.getContainingLocation())) {
+                List<SectorEntityToken> targets = getCollisionRelevantEntities(entity.getContainingLocation());
+
+                for (SectorEntityToken t : targets) {
                     if (isInCollisionRange(t)) {
                         setCollidingAndFade(t);
                     }
+                }
+
+                dodgeTimer += amount;
+                if (!colliding && dodgeTimer >= DODGE_INTERVAL) {
+                    dodgeTimer = 0f;
+                    warnFleets(targets);
                 }
             }
         }
@@ -127,6 +143,37 @@ public class MeteorEntity extends BaseCustomEntityPlugin {
         }
 
         return targets.entities;
+    }
+
+    // avoidLocation adds an entry per call, so this runs on an interval and each entry lives a little longer than it
+    private void warnFleets(List<SectorEntityToken> targets) {
+        for (SectorEntityToken t : targets) {
+            if (!(t instanceof CampaignFleetAPI fleet) || fleet.isPlayerFleet() || fleet.isStationMode() || fleet.getOrbit() != null) continue;
+            if (!(fleet.getAI() instanceof ModularFleetAIAPI ai)) continue;
+
+            float range = entity.getRadius() + fleet.getRadius() + DODGE_CLEARANCE;
+            Vector2f point = getClosestApproach(entity.getLocation(), entity.getVelocity(), fleet.getLocation(), DODGE_LOOKAHEAD_SECONDS, range);
+            if (point == null) continue;
+
+            // a band of 1 or less gives the avoid point full weight against the fleet heading (NavigationModule.advance)
+            ai.getNavModule().avoidLocation(entity.getContainingLocation(), point, range, range + 1f, DODGE_DURATION_DAYS);
+        }
+    }
+
+    // point on the rock's straight course closest to the target, null if it is behind, later than maxSeconds or not within range
+    public static Vector2f getClosestApproach(Vector2f rockLoc, Vector2f rockVel, Vector2f targetLoc, float maxSeconds, float range) {
+        float speedSq = rockVel.lengthSquared();
+        if (speedSq < 1f) return null;
+
+        float dx = targetLoc.x - rockLoc.x;
+        float dy = targetLoc.y - rockLoc.y;
+        float t = (dx * rockVel.x + dy * rockVel.y) / speedSq;
+        if (t < 0f || t > maxSeconds) return null;
+
+        Vector2f point = new Vector2f(rockLoc.x + rockVel.x * t, rockLoc.y + rockVel.y * t);
+        if (Misc.getDistance(point, targetLoc) >= range) return null;
+
+        return point;
     }
 
     public boolean isInCollisionRange(SectorEntityToken t){

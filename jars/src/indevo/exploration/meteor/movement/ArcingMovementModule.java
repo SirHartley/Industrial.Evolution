@@ -49,7 +49,7 @@ public class ArcingMovementModule extends BaseMeteorMovementModule {
     }
 
     public void reportPosition(){
-        MeteorSwarmWarningPathRenderer.reportAngle(entity.getContainingLocation(), currentAngle);
+        MeteorSwarmWarningPathRenderer.reportAngle(entity.getContainingLocation(), arc, currentAngle);
     }
 
     @Override

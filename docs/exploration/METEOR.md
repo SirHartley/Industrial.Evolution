@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-On each economy tick while the player is in a valid system, `MeteorSwarmManager` rolls a shower. A shower is an arc across the system (start and end on the grid boundary, through a point 3000..10000 from the centre); after a 2..5 day delay a spawner script moves meteors along it for a runtime in seconds. Meteors that touch fleets or stations push them, damage ships and break into fragments. Treasure meteors drop salvage on impact. The first valid tick also spawns a roider fleet that sells concussive missiles and schedules a tutorial shower.
+On each economy tick while the player is in a valid system, `MeteorSwarmManager` rolls a shower. A shower is an arc across the system (start and end on the grid boundary, through a point 3000..10000 from the centre); after a 2..5 day delay a spawner script moves meteors along it for a runtime in seconds. Meteors that touch fleets or stations push them, damage ships and break into fragments; station fleets only take the glow and fragments. NPC fleets steer out of a meteor's lane. Treasure meteors drop salvage on impact. The first valid tick also spawns a roider fleet that sells concussive missiles and schedules a tutorial shower.
 
 Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3, `IRRADIOID` 3, `PLANETOID` 3. The tutorial forces `ASTEROID`.
 
@@ -20,21 +20,21 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 | `spawners/IceSwarmSpawner.java` | Ice rocks (half the spawns, double size) and asteroids; `IceTreasureoidEntity` with a frozen wreck |
 | `spawners/RadioactiveSwarmSpawner.java` | Adds `RadioactiveTerrain`; asteroids and 30% irradiated rocks; `TreasuradoidEntity` with entourage and loot station, blocks spawns inside its orbit circle |
 | `spawners/PlanetoidSwarmSpawner.java` | Spawns everything at once: a temporary planet (vast ruins, very cold, no atmosphere, irradiated if density > 1.5), five dust rings, 0..2 loot stations, an orbiting rock field; planet follows the arc and despawns everything at the end |
-| `entities/MeteorEntity.java` | Base meteor plugin: rotation, movement module, missile hit check, collision with stations and fleets near the viewport, fade at arc end |
+| `entities/MeteorEntity.java` | Base meteor plugin: rotation, movement module, missile hit check, collision with stations and fleets near the viewport, NPC fleet dodge, fade at arc end |
 | `entities/TreasuroidEntity.java` | Sparkling meteor, spawns a random supply/equipment/weapons cache on impact |
 | `entities/IcyRockEntity.java` | Ice rock; radius >= 50 spawns orbiting splinters that fall back to arcing when their focus dies |
 | `entities/IceTreasureoidEntity.java` | Ice rock carrying a derelict wreck (hull value > 20000, recoverable without story point) |
 | `entities/SpicyRockEntity.java` | Irradiated rock: green glow, raises radiation on fleets within `radius * 10` |
 | `entities/TreasuradoidEntity.java` | Large irradiated treasure rock (radius 400), entourage ring, `_loot` research or lab station that frees on impact |
 | `movement/MeteorMovementModuleAPI.java`, `BaseMeteorMovementModule.java` | Movement contract (`init`, `advance`, `isMovementFinished`, arc, velocity) |
-| `movement/ArcingMovementModule.java` | Moves along a `CircularArc` at a fixed speed, reports angle to the warning renderer |
+| `movement/ArcingMovementModule.java` | Moves along a `CircularArc` at a fixed speed, reports its arc and angle to the warning renderer |
 | `movement/ExternalOrbitMovement.java` | For orbiting meteors: only tracks progress on the arc |
 | `movement/ArcOnOrbitLossMovement.java` | Splinters: idle while orbiting, then arcs on a re-centred arc |
 | `movement/EmptyMovement.java` | No movement (impact fragments) |
 | `movement/RelativeArcingMovement.java` | Dead: no users |
 | `scripts/MovementModuleRunner.java`, `PayloadOnFinishedModuleRunner.java` | Run a movement module on non-meteor entities (entourage focus, planetoid); payload runs a `Script` in the same `advance()` the arc ends, then `isDone()` |
 | `scripts/PlanetoidDespawnScript.java` | Planetoid payload: fades the planet, its ring bands and every non fleet entity orbiting it; fleets orbiting it lose the orbit and stay |
-| `scripts/MeteorImpact.java`, `IceroidImpact.java` | 0.2 s push on the hit entity, one ship damaged (weight by hull size, scaled by burn above go-slow), sound, glow, asteroid fragments; ice variant spawns ice fragments |
+| `scripts/MeteorImpact.java`, `IceroidImpact.java` | 0.2 s push on the hit fleet, one ship damaged (weight by hull size, scaled by burn above go-slow), sound, glow, asteroid fragments; station fleets get no push and no damage; ice variant spawns ice fragments |
 | `scripts/RadiationReductionScript.java` | NPC radiation decay |
 | `scripts/TutorialEncounterScript.java` | Spawns "Panicked Roiders" (roider or independent `SCAVENGER_SMALL`), makes them intercept the player |
 | `fleet/InterceptPlayerFleetAssignmentAI.java` | Script plus campaign listener: re-issues `INTERCEPT` until the player opens a dialog with the fleet, then returns it to source |
@@ -44,7 +44,7 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 | `terrain/RadioactiveTerrain.java` | `StarCoronaTerrainPlugin` subclass, radius 50000 at system centre; strength per fleet = radiation level in fleet memory; CR loss, peak time and CR decay buffs; removes itself when the warning renderer is gone |
 | `renderers/RadiationEffectHandler.java` | Transient Luna renderer: player radiation decay, sound loops on the player fleet, music suppression, vignette, drives `RadiationVFXHandler` |
 | `renderers/RadiationVFXHandler.java` | GraphicsLib screen shader (`data/shaders/indevo_baseVertex.shader`, `indevo_Fragment.shader`) by radiation level. Non transient Luna renderer, so it is saved: keep its field names and types |
-| `renderers/MeteorSwarmWarningPathRenderer.java` | System script: warning sign entities every 2000 along the arc, red where meteors currently are; ends after 10 s without reports. Instance kept in location memory |
+| `renderers/MeteorSwarmWarningPathRenderer.java` | System script: warning sign entities every 2000 along the arc, red where meteors currently are; takes reports only from rocks on its own arc (same centre); ends after 10 s without reports. Instance kept in location memory |
 | `renderers/WarningSignNotificationRenderer.java` | 15 s warning sign and arrow next to the player fleet pointing at the arc |
 | `renderers/MeteorDebrisRenderer.java` | Dust clouds at impact; transient Luna renderer, expires once all particles fade |
 | `renderers/RadiationTrailRenderer.java` | Dead: only user commented out (`SpicyRockEntity.java:45`) |
@@ -88,7 +88,10 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 
 ### Collision
 
-`MeteorEntity.advance` (`:65`): only when within 1000 of the viewport; targets are stations and fleets minus salvageable entities, built once per frame and location and shared by all meteors (`getCollisionRelevantEntities`, `CollisionTargets`), since a tag lookup walks every entity in the location; hit when centre distance < meteor radius. A meteor hit by a consumable missile (`MissileMemFlags.MEM_CAUGHT_BY_MISSILE` in its memory) collides with a token at the missile location, so treasure drops without hitting a fleet (`:71-83`).
+`MeteorEntity.advance` (`:94`): only when within 1000 of the viewport; targets are stations and fleets minus salvageable entities, built once per frame and location and shared by all meteors (`getCollisionRelevantEntities`, `CollisionTargets`), since a tag lookup walks every entity in the location; hit when centre distance < meteor radius. A meteor hit by a consumable missile (`MissileMemFlags.MEM_CAUGHT_BY_MISSILE` in its memory) collides with a token at the missile location, so treasure drops without hitting a fleet (`:100-110`).
+
+- Station fleets (`isStationMode`): the hit breaks the meteor with sound, glow and fragments, no damage and no push (`MeteorImpact.java:34`, `:66`, `:191`). The push would drop the station's orbit, and only market stations get it back (vanilla `OrbitalStation`).
+- Dodge (`warnFleets`, `:149`): in the same near viewport block, every 0.2 s per meteor (`dodgeTimer`), for each fleet target that is not the player, not in station mode, not on an orbit and has a `ModularFleetAIAPI`: `getClosestApproach` (`:164`) takes the point on the meteor's straight course closest to the fleet. If the meteor gets there within 4 s and the point is closer than meteor radius + fleet radius + 150, the fleet gets `getNavModule().avoidLocation(loc, point, range, range + 1, 0.03 days)`. The avoid vector points across the lane; a band of 1 or less gives it weight 2 against the fleet's own heading (starsector-knowledge `obf/campaign/ai/NavigationModule.java:74-87`). `avoidLocation` adds a new entry per call, hence the interval; each entry lasts 0.3 s. Fleets on an orbit do not move by their nav module and still get hit.
 
 ### Radiation
 
@@ -102,6 +105,7 @@ Type roll weights (`MeteorSwarmManager.java:55-58`): `ASTEROID` 12, `ICEROID` 3,
 
 - Settings are read at use time: the enable toggle and chance on each economy tick, the shape values when a shower is rolled, the timeouts when it spawns. A change applies to the next tick or shower; a shower already rolled keeps its shape. Setting mechanics: [Settings](../core/SETTINGS.md).
 - One swarm per location: the warning path renderer is a single instance in location memory, the last one wins (`MeteorSwarmWarningPathRenderer.java:16-18`). `RadioactiveTerrain` lives only while that key exists, and relies on being spawned after it (`RadioactiveTerrain.java:90`).
+- Movement modules report `(arc, angle)` through `MeteorSwarmWarningPathRenderer.reportAngle`; the renderer drops reports whose arc centre is more than 1 su from its own (`isOwnArc`, `:61`). Every rock of a swarm, its splinters and its entourage use arcs from `getModifiedRadiusArc` of the swarm arc, which keep the centre. A rock on any other arc (dispersed treasure entourage, any rock of another path) never keeps a swarm's path, signs or terrain alive.
 - `IntelManager.advance` does not advance intel (starsector-knowledge `obf/campaign/comms/v2/IntelManager.java:44`), so `MeteorShowerLocationIntel` adds itself as a sector script (`:31`).
 - `BaseCampaignEntity.runScripts` drops a script as soon as `isDone()` is true (starsector-knowledge `obf/campaign/BaseCampaignEntity.java:636-647`), so `PayloadOnFinishedModuleRunner` runs its payload in the advance that ends the movement and reports done from its own flag (`PayloadOnFinishedModuleRunner.java:20-37`). Payloads are named `Script` classes: lambdas come back from the save as null. A null payload at the arc end throws `IllegalStateException`, since only an IE bug can produce one.
 - Planetoid swarm planets carry `PlanetoidSwarmSpawner.PLANETOID_TAG` (`indevo_planetoid`); the planetoid dialog rules key on it (`rules.csv` `IndEvo_isPlanetoid*`).

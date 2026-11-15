@@ -66,7 +66,7 @@ Package `indevo/ambience/shuttletraffic/`:
 | Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); hull sprites from `ShipHullSpecAPI.getSpriteName()`, the vanilla `mining_drone` hull for escape pods | `ShuttleTrafficRenderer`, `ShuttleHullPool.getPod` (`:114`) |
 | Config | `data/config/engine_styles.json` (merged): `engineCampaignColor` or `engineColor` for the glow, `contrailCampaignColor` or `contrailColor` at alpha 75 for the trail, `type` `SMOKE` for a normal blend trail | `ShuttleHullPool.getEngineLook` |
 | Industry ids | `Industries.PATROLHQ`, `MILITARYBASE`, `HIGHCOMMAND`, `MINING`, `Ids.SWITCHABLE_MINING`, `Ids.ACADEMY`, `Ids.EMBASSY`, `Ids.SCRAPYARD`, `Ids.PIRATEHAVEN`, `Ids.REPAIRDOCKS`, `Ids.PORT` (Courier Port), `Ids.CHURCH` (Cathedral) | `ShuttleNetwork.addMarkets` (`:231`), `addMarketLanes`, `addPilgrims` (`:340`) |
-| Condition and tags | `Ids.COND_PARADE` (Museum parade), `Tags.LUDDIC_SHRINE` (on markets and on entities, vanilla `CoreLifecyclePluginImpl.tagLuddicShrines`), `Ids.TAG_WATCHTOWER`, `Ids.TAG_ARTILLERY_STATION`, `MeteorSwarmManager.METEOR_TAG` (on every IE meteor, `MeteorEntity:71`) | `ShuttleNetwork` |
+| Condition and tags | `Ids.COND_PARADE` (Museum parade), `Tags.LUDDIC_SHRINE` (on markets and on entities, vanilla `CoreLifecyclePluginImpl.tagLuddicShrines`), `Ids.TAG_WATCHTOWER`, `Ids.TAG_ARTILLERY_STATION`, `MeteorSwarmManager.METEOR_TAG` (on every IE meteor, `MeteorEntity:79`) | `ShuttleNetwork` |
 
 Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2, `shepherd` 1, `ox` 1. Another mod adds rows by shipping the same path with its own ids.
 

@@ -247,7 +247,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Relay | `$IndEvo_RelayUnlocked` set by the hypertransmitter item effect | `TransmitterEffect.java:26` |
 | Rift generator | Skips planets with artillery | `RuinsManager.java:171-207` |
 | Consumables (remote, decoy) | Artillery `forceTarget`, `ArtilleryTerrain` | [CONSUMABLES](items/CONSUMABLES.md) |
-| Meteor | `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` from consumables; spawns lab, arsenal and pet center stations | `MeteorEntity.java:71` |
+| Meteor | `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` from consumables; spawns lab, arsenal and pet center stations | `MeteorEntity.java:100` |
 | Stations | Arsenal stations add the minefield condition | `DerelictStationPlacer.java:143-157` |
 | Crucible | Artillery `VariableExplosionEntityPlugin`; `TAG_ENABLED` read by a utils renderer | [CRUCIBLE](exploration/CRUCIBLE.md) |
 | Research (Navi) | Unlocks fairy pet sales | `PetManagementAbilityPlugin.java:34` |
