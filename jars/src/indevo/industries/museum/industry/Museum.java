@@ -49,6 +49,8 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     // X - Beta: Increase stability and immigration of local planet by x per 10k?
     // X - Alpha: second parade fleet (if sufficient ships)
 
+    private static Map<ShipAPI.HullSize, Float> hullSizeValueCaps;
+
     //storage
     private SubmarketAPI submarket;
 
@@ -355,14 +357,16 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     private void updateShipValueStatistics() {
         List<ShipHullSpecAPI> specList = MiscIE.getAllLearnableShipHulls(); //only learnable cause getting all fucks up the value statistics something fierce
+        Map<ShipAPI.HullSize, Float> caps = getHullSizeValueCaps();
 
         for (ShipAPI.HullSize size : new ArrayList<>(Arrays.asList(ShipAPI.HullSize.FRIGATE, ShipAPI.HullSize.DESTROYER, ShipAPI.HullSize.CRUISER, ShipAPI.HullSize.CAPITAL_SHIP))){
             float total = 0f;
             int specNum = 0;
             Pair<Float, Float> valuePair = new Pair<>(0f,0f); //a = maxShipValue, b = average for hull size
+            float cap = caps.getOrDefault(size, MuseumConstants.FALLBACK_SHIP_VALUE_CAP);
 
             for (ShipHullSpecAPI spec : specList){
-                if (spec.getHullSize() != size || spec.getBaseValue() > 2000000) continue; //any ship worth more than 2 mil gets cut to avoid modded brainrot bloating the statistics
+                if (spec.getHullSize() != size || spec.getBaseValue() > cap) continue; //cut modded outliers so they don't bloat the statistics
 
                 specNum++;
 
@@ -374,6 +378,19 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
             valuePair.two = total / specNum;
             hullSizeValueMap.put(size, valuePair);
         }
+    }
+
+    private static Map<ShipAPI.HullSize, Float> getHullSizeValueCaps() {
+        if (hullSizeValueCaps != null) return hullSizeValueCaps;
+
+        Map<ShipAPI.HullSize, Float> caps = new HashMap<>();
+        for (ShipHullSpecAPI spec : MiscIE.getAllLearnableShipHulls()) {
+            if (spec.getSourceMod() != null) continue; //vanilla specs have no source mod
+            caps.merge(spec.getHullSize(), spec.getBaseValue() * MuseumConstants.VANILLA_SHIP_VALUE_CAP_MULT, Math::max);
+        }
+
+        hullSizeValueCaps = caps;
+        return caps;
     }
 
     //submarket stuff

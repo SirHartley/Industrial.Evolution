@@ -10,6 +10,8 @@ public class MuseumConstants {
 
     //income
     public static final float DEFAULT_INCOME_MULT = 1f; //no setting
+    public static final float VANILLA_SHIP_VALUE_CAP_MULT = 1.5f; //no setting
+    public static final float FALLBACK_SHIP_VALUE_CAP = 2000000f; //no setting
 
     //parades
     public static final int[] PARADE_DAY_OPTIONS = new int[]{31,62,93,124}; //no setting
