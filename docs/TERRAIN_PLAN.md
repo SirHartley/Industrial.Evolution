@@ -16,6 +16,8 @@ Every item below is a terrain plugin under a new package `indevo/exploration/ter
 - Each item gets a LunaLib toggle and an intensity setting in the exploration tab (`docs/core/SETTINGS.md`).
 - Damage that hits ships follows the vanilla hyperspace storm strike (`impl/campaign/terrain/HyperspaceTerrainPlugin.java:1455-1550`): CR loss plus armour scaled hull damage, scaled by `Stats.CORONA_EFFECT_MULT` (Solar Shielding), hull never below 1%. Confirmed.
 - Push and pull follow the vanilla corona wind and `WavefrontTerrainPlugin.applyEffect` (`impl/campaign/terrain/WavefrontTerrainPlugin.java:436-500`): a velocity nudge per frame plus a temporary burn modifier. Confirmed.
+- Effect category: `BaseTerrain.advance` applies only one terrain per effect category to a fleet per frame (memory key `$terrain_<category>`, `impl/campaign/terrain/BaseTerrain.java:94-106`, checked in the 0.98.5a-RC4 sources). Each IE terrain here gets its own category (`IndEvo_<terrain>`), so it never blocks a vanilla terrain and two overlapping clouds of one kind apply once. Confirmed.
+- AI flags: fleet AI reads only `AVOID_VERY_CAREFULLY`, `CR_DRAIN`, `TILE_BASED`, `EFFECT_DIMINISHED_WITH_RANGE`, `DANGEROUS_UNLESS_GO_SLOW` and `NOT_SUPER_DANGEROUS_UNLESS_GO_SLOW` (obf `campaign/ai/TacticalModule`), plus `BREAK_OTHER_ORBITS` (obf `campaign/CampaignState`). The other `TerrainAIFlags` do nothing. `AVOID_VERY_CAREFULLY` makes fleets steer round one circle on the terrain entity, radius `getMaxEffectRadius() + 200`; it cannot avoid a shape inside the terrain. Confirmed, same sources.
 
 ## 1. Planned terrain
 
@@ -61,7 +63,7 @@ Plan:
 - The core rips: storm strike damage (section 0) while inside the inner third.
 - Asteroids are IE meteors: `MeteorEntity` (`indevo/exploration/meteor/entities/MeteorEntity.java`) with an orbit movement module like `ExternalOrbitMovement`, so they really collide and use `MeteorImpact`. Vanilla belt impacts are only a dice roll per day (`impl/campaign/terrain/AsteroidBeltTerrainPlugin.java:165-186`), which would not give anything to dodge. Meteor collisions only run within 1000 units of the viewport (`MeteorEntity.java:107`), so off screen whirlpools cost little. Asteroids keep the `IndEvo_MeteorSwarm` tag, so CR harpoons and IE missiles work on them as they do on swarms.
 - Debris: a transient Luna renderer drawing a particle spiral per whirlpool, only while on screen.
-- `MaelstromTerrain extends BaseTerrain` with a circular orbit around the black hole; AI flag `AVOID_VERY_CAREFULLY` for the core like the event horizon (`EventHorizonPlugin.java:51`).
+- `MaelstromTerrain extends BaseTerrain` with a circular orbit around the black hole; AI flag `AVOID_VERY_CAREFULLY` like the event horizon (`EventHorizonPlugin.java:51`). NPC fleets then steer round the whole whirlpool, not only the core (section 0).
 
 ### 1.3 Meteor drizzle: moved
 
@@ -177,7 +179,7 @@ Each has a recommended answer.
 9. Maelstrom: asteroids as real IE meteors that collide (recommended), or vanilla belt dice rolls?
 10. Moved with 1.3.
 11. Moved with 1.3.
-12. Rifts: throw the player and their detachments only (recommended; NPC fleets get the avoid AI flag and are not thrown, so patrols and quest fleets do not vanish), or every fleet?
+12. Rifts: throw the player and their detachments only, with NPC fleets flying through untouched (recommended, so patrols and quest fleets do not vanish). Vanilla AI cannot dodge single rifts (section 0). Alternatives: NPC fleets avoid the whole rift field (`AVOID_VERY_CAREFULLY`, keeps them out of a large part of the system), or every fleet is thrown.
 13. Rifts: cost of being thrown. Recommended: none besides the trip back, no fuel. Alternative: a small CR hit like a jump without a jump point.
 14. Rifts: grace before the throw. Recommended 0.5 s inside with a strong shimmer and sound, so clipping an edge is not punished.
 15. Rifts: CR calls its ponds ruptures and has `UnstableFabricRippleTerrainRenderer`. Keep the name "Unstable Fabric" (recommended, it is a different thing in a different mod), or rename to avoid confusion? Also keep rifts clear of `catchrelease_StaticPond` terrain by id string (recommended, read only, no CR class).
