@@ -14,6 +14,9 @@ uniform vec3 uC2;
 uniform vec4 uSun[3];
 uniform vec3 uSunC[9];
 uniform float uSunN;
+uniform vec4 uRing[32];
+uniform vec3 uRingH[32];
+uniform float uRN;
 
 float h(vec2 p) {
 	p = fract(p * vec2(123.34, 456.21));
@@ -46,15 +49,33 @@ vec4 g(vec2 q) {
 	return texture2D(uTex, t);
 }
 
+// clear rings round bodies, exact per pixel: a ring is only a few grid cells wide. same math as FogGrid.Shape.keepAt
+float keep(vec2 q) {
+	float k = 1.0;
+	for (int i = 0; i < 32; i++) {
+		if (float(i) >= uRN) break;
+		vec4 r = uRing[i];
+		vec3 hz = uRingH[i];
+		float dist = distance(q, r.xy);
+		float full = smoothstep(r.z, r.w, dist);
+		k *= hz.z > 0.0 ? mix(full, smoothstep(hz.x, hz.y, dist), hz.z) : full;
+	}
+	return k;
+}
+
+float dens(vec2 q) {
+	return g(q).r * keep(q);
+}
+
 void main() {
 	vec4 s = g(w);
-	float d = s.r * 1.3;
+	float d = s.r * 1.3 * keep(w);
 	vec2 D = (s.gb - 0.502) * 1405.0;
 	float spd = s.a * 400.0;
 
 	float e = uCell * 0.6;
-	float gx = g(w + vec2(e, 0.0)).r - g(w - vec2(e, 0.0)).r;
-	float gy = g(w + vec2(0.0, e)).r - g(w - vec2(0.0, e)).r;
+	float gx = dens(w + vec2(e, 0.0)) - dens(w - vec2(e, 0.0));
+	float gy = dens(w + vec2(0.0, e)) - dens(w - vec2(0.0, e));
 	float rim = clamp(length(vec2(gx, gy)) * 3.2, 0.0, 1.0);
 
 	vec2 p = w / 1500.0;

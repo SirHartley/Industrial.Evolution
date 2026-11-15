@@ -111,6 +111,8 @@ public class FogTerrainPlugin extends BaseTerrain {
     // view state, rebuilt while the player is in this system and never saved
     private transient FogGrid.Shape shape;
     private transient long keepStamp;
+    // the body of each clear ring in shape.keep, in the same order
+    private transient SectorEntityToken[] keepBodies;
     private transient FogGrid grid;
     private transient Map<SectorEntityToken, Tracked> tracked;
     private transient List<Ring> rings;
@@ -453,6 +455,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         Vector2f anchor = entity.getLocation();
         float reach = radius * MAP_REACH;
         List<Float> out = new ArrayList<>();
+        List<SectorEntityToken> bodies = new ArrayList<>();
 
         Set<SectorEntityToken> marketEntities = new HashSet<>();
         if (kind == Kind.BANK) for (MarketAPI market : Misc.getMarketsInLocation(loc)) marketEntities.add(market.getPrimaryEntity());
@@ -460,39 +463,52 @@ public class FogTerrainPlugin extends BaseTerrain {
         for (PlanetAPI planet : loc.getPlanets()) {
             if (planet.isStar() && !planet.getSpec().isNebulaCenter()) {
                 float r = planet.getRadius(), unit = Math.min(r, STAR_UNIT_MAX);
-                addKeep(out, planet, r + unit * STAR_GAP_IN, r + unit * STAR_GAP_OUT, r + unit * STAR_HAZE_IN, r + unit * STAR_HAZE_OUT, anchor, reach);
+                addKeep(out, bodies, planet, r + unit * STAR_GAP_IN, r + unit * STAR_GAP_OUT, r + unit * STAR_HAZE_IN, r + unit * STAR_HAZE_OUT, anchor, reach);
                 continue;
             }
             float inner = planet.getRadius() + (marketEntities.contains(planet) ? STATION_KEEP : 0f);
-            addKeep(out, planet, inner, Math.max(inner * PLANET_FADE, inner + MIN_FADE), 0f, 0f, anchor, reach);
+            addKeep(out, bodies, planet, inner, Math.max(inner * PLANET_FADE, inner + MIN_FADE), 0f, 0f, anchor, reach);
         }
 
         if (kind == Kind.BANK) {
-            for (SectorEntityToken jp : loc.getJumpPoints()) addSmallKeep(out, jp, jp.getRadius() + JUMP_POINT_KEEP, anchor, reach);
-            for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) addSmallKeep(out, station, station.getRadius() + STATION_KEEP, anchor, reach);
+            for (SectorEntityToken jp : loc.getJumpPoints()) addSmallKeep(out, bodies, jp, jp.getRadius() + JUMP_POINT_KEEP, anchor, reach);
+            for (SectorEntityToken station : loc.getEntitiesWithTag(Tags.STATION)) addSmallKeep(out, bodies, station, station.getRadius() + STATION_KEEP, anchor, reach);
             for (SectorEntityToken market : marketEntities) {
-                if (market != null && !(market instanceof PlanetAPI)) addSmallKeep(out, market, market.getRadius() + STATION_KEEP, anchor, reach);
+                if (market != null && !(market instanceof PlanetAPI)) addSmallKeep(out, bodies, market, market.getRadius() + STATION_KEEP, anchor, reach);
             }
         }
 
         float[] keep = new float[out.size()];
         for (int i = 0; i < keep.length; i++) keep[i] = out.get(i);
+        keepBodies = bodies.toArray(new SectorEntityToken[0]);
         return keep;
     }
 
-    private void addSmallKeep(List<Float> out, SectorEntityToken other, float keepRadius, Vector2f anchor, float reach) {
-        addKeep(out, other, keepRadius * 1.05f, keepRadius * 1.7f, 0f, 0f, anchor, reach);
+    private void addSmallKeep(List<Float> out, List<SectorEntityToken> bodies, SectorEntityToken other, float keepRadius, Vector2f anchor, float reach) {
+        addKeep(out, bodies, other, keepRadius * 1.05f, keepRadius * 1.7f, 0f, 0f, anchor, reach);
     }
 
-    private void addKeep(List<Float> out, SectorEntityToken other, float inner, float outer, float hazeIn, float hazeOut, Vector2f anchor, float reach) {
+    private void addKeep(List<Float> out, List<SectorEntityToken> bodies, SectorEntityToken other, float inner, float outer, float hazeIn, float hazeOut,
+                         Vector2f anchor, float reach) {
         float x = other.getLocation().x - anchor.x, y = other.getLocation().y - anchor.y;
         if (Math.hypot(x, y) - outer > reach) return;
+        bodies.add(other);
         out.add(x);
         out.add(y);
         out.add(inner);
         out.add(outer);
         out.add(hazeIn);
         out.add(hazeOut);
+    }
+
+    // the rings are drawn per pixel, so in view they follow their bodies every frame, not every KEEP_REFRESH_DAYS
+    private void moveKeep(FogGrid.Shape s) {
+        Vector2f anchor = entity.getLocation();
+        for (int i = 0; i < keepBodies.length; i++) {
+            Vector2f at = keepBodies[i].getLocation();
+            s.keep[i * FogGrid.Shape.KEEP_STRIDE] = at.x - anchor.x;
+            s.keep[i * FogGrid.Shape.KEEP_STRIDE + 1] = at.y - anchor.y;
+        }
     }
 
     private void advanceView(float amount) {
@@ -507,6 +523,7 @@ public class FogTerrainPlugin extends BaseTerrain {
 
         float strength = getStrength(), time = getMaskTime();
         FogGrid.Shape s = getShape();
+        moveKeep(s);
         if (grid == null) {
             grid = new FogGrid(GRID_CELLS, CELL_SIZE, s, cx, cy, strength, time);
             tracked = new IdentityHashMap<>();

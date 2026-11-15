@@ -87,7 +87,14 @@ public class FogGrid {
             return out;
         }
 
+        // the rest fog every effect reads
         public float mask(double x, double y, double t) {
+            float body = gridMask(x, y, t);
+            return body <= 0f ? 0f : body * keepAt(x, y);
+        }
+
+        // the rest fog without the clear rings: the grid holds this, the rings are drawn exact per pixel
+        public float gridMask(double x, double y, double t) {
             double body = bankBody(x, y, t);
             if (body <= 0) return 0f;
             if (front < NO_FRONT) {
@@ -96,15 +103,21 @@ public class FogGrid {
                 if (body <= 0) return 0f;
             }
             double inner = 0.5 + 0.7 * fbm(x / 1100 + 3 - t * 0.014, y / 1100 + 5 + t * 0.011, seed + 3, 4);
-            double keepMult = 1;
+            double gate = 1;
+            for (FogCover cover : covers) gate *= 1 - smooth(GATE_IN, GATE_OUT, cover.at((float) x + anchorX, (float) y + anchorY));
+            return (float) Math.min(1, Math.max(0, body * inner * gate));
+        }
+
+        // same math as keep() in the fragment shader
+        public float keepAt(double x, double y) {
+            double mult = 1;
             float[] k = keep;
             for (int i = 0; i + KEEP_STRIDE <= k.length; i += KEEP_STRIDE) {
                 double dist = Math.hypot(x - k[i], y - k[i + 1]);
                 double full = smooth(k[i + 2], k[i + 3], dist);
-                keepMult *= k[i + 5] > 0 ? HAZE * smooth(k[i + 4], k[i + 5], dist) + (1 - HAZE) * full : full;
+                mult *= k[i + 5] > 0 ? HAZE * smooth(k[i + 4], k[i + 5], dist) + (1 - HAZE) * full : full;
             }
-            for (FogCover cover : covers) keepMult *= 1 - smooth(GATE_IN, GATE_OUT, cover.at((float) x + anchorX, (float) y + anchorY));
-            return (float) Math.min(1, Math.max(0, body * inner * keepMult));
+            return (float) mult;
         }
 
         // stretched lobes in a slowly drifting warped space: solid middles, a noisy soft outline, ridged arms reaching out
@@ -207,7 +220,7 @@ public class FogGrid {
                 if (!newRow && i + si >= 0 && i + si < n) continue;
                 int k = j * n + i;
                 double x = ox + (i + 0.5) * cell, y = oy + (j + 0.5) * cell;
-                m[k] = shape.mask(x, y, time);
+                m[k] = shape.gridMask(x, y, time);
                 psi[k] = shape.curl(x, y, time);
                 d[k] = m[k] * strength;
             }
@@ -463,7 +476,7 @@ public class FogGrid {
             double y = oy + (j + 0.5) * cell;
             for (int i = 0; i < n; i++) {
                 double x = ox + (i + 0.5) * cell;
-                m[j * n + i] = shape.mask(x, y, time);
+                m[j * n + i] = shape.gridMask(x, y, time);
                 psi[j * n + i] = shape.curl(x, y, time);
             }
         }
