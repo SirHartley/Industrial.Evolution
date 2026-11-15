@@ -66,14 +66,16 @@ public class FogTerrainPlugin extends BaseTerrain {
     // fog starts at a body's surface and is full at this many radii, at least MIN_FADE further out
     public static final float PLANET_FADE = 2.3f;
     public static final float MIN_FADE = 200f;
-    // space round a star in units of its radius (at most STAR_UNIT_MAX) above the surface:
+    // space round a star in units of its radius (held to STAR_UNIT_MIN..STAR_UNIT_MAX) above the surface:
     // thin haze from HAZE_IN, haze full at HAZE_OUT, fog thickens from GAP_IN and is full at GAP_OUT
+    // the floor keeps the lit haze of a small star outside its corona, which is at least 300 units wide
+    public static final float STAR_UNIT_MIN = 350f;
     public static final float STAR_UNIT_MAX = 550f;
     public static final float STAR_HAZE_IN = 0.15f;
     public static final float STAR_HAZE_OUT = 0.9f;
     public static final float STAR_GAP_IN = 2f;
     public static final float STAR_GAP_OUT = 5.5f;
-    // a star lights the fog in its colour this many star diameters out from its surface
+    // a star lights the fog in its colour this many star diameters out from its surface, a small star as one of STAR_UNIT_MIN radius
     public static final float SUN_LIGHT_DIAMETERS = 1.5f;
     // the spell front ends this many radii out, where the last arms are; units per second pushed outward behind it
     public static final float FRONT_REACH = 1.3f;
@@ -322,6 +324,10 @@ public class FogTerrainPlugin extends BaseTerrain {
     }
 
     // up to three stars that light the fog: place, radius and light reach in bank local coordinates, shades per star
+    private static float starUnit(PlanetAPI star) {
+        return Math.max(STAR_UNIT_MIN, Math.min(STAR_UNIT_MAX, star.getRadius()));
+    }
+
     private void readSuns() {
         if (suns == null) {
             suns = new float[FogRenderer.MAX_SUNS * 4];
@@ -336,7 +342,7 @@ public class FogTerrainPlugin extends BaseTerrain {
             suns[sunCount * 4] = star.getLocation().x - anchor.x;
             suns[sunCount * 4 + 1] = star.getLocation().y - anchor.y;
             suns[sunCount * 4 + 2] = star.getRadius();
-            suns[sunCount * 4 + 3] = star.getRadius() * (1f + SUN_LIGHT_DIAMETERS * 2f);
+            suns[sunCount * 4 + 3] = star.getRadius() + Math.max(STAR_UNIT_MIN, star.getRadius()) * SUN_LIGHT_DIAMETERS * 2f;
             for (int i = 0; i < 9; i++) sunColours[sunCount * 9 + i] = shades[i / 3][i % 3];
             sunCount++;
         }
@@ -462,7 +468,7 @@ public class FogTerrainPlugin extends BaseTerrain {
 
         for (PlanetAPI planet : loc.getPlanets()) {
             if (planet.isStar() && !planet.getSpec().isNebulaCenter()) {
-                float r = planet.getRadius(), unit = Math.min(r, STAR_UNIT_MAX);
+                float r = planet.getRadius(), unit = starUnit(planet);
                 addKeep(out, bodies, planet, r + unit * STAR_GAP_IN, r + unit * STAR_GAP_OUT, r + unit * STAR_HAZE_IN, r + unit * STAR_HAZE_OUT, anchor, reach);
                 continue;
             }
