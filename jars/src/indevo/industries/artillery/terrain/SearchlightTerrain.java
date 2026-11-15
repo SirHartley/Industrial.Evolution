@@ -12,6 +12,7 @@ import indevo.config.Setting;
 import indevo.industries.artillery.renderers.LightConeRenderer;
 import indevo.industries.artillery.renderers.SearchlightRenderer;
 import indevo.industries.artillery.scripts.DroneNetScript;
+import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.VisionBlockers;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -171,11 +172,12 @@ public class SearchlightTerrain extends BaseRingTerrain {
         for (int i = 0; i < spots.length; i++) advanceSpot(spots[i], getHome(i, range), player, range, amount);
     }
 
-    // a spot that sees the player leaves its path and follows, out to TRACK_RANGE_MULT times the tower range
+    // a spot that sees the spotted player leaves its path and follows, out to TRACK_RANGE_MULT times the tower range
     private void advanceSpot(Spot spot, Vector2f goal, CampaignFleetAPI player, float range, float amount) {
         spot.sees = player != null && seesPlayer(spot, player);
 
-        if (spot.sees) {
+        // a spot only starts to follow once the eye is full
+        if (spot.sees && (spot.locked || EyeIndicatorScript.isPlayerSpotted())) {
             if (!spot.locked) startLock(spot);
             spot.locked = true;
             spot.lost = 0f;
@@ -385,7 +387,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
         tooltip.addTitle("Searchlight");
         tooltip.addPara("Orange lights see fleets that %s, purple lights see fleets that %s. Only the bright ones see your fleet.",
                 10f, Misc.getHighlightColor(), "move", "hold at burn " + Math.round(STOPPED_BURN) + " or less");
-        tooltip.addPara("A light that sees a fleet %s, follows it and sends its position to the artillery in this system.",
+        tooltip.addPara("A light that sees a fleet sends its position to the artillery in this system. Once the fleet is spotted, the light %s and follows it.",
                 10f, Misc.getNegativeHighlightColor(), "turns red");
         tooltip.addPara("Chaff clouds block the lights.", 10f);
     }

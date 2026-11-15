@@ -272,8 +272,8 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
     @Override
     public void createTooltip(TooltipMakerAPI tooltip, boolean expanded) {
         tooltip.addTitle("Lighthouse Beam");
-        tooltip.addPara("A fleet caught in the beam is %s and its position sent to the artillery in this system.",
-                10f, Misc.getNegativeHighlightColor(), "spotted at once");
+        tooltip.addPara("A fleet caught in the beam is %s and its position sent to the artillery in this system. The closer to the lighthouse, the faster.",
+                10f, Misc.getNegativeHighlightColor(), "spotted within seconds");
         tooltip.addPara("Planets and chaff clouds block the beam.", 10f);
     }
 
