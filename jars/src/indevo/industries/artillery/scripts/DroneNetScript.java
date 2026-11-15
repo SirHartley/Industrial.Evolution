@@ -81,6 +81,8 @@ public class DroneNetScript implements EveryFrameScript {
     public static final String SPOTTER_ENTITY_ID = "IndEvo_SpotterDrone";
     public static final String DECOY_ENTITY_ID = "IndEvo_decoy_mine";
     public static final String NEST_DROP_GROUP = "IndEvo_droneNest";
+    public static final String NEST_MACHINERY_GROUP = "IndEvo_droneNest_machinery";
+    public static final String NEST_METALS_GROUP = "IndEvo_droneNest_metals";
     public static final String EXPLOSION_SOUND_ID = "IndEvo_mortar_hit";
     public static final String LOCK_SOUND_ID = "ui_neutrino_detector_ping";
     public static final float LOCK_SOUND_VOLUME = 3f;
@@ -100,8 +102,10 @@ public class DroneNetScript implements EveryFrameScript {
     public static final float NEST_TURN_RATE = 45f;
     public static final float NEST_TRACK_REACH = 1.3f;
     public static final float RELAUNCH_DAYS = 3f;
-    public static final int MIN_NEST_RELICS = 6;
-    public static final int MAX_NEST_RELICS = 10;
+    public static final int MIN_NEST_RELICS = 1;
+    public static final int MAX_NEST_RELICS = 4;
+    public static final int NEST_MACHINERY_VALUE = 1500;
+    public static final int NEST_METALS_VALUE = 1200;
     public static final float DEBRIS_RADIUS = 150f;
     public static final float DEBRIS_DAYS = 30f;
     public static final long DEBRIS_SALVAGE_XP = 250;
@@ -223,17 +227,27 @@ public class DroneNetScript implements EveryFrameScript {
         debris.setDiscoverable(null);
         debris.setDiscoveryXP(null);
         debris.getDropValue().clear();
-        debris.addDropRandom(createNestDrop());
+        for (SalvageEntityGenDataSpec.DropData drop : createNestDrops()) debris.addDropRandom(drop);
 
         if (nest.getOrbit() != null) debris.setOrbit(nest.getOrbit().makeCopy());
         debris.setLocation(nest.getLocation().x, nest.getLocation().y);
     }
 
-    public static SalvageEntityGenDataSpec.DropData createNestDrop() {
+    public static List<SalvageEntityGenDataSpec.DropData> createNestDrops() {
+        SalvageEntityGenDataSpec.DropData relics = new SalvageEntityGenDataSpec.DropData();
+        relics.group = NEST_DROP_GROUP;
+        relics.chances = MIN_NEST_RELICS;
+        relics.maxChances = MAX_NEST_RELICS;
+
+        return List.of(relics, createValueDrop(NEST_MACHINERY_GROUP, NEST_MACHINERY_VALUE), createValueDrop(NEST_METALS_GROUP, NEST_METALS_VALUE));
+    }
+
+    // one roll of value / base price units, times 0.5 to 1.5
+    private static SalvageEntityGenDataSpec.DropData createValueDrop(String group, int value) {
         SalvageEntityGenDataSpec.DropData drop = new SalvageEntityGenDataSpec.DropData();
-        drop.group = NEST_DROP_GROUP;
-        drop.chances = MIN_NEST_RELICS;
-        drop.maxChances = MAX_NEST_RELICS;
+        drop.group = group;
+        drop.chances = 1;
+        drop.value = value;
         return drop;
     }
 

@@ -1688,11 +1688,11 @@ public final class ArtilleryChecks {
                 c.expect(min >= lo && max <= hi, "D3 debris field holds " + lo + " to " + hi + " " + RELICS + " (6 to 10 x" + easy + ", 40 rolls: " + min + " to " + max + ")");
                 int dmin = Integer.MAX_VALUE, dmax = 0;
                 for (int i = 0; i < 40; i++) {
-                    int n = Math.round(SalvageEntity.generateSalvage(new java.util.Random(), 1f, 1f, 1f, null, List.of(DroneNetScript.createNestDrop())).getCommodityQuantity(RELICS));
+                    int n = Math.round(SalvageEntity.generateSalvage(new java.util.Random(), 1f, 1f, 1f, null, DroneNetScript.createNestDrops()).getCommodityQuantity(RELICS));
                     dmin = Math.min(dmin, n);
                     dmax = Math.max(dmax, n);
                 }
-                c.note("D3 for comparison, DroneNetScript.createNestDrop (the nest dialog's salvage) over 40 rolls: " + dmin + " to " + dmax);
+                c.note("D3 for comparison, DroneNetScript.createNestDrops (the nest dialog's salvage) over 40 rolls: " + dmin + " to " + dmax);
             }
             unpinAll();
             fastTime();

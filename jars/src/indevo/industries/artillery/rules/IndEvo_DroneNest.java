@@ -38,7 +38,7 @@ public class IndEvo_DroneNest extends BaseCommandPlugin {
     }
 
     private void showLoot(InteractionDialogAPI dialog) {
-        CargoAPI loot = SalvageEntity.generateSalvage(Misc.random, 1f, 1f, 1f, null, List.of(DroneNetScript.createNestDrop()));
+        CargoAPI loot = SalvageEntity.generateSalvage(Misc.random, 1f, 1f, 1f, null, DroneNetScript.createNestDrops());
 
         dialog.getOptionPanel().clearOptions();
         dialog.setPromptText("");
