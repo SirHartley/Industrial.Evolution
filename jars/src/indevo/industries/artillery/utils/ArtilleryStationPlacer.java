@@ -213,13 +213,25 @@ public class ArtilleryStationPlacer {
 
     private static VisionType pickVisionType(Random random) {
         WeightedRandomPicker<VisionType> picker = new WeightedRandomPicker<>(random);
-        picker.add(VisionType.WATCHTOWER, Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER.value());
         picker.add(VisionType.LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value());
         picker.add(VisionType.DRONES, Setting.ARTILLERY_VISION_WEIGHT_DRONES.value());
         picker.add(VisionType.SEARCHLIGHT, Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT.value());
 
         VisionType type = picker.pick();
-        return type != null ? type : VisionType.WATCHTOWER;
+        return type != null ? type : VisionType.LIGHTHOUSE;
+    }
+
+    // player colonies use plain watchtowers, a lighthouse or searchlight tower is swapped in place
+    public static void replaceWithWatchtower(SectorEntityToken tower) {
+        LocationAPI loc = tower.getContainingLocation();
+        SectorEntityToken t = loc.addCustomEntity(Misc.genUID(), null, WatchtowerEntityPlugin.ENTITY_ID, tower.getFaction().getId(), null);
+
+        if (tower.getOrbit() != null) t.setOrbit(tower.getOrbit().makeCopy());
+        else t.setLocation(tower.getLocation().x, tower.getLocation().y);
+
+        tower.removeTag(Ids.TAG_WATCHTOWER);
+        Misc.fadeAndExpire(tower, 1f);
+        loc.getMemoryWithoutUpdate().set(Ids.MEM_SYSTEM_ARTILLERY_VISION, VisionType.WATCHTOWER.name());
     }
 
     public static void placeLighthouses(StarSystemAPI system, String factionId, Random random) {

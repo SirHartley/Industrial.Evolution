@@ -24,9 +24,11 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
     // unlit it works as a plain watchtower, lit only the beams see
     @Override
     protected void advanceVision(float amount) {
+        sinceCheck += amount;
+        if (sinceCheck >= CHECK_SECONDS && replacedForPlayerColony()) return;
+
         LighthouseBeamTerrain terrain = getOrCreateBeam();
 
-        sinceCheck += amount;
         if (sinceCheck >= CHECK_SECONDS) {
             sinceCheck = 0f;
             lit = shouldBeLit();

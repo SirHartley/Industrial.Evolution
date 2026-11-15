@@ -22,9 +22,11 @@ public class SearchlightEntityPlugin extends WatchtowerEntityPlugin {
     // unlit it works as a plain watchtower, lit only the lights see
     @Override
     protected void advanceVision(float amount) {
+        sinceCheck += amount;
+        if (sinceCheck >= CHECK_SECONDS && replacedForPlayerColony()) return;
+
         SearchlightTerrain terrain = getOrCreateLights();
 
-        sinceCheck += amount;
         if (sinceCheck >= CHECK_SECONDS) {
             sinceCheck = 0f;
             lit = shouldBeLit();

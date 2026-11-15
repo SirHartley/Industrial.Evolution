@@ -368,7 +368,6 @@ Note - Spotters explode when interdicted or hit by a missile or an artillery she
 Note - Nests sweep three searchlights around them, a fast fleet can slip through the gaps
 Note - A nest light that catches you locks on and follows you, reaching 30% further until it loses you
 Note - Shoot a nest for Relic Components, by missile or by flying up to it
-Note - Colonising the system replaces the drone net with watchtowers
 Added - Searchlights: towers sweep orange and purple lights over some derelict artillery systems (new game)
 Note - Orange lights see moving fleets, purple lights see fleets at burn 2 or less, dimmed lights see nothing
 Note - A light that sees you turns red and follows you, stop or start moving to shake it off
@@ -377,6 +376,8 @@ Added - Settings for vision type weights, lighthouse beams and drone cones
 Added - Artillery fire animation: muzzle flash and smoke per shot, the station glows hot and vents
 Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a slow discharge all around
 Added - Mortar shells leave a short trail
+Adjusted - Derelict artillery systems always get lighthouses, searchlights or a drone net, plain watchtowers only guard core worlds
+Note - Colonising the system replaces lighthouses, searchlights and the drone net with watchtowers
 Adjusted - Thinner artillery target lines, shells, missiles and trails
 Adjusted - Railgun now fires an instant beam down its target line instead of shells
 Note - Railgun aims ahead as before, flying straight still dodges it
@@ -394,6 +395,7 @@ Fixed - Orbital Artillery tooltip now unlocks its Codex entry
 Fixed - Jumping out of a system now empties the watchtower eye
 Fixed - Artillery missiles no longer launch from beside a moving station
 Removed - Artillery improvement and the Max Range setting (no range left to improve)
+Removed - Watchtower vision weight setting
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins
