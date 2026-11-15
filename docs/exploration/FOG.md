@@ -70,11 +70,11 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 
 ### Sensor cut
 
-`applyEffect` (`:236`) adds `1 - 0.9 * density` as a 0.1 day temporary mult to `getDetectedRangeMod()` and `getSensorRangeMod()`, as the vanilla abyss does. While a fleet's Active Sensor Burst is active or in progress the sensor range mult is skipped; the detected range mult stays. `BaseTerrain.advance` applies one terrain per effect category per fleet per frame, so fog never stacks with itself.
+`applyEffect` (`:239`) adds `1 - 0.9 * density` as a 0.1 day temporary mult to `getDetectedRangeMod()` and `getSensorRangeMod()`, as the vanilla abyss does. While a fleet's Active Sensor Burst is active or in progress the sensor range mult is skipped; the detected range mult stays. `BaseTerrain.advance` applies one terrain per effect category per fleet per frame, so fog never stacks with itself.
 
 ### Sound
 
-`terrain.json` gives `IndEvo_fog` the vanilla nebula's sound: `musicSuppression` 1 and `loopOne` `terrain_nebula`. `BaseTerrain.advance` plays them while the player fleet is inside (density above 0.05). `getProximitySoundFactor` scales both by the density at the player, full at `FULL_SOUND_DENSITY` 0.6, so music fades out and the hum fades in with the fog's thickness.
+`terrain.json` gives `IndEvo_fog` the vanilla nebula's sound: `musicSuppression` 1 and `loopOne` `terrain_nebula`. `BaseTerrain.advance` plays them while the player fleet is inside (density above 0.05). `getProximitySoundFactor` scales both by `getDensityAt` at the player, full at `FULL_SOUND_DENSITY` 0.6, so music fades out and the hum fades in with the fog's thickness.
 
 ### Grid and drawing
 
@@ -89,7 +89,7 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 ### Cache
 
 - `spawnCache` (`FogWeatherManager.java:257`): banks only, `BANK_CACHE_CHANCE` 15%. One of `supply_cache_small`, `equipment_cache_small`, `weapons_cache_small` through `BaseThemeGenerator.addSalvageEntity` (faction neutral, vanilla salvage and discovery). Placed at the thickest rest mask of up to 30 tries, 0.1..0.35 radius from the centre, on a 300 day orbit round the fog entity so it moves with the bank.
-- `hideCache` (`FogTerrainPlugin.java:203`), each frame in the player's location and once at spawn: `1 - 0.7 * density` as a mult on the cache's `getDetectedRangeMod()`. Density is `getDensityAt`, so a hole blown next to the cache shows it; during the roll in the rest mask is used without the strength, so the cache never sits in the open first. During the fade the cut shrinks with the fog.
+- `hideCache` (`FogTerrainPlugin.java:207`), each frame in the player's location and once at spawn: `1 - 0.7 * density` as a mult on the cache's `getDetectedRangeMod()`. Density is `getDensityAt`; during the roll in the rest mask is used without the strength, so the cache never sits in the open first. During the fade the cut shrinks with the fog.
 - Spot range of a small cache is `(sensor strength + profile 1 + 1200) x cache mult x own sensor mult` (`BaseCampaignEntity.getBaseSensorRangeToDetect`, `getMaxSensorRangeToDetect`, knowledge skill `obf/campaign/BaseCampaignEntity.java:1089`; detection range 1200 from `salvage_entity_gen_data.csv`). Estimate for a fleet sensor strength of 450..1050: 1650..2250 in the open, 500..675 from outside thick fog, 50..70 from inside it, about 1400..1600 with Active Sensor Burst (3000 flat, own cut skipped).
 - When the fog is over the plugin calls `Misc.fadeAndExpire` on a cache that is still there. A looted cache expires the vanilla way and the plugin drops its reference.
 
@@ -104,7 +104,7 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 - `FogGrid` and `FogNoise` import nothing from the game. Keep it that way: the headless check compiles them alone.
 - The rest mask is a pure function of local position, seed and time, so the shape follows an orbiting bank and is the same after a load. The grid is never saved.
 - Strength, the end of the fog and the mask time come only from the saved start timestamp and the campaign clock.
-- Effects run for fleets within `getRenderRange()` (`:252`) of the fog centre: `BaseTerrain.advance` skips fleets farther out (knowledge skill `api/impl/campaign/terrain/BaseTerrain.java:89`), and `CampaignTerrain.render` only calls `render` when the centre is within it of the viewport (`obf/campaign/CampaignTerrain.java:88`).
+- Effects run for fleets within `getRenderRange()` (`:255`) of the fog centre: `BaseTerrain.advance` skips fleets farther out (knowledge skill `api/impl/campaign/terrain/BaseTerrain.java:89`), and `CampaignTerrain.render` only calls `render` when the centre is within it of the viewport (`obf/campaign/CampaignTerrain.java:88`).
 - Spot range is `(observer sensor strength + target profile) x target detected range mods x observer sensor range mods` (knowledge skill `obf/campaign/BaseCampaignEntity.java:1089`), so the cut on both sides multiplies.
 - `ShaderLib.loadShader` returns 0 when the shader fails (GraphicsLib 1.9.0). `FogRenderer` then logs a warning once and draws the plain mesh.
 - Fog shader uniforms and the texture layout are coupled between `FogRenderer.renderShader`, `FogGrid.pack` and `indevo_fogFragment.shader`.

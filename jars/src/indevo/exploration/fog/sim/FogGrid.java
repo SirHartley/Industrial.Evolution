@@ -165,10 +165,6 @@ public class FogGrid {
         return x > ox + margin && y > oy + margin && x < ox + size - margin && y < oy + size - margin;
     }
 
-    public float density(float x, float y) {
-        return Math.min(1f, Math.max(0f, sample(d, x, y)));
-    }
-
     public void recentre(float cx, float cy) {
         float half = size / 2f, limit = RECENTRE_CELLS * cell;
         if (Math.abs(cx - (ox + half)) < limit && Math.abs(cy - (oy + half)) < limit) return;
@@ -425,17 +421,6 @@ public class FogGrid {
             }
         }
         System.arraycopy(div, 0, a, 0, a.length);
-    }
-
-    private float sample(float[] arr, float wx, float wy) {
-        float x = (wx - ox) / cell - 0.5f, y = (wy - oy) / cell - 0.5f;
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if (x > n - 1.001f) x = n - 1.001f;
-        if (y > n - 1.001f) y = n - 1.001f;
-        int i = (int) x, j = (int) y, k = j * n + i;
-        float fx = x - i, fy = y - j;
-        return (arr[k] * (1 - fx) + arr[k + 1] * fx) * (1 - fy) + (arr[k + n] * (1 - fx) + arr[k + n + 1] * fx) * fy;
     }
 
     private void swirl(float x, float y, float rad, float gamma) {

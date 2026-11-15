@@ -169,10 +169,9 @@ public class FogTerrainPlugin extends BaseTerrain {
         return getElapsedDays() >= rollInDays + holdDays + fadeDays;
     }
 
+    // the rest fog, never the live grid: a fleet always sits in the hole it cuts
     public float getDensityAt(Vector2f point) {
-        float x = point.x - entity.getLocation().x, y = point.y - entity.getLocation().y;
-        if (grid != null && grid.inWindow(x, y)) return grid.density(x, y);
-        return getShape().mask(x, y, getMaskTime()) * getStrength();
+        return getRestMaskAt(point.x - entity.getLocation().x, point.y - entity.getLocation().y) * getStrength();
     }
 
     public float getRestMaskAt(float localX, float localY) {
