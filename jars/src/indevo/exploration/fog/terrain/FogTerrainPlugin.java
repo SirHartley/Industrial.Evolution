@@ -42,6 +42,7 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float CACHE_SENSOR_CUT = 0.7f;
     public static final String CACHE_MOD_ID = "IndEvo_fog_cache";
     public static final float CONTAINS_THRESHOLD = 0.05f;
+    public static final float FULL_SOUND_DENSITY = 0.6f;
     public static final int GRID_CELLS = 128;
     public static final float CELL_SIZE = 80f;
     public static final int MAX_CLEAR_PATCHES = 16;
@@ -216,6 +217,14 @@ public class FogTerrainPlugin extends BaseTerrain {
     @Override
     public String getEffectCategory() {
         return EFFECT_CATEGORY;
+    }
+
+    // music suppression and the loop volume follow the fog thickness at the player
+    @Override
+    public float getProximitySoundFactor() {
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        if (player == null) return 0f;
+        return Math.min(1f, getDensityAt(player.getLocation()) / FULL_SOUND_DENSITY);
     }
 
     @Override
