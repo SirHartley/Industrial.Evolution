@@ -15,6 +15,7 @@ import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
+import indevo.industries.petshop.memory.PetPlan;
 import indevo.utils.ui.*;
 
 import java.awt.Color;
@@ -169,6 +170,12 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         young.show(this::popupClosed);
     }
 
+    void popup(PetPlanner.TraitDialog traits) {
+        commitName();
+        popupOpen = true;
+        traits.show(this::popupClosed);
+    }
+
     // a ready brood here opens its New young popup by itself, once, the first time the panel opens after it is ready
     private void openReadyBrood() {
         youngChecked = true;
@@ -191,12 +198,46 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     private UiFilter.State polled() {
-        return view.tab == PetsView.TAB_HUSBANDRY ? view.adults : view.tab == PetsView.TAB_TREE ? view.find : view.filter;
+        return switch (view.tab) {
+            case PetsView.TAB_HUSBANDRY -> view.adults;
+            case PetsView.TAB_TREE -> view.find;
+            case PetsView.TAB_PLAN -> view.planCopy ? view.planCopies : view.planParents;
+            default -> view.filter;
+        };
     }
 
     void filtered() {
-        view.scroll.reset(view.tab == PetsView.TAB_HUSBANDRY ? PetsView.ADULTS : view.tab == PetsView.TAB_TREE ? PetsView.TREE : PetsView.LIST);
+        view.scroll.reset(switch (view.tab) {
+            case PetsView.TAB_HUSBANDRY -> PetsView.ADULTS;
+            case PetsView.TAB_TREE -> PetsView.TREE;
+            case PetsView.TAB_PLAN -> PetsView.PLAN_LIST;
+            default -> PetsView.LIST;
+        });
         refresh();
+    }
+
+    // a new planned young of the species with the given parents, either null, shown on the Planner tab
+    void newPlan(String typeId, String parentA, String parentB) {
+        showPlan(PetStatusManager.getInstance().newPlan(typeId, parentA, parentB));
+    }
+
+    void showPlan(PetPlan plan) {
+        tab(PetsView.TAB_PLAN);
+        view.planSpecies = plan.typeID;
+        view.planSelected = plan.id;
+        view.planPlace = -1;
+        view.planCopy = false;
+        view.planRow = null;
+        view.scroll.reset(PetsView.WANTED);
+        refresh();
+    }
+
+    // the pair picked on the Husbandry tab, where Start brood is
+    void openCross(Pet a, Pet b) {
+        view.pair.clear();
+        view.pair.addAll(List.of(a.id, b.id));
+        view.habitat = -1;
+        showHusbandry();
     }
 
     // the Family tree of one pet, from its card
@@ -244,6 +285,13 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     // typed names are kept on every rebuild, before a popup and on leave; an empty field keeps the old name
     private void commitName() {
+        if (view.planField != null) {
+            PetPlan plan = PetStatusManager.getInstance().getPlan(view.planNamed);
+            String name = PetCard.trimName(view.planField.getText());
+            if (plan != null && !name.isEmpty()) plan.name = name;
+            view.planField = null;
+            view.planNamed = null;
+        }
         if (view.nameField == null) return;
 
         Pet pet = PetStatusManager.getInstance().get(view.namePet);
@@ -265,6 +313,10 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         }
         if (view.tab == PetsView.TAB_TREE) {
             new PetTree(this, view).build(p, w, h);
+            return;
+        }
+        if (view.tab == PetsView.TAB_PLAN) {
+            new PetPlanner(this, view).build(p, w, h);
             return;
         }
 
@@ -355,14 +407,20 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         int count = 0;
         for (Group group : groups) count += group.pets().size();
-        List<Integer> ids = shop != null ? List.of(PetsView.TAB_PETS, PetsView.TAB_HUSBANDRY, PetsView.TAB_TREE) : List.of(PetsView.TAB_PETS, PetsView.TAB_TREE);
-        String[] tabs = shop != null ? new String[]{"Pets " + count, "Husbandry " + PetHusbandry.busy(shop), "Family tree"} : new String[]{"Pets " + count, "Family tree"};
+        List<Integer> ids = shop != null ? List.of(PetsView.TAB_PETS, PetsView.TAB_HUSBANDRY, PetsView.TAB_TREE, PetsView.TAB_PLAN)
+                : List.of(PetsView.TAB_PETS, PetsView.TAB_TREE, PetsView.TAB_PLAN);
+        String[] tabs = shop != null ? new String[]{"Pets " + count, "Husbandry " + PetHusbandry.busy(shop), "Family tree", "Planner"}
+                : new String[]{"Pets " + count, "Family tree", "Planner"};
         UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, tabWidth(tabs), UiFrame.HEADER_H, tabs, ids.indexOf(view.tab), null, i -> {
             int tab = ids.get(i);
             if (tab == PetsView.TAB_TREE && view.tab != PetsView.TAB_TREE) {
                 Pet pet = PetStatusManager.getInstance().get(view.selected);
                 if (pet != null) view.treeRoot = view.treeCard = pet.id;
                 view.treePair.clear();
+            }
+            if (tab == PetsView.TAB_PLAN && view.tab != PetsView.TAB_PLAN && view.planSpecies == null) {
+                Pet pet = PetStatusManager.getInstance().get(view.selected);
+                if (pet != null) view.planSpecies = pet.typeID;
             }
             tab(tab);
             refresh();
@@ -372,6 +430,13 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     private void addHelp(TooltipMakerAPI tooltip) {
+        if (view.tab == PetsView.TAB_PLAN) {
+            tooltip.addPara("Planner. A planned young stands in for a pet you do not have yet. Set what you want from it, then pick its parents.", 0f);
+            tooltip.addPara("Chances use known traits only. A planned young counts as a parent with what is wanted from it.", 10f);
+            tooltip.addPara("A plan starts nothing. Open the cross at an Animal Center to start the brood.", 10f);
+            return;
+        }
+
         Color hl = Misc.getHighlightColor();
         tooltip.addPara("Every pet on a ship reaches %s hearts with time. Each heart switches on one talent, the best first.", 0f, hl,
                 String.valueOf(PetConstants.TIME_HEARTS));

@@ -1,14 +1,10 @@
 package indevo.industries.petshop.plugins;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
-import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
-import com.fs.starfarer.api.ui.PositionAPI;
-import com.fs.starfarer.api.ui.ScrollPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.petshop.PetGenetics;
@@ -161,7 +157,7 @@ public class PetTree {
         else if (pair.isEmpty()) focus.add(root.id);
 
         if (result.families().isEmpty() && folded.stubs().isEmpty()) alone(p, root, focus.contains(root.id));
-        else new Drawn(result, PetTreeLayout.FULL, false, folded.stubs(), focus, shared).draw(p, 0f, TREE_Y, PetsPanel.LIST_W, h - TREE_Y);
+        else canvas(result, PetTreeLayout.FULL, false, folded.stubs(), focus, shared).draw(p, 0f, TREE_Y, PetsPanel.LIST_W, h - TREE_Y);
 
         Ui.vrule(p, PetsPanel.LIST_W + 5f, PetsPanel.BODY_Y, h - PetsPanel.BODY_Y);
         float cw = w - PetsPanel.CARD_X;
@@ -197,7 +193,7 @@ public class PetTree {
         control(p, tw, root);
 
         Set<String> focus = card != null ? Set.of(card.id) : Set.of();
-        new Drawn(result, m, view.treeSmall, folded.stubs(), focus, Set.of()).draw(p, 0f, TREE_Y, card != null ? PetsPanel.LIST_W : w, h - TREE_Y);
+        canvas(result, m, view.treeSmall, folded.stubs(), focus, Set.of()).draw(p, 0f, TREE_Y, card != null ? PetsPanel.LIST_W : w, h - TREE_Y);
         if (card == null) return;
 
         Ui.vrule(p, PetsPanel.LIST_W + 5f, PetsPanel.BODY_Y, h - PetsPanel.BODY_Y);
@@ -229,14 +225,12 @@ public class PetTree {
 
         List<String> kinds = species();
         Map<String, Integer> counts = new HashMap<>();
-        float countW = 0f;
         for (String kind : kinds) {
             int count = 0;
             for (Pet pet : manager.getPets()) if (pet.typeID.equals(kind) && !pet.isDead()) count++;
             counts.put(kind, count);
-            countW = Math.max(countW, (float) Math.ceil(Ui.width(String.valueOf(count), Ui.ORB12)) + 2f);
         }
-        float sw = SPECIES_COUNT_X + countW + 8f;
+        float sw = speciesW(counts.values());
         float pitch = sw + SPECIES_GAP;
         float room = x - TOGGLE_GAP - (fx + 200f) - SMALL_W - TOGGLE_GAP;
         int fit = Math.max(1, (int) Math.floor((room + SPECIES_GAP) / pitch));
@@ -250,16 +244,11 @@ public class PetTree {
         for (String kind : kinds) {
             PetData data = PetDataRepo.get(kind);
             int count = counts.get(kind);
-            ButtonAPI button = UiButtons.area(p, sx, y, sw, UiFilter.H, null, kind.equals(view.treeSpecies), true, null, Ui.CENTER, () -> {
+            speciesToggle(p, sx, y, sw, data, count, Ui.hl(), kind.equals(view.treeSpecies), data.species + ": " + count + (count == 1 ? " living pet." : " living pets."), () -> {
                 view.treeSpecies = kind;
                 view.treeCard = null;
                 moved();
             });
-            String tip = data.species + ": " + count + (count == 1 ? " living pet." : " living pets.");
-            // as wide as its line: a 360 px tooltip runs past the panel edge and is clipped there
-            Ui.tooltip(p, button, (float) Math.ceil(Ui.width(tip, Ui.INS15)) + 10f, TooltipMakerAPI.TooltipLocation.BELOW, t -> t.addPara(tip, 0f));
-            UiImages.img(p, sx + 5f, y + 3f, 20f, 20f, data.icon);
-            Ui.textIn(p, sx + SPECIES_COUNT_X, y, countW, UiFilter.H, String.valueOf(count), Ui.ORB12, Ui.hl(), Ui.LEFT, new String[0], new Color[0]);
             sx += pitch;
         }
 
@@ -267,6 +256,21 @@ public class PetTree {
             view.treeSmall = !view.treeSmall;
             moved();
         }, "Portraits only. Name, hearts and traits are on the hover.");
+    }
+
+    // width of a species toggle: the icon, then room for the widest count
+    static float speciesW(Collection<Integer> counts) {
+        float countW = 0f;
+        for (int count : counts) countW = Math.max(countW, (float) Math.ceil(Ui.width(String.valueOf(count), Ui.ORB12)) + 2f);
+        return SPECIES_COUNT_X + countW + 8f;
+    }
+
+    // icon and count on an area toggle; the tooltip only as wide as its line, a 360 px one runs past the panel edge and is clipped there
+    static void speciesToggle(CustomPanelAPI p, float x, float y, float w, PetData data, int count, Color countColor, boolean on, String tip, Runnable action) {
+        ButtonAPI button = UiButtons.area(p, x, y, w, UiFilter.H, null, on, true, null, Ui.CENTER, action);
+        Ui.tooltip(p, button, (float) Math.ceil(Ui.width(tip, Ui.INS15)) + 10f, TooltipMakerAPI.TooltipLocation.BELOW, t -> t.addPara(tip, 0f));
+        UiImages.img(p, x + 5f, y + 3f, 20f, 20f, data.icon);
+        Ui.textIn(p, x + SPECIES_COUNT_X, y, w - SPECIES_COUNT_X - 8f, UiFilter.H, String.valueOf(count), Ui.ORB12, countColor, Ui.LEFT, new String[0], new Color[0]);
     }
 
     private static void toggle(CustomPanelAPI p, float x, float y, float w, String label, boolean on, Runnable action, String tip) {
@@ -389,9 +393,13 @@ public class PetTree {
 
     // a full size tile: portrait, name, hearts; a gone pet dimmed with Dead, Sold or Rehomed in place of the hearts
     private CustomPanelAPI tile(CustomPanelAPI p, float x, float y, Pet pet, boolean focus, boolean small) {
+        return tile(p, x, y, pet, focus, small, () -> click(pet));
+    }
+
+    CustomPanelAPI tile(CustomPanelAPI p, float x, float y, Pet pet, boolean focus, boolean small, Runnable click) {
         float s = small ? PetTreeLayout.SMALL.tileW() : PetTreeLayout.FULL.tileW();
         float th = small ? s : TILE_H;
-        CustomPanelAPI t = UiButtons.row(p, x, y, s, th, focus, true, null, () -> click(pet));
+        CustomPanelAPI t = UiButtons.row(p, x, y, s, th, focus, true, null, click);
         float alpha = pet.isDead() ? PetCard.DIM : 1f;
         if (small) UiImages.img(t, 2f, 2f, SMALL_PORTRAIT, SMALL_PORTRAIT, pet.getData().icon, null, alpha);
         else {
@@ -518,288 +526,63 @@ public class PetTree {
         return (tag.equals("Dead") ? "Died" : tag) + " at " + PetCard.span(pet);
     }
 
-    // one drawn tree: tiles on a world panel that scrolls up and down and drags sideways, lines painted below them
-    private final class Drawn {
-        final PetTreeLayout.Result result;
-        final PetTreeLayout.Metrics m;
-        final boolean small;
-        final Map<String, List<String>> stubs;
-        final Set<String> focus;
-        final Set<String> shared;
-        final float pitch;
-        final float tileH;
-        final float top;
-        final Map<String, Brood> byKid = new HashMap<>();
-        final Map<String, Integer> broodCount = new HashMap<>();
-        CustomPanelAPI world;
-        TooltipMakerAPI element;
-        PositionAPI viewport;
-        float viewW;
-        float viewH;
-        String hovered = null;
-
-        Drawn(PetTreeLayout.Result result, PetTreeLayout.Metrics m, boolean small, Map<String, List<String>> stubs, Set<String> focus, Set<String> shared) {
-            this.result = result;
-            this.m = m;
-            this.small = small;
-            this.stubs = stubs;
-            this.focus = focus;
-            this.shared = shared;
-            pitch = small ? SMALL_PITCH : ROW_PITCH;
-            tileH = small ? m.tileW() : TILE_H;
-
-            // the No family label sits above the singles, inside the block when they stand in the first row
-            boolean label = !result.singles().isEmpty() && !result.families().isEmpty() && result.nodes().get(result.singles().get(0)).row == 0;
-            top = MARGIN + (label ? LABEL_H : 0f);
-
-            for (Brood brood : result.broods()) {
-                for (String kid : brood.kids) byKid.put(kid, brood);
-                broodCount.merge(brood.a, 1, Integer::sum);
-                if (brood.b != null) broodCount.merge(brood.b, 1, Integer::sum);
-            }
-        }
-
-        void draw(CustomPanelAPI p, float x, float y, float w, float h) {
-            float treeH = result.rows() * pitch - (pitch - tileH);
-            float blockH = top + treeH + MARGIN;
-            UiScroll.Column column = UiScroll.list(p, x, y, w, h, view.scroll, PetsView.TREE);
-            viewW = column.width();
-            viewH = h;
-            float worldW = Math.max(viewW, result.width() + 2f * MARGIN);
-            view.treeX = Math.max(0f, Math.min(worldW - viewW, view.treeX));
-
-            CustomPanelAPI block = column.block(blockH, 0f);
-            world = Ui.painted(block, -view.treeX, 0f, worldW, blockH, this::paintLines, this::paintMarks);
-            for (Node n : result.nodes().values()) {
-                if (n.lane) continue;
-                if (n.isStub()) stub(n);
+    // tiles on a world panel that scrolls up and down and drags sideways, lines painted below them
+    private PetTreeCanvas canvas(PetTreeLayout.Result result, PetTreeLayout.Metrics m, boolean small, Map<String, List<String>> stubs, Set<String> focus, Set<String> gold) {
+        return new PetTreeCanvas(result, m, small, gold, null, new PetTreeCanvas.Owner() {
+            @Override
+            public void tile(CustomPanelAPI world, Node n, float x, float y) {
+                if (n.isStub()) stub(world, n, x, y, m, small, stubs);
                 else {
                     Pet pet = manager.get(n.id);
-                    if (pet != null) tile(world, left(n), rowTop(n.row), pet, focus.contains(n.id), small);
+                    if (pet != null) PetTree.this.tile(world, x, y, pet, focus.contains(n.id), small);
                 }
-            }
-
-            if (!result.singles().isEmpty() && !result.families().isEmpty()) {
-                float lo = Float.MAX_VALUE;
-                float hi = 0f;
-                for (String id : result.singles()) {
-                    lo = Math.min(lo, left(result.nodes().get(id)));
-                    hi = Math.max(hi, left(result.nodes().get(id)) + m.tileW());
-                }
-                float row = rowTop(result.nodes().get(result.singles().get(0)).row);
-                float lw = Math.max(hi - lo, 100f);
-                Ui.text(world, Math.round((lo + hi - lw) / 2f), row - LABEL_H, lw, "No family", Ui.gray(), Ui.CENTER);
-            }
-
-            element = column.end();
-            CustomPanelAPI input = p.createCustomPanel(w - UiScroll.GUTTER, h, new Input());
-            p.addComponent(input).inTL(x, y);
-        }
-
-        // a folded dead branch: one grey tile with the count; a click shows the pets until the tab is left
-        private void stub(Node n) {
-            int count = stubs.getOrDefault(n.id, List.of()).size();
-            float h = small ? m.tileW() : STUB_H;
-            CustomPanelAPI t = UiButtons.row(world, left(n), rowTop(n.row), m.tileW(), h, false, true, null, () -> {
-                view.unfolded.add(n.id);
-                panel.refresh();
-            });
-            Ui.box(t, 0f, 0f, m.tileW(), h, STUB_EDGE, null);
-            Ui.textIn(t, 0f, 0f, m.tileW(), h, "+" + count, Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
-            String what = n.id.equals(PetTreeLayout.SINGLES) ? " pets, dead or sold, with no family." : " pets, dead or sold, with no living young.";
-            Ui.tooltip(world, t, n.id.equals(PetTreeLayout.SINGLES) ? "No family" : "Dead branch", count + what + " Click to show them.");
-        }
-
-        float rowTop(int row) {
-            return top + row * pitch;
-        }
-
-        float left(Node n) {
-            return MARGIN + n.x - m.tileW() / 2f;
-        }
-
-        float height(Node n) {
-            return n.isStub() ? (small ? m.tileW() : STUB_H) : tileH;
-        }
-
-        // the node under the screen point, pets and stubs only
-        String pick(float mx, float my) {
-            if (world == null || viewport == null) return null;
-            if (mx < viewport.getX() || mx >= viewport.getX() + viewport.getWidth() || my < viewport.getY() || my >= viewport.getY() + viewport.getHeight()) return null;
-
-            PositionAPI pos = world.getPosition();
-            float wx = mx - pos.getX();
-            float wy = pos.getY() + pos.getHeight() - my;
-            for (Node n : result.nodes().values()) {
-                if (n.lane) continue;
-                float l = left(n);
-                float t = rowTop(n.row);
-                if (wx >= l && wx < l + m.tileW() && wy >= t && wy < t + height(n)) return n.id;
-            }
-            return null;
-        }
-
-        private void paintLines(PositionAPI pos, float alpha) {
-            for (Brood brood : result.broods()) brood(pos, brood, brood.dashed ? Ui.hl() : Ui.base(), alpha, null);
-
-            Brood lit = hovered != null ? byKid.get(hovered) : null;
-            if (lit != null) brood(pos, lit, Ui.hl(), alpha, hovered);
-        }
-
-        // the parents of the pet under the mouse, and the ancestors a pair shares, get the gold border
-        private void paintMarks(PositionAPI pos, float alpha) {
-            Set<String> gold = new HashSet<>(shared);
-            Brood lit = hovered != null ? byKid.get(hovered) : null;
-            if (lit != null) {
-                gold.add(lit.a);
-                if (lit.b != null) gold.add(lit.b);
-            }
-
-            for (String id : gold) {
-                Node n = result.nodes().get(id);
-                if (n == null) continue;
-                UiDraw.outline(pos.getX() + left(n), pos.getY() + pos.getHeight() - rowTop(n.row) - height(n), m.tileW(), height(n), Ui.hl(), alpha);
-            }
-        }
-
-        // one line down from each parent to a bar, one from the bar to the bar of the young, one down to each young;
-        // the older parent of a pair in two rows comes down its lane; only draws the line to that one young
-        private void brood(PositionAPI pos, Brood brood, Color c, float alpha, String only) {
-            Map<String, Node> nodes = result.nodes();
-            Node sa = PetTreeLayout.slot(brood, brood.a, nodes);
-            Node sb = brood.b != null ? PetTreeLayout.slot(brood, brood.b, nodes) : null;
-            int row = Math.max(sa.row, sb != null ? sb.row : sa.row);
-            float pe = rowTop(row) + tileH;
-            float gap = pitch - tileH;
-            int k = brood.levels * 2 + 1;
-            float l1 = pe + Math.round(gap * (brood.level + 1) / k);
-            float l2 = pe + Math.round(gap * (brood.levels + brood.level + 1) / k);
-
-            float xa = drop(pos, brood, brood.a, sa, sb, c, alpha, sb == null ? l2 : l1);
-            float xb = sb != null ? drop(pos, brood, brood.b, sb, sa, c, alpha, l1) : xa;
-            if (sb != null) seg(pos, xa, l1, xb, l1, c, alpha, brood.dashed);
-            if (brood.kids.isEmpty()) return;
-
-            float xd = sb == null ? xa : Math.round((xa + xb) / 2f);
-            if (sb != null) seg(pos, xd, l1, xd, l2, c, alpha, false);
-            float lo = xd;
-            float hi = xd;
-            for (String kid : brood.kids) {
-                if (only != null && !only.equals(kid)) continue;
-                Node n = nodes.get(kid);
-                float kx = MARGIN + n.x;
-                lo = Math.min(lo, kx);
-                hi = Math.max(hi, kx);
-                seg(pos, kx, l2, kx, rowTop(n.row), c, alpha, false);
-            }
-            seg(pos, lo, l2, hi, l2, c, alpha, false);
-        }
-
-        // the line from under one parent down to y; returns its x. a pet with several mates drops beside its centre, towards the mate
-        private float drop(PositionAPI pos, Brood brood, String id, Node slot, Node other, Color c, float alpha, float y) {
-            Node parent = result.nodes().get(id);
-            if (!id.equals(brood.older)) {
-                float x = MARGIN + parent.x;
-                if (broodCount.getOrDefault(id, 0) > 1 && other != null && other.x != parent.x) x += Math.signum(other.x - parent.x) * m.drop();
-                seg(pos, x, rowTop(parent.row) + height(parent), x, y, c, alpha, brood.dashed);
-                return x;
-            }
-
-            Node first = brood.lane.get(0);
-            float x = Math.abs(first.x - parent.x) <= m.tileW() / 2f - 4f ? MARGIN + first.x : MARGIN + parent.x;
-            float from = rowTop(parent.row) + height(parent);
-            for (Node lane : brood.lane) {
-                float lx = MARGIN + lane.x;
-                if (lx != x) {
-                    float jog = rowTop(lane.row) - JOG;
-                    seg(pos, x, from, x, jog, c, alpha, brood.dashed);
-                    seg(pos, x, jog, lx, jog, c, alpha, brood.dashed);
-                    from = jog;
-                    x = lx;
-                }
-            }
-            seg(pos, x, from, x, y, c, alpha, brood.dashed);
-            return x;
-        }
-
-        // 1 px line between two points of the world panel, y down; dashed for a pair joined in the pair view
-        private void seg(PositionAPI pos, float x1, float y1, float x2, float y2, Color c, float alpha, boolean dashed) {
-            float left = pos.getX();
-            float topY = pos.getY() + pos.getHeight();
-            boolean flat = y1 == y2;
-            float from = flat ? Math.min(x1, x2) : Math.min(y1, y2);
-            float to = flat ? Math.max(x1, x2) + 1f : Math.max(y1, y2) + 1f;
-            float step = dashed ? DASH + DASH_GAP : to - from;
-            for (float s = from; s < to; s += step) {
-                float len = Math.min(dashed ? DASH : to - from, to - s);
-                if (flat) UiDraw.quad(left + s, topY - y1 - 1f, len, 1f, c, alpha);
-                else UiDraw.quad(left + x1, topY - s - len, 1f, len, c, alpha);
-            }
-        }
-
-        // hover for the gold lines, drag on the empty tree to move it, a click on the empty tree closes the card
-        private final class Input extends BaseCustomUIPanelPlugin {
-            private boolean down = false;
-            private boolean dragging = false;
-            private float startMx;
-            private float startMy;
-            private float startX;
-            private float startY;
-
-            @Override
-            public void positionChanged(PositionAPI position) {
-                viewport = position;
             }
 
             @Override
-            public void advance(float amount) {
-                hovered = pick(Global.getSettings().getMouseX(), Global.getSettings().getMouseY());
-                if (hovered != null && hovered.startsWith("stub:")) hovered = null;
+            public float height(Node n) {
+                return small ? m.tileW() : n.isStub() ? STUB_H : TILE_H;
             }
 
             @Override
-            public void processInput(List<InputEventAPI> events) {
-                if (viewport == null) return;
-
-                for (InputEventAPI event : events) {
-                    if (event.isLMBDownEvent() && viewport.containsEvent(event) && pick(event.getX(), event.getY()) == null) {
-                        down = true;
-                        startMx = event.getX();
-                        startMy = event.getY();
-                        startX = view.treeX;
-                        ScrollPanelAPI scroller = element.getExternalScroller();
-                        startY = scroller != null ? scroller.getYOffset() : 0f;
-                    } else if (event.isMouseMoveEvent() && down) {
-                        if (!dragging && Math.abs(event.getX() - startMx) + Math.abs(event.getY() - startMy) > DRAG) dragging = true;
-                        if (!dragging) continue;
-                        move(event.getX(), event.getY());
-                        event.consume();
-                    } else if (event.isLMBUpEvent() && down) {
-                        down = false;
-                        if (dragging) {
-                            dragging = false;
-                            event.consume();
-                        } else if (viewport.containsEvent(event) && pick(event.getX(), event.getY()) == null) emptyClick();
-                    }
-                }
+            public boolean dashed(Brood brood) {
+                return brood.dashed;
             }
 
-            private void move(float mx, float my) {
-                float worldW = world.getPosition().getWidth();
-                view.treeX = Math.max(0f, Math.min(worldW - viewW, startX - (mx - startMx)));
-                world.getPosition().inTL(-view.treeX, 0f);
-
-                ScrollPanelAPI scroller = element.getExternalScroller();
-                if (scroller == null) return;
-                float max = Math.max(0f, element.getHeightSoFar() - viewH);
-                scroller.setYOffset(Math.max(0f, Math.min(max, startY + (my - startMy))));
+            @Override
+            public boolean hovers(String id) {
+                return !id.startsWith(PetTreeLayout.STUB);
             }
 
-            private void emptyClick() {
+            @Override
+            public float getX() {
+                return view.treeX;
+            }
+
+            @Override
+            public void setX(float x) {
+                view.treeX = x;
+            }
+
+            @Override
+            public void emptyClick() {
                 if (view.treeCard == null || !view.treeFull && view.treePair.isEmpty()) return;
                 view.treeCard = null;
                 panel.refresh();
             }
-        }
+        }, view.scroll, PetsView.TREE);
+    }
+
+    // a folded dead branch: one grey tile with the count; a click shows the pets until the tab is left
+    private void stub(CustomPanelAPI world, Node n, float x, float y, PetTreeLayout.Metrics m, boolean small, Map<String, List<String>> stubs) {
+        int count = stubs.getOrDefault(n.id, List.of()).size();
+        float h = small ? m.tileW() : STUB_H;
+        CustomPanelAPI t = UiButtons.row(world, x, y, m.tileW(), h, false, true, null, () -> {
+            view.unfolded.add(n.id);
+            panel.refresh();
+        });
+        Ui.box(t, 0f, 0f, m.tileW(), h, STUB_EDGE, null);
+        Ui.textIn(t, 0f, 0f, m.tileW(), h, "+" + count, Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
+        String what = n.id.equals(PetTreeLayout.SINGLES) ? " pets, dead or sold, with no family." : " pets, dead or sold, with no living young.";
+        Ui.tooltip(world, t, n.id.equals(PetTreeLayout.SINGLES) ? "No family" : "Dead branch", count + what + " Click to show them.");
     }
 }

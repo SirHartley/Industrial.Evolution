@@ -472,6 +472,27 @@ public final class PetChecks {
 
         checkBody(medium, hamster, plain, traits);
         checkBroods(fast, medium, slow, hamster, plain, traits);
+        checkPlan(medium, traits.get(talent), traits.get(flaw), care, better, drop, sum);
+    }
+
+    private void checkPlan(PetData medium, Trait talent, Trait flaw, float care, float better, float drop, float sum) {
+        check(near(PetGenetics.wantedChance(talent, 3, 3, 0, care, sum), better) && near(PetGenetics.wantedChance(talent, 1, 3, 0, care, sum), better),
+                "a talent of one parent is planned at the keep chance");
+        check(near(PetGenetics.wantedChance(talent, 5, 3, 2, care, sum), sum) && near(PetGenetics.wantedChance(talent, 3, 3, 2, care, sum), sum + (1f - sum) * better),
+                "a talent of both is planned at the sum chance, a lower grade adds the higher grade");
+        check(near(PetGenetics.wantedChance(flaw, 0, 2, 0, care, sum), drop) && near(PetGenetics.wantedChance(flaw, 1, 2, 1, care, sum), (1f - sum) * better)
+                && near(PetGenetics.wantedChance(flaw, 0, 2, 1, care, sum), 0f), "a dropped flaw is planned at the drop chance, never when both parents have it");
+        check(near(PetGenetics.wantedChance(talent, 1, 0, 0, care, sum), 0f) && near(PetGenetics.wantedChance(flaw, 0, 0, 0, care, sum), 1f),
+                "a talent neither parent has never comes, a flaw neither has never does");
+
+        Map<String, Integer> wanted = new LinkedHashMap<>();
+        wanted.put(talent.id(), 3);
+        wanted.put(PetGenetics.MALFORMED, 0);
+        Map<String, Float> chances = PetGenetics.wantedChances(medium, sheet(talent.id(), 3), sheet(), 0, care, 0.5f, wanted, Map.of(talent.id(), talent));
+        float healthy = 1f - PetGenetics.malformedChance(medium, 0.5f);
+        check(near(chances.get(PetGenetics.MALFORMED), healthy) && near(PetGenetics.product(chances), better * healthy), "plan rows multiply, the malformed row is the healthy chance");
+        check(PetGenetics.broods(0.25f, new int[]{1, 3}) == 2 && PetGenetics.broods(0.9f, new int[]{1, 3}) == 1 && PetGenetics.broods(0f, new int[]{1, 3}) == -1,
+                "broods to a target on the average brood size, never under 1, none when it cannot come");
     }
 
     private void checkBroods(PetData fast, PetData medium, PetData slow, PetData hamster, PetSheet plain, Map<String, Trait> traits) {

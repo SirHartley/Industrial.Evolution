@@ -36,6 +36,8 @@ public final class PetGenetics {
     public static final String MAYFLY = PetDataRepo.TRAIT_PREFIX + "mayfly";
     public static final String STERILE = PetDataRepo.TRAIT_PREFIX + "sterile";
     public static final String NONE = "none";
+    // the wanted row and cross row for a malformed young
+    public static final String MALFORMED = "malformed";
 
     private PetGenetics() {
     }
@@ -265,6 +267,47 @@ public final class PetGenetics {
         days *= 1f + value(traits, SLOW_GROWER, a.getGrade(SLOW_GROWER) + b.getGrade(SLOW_GROWER)) * 0.01f;
         days *= 1f - value(traits, MAYFLY, a.getGrade(MAYFLY) + b.getGrade(MAYFLY)) * 0.01f;
         return Math.min(PetConstants.MAX_BROOD_DAYS, days);
+    }
+
+    // chance a young of a and b meets one wanted row: a talent or mutation at that grade or better, a flaw at that level or less;
+    // read traits only, so a trait neither parent has never comes and a flaw neither has never does; malformed flaws are left out
+    public static float wantedChance(Trait trait, int want, int a, int b, float care, float sum) {
+        if (a <= 0 && b <= 0) return trait.isFlaw() ? 1f : 0f;
+
+        float chance = 0f;
+        for (Outcome o : outcomes(trait.isFlaw(), trait.hasLevels(), a, b, care, sum)) {
+            if (trait.isFlaw() ? o.level() <= want : o.level() >= want) chance += o.chance();
+        }
+        return Math.min(1f, chance);
+    }
+
+    // per wanted row, in its order; the rows are rolled apart, so a young meets all of them at the product
+    public static Map<String, Float> wantedChances(PetData data, PetSheet a, PetSheet b, int hearts, float care, float inbreeding,
+                                                   Map<String, Integer> wanted, Map<String, Trait> traits) {
+        Map<String, Float> chances = new LinkedHashMap<>();
+        float sum = sumChance(data, hearts);
+        for (Map.Entry<String, Integer> e : wanted.entrySet()) {
+            if (e.getKey().equals(MALFORMED)) {
+                chances.put(MALFORMED, 1f - malformedChance(data, inbreeding));
+                continue;
+            }
+            Trait trait = traits.get(e.getKey());
+            if (trait != null) chances.put(e.getKey(), wantedChance(trait, e.getValue(), a.getGrade(e.getKey()), b.getGrade(e.getKey()), care, sum));
+        }
+        return chances;
+    }
+
+    public static float product(Map<String, Float> chances) {
+        float p = 1f;
+        for (float c : chances.values()) p *= c;
+        return p;
+    }
+
+    // broods until one young meets the target, on the average brood size; -1 when it never does
+    public static int broods(float chance, int[] range) {
+        float young = (range[0] + range[1]) / 2f;
+        if (chance <= 0f || young <= 0f) return -1;
+        return Math.max(1, Math.round(1f / (chance * young)));
     }
 
     public static float youngDays(PetData data, PetSheet sheet, Map<String, Trait> traits) {

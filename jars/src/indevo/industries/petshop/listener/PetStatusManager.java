@@ -35,6 +35,7 @@ import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.memory.PetPlan;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 
@@ -97,6 +98,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     private List<Pet> pets = new ArrayList<>();
+    // null in saves from before the planner
+    private List<PetPlan> plans = new ArrayList<>();
     private float daysSinceLine = 0f;
     private float lineRoll = 0f;
     private float wantGapDays = 0f;
@@ -322,6 +325,83 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     public List<Pet> getPets() {
         return new ArrayList<>(pets);
+    }
+
+    public List<PetPlan> getPlans() {
+        if (plans == null) plans = new ArrayList<>();
+        return plans;
+    }
+
+    public PetPlan getPlan(String id) {
+        for (PetPlan plan : getPlans()) if (plan.id.equals(id)) return plan;
+        return null;
+    }
+
+    // named Plan 1, Plan 2, ... by the lowest number no plan has
+    public PetPlan newPlan(String typeId, String parentA, String parentB) {
+        int n = 1;
+        while (planNamed("Plan " + n)) n++;
+
+        PetPlan plan = new PetPlan(PetPlan.ID_PREFIX + Misc.genUID(), typeId, "Plan " + n);
+        plan.parentA = parentA;
+        plan.parentB = parentB;
+        getPlans().add(plan);
+        return plan;
+    }
+
+    private boolean planNamed(String name) {
+        for (PetPlan plan : getPlans()) if (plan.name.equals(name)) return true;
+        return false;
+    }
+
+    // the places it stood in are open again
+    public void removePlan(PetPlan plan) {
+        getPlans().remove(plan);
+        for (PetPlan other : getPlans()) {
+            if (plan.id.equals(other.parentA)) other.parentA = null;
+            if (plan.id.equals(other.parentB)) other.parentB = null;
+        }
+    }
+
+    // a raised young takes the place of its planned young in every plan
+    public void usePlan(PetPlan plan, Pet pet) {
+        getPlans().remove(plan);
+        for (PetPlan other : getPlans()) {
+            if (plan.id.equals(other.parentA)) other.parentA = pet.id;
+            if (plan.id.equals(other.parentB)) other.parentB = pet.id;
+        }
+    }
+
+    // a gone pet or a removed plan leaves its place open
+    public void cleanPlans() {
+        for (PetPlan plan : getPlans()) {
+            if (!standing(plan.parentA)) plan.parentA = null;
+            if (!standing(plan.parentB)) plan.parentB = null;
+        }
+    }
+
+    private boolean standing(String id) {
+        if (id == null) return true;
+        if (PetPlan.isPlan(id)) return getPlan(id) != null;
+
+        Pet pet = get(id);
+        return pet != null && !pet.isDead();
+    }
+
+    // parents of a pet or a planned young, null for an unknown id
+    public String[] parentsOf(String id) {
+        PetPlan plan = getPlan(id);
+        if (plan != null) return new String[]{plan.parentA, plan.parentB};
+
+        Pet pet = get(id);
+        return pet != null ? new String[]{pet.parentA, pet.parentB} : null;
+    }
+
+    // traits read on any pet the player has or had, of any species; only these get a name in the planner
+    public Set<String> getSeenTraits() {
+        Set<String> seen = new HashSet<>();
+        for (Pet pet : pets) if (pet.sheet != null) seen.addAll(pet.sheet.known);
+        return seen;
     }
 
     public List<Pet> getMenageriePets() {
