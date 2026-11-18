@@ -82,6 +82,7 @@ Added - Pet wants: a favourite now and then wants attention, play, a treat, comf
 Added - Jumps and fights bring the pets aboard closer to their next heart
 Added - Pet talents: every pet has 1 or 2 talents, such as flux, armor, range, supplies or salvage. Each heart switches one on, the best first, and the pet shows it to you.
 Added - Fleet talents (Pathfinder, Scavenger, Marine mascot) count once per fleet, from the best pet
+Added - Signature talents: a Rare or Epic pet may come with one of Time skip, Small target, Mender, Overcharge, Skeleton crew, Spite or Captain (commands its ship when no officer does)
 Adjusted - Opening a Cryochamber asks for a name and a home in one popup, with a name filled in
 Adjusted - Pet hullmod tooltip shows the pet's mood, next meal and mascot effect
 Adjusted - Pets eat Supplies only when none of their other food is in the cargo

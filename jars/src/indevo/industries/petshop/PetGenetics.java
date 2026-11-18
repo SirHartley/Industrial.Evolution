@@ -19,14 +19,16 @@ public final class PetGenetics {
     private PetGenetics() {
     }
 
-    // bought, found and offered pets: a disposition and 1 or 2 talents at grade 1, by the species lean
+    // bought, found and offered pets: a disposition, 1 or 2 talents at grade 1 by the species lean, a rare species maybe a signature
     public static PetSheet rollSheet(PetData data, Map<String, Trait> traits, Random random) {
         PetSheet sheet = new PetSheet(DISPOSITIONS.get(random.nextInt(DISPOSITIONS.size())));
 
         List<Trait> pool = new ArrayList<>();
+        List<Trait> signatures = new ArrayList<>();
         for (Trait trait : traits.values()) {
             // a talent with nothing at grade 1 (Pathfinder) only comes from raising
-            if (trait.isTalent() && trait.weight() > 0f && trait.value(1, 1f) > 0f) pool.add(trait);
+            if (!trait.isTalent() || trait.weight() <= 0f || trait.value(1, 1f) <= 0f) continue;
+            (trait.isSignature() ? signatures : pool).add(trait);
         }
 
         int count = random.nextFloat() < PetConstants.TWO_TALENTS_CHANCE ? 2 : 1;
@@ -34,6 +36,10 @@ public final class PetGenetics {
             Trait pick = pick(pool, data, random);
             pool.remove(pick);
             sheet.traits.put(pick.id(), 1);
+        }
+
+        if (data.isRare() && !signatures.isEmpty() && random.nextFloat() < PetConstants.SIGNATURE_CHANCE) {
+            sheet.traits.put(pick(signatures, data, random).id(), 1);
         }
 
         return sheet;

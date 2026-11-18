@@ -13,6 +13,7 @@ import com.fs.starfarer.api.impl.campaign.tutorial.TutorialMissionIntel;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
+import indevo.ids.Ids;
 
 // bills detachment crew, marines and officers into the vanilla fleet payroll nodes, same rates as CoreScript.reportEconomyTick
 public class DetachmentPayroll implements EconomyTickListener {
@@ -47,7 +48,7 @@ public class DetachmentPayroll implements EconomyTickListener {
             FDNode officersNode = getNode(report, fleetNode, MonthlyReport.OFFICERS, "Officer payroll");
             for (FleetMemberAPI member : detachment.getFleetData().getMembersListCopy()) {
                 PersonAPI officer = member.getCaptain();
-                if (officer == null || officer.isDefault() || officer.isAICore() || officer.isPlayer()) continue;
+                if (officer == null || officer.isDefault() || officer.isAICore() || officer.isPlayer() || officer.hasTag(Ids.TAG_PET_CAPTAIN)) continue;
 
                 FDNode oNode = report.getNode(officersNode, officer.getId());
                 oNode.name = officer.getNameString() + " (" + detachment.getName() + ")";

@@ -165,7 +165,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         Pet pet = PetStatusManager.getInstance().get(view.namePet);
         String name = PetCard.trimName(view.nameField.getText());
-        if (pet != null && !name.isEmpty()) pet.name = name;
+        if (pet != null && !name.isEmpty()) pet.rename(name);
 
         view.nameField = null;
         view.namePet = null;

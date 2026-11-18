@@ -248,6 +248,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | Split fleet | Courier `ShippingTargetHelper` for targets | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | Pets | `Academy.COLOURS_BY_PERSONALITY` | `PetCard.java:462` |
+| Split fleet | Skips the pet captain (`Ids.TAG_PET_CAPTAIN`) as an officer | [PETS](industries/PETS.md#contracts) |
 | Changeling, distress | `SelfRepairingBuiltInHullmod`, `PetHullmod` from the pet shop | [PETS](industries/PETS.md) |
 | Museum | Pet shop escape interceptor | [MUSEUM](industries/MUSEUM.md) |
 | Requisitions center, salvage specials, `IndEvo_notAtWar` | Embassy ambassador | [EMBASSY](industries/EMBASSY.md) |

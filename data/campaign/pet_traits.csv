@@ -21,3 +21,12 @@ IndEvo_pt_lucky_charm,Lucky charm,stat,recovery,percent,5,,,1,Recovery chance,Re
 IndEvo_pt_pathfinder,Pathfinder,fleet,fleet_burn,flat,1,4,,1,Fleet burn,Fleet burn %s per 4 grades.,%s always seems to know the shortest way.
 IndEvo_pt_scavenger,Scavenger,fleet,salvage,percent,5,,,1,Salvage,"Salvage %s per grade, as a Salvage Gantry gives.",%s will not leave a sealed panel alone.
 IndEvo_pt_marine_mascot,Marine mascot,fleet,ground_support,flat,50,,,1,Ground support,Ground support %s per grade.,The marines take %s along on every drop.
+IndEvo_pt_time_skip,Time skip,signature,time_mult,percent,3,,,1,Time flow,Time flow %s per grade on its ship.,Clocks run fast around %s. Nobody has worked out why.
+IndEvo_pt_small_target,Small target,signature,deployment,reduce,5,,90,1,Deployment cost,Deployment cost %s per grade for its ship.,Command never seems to count the ship %s is on.
+IndEvo_pt_mender,Mender,signature,hull_regen,percent,0.25,,,1,Hull repair a second,Hull repairs %s a second in combat per grade.,"%s fusses over every dent in the hull, and the dents go away."
+IndEvo_pt_overcharge,Overcharge,signature,system,percent,10,,,1,System regen,"Ship system regen %s per grade on its ship, and one more charge per 3 grades.",%s sits by the system controls. They hum louder when it does.
+IndEvo_pt_skeleton_crew,Skeleton crew,signature,min_crew,reduce,10,,100,1,Minimum crew,Minimum crew %s per grade on its ship. None needed from grade 10.,"%s is worth ten crew, the bosun says. Nobody argues."
+IndEvo_pt_spite,Spite,signature,explosion,percent,50,,,1,Death explosion,Size and damage of its ship's death explosion %s per grade.,Nobody wants to be near %s when it is angry. Or near the ship.
+IndEvo_pt_brood_deck,Brood deck,signature,fighter_bays,flat,1,4,,1,Fighter bays,Fighter bays %s per 4 grades on its ship. Fighters in a bay it takes along go back to the cargo.,The deck crew found %s asleep in a spare launch tube. Now it is a launch tube.
+IndEvo_pt_tinkerer,Tinkerer,signature,smods,flat,1,5,,1,S-mod slots,"S-mod slots %s per 5 grades on its ship. When it leaves, the cheapest s-mods over the limit go.",%s keeps taking things apart. They work better after.
+IndEvo_pt_captain,Captain,signature,captain,count,0.5,,,1,Combat skills,"Commands its ship when no one else does, with its own disposition. Combat skills %s at grade 1, one more per 2 grades.",The crew salutes %s. Nobody remembers who started it.

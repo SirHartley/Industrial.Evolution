@@ -24,6 +24,7 @@ import indevo.abilities.splitfleet.intel.DetachmentIntel;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMarines;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
+import indevo.ids.Ids;
 import indevo.industries.courierport.ShippingTargetHelper;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
@@ -93,7 +94,7 @@ public class FleetUtils {
             //fleet Member transaction
             detachmentFleetData.removeFleetMember(m);
             playerFleetData.addFleetMember(m);
-            if (officerPerson != null && !officerPerson.isDefault() && !officerPerson.isAICore() && !officerPerson.isPlayer())
+            if (officerPerson != null && !officerPerson.isDefault() && !officerPerson.isAICore() && !officerPerson.isPlayer() && !officerPerson.hasTag(Ids.TAG_PET_CAPTAIN))
                 playerFleetData.addOfficer(officerPerson);
         }
 

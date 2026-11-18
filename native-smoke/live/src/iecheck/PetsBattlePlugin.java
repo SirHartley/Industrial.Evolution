@@ -23,13 +23,15 @@ public class PetsBattlePlugin extends BaseEveryFrameCombatPlugin {
     private CombatEngineAPI engine;
     private boolean active;
     private boolean pods;
+    private boolean sig;
     private int frame = 0;
 
     @Override
     public void init(CombatEngineAPI engine) {
         this.engine = engine;
         String groups = System.getProperty("ie.check", "");
-        pods = Arrays.asList(groups.split(",")).contains("petspods");
+        sig = Arrays.asList(groups.split(",")).contains("petssig");
+        pods = Arrays.asList(groups.split(",")).contains("petspods") || sig;
         active = (Arrays.asList(groups.split(",")).contains("petsfight") || pods) && !engine.isSimulation() && engine.isInCampaign();
         if (!active) return;
         ((CombatEngine) engine).setShowDeploymentDialog(false);
@@ -54,6 +56,24 @@ public class PetsBattlePlugin extends BaseEveryFrameCombatPlugin {
         if (frame == 2 || (pods && frame % 10 == 2 && frame < 100)) {
             int a = deploy(0, -4000f, 90f), b = deploy(1, 4000f, 270f);
             log.info("LIVE_CHECK note: pets battle deployed " + a + " and " + b + " ships");
+        }
+        // petssig: what the signature talents do in combat, Mend and Ctrl both take half their hull at frame 40
+        if (sig && (frame == 30 || frame == 40 || frame == 110)) {
+            for (ShipAPI ship : new ArrayList<>(engine.getShips())) {
+                if (ship.getOwner() != 0 || ship.isFighter() || ship.isHulk() || ship.getFleetMember() == null) continue;
+                String n = ship.getFleetMember().getShipName();
+                if (frame == 40 && ("ISS Mend".equals(n) || "ISS Ctrl".equals(n))) ship.setHitpoints(ship.getMaxHitpoints() * 0.5f);
+                if (frame == 30) {
+                    log.info("LIVE_CHECK note: sigcombat " + n + " time mult " + ship.getMutableStats().getTimeMult().getModifiedValue()
+                            + ", system " + (ship.getSystem() == null ? "none" : ship.getSystem().getId() + " max ammo " + ship.getSystem().getMaxAmmo())
+                            + ", explosion radius x" + ship.getMutableStats().getDynamic().getValue(com.fs.starfarer.api.impl.campaign.ids.Stats.EXPLOSION_RADIUS_MULT)
+                            + " damage x" + ship.getMutableStats().getDynamic().getValue(com.fs.starfarer.api.impl.campaign.ids.Stats.EXPLOSION_DAMAGE_MULT)
+                            + ", captain " + (ship.getCaptain() == null ? "none" : ship.getCaptain().getNameString() + " " + ship.getCaptain().getPersonalityAPI().getId() + " level " + ship.getCaptain().getStats().getLevel() + " default " + ship.getCaptain().isDefault()));
+                }
+                if (frame == 110 && ("ISS Mend".equals(n) || "ISS Ctrl".equals(n))) {
+                    log.info("LIVE_CHECK note: sigcombat " + n + " hull " + (ship.getHitpoints() / ship.getMaxHitpoints()) + " of max, 70 frames after half");
+                }
+            }
         }
         ShipAPI player = engine.getPlayerShip();
         if (player != null && player.getShipAI() == null) player.resetDefaultAI();
