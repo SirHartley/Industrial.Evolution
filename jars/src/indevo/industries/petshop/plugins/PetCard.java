@@ -297,10 +297,11 @@ public class PetCard {
 
     private static float hoverRow(CustomPanelAPI p, float y, float w, String label, Color labelColor, String value, Color color, String hl) {
         float h = UiData.GRID_ROW_H;
-        float vw = Math.min(Ui.width(value, Ui.INS15) + 2f, w * UiData.VALUE_SHARE);
+        String shown = Ui.fit(value, Ui.INS15, w * UiData.VALUE_SHARE);
+        float vw = Math.min(Ui.width(shown, Ui.INS15) + 2f, w * UiData.VALUE_SHARE);
         String[] parts = hl == null ? new String[0] : new String[]{hl};
         Color[] colors = hl == null ? new Color[0] : new Color[]{Ui.hl()};
-        Ui.textIn(p, w - vw, y, vw, h, value, Ui.INS15, color, Ui.RIGHT, parts, colors);
+        Ui.textIn(p, w - vw, y, vw, h, shown, Ui.INS15, color, Ui.RIGHT, parts, colors);
         Ui.textIn(p, 0f, y, w - vw - 8f, h, label, Ui.INS15, labelColor, Ui.LEFT, new String[0], new Color[0]);
         return h;
     }
