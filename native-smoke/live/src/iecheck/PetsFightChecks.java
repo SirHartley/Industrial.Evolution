@@ -55,6 +55,12 @@ public final class PetsFightChecks {
         return Ui.text(tooltip);
     }
 
+    // the pet block shows Mood as a label and its value as separate texts
+    private static boolean hasMood(String text, String label) {
+        List<String> lines = List.of(text.split("\n"));
+        return lines.contains("Mood") && lines.contains(label);
+    }
+
     private static void pickBattleOption(Ctx c) {
         InteractionDialogAPI dialog = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
         if (fought || dialog == null) return;
@@ -88,8 +94,8 @@ public final class PetsFightChecks {
 
             c.expect(steady.getMood() == PetMood.CONTENT && mover.getMood() == PetMood.UNSETTLED, "moods before the fight: " + steady.getMood() + ", " + mover.getMood());
             String steadyText = mood(steady), moverText = mood(mover);
-            c.expect(steadyText.contains("Mood: " + PetMood.CONTENT.label), "pet data section shows Mood: Content (" + steadyText.replace('\n', '|') + ")");
-            c.expect(moverText.contains("Mood: " + PetMood.UNSETTLED.label), "pet data section shows Mood: Unsettled (" + moverText.replace('\n', '|') + ")");
+            c.expect(hasMood(steadyText, PetMood.CONTENT.label), "pet block shows Mood Content (" + steadyText.replace('\n', '|') + ")");
+            c.expect(hasMood(moverText, PetMood.UNSETTLED.label), "pet block shows Mood Unsettled (" + moverText.replace('\n', '|') + ")");
             c.put("steady", steady.id);
             c.put("mover", mover.id);
 
@@ -143,7 +149,7 @@ public final class PetsFightChecks {
             c.expect(!steady.isDead() && !mover.isDead(), "both pets survived the fight");
             c.near(steady.shellShockedDays, 7f, 0.5f, "deployed pet is Shell shocked for 7 days");
             c.expect(steady.getMood() == PetMood.SHELL_SHOCKED, "settled pet after the fight is Shell shocked (" + steady.getMood() + ")");
-            c.expect(mood(steady).contains("Mood: " + PetMood.SHELL_SHOCKED.label), "pet data section shows Mood: Shell shocked");
+            c.expect(hasMood(mood(steady), PetMood.SHELL_SHOCKED.label), "pet block shows Mood Shell shocked");
             c.expect(mover.shellShockedDays > 0f && mover.getMood() == PetMood.UNSETTLED, "Unsettled wins over Shell shocked in the mood (" + mover.getMood() + ")");
             c.keepDialog(false);
             c.frames(30);
