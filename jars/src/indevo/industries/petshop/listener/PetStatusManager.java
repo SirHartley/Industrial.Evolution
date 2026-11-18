@@ -52,6 +52,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -663,7 +664,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     public void reportLifeEnding(Pet pet, float daysLeft) {
         String where = pet.assignedFleetMember != null ? "on the " + pet.assignedFleetMember.getShipName() : "in the menagerie";
-        String left = Misc.getStringForDays(Math.max(1, (int) Math.ceil(daysLeft)));
+        String left = PetLongevity.lifeLeft(daysLeft).toLowerCase(Locale.ROOT);
         Color hl = Misc.getHighlightColor();
 
         MessageIntel intel = new MessageIntel("%s the " + pet.getData().species + " " + where + " has %s left to live.", Misc.getTextColor(), new String[]{pet.name, left}, hl, Misc.getNegativeHighlightColor());

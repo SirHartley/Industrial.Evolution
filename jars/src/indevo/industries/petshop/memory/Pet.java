@@ -495,12 +495,12 @@ public class Pet {
         return PetGenetics.lifetime(getData(), sheet, lifetime, PetDataRepo.getTraits()) + treatedDays;
     }
 
-    public int getSyringeYears() {
-        return getData().isHamster() ? PetConstants.HAMSTER_TREATMENT_YEARS : Setting.PET_LONGEVITY_YEARS.intValue();
+    public int getSyringeCycles() {
+        return getData().isHamster() ? PetConstants.HAMSTER_TREATMENT_CYCLES : Setting.PET_LONGEVITY_CYCLES.intValue();
     }
 
-    public void treat(int years) {
-        treatedDays += years * 365f;
+    public void treat(int cycles) {
+        treatedDays += cycles * 365f;
         treatments++;
         lifeWarnings = 0;
     }

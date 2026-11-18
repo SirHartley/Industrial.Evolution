@@ -101,10 +101,15 @@ public final class PetConstants {
     public static final float OFFER_YOUNG_CHANCE = 0.2f;
     public static final float OFFER_MAX_AGE = 0.6f;
 
-    // longevity: days left at each end of life warning, a hamster's years per syringe whatever the setting, syringes placed per game
-    public static final float[] LIFE_WARNING_DAYS = {60f, 14f, 1f};
-    public static final int HAMSTER_TREATMENT_YEARS = 1;
+    // longevity: days left at each end of life warning (the life left wording steps), a hamster's cycles per syringe whatever the setting,
+    // syringes placed per game; Nomios: price of one cycle, most cycles at once
+    public static final float[] LIFE_WARNING_DAYS = {60f, 14f};
+    public static final int HAMSTER_TREATMENT_CYCLES = 1;
     public static final int PLACED_SYRINGES = 3;
+    public static final int NOMIOS_ORGANS = 650;
+    public static final int NOMIOS_DRUGS = 200;
+    public static final int NOMIOS_CREDITS = 65000;
+    public static final int NOMIOS_MAX_CYCLES = 5;
 
     private PetConstants() {
     }

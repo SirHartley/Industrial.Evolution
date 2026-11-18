@@ -899,3 +899,8 @@ Call $cpc_ref addContacts",,,
 # Pets,,,,,,
 IndEvo_petDockingLine,PopulateOptions,"$hasMarket
 $menuState == main",IndEvo_PetDockingLine,,,"pet line when the market menu shows, cadence in PetStatusManager.sayDocking (PopulateOptions is FireAll, MarketPostOpen is FireBest)"
+IndEvo_nomiosLongevityOption,PopulateOptions,"$hasMarket
+$menuState == main
+$market.id == nomios
+IndEvo_PetTreatment available",IndEvo_PetTreatment option,,20:IndEvo_NomiosLongevity:Ask about the longevity treatment,pet longevity treatment at Nomios; greyed with a tooltip when no pet is with the fleet
+IndEvo_nomiosLongevityOpen,DialogOptionSelected,$option == IndEvo_NomiosLongevity,IndEvo_PetTreatment open,,,prints the intro and opens PetTreatDialog; its Confirm and Cancel print their text and fire PopulateOptions

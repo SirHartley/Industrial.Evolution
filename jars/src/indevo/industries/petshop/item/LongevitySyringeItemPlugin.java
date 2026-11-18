@@ -6,8 +6,10 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetLongevity;
+import indevo.industries.petshop.plugins.PetTreatDialog;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class LongevitySyringeItemPlugin extends BaseSpecialItemPlugin {
 
@@ -17,13 +19,32 @@ public class LongevitySyringeItemPlugin extends BaseSpecialItemPlugin {
 
         float opad = 10f;
         Color h = Misc.getHighlightColor();
+        int cycles = Setting.PET_LONGEVITY_CYCLES.intValue();
+        int hamster = PetConstants.HAMSTER_TREATMENT_CYCLES;
 
-        tooltip.addPara("Gives a pet in your fleet %s more to live. It can be given again before the time runs out.", opad, h, years(Setting.PET_LONGEVITY_YEARS.intValue()));
-        tooltip.addPara("Hamsters gain %s per syringe.", opad, h, years(PetConstants.HAMSTER_TREATMENT_YEARS));
+        tooltip.addPara("Adds %s " + (cycles == 1 ? "cycle" : "cycles") + " to the life of one pet.", opad, h, String.valueOf(cycles));
+        tooltip.addPara("Hamsters gain %s " + (hamster == 1 ? "cycle" : "cycles") + " per syringe.", opad, h, String.valueOf(hamster));
         addCostLabel(tooltip, opad, transferHandler, stackSource);
+
+        // the codex shows the item outside a campaign
+        if (stack == null || stack.getCargo() == null) return;
+        if (!PetItemPlugin.isFleetCargo()) tooltip.addPara("Can only be used from fleet cargo", Misc.getNegativeHighlightColor(), opad);
+        else if (!PetLongevity.hasPetWithFleet()) tooltip.addPara("No pet with the fleet", Misc.getNegativeHighlightColor(), opad);
+        else tooltip.addPara("Right-click to use", Misc.getGrayColor(), opad);
     }
 
-    public static String years(int years) {
-        return years + (years == 1 ? " year" : " years");
+    @Override
+    public boolean hasRightClickAction() {
+        return stack != null && stack.getCargo() != null && PetItemPlugin.isFleetCargo() && PetLongevity.hasPetWithFleet();
+    }
+
+    @Override
+    public boolean shouldRemoveOnRightClickAction() {
+        return false;
+    }
+
+    @Override
+    public void performRightClickAction(RightClickActionHelper helper) {
+        PetTreatDialog.syringe(helper).show();
     }
 }
