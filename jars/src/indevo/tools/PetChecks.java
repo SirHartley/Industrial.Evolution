@@ -170,6 +170,9 @@ public final class PetChecks {
         check(any.weight(data, content, "", Set.of()) == WEIGHT_ANY, "any line weighs " + WEIGHT_ANY);
         check(other.weight(data, content, "", Set.of()) == 0f, "a line for another body never matches");
         check(moody.weight(data, content, "", Set.of()) == 0f, "a mood line never matches another mood");
+        check(any.weight(data, content, "", Set.of(CONTEXT_STORAGE)) == 0f, "a stored pet takes no status line without the storage context");
+        Line stored = new Line("stored", "status", Set.of(), Set.of(), Set.of(), Set.of(CONTEXT_STORAGE), "%s");
+        check(stored.weight(data, content, "", Set.of(CONTEXT_STORAGE)) == WEIGHT_ANY, "a storage status line matches a stored pet");
 
         List<Line> lines = List.of(pet, body, cls, any, other, moody);
         Map<String, Integer> counts = new LinkedHashMap<>();

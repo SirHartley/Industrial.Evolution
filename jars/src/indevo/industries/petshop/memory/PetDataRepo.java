@@ -35,6 +35,8 @@ public class PetDataRepo {
         public float weight(PetData data, String mood, String disposition, Set<String> context) {
             if (!fits(moods, mood) || !fits(dispositions, disposition)) return 0f;
             if (!contexts.isEmpty() && Collections.disjoint(contexts, context)) return 0f;
+            // the other status lines tell of life aboard a ship
+            if (event.equals(EVENT_STATUS) && context.contains(CONTEXT_STORAGE) && !contexts.contains(CONTEXT_STORAGE)) return 0f;
             if (match.isEmpty()) return WEIGHT_ANY;
 
             float weight = 0f;

@@ -12,8 +12,8 @@ IndEvo_pl_st_content_machine,status,b_machine,content,,,%s runs its rounds of th
 IndEvo_pl_st_content_jar,status,b_jar,content,,,%s glows a steady amber on its shelf in the officers' mess
 IndEvo_pl_st_content_coil,status,b_coil,content,,,%s lies coiled in its cage next to the capacitor bank
 IndEvo_pl_st_content_human,status,b_human,content,,,%s plays cards with the deck crew every night and loses most hands
-IndEvo_pl_st_storage,status,any,content,,storage,"%s gets fed at the Animal Center twice a day, on the hour"
-IndEvo_pl_st_storage_fourleg,status,b_fourleg,content,,storage,%s has the run of the Animal Center's back room
+IndEvo_pl_st_storage,status,any,content happy sleepy unhappy_with_food,,storage,"%s gets fed at the Animal Center twice a day, on the hour"
+IndEvo_pl_st_storage_fourleg,status,b_fourleg,content happy sleepy,,storage,%s has the run of the Animal Center's back room
 IndEvo_pl_st_docked,status,b_fourleg b_wings,,,docked,%s sits at the airlock window watching the dock crews
 IndEvo_pl_st_old,status,any,,,old,%s sleeps through most of the shift now
 IndEvo_pl_st_old_machine,status,b_machine,,,old,%s spends most of the shift on its charging dock now
