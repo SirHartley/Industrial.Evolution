@@ -35,6 +35,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     static final String SORT_SHIP = "Ship";
     static final String MARKED = "Marked";
+    static final String FAVOURITES = "Favourites";
     static final List<UiFilter.Item> TOGGLES = List.of(new UiFilter.Item(MARKED, 78f, "Only pets with a marker."));
     static final List<UiFilter.Item> KEYS = List.of(
             new UiFilter.Item(SORT_SHIP, 60f, "The order of your fleet."),
@@ -210,6 +211,14 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             groups.add(new Group("Pet storage", stored, "No pets in storage."));
         }
 
+        // favourites move out of their place group into one group on top, in the order they were listed
+        List<Pet> favourites = new ArrayList<>();
+        for (Group group : groups) {
+            for (Pet pet : group.pets()) if (pet.favourite) favourites.add(pet);
+            group.pets().removeIf(pet -> pet.favourite);
+        }
+        groups.add(0, new Group(FAVOURITES, favourites, "Star a pet on its card to make it a favourite."));
+
         return groups;
     }
 
@@ -254,6 +263,8 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         Color hl = Misc.getHighlightColor();
         tooltip.addPara("Every pet on a ship reaches %s hearts with time. Its mascot effect starts at %s heart.", 0f, hl,
                 String.valueOf(PetConstants.TIME_HEARTS), String.valueOf(PetConstants.MASCOT_HEARTS));
+        tooltip.addPara("Hearts %s and %s are for favourites: answer their wants and take them along. A favourite asks for something about every %s months. An unanswered want costs nothing.", 10f, hl,
+                String.valueOf(PetConstants.NEST_HEARTS), String.valueOf(PetConstants.MAX_HEARTS), String.valueOf(Math.round(PetConstants.WANT_COOLDOWN_DAYS / 30f)));
         tooltip.addPara("A pet that moves to another ship is Unsettled for %s days, %s if it had a nest. Its effects are off. Hearts stay.", 10f, hl,
                 Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.UNSETTLED_DAYS), Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.NEST_UNSETTLED_DAYS));
     }
@@ -276,7 +287,8 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             filter.sort(pets, order(filter.sort));
 
             CustomPanelAPI head = list.heading(first ? 0f : HEAD_GAP);
-            String count = filtering ? pets.size() + " of " + group.pets().size() : String.valueOf(pets.size());
+            String count = filtering ? pets.size() + " of " + group.pets().size()
+                    : group.name().equals(FAVOURITES) ? pets.size() + " / " + PetConstants.MAX_FAVOURITES : String.valueOf(pets.size());
             Ui.heading(head, 0f, 0f, w, group.name(), count);
             first = false;
 

@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetMood;
+import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.plugins.PetCard;
@@ -50,6 +51,11 @@ public class Pet {
     public float bondDays = 0f;
     // 0: the nest stands once it has NEST_HEARTS
     public float nestRebuildDays = 0f;
+    public boolean favourite = false;
+    public PetWant want = null;
+    public float wantDaysLeft = 0f;
+    public float wantCooldownDays = 0f;
+    public int lapsedWants = 0;
 
     public Pet(String typeID, String name) {
         this.id = Misc.genUID();
@@ -89,6 +95,56 @@ public class Pet {
 
     public void pet() {
         happyDays = PetConstants.HAPPY_DAYS;
+        if (want == PetWant.ATTENTION || want == PetWant.COMFORT) answerWant();
+    }
+
+    // answered wants and shared events; past the time hearts only a favourite takes it
+    public void addBond(float days) {
+        float cap = PetConstants.HEART_DAYS[(favourite ? PetConstants.MAX_HEARTS : PetConstants.TIME_HEARTS) - 1];
+        if (bondDays < cap) bondDays = Math.min(cap, bondDays + days);
+    }
+
+    public void setFavourite(boolean on) {
+        favourite = on;
+        if (on) return;
+
+        if (want != null) endWant();
+        lapsedWants = 0;
+    }
+
+    public void play() {
+        if (want == PetWant.PLAY) answerWant();
+    }
+
+    public void openWant(PetWant w) {
+        want = w;
+        wantDaysLeft = PetConstants.WANT_DAYS;
+    }
+
+    public void answerWant() {
+        if (want == null) return;
+
+        lapsedWants = 0;
+        addBond(PetConstants.WANT_BOND_DAYS);
+        happyDays = PetConstants.HAPPY_DAYS;
+        endWant();
+    }
+
+    private void endWant() {
+        want = null;
+        wantCooldownDays = PetConstants.WANT_COOLDOWN_DAYS;
+        PetStatusManager.getInstance().wantEnded();
+    }
+
+    public boolean isSulking() {
+        return lapsedWants >= PetConstants.SULK_LAPSES;
+    }
+
+    // in the player fleet: on one of its ships or in the menagerie; wants wait anywhere else
+    public boolean isWithPlayer() {
+        if (isDead || storage != null) return false;
+        if (assignedFleetMember == null) return true;
+        return assignedFleetMember.getFleetData() != null && assignedFleetMember.getFleetData().getFleet() == Global.getSector().getPlayerFleet();
     }
 
     public static void cycleToCustomVariant(FleetMemberAPI member) {
@@ -156,6 +212,19 @@ public class Pet {
         shellShockedDays = Math.max(0f, shellShockedDays - dayAmt);
         happyDays = Math.max(0f, happyDays - dayAmt);
 
+        // a want of a pet that leaves the player fleet is dropped, not lapsed, so one away never blocks the fleet's want
+        if (want != null && !isWithPlayer()) endWant();
+        if (favourite && isWithPlayer()) {
+            wantCooldownDays = Math.max(0f, wantCooldownDays - dayAmt);
+            if (want != null) {
+                wantDaysLeft -= dayAmt;
+                if (wantDaysLeft <= 0f) {
+                    lapsedWants++;
+                    endWant();
+                }
+            }
+        }
+
         if (storage != null) return;
 
         feedInterval.advance(amt);
@@ -209,6 +278,7 @@ public class Pet {
         if (isStarving || storage == null && !PetStatusManager.getInstance().hasFood(this)) return PetMood.HUNGRY;
         if (isUnsettled()) return PetMood.UNSETTLED;
         if (shellShockedDays > 0f) return PetMood.SHELL_SHOCKED;
+        if (isSulking()) return PetMood.SULKING;
         if (lastMealSupplies) return PetMood.UNHAPPY_WITH_FOOD;
         if (happyDays > 0f) return PetMood.HAPPY;
         if (isOld()) return PetMood.SLEEPY;

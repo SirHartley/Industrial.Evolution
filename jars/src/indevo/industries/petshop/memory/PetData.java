@@ -1,5 +1,6 @@
 package indevo.industries.petshop.memory;
 
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 
@@ -55,6 +56,12 @@ public class PetData {
         if (maxLife < FAST_UNDER_DAYS) return PACE_FAST;
         if (maxLife < MEDIUM_UNDER_DAYS) return PACE_MEDIUM;
         return PACE_SLOW;
+    }
+
+    // what a Treat want takes: the first food that is not Supplies, null when it eats only Supplies
+    public String getFavouriteFood() {
+        for (String food : foodCommodities) if (!Commodities.SUPPLIES.equals(food)) return food;
+        return null;
     }
 
     public boolean isHamster() {

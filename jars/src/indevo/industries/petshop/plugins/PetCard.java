@@ -14,6 +14,7 @@ import indevo.config.Setting;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetMood;
+import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
@@ -36,6 +37,12 @@ public class PetCard {
     static final Color HEART_RED = new Color(226, 78, 98);
     static final Color HEART_OFF = new Color(120, 120, 120);
     static final float HEART_EMPTY = 0.18f;
+    static final Color STAR_OFF = new Color(175, 175, 175, 128);
+    // the favourite star in a 20 unit box, y down; the outline lies on its edge
+    static final float[] STAR = {10f, 1f, 12.2f, 7f, 18.6f, 7.2f, 13.5f, 11.1f, 15.3f, 17.3f, 10f, 13.7f, 4.7f, 17.3f, 6.5f, 11.1f, 1.4f, 7.2f, 7.8f, 7f};
+    static final float STAR_SIZE = 18f;
+    static final float WANT_H = 40f;
+    static final float WANT_W = 120f;
     static final float[] HEART = {7, 13, 1, 7, 1, 3, 3, 1, 5, 1, 7, 3, 9, 1, 11, 1, 13, 3, 13, 7};
     static final float HEART_LIFE = 0.8f;
     static final float PET_TIME = 0.5f;
@@ -109,11 +116,26 @@ public class PetCard {
         if (pet.storage == null && !PetStatusManager.getInstance().hasFood(pet))
             return new Marker(sprite("pet_marker_hungry"), "Hungry", "No food aboard for its next meal.");
         if (pet.shellShockedDays > 0f) return new Marker(sprite("pet_marker_shock"), "Shell shocked", "Its ship was in a hard fight.");
+        if (pet.want != null) return new Marker(sprite("pet_marker_want"), pet.want.label, daysLeft(pet.wantDaysLeft) + ".");
         return null;
     }
 
     private static String sprite(String id) {
         return Global.getSettings().getSpriteName("IndEvo", id);
+    }
+
+    // the vanilla intel (!), the quest marker
+    static String quest() {
+        return Global.getSettings().getSpriteName("intel", "important");
+    }
+
+    static String daysLeft(float days) {
+        int n = Math.max(1, (int) Math.ceil(days));
+        return n + (n == 1 ? " day left" : " days left");
+    }
+
+    private static String daysLeftNumber(float days) {
+        return String.valueOf(Math.max(1, (int) Math.ceil(days)));
     }
 
     // five hearts, the earned ones red, grey while Unsettled
@@ -216,6 +238,15 @@ public class PetCard {
             t.addPara("Moved here. Effects are off for %s " + (days == 1 ? "day." : "days."), 10f, Ui.neg(), Ui.hl(), String.valueOf(days));
         }
 
+        if (pet.want != null) {
+            CustomPanelAPI want = Global.getSettings().createCustom(gw, LINE_H, new UiCanvas());
+            UiImages.img(want, 0f, 0f, 16f, 16f, quest());
+            Ui.textIn(want, 22f, 0f, gw - 22f - WANT_W, LINE_H, pet.want.label, Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+            Ui.textIn(want, gw - WANT_W, 0f, WANT_W, LINE_H, daysLeft(pet.wantDaysLeft), Ui.INS15, Ui.gray(), Ui.RIGHT,
+                    new String[]{daysLeftNumber(pet.wantDaysLeft)}, new Color[]{Ui.hl()});
+            t.addCustom(want, 10f);
+        }
+
         CustomPanelAPI effects = Global.getSettings().createCustom(gw, UiData.GRID_ROW_H, new UiCanvas());
         String value = mascotValue(pet);
         if (off) hoverRow(effects, 0f, gw, "Mascot effect", Ui.gray(), "off", Ui.gray(), null);
@@ -302,7 +333,7 @@ public class PetCard {
                     down = true;
                 } else if (event.isLMBUpEvent()) {
                     event.consume();
-                    if (!down) continue;
+                    if (!down || action == null) continue;
 
                     down = false;
                     Global.getSoundPlayer().playUISound("ui_button_pressed", 1f, 1f);
@@ -319,7 +350,7 @@ public class PetCard {
         addName(p, w, pet);
         addTagline(p, w, pet);
         addIdent(p, w, pet, away);
-        float shipY = addHearts(p, w, pet);
+        float shipY = addWant(p, addHearts(p, w, pet), w, pet, away);
         addPlace(p, shipY, w, pet, away);
         addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, pet);
         addBottom(p, w, h, pet, away);
@@ -329,6 +360,43 @@ public class PetCard {
     private void addName(CustomPanelAPI p, float w, Pet pet) {
         view.nameField = nameField(p, 0f, 0f, w, pet.name);
         view.namePet = pet.id;
+        addStar(p, w - 24f, 4f, pet);
+    }
+
+    // gold when set, an outline when not, grey when every favourite slot is taken
+    private void addStar(CustomPanelAPI p, float x, float y, Pet pet) {
+        boolean can = PetStatusManager.getInstance().canFavourite(pet);
+        // a blocked star still takes the click, the name field under it would start editing
+        Click click = new Click(can ? () -> {
+            pet.setFavourite(!pet.favourite);
+            panel.refresh();
+        } : null, false);
+
+        CustomPanelAPI star = p.createCustomPanel(STAR_SIZE, STAR_SIZE, click);
+        p.addComponent(star).inTL(x, y);
+        Ui.painted(star, 0f, 0f, STAR_SIZE, STAR_SIZE, null, (pos, a) -> {
+            Color c = pet.favourite ? Ui.hl() : can ? (click.hover ? Ui.bright() : Ui.base()) : STAR_OFF;
+            paintStar(pos.getX(), pos.getY(), pet.favourite, c, a);
+        });
+
+        String rule = "Up to " + PetConstants.MAX_FAVOURITES + " pets. Only favourites have wants, and only they reach hearts 4 and 5.";
+        if (can) Ui.tooltip(p, star, pet.favourite ? "Favourite" : "Make a favourite", rule);
+        else Ui.tooltip(p, star, "Make a favourite", rule, "Unstar another pet first.");
+    }
+
+    private static void paintStar(float x, float y, boolean filled, Color c, float alpha) {
+        float s = STAR_SIZE / 20f;
+        if (filled) {
+            UiDraw.fan(x, y, STAR_SIZE, 20f, STAR, 10f, 10f, c, alpha);
+            return;
+        }
+
+        int n = STAR.length / 2;
+        for (int i = 0; i < n; i++) {
+            int j = (i + 1) % n;
+            UiDraw.line(x + STAR[2 * i] * s, y + STAR_SIZE - STAR[2 * i + 1] * s, x + STAR[2 * j] * s, y + STAR_SIZE - STAR[2 * j + 1] * s,
+                    1.2f, c, 1f, 1f, 1f, alpha, false);
+        }
     }
 
     static TextFieldAPI nameField(CustomPanelAPI p, float x, float y, float w, String name) {
@@ -369,6 +437,7 @@ public class PetCard {
         SpriteAPI sprite = Global.getSettings().getSprite(pet.getData().icon);
         Ui.painted(card, 4f, 4f, PORTRAIT, PORTRAIT, null, (pos, a) -> paintPortrait(sprite, pos, a));
         if (!canPet) Ui.tooltip(p, card, null, pet.name + " is out with " + away.getName() + ".");
+        if (pet.want != null) UiImages.img(p, IDENT - 18f, IDENT_Y, 16f, 16f, quest());
 
         if (view.clicks > 0) UiData.thinbar(p, 0f, IDENT_Y + IDENT + 3f, IDENT, view.clicks / (float) PetConstants.PETTING_CLICKS, HEART_RED);
 
@@ -465,9 +534,51 @@ public class PetCard {
         return y + 16f;
     }
 
+    // the open want as a strip over the ship strip; a want with no button shows what answers it. returns the top of the ship strip
+    private float addWant(CustomPanelAPI p, float y, float w, Pet pet, CampaignFleetAPI away) {
+        PetWant want = pet.want;
+        if (want == null) return y;
+
+        Ui.card(p, 0f, y, w, WANT_H);
+        UiImages.img(p, 10f, y + 10f, 20f, 20f, quest());
+        // columns from the measured text: the longest row (come along, 30 days) needs 445 of the 468 px card
+        float lw = Ui.width(want.label, Ui.INS15) + 4f;
+        Ui.textIn(p, 40f, y, lw, WANT_H, want.label, Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        String days = daysLeft(pet.wantDaysLeft);
+        float dx = 40f + lw + 12f;
+        float dw = Ui.width(days, Ui.INS15) + 4f;
+        Ui.textIn(p, dx, y, dw, WANT_H, days, Ui.INS15, Ui.gray(), Ui.LEFT, new String[]{daysLeftNumber(pet.wantDaysLeft)}, new Color[]{Ui.hl()});
+
+        if (want.button == null) {
+            float hx = dx + dw + 12f;
+            Ui.textIn(p, hx, y, w - 8f - hx, WANT_H, want.hint, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
+            return y + WANT_H + 8f;
+        }
+
+        PetStatusManager manager = PetStatusManager.getInstance();
+        String food = pet.getData().getFavouriteFood();
+        String reason = away != null ? pet.name + " is out with " + away.getName() + "."
+                : pet.storage != null ? pet.name + " is in pet storage."
+                : want == PetWant.TREAT && !manager.hasTreat(pet) ? "No " + Global.getSettings().getCommoditySpec(food).getName() + " aboard." : null;
+
+        ButtonAPI button = UiButtons.button(p, w - 6f - WANT_W, y + 8f, WANT_W, BUTTON_H, want.button, reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD,
+                reason != null ? null : () -> answer(pet, want));
+        if (reason != null) Ui.tooltip(p, button, want.button, reason);
+        else if (want == PetWant.TREAT) Ui.tooltip(p, button, want.button, "Takes 1 " + Global.getSettings().getCommoditySpec(food).getName() + ".");
+        return y + WANT_H + 8f;
+    }
+
+    private void answer(Pet pet, PetWant want) {
+        if (want == PetWant.TREAT) PetStatusManager.getInstance().treat(pet);
+        else pet.play();
+
+        view.answer = PetStatusManager.getInstance().getLine(pet, want == PetWant.TREAT ? PetDataRepo.EVENT_TREAT : PetDataRepo.EVENT_PLAY, shop != null);
+        panel.refresh();
+    }
+
     private static String heartsTip(Pet pet) {
         if (pet.getHearts() >= PetConstants.MAX_HEARTS) return "All five hearts.";
-        if (pet.getHearts() >= PetConstants.TIME_HEARTS) return "Hearts 4 and 5 are for favourites.";
+        if (pet.getHearts() >= PetConstants.TIME_HEARTS) return pet.favourite ? "Hearts 4 and 5 come from answered wants, jumps and fights." : "Hearts 4 and 5 are for favourites.";
         if (!pet.isAboard()) return "Hearts grow only on a ship.";
         if (pet.isUnsettled()) return "Hearts do not grow while it is Unsettled.";
         if (pet.isStarving()) return "Hearts do not grow while it is starving.";

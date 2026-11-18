@@ -129,6 +129,19 @@ public final class PetsFightChecks {
             fid = new FleetInteractionDialogPluginImpl();
             c.keepDialog(true);
             Global.getSector().getCampaignUI().showInteractionDialog(fid, enemy);
+            // 2.2: the starred pet's random want is cleared while the dialog pauses the campaign, so the fight can open comfort
+            Pet starred = PetStatusManager.getInstance().get((String) c.get("steady"));
+            try {
+                java.lang.invoke.VarHandle gap = java.lang.invoke.MethodHandles.privateLookupIn(PetStatusManager.class, java.lang.invoke.MethodHandles.lookup()).findVarHandle(PetStatusManager.class, "wantGapDays", float.class);
+                c.note("before the fight: want " + starred.want + ", cooldown " + starred.wantCooldownDays + ", fleet gap " + gap.get(PetStatusManager.getInstance()));
+                gap.set(PetStatusManager.getInstance(), 0f);
+            } catch (ReflectiveOperationException e) {
+                c.note("no wantGapDays field: " + e);
+            }
+            starred.want = null;
+            starred.wantCooldownDays = 0f;
+            c.put("steadyBond", starred.bondDays);
+            c.note("before the fight: Steady favourite " + starred.favourite + ", bond " + starred.bondDays);
             c.frames(60);
         });
         for (int i = 0; i < 4; i++) steps.add(PetsFightChecks::pickBattleOption);
@@ -151,6 +164,10 @@ public final class PetsFightChecks {
             c.expect(steady.getMood() == PetMood.SHELL_SHOCKED, "settled pet after the fight is Shell shocked (" + steady.getMood() + ")");
             c.expect(hasMood(mood(steady), PetMood.SHELL_SHOCKED.label), "pet block shows Mood Shell shocked");
             c.expect(mover.shellShockedDays > 0f && mover.getMood() == PetMood.UNSETTLED, "Unsettled wins over Shell shocked in the mood (" + mover.getMood() + ")");
+            if (steady.favourite) {
+                c.near(steady.bondDays, (Float) c.get("steadyBond") + 3f, 0.01f, "a favourite in the fight gets +3 bond days");
+                c.expect(steady.want == indevo.industries.petshop.PetWant.COMFORT, "the fight opens a comfort want (" + steady.want + ", cooldown " + steady.wantCooldownDays + ", lapses " + steady.lapsedWants + ", with player " + steady.isWithPlayer() + ")");
+            }
             c.keepDialog(false);
             c.frames(30);
         });
@@ -176,7 +193,11 @@ public final class PetsFightChecks {
                 if (side == null || !side.isPlayer()) continue;
                 List<FleetMemberAPI> fought = new ArrayList<>(side.getDeployed());
                 fought.addAll(side.getRetreated());
-                for (FleetMemberAPI m : fought) deployed.add(m.getShipName());
+                for (FleetMemberAPI m : fought) {
+                    deployed.add(m.getShipName());
+                    com.fs.starfarer.api.campaign.CampaignFleetAPI f = m.getFleetData() == null ? null : m.getFleetData().getFleet();
+                    log.info("LIVE_CHECK note: engagement member " + m.getShipName() + " fleet " + (f == null ? "none" : f.getNameWithFaction()) + " is player fleet " + (f == Global.getSector().getPlayerFleet()));
+                }
             }
             log.info("LIVE_CHECK note: engagement reported, player deployed " + deployed);
         }
