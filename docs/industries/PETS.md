@@ -21,9 +21,11 @@ Code paths relative to `jars/src/indevo/`.
 | `industries/petshop/memory/PetData.java` | One `pets.csv` row. Tags `no_sell`, `no_drop` |
 | `industries/petshop/memory/PetDataRepo.java` | Loads `pets.csv` with `getMergedSpreadsheetDataForMod`, cached in session transient memory |
 | `industries/petshop/memory/DeathData.java` | Cause, date, location of a dead pet |
-| `industries/petshop/listener/PetStatusManager.java` | Singleton registry of all pets. `BaseCampaignEventListener(true)`, `EconomyTickListener`, `FleetEventListener`, `EveryFrameScript`. Feeding, death reports, sale and combat loss detection |
+| `industries/petshop/listener/PetStatusManager.java` | Singleton registry of all pets. `BaseCampaignEventListener(true)`, `EconomyTickListener`, `FleetEventListener`, `EveryFrameScript`. Feeding, death reports, sale and combat loss detection, `getFreeShip`, `handOver`, `reportScuttled`, `getMenageriePets` |
 | `industries/petshop/listener/EscapeInterceptListener.java` | `CampaignInputListener` (priority 99999): eats Escape while `$IndEvo_BlockESC` is set and calls `EscapeBlockingDialoguePluginAPI.close()` |
 | `industries/petshop/script/EscBlockerMemoryIterator.java` | Transient script that keeps `$IndEvo_BlockESC` alive while the host dialog is open |
+| `industries/petshop/patches/PetScuttlePatch.java` | PatchLib `@After` on `FleetDataAPI.scuttle(FleetMemberAPI)` (vanilla `FleetData`, `obf/campaign/fleet/FleetData.java:1172`; only caller the fleet screen ship card). Calls `PetStatusManager.reportScuttled` |
+| `console/PetCommand.java` | `indevo_pet list`, `give <species> [name]`, `age <pet> <days>` ([Console](../core/CONSOLE.md)) |
 | `industries/petshop/item/PetItemPlugin.java` | `IndEvo_PetBox` special item. Item data = pet type id. Icon render, drop tiers, price, right-click use |
 | `industries/petshop/dialogue/PetPickerInteractionDialoguePlugin.java` | Opened by the item: name dialog, then ship picker, then creates and assigns the pet |
 | `industries/petshop/dialogue/PetNameAndAssignDialogueDelegate.java`, `PetRenameDialogueDelegate.java` | Name entry panels |
@@ -86,7 +88,13 @@ Code paths relative to `jars/src/indevo/`.
 
 - `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:139`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:138`); no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
-- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:154-166`); `reportPlayerMarketTransaction` -> pet ship sold -> `SOLD` (warns when sold into a free transfer submarket); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
+- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:215`); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
+
+### Hand over and menagerie
+
+- A ship sold, stored (`reportPlayerMarketTransaction`) or scuttled (`PetScuttlePatch`) hands its pet to a free ship of the player fleet through `handOver`: `getFreeShip` takes the flagship if it has no pet, else the largest hull size, then the highest deployment cost, never a fighter wing or a ship with a pet or a ship that is leaving. The pet is placed there (a move, so Unsettled) and a message names both ships.
+- No free ship: a sold ship's pet dies (`SOLD`), a stored ship's pet stays aboard with the forgotten pet warning, a scuttled ship's pet dies at once (`UNKNOWN`), as at month end before.
+- Menagerie: a living pet with no ship and no storage (`Pet.isInMenagerie()`). It ages and eats from the player fleet cargo, has no effect, and shows in the manager under Fleet, where it can be assigned or stored. Only `indevo_pet give` without a free ship puts a pet there for now.
 - `reportPetDied()` ignores a pet that is already dead, removes the hullmod and tag, posts a message, keeps `DeathData`.
 
 ### Storage
@@ -109,7 +117,7 @@ Code paths relative to `jars/src/indevo/`.
 - Dialogs from `showInteractionDialogFromCargo` do not become `getCurrentInteractionDialog()` (`obf/campaign/CampaignState.java:2298-2318`, `:2372`), so `isFleetCargo()` stays true while the picker is open. A second box still cannot be clicked: the dialog opens inside the right-click and its full screen backing panel absorbs all input (`com.fs.starfarer.ui.oo0O`, `absorbOutsideEvents` defaults to true, `obf/ui/_c199.java:18`, `:44-63`; input order inferred from vanilla dialogs being modal).
 - `EscapeInterceptListener` and `EscBlockerMemoryIterator` are also used by `industries/museum/plugins/ManageParadeDialoguePlugin.java` ([Museum](MUSEUM.md)).
 - `SelfRepairingBuiltInHullmod` is the base for changeling `HandBuiltHullmod`, Hellpods and distress hullmods ([Changeling](CHANGELING.md), [Distress](../exploration/DISTRESS.md)). `PetHullmod` is the plugin class for the ghost ship rows in `hull_mods.csv:20-59`; those ships have no pet, so `getPet()` returns null there.
-- Any code that removes ships from the player fleet without a market transaction or battle does not report a pet death; the pet stays registered with a stale member (inferred).
+- Any code that removes ships from the player fleet without a market transaction, a battle or a scuttle does not report a pet death; the pet stays registered with a stale member (inferred).
 - The manager only adds the player fleet event listener on creation; a replaced player fleet object loses it (inferred).
 - A stored ship's `getFleetData()` is the `getMothballedShips()` of the submarket cargo holding it, with no fleet (`obf/campaign/fleet/FleetData.java:482`, `addFleetMember` sets it). `getFoodCargo` finds that cargo by identity over `getEconomy().getMarketsCopy()`, the same markets the vanilla storage list shows (`obf/campaign/command/OutpostListPanel.java:271`); a ship stored on a market outside the economy is not found and its pet starves.
 

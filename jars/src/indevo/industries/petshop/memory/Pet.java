@@ -136,10 +136,10 @@ public class Pet {
     public void advance(float amt) {
         if (isDead) return;
 
-        boolean notInCryo = storage != null && !Commodities.BETA_CORE.equals(storage.getAICoreId());
+        boolean ages = storage == null || !Commodities.BETA_CORE.equals(storage.getAICoreId());
         float dayAmt = Global.getSector().getClock().convertToDays(amt);
 
-        if (notInCryo || isAssigned){
+        if (ages) {
             age += dayAmt;
 
             if (age > lifetime) {
@@ -150,7 +150,7 @@ public class Pet {
         unsettledDays = Math.max(0f, unsettledDays - dayAmt);
         shellShockedDays = Math.max(0f, shellShockedDays - dayAmt);
 
-        if (!isAssigned) return; //can't be active if in storage so it doesn't double age
+        if (storage != null) return;
 
         feedInterval.advance(amt);
         serveDuration += dayAmt;
@@ -177,6 +177,10 @@ public class Pet {
 
     public boolean isAssigned() {
         return isAssigned;
+    }
+
+    public boolean isInMenagerie() {
+        return !isDead && !isAssigned && storage == null;
     }
 
     public boolean isUnsettled() {

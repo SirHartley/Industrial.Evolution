@@ -8,3 +8,4 @@ indevo_printModData,indevo.console.PrintModData,indevo,indevo_printModData,displ
 indevo_setMarketGrowth,indevo.console.SetMarketGrowthProgress,"indevo, campaign",indevo_setMarketGrowth <amount>,"sets market growth to the given number, example: 0.43 for 43%"
 indevo_spawnRogue,indevo.console.SpawnRogue,"indevo,campaign",indevo_spawnRogue <shape> [asteroid|ice|irradiated] [treasure],"spawns rogue asteroids aimed at your course, shapes: scatter, cluster, teardrop, wall, chevron, pair, escort, or starts a drizzle"
 indevo_spawnFog,indevo.console.SpawnFog,"indevo,campaign",indevo_spawnFog [spell|bank] [ambush] [cache],"spawns fog in your current star system, a whole system spell by default or a local bank, ambush forces lurker fleets, cache hides a cache in a bank"
+indevo_pet,indevo.console.PetCommand,"indevo,campaign",indevo_pet list | give <species> [name] | age <pet> <days>,"lists your pets, gives you a pet on a free ship or in the menagerie, or ages a pet by days"

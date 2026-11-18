@@ -192,7 +192,7 @@ public class PetManagerDialogueDelegate extends ButtonReportingDialogueDelegate 
                     recreatePanel(callback);
                 }
             }, baseColor, bgColour, Alignment.MID, CutStyle.C2_MENU, SELECT_BUTTON_WIDTH, BUTTON_HEIGHT, 0);
-            storeButton.setEnabled(pet.isAssigned() && industry != null);
+            storeButton.setEnabled((pet.isAssigned() || pet.isInMenagerie()) && industry != null);
             petEntryPanel.addUIElement(anchor).rightOfMid(lastUsed, 10f);
             lastUsed = anchor;
 
@@ -278,6 +278,8 @@ public class PetManagerDialogueDelegate extends ButtonReportingDialogueDelegate 
                     Pet pet = manager.getPet(m.getVariant());
                     if (pet != null) petList.add(pet);
                 }
+
+                petList.addAll(manager.getMenageriePets());
                 break;
             case STORAGE:
                 petList.addAll(((PetShop) industry).getStoredPetsPetsCopy());
@@ -299,6 +301,8 @@ public class PetManagerDialogueDelegate extends ButtonReportingDialogueDelegate 
                     Pet pet = manager.getPet(m.getVariant());
                     if (pet != null) petList.add(pet);
                 }
+
+                petList.addAll(manager.getMenageriePets());
 
                 if (industry == null) break;
 

@@ -26,6 +26,8 @@ import indevo.utils.helper.MiscIE;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,8 +110,62 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         return null;
     }
 
+    public List<Pet> getPets() {
+        return new ArrayList<>(pets);
+    }
+
+    public List<Pet> getMenageriePets() {
+        List<Pet> list = new ArrayList<>();
+        for (Pet pet : pets) if (pet.isInMenagerie()) list.add(pet);
+        return list;
+    }
+
+    public FleetMemberAPI getFreeShip(CampaignFleetAPI fleet, Collection<FleetMemberAPI> except) {
+        if (fleet == null) return null;
+        if (isFree(fleet.getFlagship(), except)) return fleet.getFlagship();
+
+        FleetMemberAPI best = null;
+
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
+            if (!isFree(m, except)) continue;
+
+            if (best == null
+                    || m.getHullSpec().getHullSize().ordinal() > best.getHullSpec().getHullSize().ordinal()
+                    || m.getHullSpec().getHullSize() == best.getHullSpec().getHullSize() && m.getDeploymentPointsCost() > best.getDeploymentPointsCost()) {
+                best = m;
+            }
+        }
+
+        return best;
+    }
+
+    private boolean isFree(FleetMemberAPI m, Collection<FleetMemberAPI> except) {
+        return m != null && !m.isFighterWing() && !except.contains(m) && getPet(m.getVariant()) == null;
+    }
+
+    public boolean handOver(Pet pet, Collection<FleetMemberAPI> leaving) {
+        FleetMemberAPI from = pet.assignedFleetMember;
+        FleetMemberAPI to = getFreeShip(Global.getSector().getPlayerFleet(), leaving);
+        if (to == null) return false;
+
+        pet.place(to, null);
+
+        String fromName = from != null ? from.getShipName() : "fleet";
+        Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " moved from the " + fromName + " to the %s", Misc.getTextColor(), pet.name, to.getShipName(), Misc.getHighlightColor(), Misc.getHighlightColor());
+        return true;
+    }
+
+    public void reportScuttled(FleetDataAPI fleetData, FleetMemberAPI member) {
+        if (!Setting.PETS.enabled() || fleetData.getFleet() == null || !fleetData.getFleet().isPlayerFleet()) return;
+
+        Pet pet = getPet(member.getVariant());
+        if (pet == null || pet.isDead()) return;
+
+        if (!handOver(pet, Collections.singletonList(member))) reportPetDied(pet, PetDeathCause.UNKNOWN);
+    }
+
     public boolean feed(Pet pet) {
-        CargoAPI cargo = getFoodCargo(pet.assignedFleetMember);
+        CargoAPI cargo = pet.assignedFleetMember != null ? getFoodCargo(pet.assignedFleetMember) : Global.getSector().getPlayerFleet().getCargo();
         if (cargo == null) return false;
 
         PetData data = pet.getData();
@@ -257,27 +313,18 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         if (memberList.isEmpty()) return;
 
-        if (transaction.getSubmarket().getPlugin().isFreeTransfer()) {
-            boolean forgotPet = false;
-
-            for (FleetMemberAPI m : memberList) {
-                if (getPet(m.getVariant()) != null) {
-                    forgotPet = true;
-                    break;
-                }
-            }
-
-            if (forgotPet) showPetForgottenMessage(transaction.getSubmarket());
-            return;
-        }
+        boolean stored = transaction.getSubmarket().getPlugin().isFreeTransfer();
+        boolean forgotPet = false;
 
         for (Pet pet : new ArrayList<>(pets)) {
-            if (!pet.isAssigned()) continue;
+            if (!pet.isAssigned() || !memberList.contains(pet.assignedFleetMember)) continue;
+            if (handOver(pet, memberList)) continue;
 
-            if (memberList.contains(pet.assignedFleetMember)) {
-                reportPetDied(pet, PetDeathCause.SOLD);
-            }
+            if (stored) forgotPet = true;
+            else reportPetDied(pet, PetDeathCause.SOLD);
         }
+
+        if (forgotPet) showPetForgottenMessage(transaction.getSubmarket());
     }
 
     @Override
