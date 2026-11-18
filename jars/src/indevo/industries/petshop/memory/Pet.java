@@ -117,7 +117,7 @@ public class Pet {
     // answered wants and shared events; past the time hearts only a favourite takes it
     public void addBond(float days) {
         float cap = PetConstants.HEART_DAYS[(favourite ? PetConstants.MAX_HEARTS : PetConstants.TIME_HEARTS) - 1];
-        if (bondDays < cap) setBondDays(Math.min(cap, bondDays + days));
+        if (bondDays < cap) setBondDays(Math.min(cap, bondDays + days * PetGenetics.heartMult(sheet, PetDataRepo.getTraits())));
     }
 
     public void rename(String newName) {
@@ -348,7 +348,7 @@ public class Pet {
             age += dayAmt;
             if (age > getData().maxLife) earn(PetTitle.OLD_TIMER);
 
-            if (age > lifetime) {
+            if (age > getLifetime()) {
                 PetStatusManager.getInstance().reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
             }
         }
@@ -424,7 +424,16 @@ public class Pet {
     }
 
     public boolean isOld() {
-        return age > lifetime * PetConstants.SLEEPY_AGE_FRACTION;
+        return age > getLifetime() * PetConstants.SLEEPY_AGE_FRACTION;
+    }
+
+    // the rolled lifetime with its mutations and flaws; at or under 0 it lives only where it does not age
+    public float getLifetime() {
+        return PetGenetics.lifetime(getData(), sheet, lifetime, PetDataRepo.getTraits());
+    }
+
+    public float getFoodPerMonth() {
+        return getData().foodPerMonth * PetGenetics.foodMult(sheet, PetDataRepo.getTraits());
     }
 
     public boolean isUnsettled() {
@@ -455,7 +464,7 @@ public class Pet {
     }
 
     public float getHeartRate() {
-        return lastMealSupplies ? PetConstants.SUPPLIES_HEART_RATE : 1f;
+        return (lastMealSupplies ? PetConstants.SUPPLIES_HEART_RATE : 1f) * PetGenetics.heartMult(sheet, PetDataRepo.getTraits());
     }
 
     public int getHearts() {
@@ -487,7 +496,7 @@ public class Pet {
     public float getMascotMult() {
         if (isUnsettled() || getHearts() < PetConstants.MASCOT_HEARTS) return 0f;
 
-        float mult = 1f;
+        float mult = PetGenetics.bodyMult(sheet, PetGenetics.GIANT, PetDataRepo.getTraits());
         if (getData().isHamster()) mult *= PetConstants.HAMSTER_MULT;
         if (hasNest()) mult *= PetConstants.NEST_MULT;
         return mult;
@@ -497,7 +506,7 @@ public class Pet {
     public float getTalentMult() {
         if (isUnsettled()) return 0f;
 
-        float mult = 1f;
+        float mult = PetGenetics.bodyMult(sheet, PetGenetics.SAVANT, PetDataRepo.getTraits());
         if (getData().isHamster()) mult *= PetConstants.HAMSTER_MULT;
         if (hasNest()) mult *= PetConstants.NEST_MULT;
         return mult;
@@ -513,16 +522,25 @@ public class Pet {
         return talents.subList(0, PetGenetics.activeCount(talents.size(), getHearts()));
     }
 
-    // what an active talent gives on its ship now, 0 when it is off
+    // what an active talent gives on its ship now, 0 when it is off; Split mind counts the best one again per level
     public float getTalentValue(String traitId) {
-        if (!getActiveTalents().contains(traitId)) return 0f;
-        return PetDataRepo.getTrait(traitId).value(sheet.getGrade(traitId), getTalentMult());
+        List<String> active = getActiveTalents();
+        if (!active.contains(traitId)) return 0f;
+
+        float mult = getTalentMult();
+        if (active.get(0).equals(traitId)) mult *= 1f + PetGenetics.bodyValue(sheet, PetGenetics.SPLIT_MIND, PetDataRepo.getTraits());
+        return PetDataRepo.getTrait(traitId).value(sheet.getGrade(traitId), mult);
     }
 
-    public List<String> getKnownTalentNames() {
+    // known talents, every mutation, flaws once read
+    public List<String> getKnownTraitNames() {
         List<String> names = new ArrayList<>();
         Map<String, PetDataRepo.Trait> traits = PetDataRepo.getTraits();
         for (String id : getTalents()) if (sheet.isKnown(id)) names.add(traits.get(id).name());
+        for (String id : sheet.traits.keySet()) {
+            PetDataRepo.Trait trait = traits.get(id);
+            if (trait != null && (trait.isMutation() || trait.isFlaw() && sheet.isKnown(id))) names.add(trait.name());
+        }
         return names;
     }
 

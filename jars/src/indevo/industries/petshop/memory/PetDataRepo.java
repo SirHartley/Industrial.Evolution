@@ -21,10 +21,17 @@ public class PetDataRepo {
     public static final String KIND_STAT = "stat";
     public static final String KIND_FLEET = "fleet";
     public static final String KIND_SIGNATURE = "signature";
+    public static final String KIND_MUTATION = "mutation";
+    public static final String KIND_FLAW = "flaw";
     public static final String MODE_PERCENT = "percent";
     public static final String MODE_REDUCE = "reduce";
     public static final String MODE_FLAT = "flat";
     public static final String MODE_COUNT = "count";
+    // x1/2 at level 1, x1/3 at level 2
+    public static final String MODE_DIVIDE = "divide";
+    // no levels, the trait is there or not
+    public static final String MODE_NONE = "none";
+    public static final String FROM_INBREEDING = "inbreeding";
     public static final String ANY = "any";
     public static final String EVENT_AMBIENT = "ambient";
     public static final String EVENT_DOCKING = "docking";
@@ -71,8 +78,9 @@ public class PetDataRepo {
     }
 
     // value of grades: perLevel for every full step of per grades, times the pet's talent mult, then the cap
+    // with: the flaw ids a mutation arrives with; from: inbreeding when a malformed young can get the flaw
     public record Trait(String id, String name, String kind, String stat, String mode, float perLevel, int per, float cap, float weight,
-                        String effect, String desc, String flavour) {
+                        String effect, String desc, String flavour, List<String> with, String from) {
 
         public float value(int grade, float mult) {
             float v = perLevel * (grade / per) * mult;
@@ -91,9 +99,23 @@ public class PetDataRepo {
             return kind.equals(KIND_FLEET);
         }
 
+        public boolean isMutation() {
+            return kind.equals(KIND_MUTATION);
+        }
+
+        public boolean isFlaw() {
+            return kind.equals(KIND_FLAW);
+        }
+
+        public boolean hasLevels() {
+            return !mode.equals(MODE_NONE);
+        }
+
         // +10%, -10% for a reduction, +1 for a flat value, a count in whole steps
         public String format(float v) {
+            if (mode.equals(MODE_NONE)) return "";
             if (mode.equals(MODE_COUNT)) return "+" + Math.round(v);
+            if (mode.equals(MODE_DIVIDE)) return "x1/" + (1 + Math.round(v));
             String n = Math.abs(v - Math.round(v)) < 0.005f ? String.valueOf(Math.round(v)) : new BigDecimal(String.format(Locale.ROOT, "%.2f", v)).stripTrailingZeros().toPlainString();
             return (mode.equals(MODE_REDUCE) ? "-" : "+") + n + (mode.equals(MODE_FLAT) ? "" : "%");
         }
@@ -198,6 +220,8 @@ public class PetDataRepo {
 
             String per = row.optString("per", "").trim();
             String cap = row.optString("cap", "").trim();
+            List<String> with = new ArrayList<>();
+            for (String flaw : tokens(row.optString("with", ""))) with.add(TRAIT_PREFIX + flaw);
             traits.put(id, new Trait(id,
                     row.getString("name").trim(),
                     row.getString("kind").trim(),
@@ -209,7 +233,9 @@ public class PetDataRepo {
                     (float) row.getDouble("weight"),
                     row.getString("effect").trim(),
                     row.getString("desc").trim(),
-                    row.optString("flavour", "").trim()));
+                    row.optString("flavour", "").trim(),
+                    with,
+                    row.optString("from", "").trim()));
         }
 
         return traits;

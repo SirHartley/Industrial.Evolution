@@ -625,7 +625,7 @@ public class PetCard {
         return pet.lastMealSupplies ? next + " It grows at " + Math.round(PetConstants.SUPPLIES_HEART_RATE * 100f) + "% on Supplies." : next;
     }
 
-    // mascot effect, then the talents best first; only the rows scroll, unknown talents last
+    // mascot effect, then the talents best first, then mutations and flaws; only the rows scroll, unknown talents last
     private void addTalents(CustomPanelAPI p, float y, float w, float h, Pet pet) {
         float ew = w - EFFECT_X - UiScroll.GUTTER;
         Ui.thead(p, 0f, y, w, new String[]{"Grade", "Talents", "Effect"}, new float[]{GRADE_X, TALENT_X, EFFECT_X},
@@ -677,15 +677,73 @@ public class PetCard {
             Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> talentTip(t, pet, trait, off));
         }
 
+        addBody(rows, ew, pet);
         rows.end();
     }
 
+    // mutations are always known, flaws once read; a flaw on a ship stat is off without a ship
+    private static void addBody(UiScroll.Column rows, float ew, Pet pet) {
+        Ui.thead(rows.heading(PetsPanel.HEAD_GAP), 0f, 0f, rows.width(), new String[]{"Level", "Mutations, flaws", "Effect"},
+                new float[]{GRADE_X, TALENT_X, EFFECT_X}, new float[]{GRADE_W, TALENT_W, ew}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
+
+        List<PetDataRepo.Trait> flaws = new ArrayList<>();
+        float gap = 4f;
+        for (String id : pet.sheet.traits.keySet()) {
+            PetDataRepo.Trait trait = PetDataRepo.getTrait(id);
+            if (trait == null) continue;
+            if (trait.isFlaw() && pet.sheet.isKnown(id)) flaws.add(trait);
+            if (!trait.isMutation()) continue;
+
+            bodyRow(rows.block(UiData.GRID_ROW_H, gap), ew, pet, trait);
+            gap = 0f;
+        }
+        for (PetDataRepo.Trait trait : flaws) {
+            bodyRow(rows.block(UiData.GRID_ROW_H, gap), ew, pet, trait);
+            gap = 0f;
+        }
+
+        if (pet.sheet.flawsRead && !flaws.isEmpty()) return;
+        CustomPanelAPI row = rows.block(UiData.GRID_ROW_H, gap);
+        if (pet.sheet.flawsRead) {
+            talentRow(row, ew, null, "No flaws", "", null, false);
+            Ui.tooltip(row, row, "No flaws", "A gene scan found no flaws.");
+        } else {
+            talentRow(row, ew, "?", "Flaws: Unknown", "", null, false);
+            Ui.tooltip(row, row, "Flaws: Unknown", "Flaws are read only by a gene scan.");
+        }
+    }
+
+    private static void bodyRow(CustomPanelAPI row, float ew, Pet pet, PetDataRepo.Trait trait) {
+        boolean off = trait.isFlaw() && !trait.stat().isEmpty() && !pet.isAboard();
+        String level = trait.hasLevels() ? String.valueOf(pet.sheet.getGrade(trait.id())) : null;
+        String v = trait.format(trait.value(pet.sheet.getGrade(trait.id()), 1f));
+
+        if (off) talentRow(row, ew, level, trait.name(), "off", null, false);
+        else if (v.isEmpty()) talentRow(row, ew, level, trait.name(), trait.effect(), null, true);
+        else talentRow(row, ew, level, trait.name(), trait.effect() + " " + v, v, true, trait.isFlaw() ? Ui.neg() : Ui.hl());
+        Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> bodyTip(t, pet, trait, off));
+    }
+
+    private static void bodyTip(TooltipMakerAPI t, Pet pet, PetDataRepo.Trait trait, boolean off) {
+        t.addPara(trait.name(), trait.isFlaw() ? Ui.neg() : Ui.hl(), 0f);
+        if (trait.hasLevels()) t.addPara(trait.desc(), 10f, trait.isFlaw() ? Ui.neg() : Ui.hl(), trait.format(trait.value(trait.per(), 1f)));
+        else t.addPara(trait.desc(), 10f);
+        if (trait.cap() > 0f) t.addPara("At most %s.", 0f, Ui.hl(), trait.format(trait.cap()));
+        t.addPara(trait.isMutation() ? "A mutation, always known. Young can inherit it." : "A flaw. Young can inherit it.", 0f);
+        if (off) t.addPara(NO_SHIP, Ui.gray(), 10f);
+        if (!trait.flavour().isEmpty()) t.addPara(trait.flavour().replace("%s", pet.name), 10f);
+    }
+
     private static void talentRow(CustomPanelAPI b, float ew, String grade, String name, String effect, String hl, boolean on) {
+        talentRow(b, ew, grade, name, effect, hl, on, Ui.hl());
+    }
+
+    private static void talentRow(CustomPanelAPI b, float ew, String grade, String name, String effect, String hl, boolean on, Color hlColor) {
         Color c = on ? Ui.text() : Ui.gray();
         if (grade != null) Ui.textIn(b, GRADE_X, 0f, GRADE_W, UiData.GRID_ROW_H, grade, Ui.INS15, on ? Ui.hl() : c, Ui.CENTER, new String[0], new Color[0]);
         Ui.textIn(b, TALENT_X, 0f, TALENT_W, UiData.GRID_ROW_H, name, Ui.INS15, c, Ui.LEFT, new String[0], new Color[0]);
         Ui.textIn(b, EFFECT_X, 0f, ew, UiData.GRID_ROW_H, effect, Ui.INS15, c, Ui.RIGHT,
-                hl != null ? new String[]{hl} : new String[0], hl != null ? new Color[]{Ui.hl()} : new Color[0]);
+                hl != null ? new String[]{hl} : new String[0], hl != null ? new Color[]{hlColor} : new Color[0]);
     }
 
     private static void talentTip(TooltipMakerAPI t, Pet pet, PetDataRepo.Trait trait, String off) {

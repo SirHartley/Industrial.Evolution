@@ -70,7 +70,7 @@ public class PetCommand implements BaseCommand {
                 }
 
                 pet.age += days;
-                Console.showMessage(pet.name + " is now " + pet.getAgeString() + " old, life span " + Math.round(pet.lifetime) + " days.");
+                Console.showMessage(pet.name + " is now " + pet.getAgeString() + " old, life span " + Math.round(pet.getLifetime()) + " days.");
                 return CommandResult.SUCCESS;
             }
             case "hearts" -> {

@@ -19,6 +19,8 @@ import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
+import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -44,6 +47,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
     public static final float OVERCHARGE_STEP = 30f;
     public static final String CAPTAIN = PetDataRepo.TRAIT_PREFIX + "captain";
     public static final String SCAVENGER = PetDataRepo.TRAIT_PREFIX + "scavenger";
+    private static final String FLAW_ID = "_flaw";
 
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         PetStatusManager manager = PetStatusManager.getInstance();
@@ -61,6 +65,19 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
             float value = pet.getTalentValue(talent);
             if (value > 0f) applyStat(stats, trait.stat(), value, id, source);
         }
+
+        applyFlaws(stats, pet, id + FLAW_ID, source);
+    }
+
+    // always on, whatever the hearts; flaws keep their own id so a talent on the same stat does not replace them
+    private static void applyFlaws(MutableShipStatsAPI stats, Pet pet, String id, String source) {
+        for (Map.Entry<String, Integer> entry : pet.sheet.traits.entrySet()) {
+            PetDataRepo.Trait trait = PetDataRepo.getTrait(entry.getKey());
+            if (trait != null && trait.isFlaw() && !trait.stat().isEmpty()) applyStat(stats, trait.stat(), trait.value(entry.getValue(), 1f), id, source);
+        }
+
+        int glutton = pet.sheet.getGrade(PetGenetics.GLUTTON);
+        if (glutton > 0) stats.getSuppliesPerMonth().modifyPercent(id, glutton * PetConstants.GLUTTON_SUPPLIES, source);
     }
 
     // one case per stat key of pet_traits.csv, value in percent or points; false for a key it does not know
@@ -128,6 +145,17 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
             case "fleet_burn" -> stats.getDynamic().getMod(Stats.FLEET_BURN_BONUS).modifyFlat(id, value, source);
             case "salvage" -> stats.getDynamic().getMod(Stats.SALVAGE_VALUE_MULT_MOD).modifyFlat(id, value * 0.01f, source);
             case "ground_support" -> stats.getDynamic().getMod(Stats.FLEET_GROUND_SUPPORT).modifyFlat(id, value, source);
+            case "cr_recovery_less" -> {
+                stats.getBaseCRRecoveryRatePercentPerDay().modifyMult(id, less, source);
+                stats.getRepairRatePercentPerDay().modifyMult(id, less, source);
+            }
+            case "crew_loss" -> stats.getCrewLossMult().modifyPercent(id, value, source);
+            case "peak_time_less" -> stats.getPeakCRDuration().modifyMult(id, less, source);
+            case "sensor_profile_more" -> stats.getSensorProfile().modifyPercent(id, value, source);
+            case "recovery_less" -> {
+                stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyMult(id, less, source);
+                stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, 1f + value * 0.01f, source);
+            }
             default -> {
                 return false;
             }
