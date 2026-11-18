@@ -13,8 +13,6 @@ import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetsDialogPlugin;
 import indevo.industries.petshop.plugins.PetsView;
 
-import java.io.IOException;
-
 public class PetManagementAbilityPlugin extends BaseDurationAbility {
 
     public static void applySetting() {
@@ -34,13 +32,7 @@ public class PetManagementAbilityPlugin extends BaseDurationAbility {
 
         if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
 
-        for (PetData data : PetDataRepo.getAll()) {
-            try {
-                Global.getSettings().loadTexture(data.icon);
-            } catch (IOException e) {
-                throw new IllegalStateException("IndEvo pet " + data.id + " icon " + data.icon + " failed to load", e);
-            }
-        }
+        PetDataRepo.loadTextures();
     }
 
     @Override

@@ -13,7 +13,11 @@ public class PetSheet {
     public static final String FROM_SUM = "sum";
     public static final String FROM_MUTATION = "mutation";
     public static final String FROM_MALFORMED = "malformed";
+    // key of the look in from
+    public static final String LOOK = "look";
 
+    // look id from pet_morphs.csv, null for Wild type; always known
+    public String look = null;
     // officer personality id
     public String disposition;
     // trait id to grade or level, in the order the traits arrived

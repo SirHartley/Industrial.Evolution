@@ -42,7 +42,6 @@ public class PetHusbandry {
     static final float YOUNG_W = 40f;
     static final float YOUNG_H = 56f;
     static final float YOUNG_GAP = 8f;
-    static final String WILD_TYPE = "Wild type";
     static final float CROSS_Y = 118f;
     static final float CHIP_H = 24f;
     static final float CHIP_PITCH = 28f;
@@ -168,7 +167,7 @@ public class PetHusbandry {
     }
 
     private static void face(CustomPanelAPI t, float x, Pet pet) {
-        if (pet != null) UiImages.img(t, x, 7f, HAB_FACE, HAB_FACE, pet.getData().icon);
+        if (pet != null) UiImages.img(t, x, 7f, HAB_FACE, HAB_FACE, pet.getIcon());
         else Ui.dashbox(t, x, 7f, HAB_FACE, HAB_FACE);
     }
 
@@ -269,7 +268,7 @@ public class PetHusbandry {
     }
 
     private static String[] searchText(Pet pet) {
-        List<String> text = new ArrayList<>(List.of(pet.name, pet.getData().species, WILD_TYPE));
+        List<String> text = new ArrayList<>(List.of(pet.name, pet.getData().species, pet.getLookName()));
         text.addAll(pet.getKnownTraitNames());
         return text.toArray(new String[0]);
     }
@@ -291,7 +290,7 @@ public class PetHusbandry {
         boolean enabled = block == null;
 
         CustomPanelAPI t = UiButtons.row(p, x, 0f, PetsPanel.TILE_W, TILE_H, picked, enabled, null, enabled ? () -> pick(pet) : null);
-        UiImages.img(t, 11f, 5f, PetCard.PORTRAIT, PetCard.PORTRAIT, pet.getData().icon, null, enabled ? 1f : PetCard.DIM);
+        UiImages.img(t, 11f, 5f, PetCard.PORTRAIT, PetCard.PORTRAIT, pet.getIcon(), null, enabled ? 1f : PetCard.DIM);
 
         int unknown = unknownTalents(pet);
         if (unknown > 0) {
@@ -308,7 +307,7 @@ public class PetHusbandry {
             String g = String.valueOf(grade(pet, trait));
             String word = trait.isTalent() ? "Grade " : "Level ";
             Ui.textIn(t, 4f, 112f, 78f, Ui.LINE_H, word + g, Ui.INS15, Ui.gray(), Ui.CENTER, new String[]{g}, new Color[]{trait.isFlaw() ? Ui.neg() : Ui.hl()});
-        } else Ui.textIn(t, 4f, 112f, 78f, Ui.LINE_H, WILD_TYPE, Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
+        } else Ui.textIn(t, 4f, 112f, 78f, Ui.LINE_H, Ui.fit(pet.getLookName(), Ui.INS15, 78f), Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
 
         if (block != null) Ui.tooltip(t, t, pet.getData().species, block);
     }
@@ -592,7 +591,7 @@ public class PetHusbandry {
 
         float malformed = PetGenetics.malformedChance(data, PetShop.getInbreeding(a, b));
         if (malformed > 0f) rows.add(malformedRow(malformed, kin(a, b), kin(b, a)));
-        rows.add(lookRow(a.name, b.name));
+        rows.add(lookRow(a.name, a.getLook(), b.name, b.getLook()));
 
         String da = Misc.ucFirst(a.sheet.disposition);
         String db = Misc.ucFirst(b.sheet.disposition);
@@ -630,10 +629,20 @@ public class PetHusbandry {
                 new Result(PetGenetics.NONE, "none", Ui.gray(), 1f - malformed, "born sound", "No effect", null)));
     }
 
-    static CrossRow lookRow(String nameA, String nameB) {
-        return new CrossRow(LOOK, "Look", "", false, WILD_TYPE, WILD_TYPE, List.of(
-                new Result(PetSheet.FROM_A, WILD_TYPE, Ui.text(), 0.5f, "from " + nameA, "Plain look", null),
-                new Result(PetSheet.FROM_B, WILD_TYPE, Ui.text(), 0.5f, "from " + nameB, "Plain look", null)));
+    // the look of one parent at random, one result when both have it; a new look comes from the mutation rate and is left out
+    static CrossRow lookRow(String nameA, PetDataRepo.Look a, String nameB, PetDataRepo.Look b) {
+        String la = lookName(a);
+        String lb = lookName(b);
+        if (a == b) return new CrossRow(LOOK, "Look", "", false, la, lb, List.of(lookResult(PetSheet.FROM_SUM, a, 1f, "from both")));
+        return new CrossRow(LOOK, "Look", "", false, la, lb, List.of(lookResult(PetSheet.FROM_A, a, 0.5f, "from " + nameA), lookResult(PetSheet.FROM_B, b, 0.5f, "from " + nameB)));
+    }
+
+    static String lookName(PetDataRepo.Look look) {
+        return look != null ? look.name() : PetDataRepo.WILD_TYPE;
+    }
+
+    private static Result lookResult(String lane, PetDataRepo.Look look, float chance, String origin) {
+        return new Result(lane, lookName(look), Ui.text(), chance, origin, look != null ? "" : "Plain look", null);
     }
 
     static CrossRow traitRow(PetDataRepo.Trait trait, int la, int lb, float care, float sum, String nameA, String nameB, String lineA, String lineB) {
@@ -685,7 +694,7 @@ public class PetHusbandry {
     }
 
     private FlowNode flowNode(Pet pet, String line) {
-        return new FlowNode(pet.name, pet.getData().icon, unknown(pet) > 0, pet, line);
+        return new FlowNode(pet.name, pet.getIcon(), unknown(pet) > 0, pet, line);
     }
 
     // a parent in the flow chart: a pet, or a planned young with no hearts
@@ -829,7 +838,7 @@ public class PetHusbandry {
             float x = 2f + i * (YOUNG_W + YOUNG_GAP + 16f);
             if (brood.opened.contains(pet.id)) {
                 Ui.card(p, x, y, YOUNG_W + 16f, YOUNG_H);
-                UiImages.img(p, x + 8f, y + 8f, YOUNG_W, YOUNG_W, pet.getData().icon);
+                UiImages.img(p, x + 8f, y + 8f, YOUNG_W, YOUNG_W, pet.getIcon());
             } else PetYoungDialog.back(p, x, y, YOUNG_W + 16f, YOUNG_H, false);
         }
 

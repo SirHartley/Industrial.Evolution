@@ -15,7 +15,7 @@ public class PetPlan {
     public String name;
     public String parentA = null;
     public String parentB = null;
-    // look id, null for any; looks are not in the game yet
+    // look id, PetGenetics.NONE for Wild type, null for any
     public String look = null;
     // trait id or PetGenetics.MALFORMED to the grade it needs at least, for a flaw the level it may have at most, 0 for none
     public final Map<String, Integer> wanted = new LinkedHashMap<>();
@@ -50,6 +50,8 @@ public class PetPlan {
     // what it counts as when it stands in a parent place: exactly its target, every trait read
     public PetSheet sheet() {
         PetSheet sheet = new PetSheet(PetGenetics.DISPOSITIONS.get(0));
+        // any look counts as Wild type
+        if (look != null && !look.equals(PetGenetics.NONE)) sheet.look = look;
         for (Map.Entry<String, Integer> e : wanted.entrySet()) {
             if (e.getValue() > 0 && !e.getKey().equals(PetGenetics.MALFORMED)) sheet.traits.put(e.getKey(), e.getValue());
         }

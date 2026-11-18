@@ -490,7 +490,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     // null keeps the group order: the fleet order on ships, the order they came in elsewhere
     // traits the player has not seen stay out of the search
     private static String[] searchText(Pet pet) {
-        List<String> text = new ArrayList<>(List.of(pet.name, pet.getData().species));
+        List<String> text = new ArrayList<>(List.of(pet.name, pet.getData().species, pet.getLookName()));
         text.addAll(pet.getKnownTraitNames());
         return text.toArray(new String[0]);
     }

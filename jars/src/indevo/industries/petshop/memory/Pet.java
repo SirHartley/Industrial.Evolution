@@ -368,6 +368,21 @@ public class Pet {
         return PetDataRepo.get(typeID);
     }
 
+    // null for Wild type, or a look no loaded mod has
+    public PetDataRepo.Look getLook() {
+        return sheet != null ? getData().getLook(sheet.look) : null;
+    }
+
+    public String getLookName() {
+        PetDataRepo.Look look = getLook();
+        return look != null ? look.name() : PetDataRepo.WILD_TYPE;
+    }
+
+    public String getIcon() {
+        PetDataRepo.Look look = getLook();
+        return look != null ? look.icon() : getData().icon;
+    }
+
     public void advance(float amt) {
         if (isDead) return;
 

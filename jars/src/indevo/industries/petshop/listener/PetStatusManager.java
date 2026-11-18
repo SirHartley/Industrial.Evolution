@@ -255,7 +255,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         }
 
         MessageIntel intel = new MessageIntel(line, Misc.getTextColor(), new String[]{pet.name}, hl);
-        intel.setIcon(pet.getData().icon);
+        intel.setIcon(pet.getIcon());
         Global.getSector().getCampaignUI().addMessage(intel);
         return true;
     }
@@ -401,6 +401,13 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public Set<String> getSeenTraits() {
         Set<String> seen = new HashSet<>();
         for (Pet pet : pets) if (pet.sheet != null) seen.addAll(pet.sheet.known);
+        return seen;
+    }
+
+    // look ids of any pet the player has or had
+    public Set<String> getSeenLooks() {
+        Set<String> seen = new HashSet<>();
+        for (Pet pet : pets) if (pet.sheet != null && pet.sheet.look != null) seen.add(pet.sheet.look);
         return seen;
     }
 
@@ -808,7 +815,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             intel.addLine(BaseIntelPlugin.BULLET + "%s", Misc.getTextColor(), new String[]{item}, hl);
         }
 
-        intel.setIcon(pet.getData().icon);
+        intel.setIcon(pet.getIcon());
         Global.getSector().getCampaignUI().addMessage(intel);
     }
 

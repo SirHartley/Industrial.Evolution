@@ -61,7 +61,9 @@ public final class PetConstants {
     public static final float[] MUTATION_RATE = {0.08f, 0.16f, 0.24f};
     public static final float IRRADIATED_MUTATION_MULT = 2f;
     public static final float ALPHA_MUTATION_MULT = 1.5f;
-    // a new trait from the mutation rate: a mutation or a talent half and half, a talent one time in four a signature
+    // a new trait from the mutation rate: a new look one time in three when the species has one the young lacks,
+    // else a mutation or a talent half and half, a talent one time in four a signature
+    public static final float NEW_LOOK_CHANCE = 1f / 3f;
     public static final float NEW_MUTATION_CHANCE = 0.5f;
     public static final float NEW_SIGNATURE_CHANCE = 0.25f;
     public static final float MALFORMED_PER_INBREEDING = 1.5f;

@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -86,6 +87,10 @@ public final class PetGenetics {
         PetSheet young = new PetSheet(random.nextBoolean() ? a.disposition : b.disposition);
         young.from = new HashMap<>();
         float sum = sumChance(data, hearts);
+
+        boolean lookA = random.nextBoolean();
+        young.look = lookA ? a.look : b.look;
+        if (young.look != null) young.from.put(PetSheet.LOOK, lookA ? PetSheet.FROM_A : PetSheet.FROM_B);
 
         Set<String> ids = new LinkedHashSet<>(a.traits.keySet());
         ids.addAll(b.traits.keySet());
@@ -221,13 +226,22 @@ public final class PetGenetics {
     // the sheet as the player knows it, for previews: traits not read yet are left out
     public static PetSheet seen(PetSheet sheet) {
         PetSheet seen = new PetSheet(sheet.disposition);
+        seen.look = sheet.look;
         for (Map.Entry<String, Integer> e : sheet.traits.entrySet()) if (sheet.isKnown(e.getKey())) seen.traits.put(e.getKey(), e.getValue());
         seen.known.addAll(seen.traits.keySet());
         return seen;
     }
 
-    // a mutation with its flaws at level 1, or a talent at grade 1; never one the young has
+    // a new look, a mutation with its flaws at level 1, or a talent at grade 1; never one the young has
     private static void addNewTrait(PetSheet young, PetData data, Map<String, Trait> traits, Random random) {
+        List<PetDataRepo.Look> looks = new ArrayList<>();
+        for (PetDataRepo.Look look : data.looks) if (!look.id().equals(young.look) && look.weight() > 0f) looks.add(look);
+        if (!looks.isEmpty() && random.nextFloat() < PetConstants.NEW_LOOK_CHANCE) {
+            young.look = pickLook(looks, random).id();
+            young.from.put(PetSheet.LOOK, PetSheet.FROM_MUTATION);
+            return;
+        }
+
         boolean mutation = random.nextFloat() < PetConstants.NEW_MUTATION_CHANCE;
         boolean signature = random.nextFloat() < PetConstants.NEW_SIGNATURE_CHANCE;
 
@@ -431,6 +445,23 @@ public final class PetGenetics {
     // how many of n talents are on at these hearts
     public static int activeCount(int n, int hearts) {
         return hearts >= PetConstants.MAX_HEARTS ? n : Math.min(n, hearts);
+    }
+
+    private static PetDataRepo.Look pickLook(List<PetDataRepo.Look> pool, Random random) {
+        float total = 0f;
+        for (PetDataRepo.Look look : pool) total += look.weight();
+
+        float roll = random.nextFloat() * total;
+        for (PetDataRepo.Look look : pool) {
+            roll -= look.weight();
+            if (roll < 0f) return look;
+        }
+        return pool.get(pool.size() - 1);
+    }
+
+    // the young has the look of one parent at random; a new look is left out, as new traits are in wantedChance
+    public static float lookChance(String wanted, String a, String b) {
+        return (Objects.equals(wanted, a) ? 0.5f : 0f) + (Objects.equals(wanted, b) ? 0.5f : 0f);
     }
 
     private static Trait pick(List<Trait> pool, PetData data, Random random) {

@@ -16,6 +16,9 @@ public class PetDataRepo {
     public static final String CSV_PATH = "data/campaign/pets.csv";
     public static final String LINES_PATH = "data/strings/pet_lines.csv";
     public static final String TRAITS_PATH = "data/campaign/pet_traits.csv";
+    public static final String LOOKS_PATH = "data/campaign/pet_morphs.csv";
+    public static final String LOOK_DIR = "graphics/pets/morphs/";
+    public static final String WILD_TYPE = "Wild type";
     // saves hold trait ids, never rename one after release
     public static final String TRAIT_PREFIX = "IndEvo_pt_";
     public static final String KIND_STAT = "stat";
@@ -77,6 +80,10 @@ public class PetDataRepo {
         }
     }
 
+    // a look of a species; saves hold its id, never rename one after release
+    public record Look(String id, String species, int number, String name, float weight, String icon) {
+    }
+
     // value of grades: perLevel for every full step of per grades, times the pet's talent mult, then the cap
     // with: the flaw ids a mutation arrives with; from: inbreeding when a malformed young can get the flaw
     public record Trait(String id, String name, String kind, String stat, String mode, float perLevel, int per, float cap, float weight,
@@ -127,6 +134,31 @@ public class PetDataRepo {
 
     public static PetData get(String id) {
         return getPets().get(id);
+    }
+
+    // null for null, Wild type, or an id no loaded mod has
+    public static Look getLook(String id) {
+        if (id == null) return null;
+        for (PetData data : getAll()) {
+            Look look = data.getLook(id);
+            if (look != null) return look;
+        }
+        return null;
+    }
+
+    // the cryochamber, pet and look portraits; a sprite the game has not loaded draws nothing
+    public static void loadTextures() {
+        for (PetData data : getAll()) {
+            List<String> icons = new ArrayList<>(List.of(data.icon));
+            for (Look look : data.looks) icons.add(look.icon());
+            for (String icon : icons) {
+                try {
+                    Global.getSettings().loadTexture(icon);
+                } catch (IOException e) {
+                    throw new IllegalStateException("IndEvo pet " + data.id + " portrait " + icon + " failed to load", e);
+                }
+            }
+        }
     }
 
     public static Map<String, Trait> getTraits() {
@@ -209,6 +241,26 @@ public class PetDataRepo {
         return dataMap;
     }
 
+    // the portrait of a look is LOOK_DIR + the species icon file name + _<number>.png
+    public static void addLooks(Map<String, PetData> pets, JSONArray rows) throws JSONException {
+        for (int i = 0; i < rows.length(); i++) {
+            JSONObject row = rows.getJSONObject(i);
+
+            String id = row.optString("id", "").trim();
+            if (id.isEmpty() || id.startsWith("#")) continue;
+
+            String species = row.getString("species").trim();
+            PetData data = pets.get(species);
+            if (data == null) continue;
+
+            int number = row.getInt("number");
+            String weight = row.optString("weight", "").trim();
+            String file = data.icon.substring(data.icon.lastIndexOf('/') + 1).replace(".png", "");
+            data.looks.add(new Look(id, species, number, row.getString("name").trim(), weight.isEmpty() ? 1f : Float.parseFloat(weight),
+                    LOOK_DIR + file + "_" + number + ".png"));
+        }
+    }
+
     public static Map<String, Trait> parseTraits(JSONArray rows) throws JSONException {
         Map<String, Trait> traits = new LinkedHashMap<>();
 
@@ -272,7 +324,11 @@ public class PetDataRepo {
     }
 
     private static Map<String, PetData> getPets() {
-        return load(CSV_PATH, PetDataRepo::parsePets);
+        return load(CSV_PATH, rows -> {
+            Map<String, PetData> pets = parsePets(rows);
+            addLooks(pets, read(LOOKS_PATH));
+            return pets;
+        });
     }
 
     private interface Parser<T> {
@@ -286,9 +342,17 @@ public class PetDataRepo {
         if (transientMemory.contains(key)) return (T) transientMemory.get(key);
 
         try {
-            T data = parser.parse(Global.getSettings().getMergedSpreadsheetDataForMod("id", path, "IndEvo"));
+            T data = parser.parse(read(path));
             transientMemory.set(key, data);
             return data;
+        } catch (JSONException ex) {
+            throw new IllegalStateException("IndEvo failed to load " + path, ex);
+        }
+    }
+
+    private static JSONArray read(String path) {
+        try {
+            return Global.getSettings().getMergedSpreadsheetDataForMod("id", path, "IndEvo");
         } catch (IOException | JSONException ex) {
             throw new IllegalStateException("IndEvo failed to load " + path, ex);
         }

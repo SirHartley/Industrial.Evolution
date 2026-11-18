@@ -382,7 +382,7 @@ public class PetTree {
             Pet pet = manager.get(e.getKey());
             if (pet == null || pet == a || pet == b) continue;
             any = true;
-            UiImages.img(p, 4f, y, KIN_ICON, KIN_ICON, pet.getData().icon, null, pet.isDead() ? PetCard.DIM : 1f);
+            UiImages.img(p, 4f, y, KIN_ICON, KIN_ICON, pet.getIcon(), null, pet.isDead() ? PetCard.DIM : 1f);
             Ui.textIn(p, 38f, y, 160f, KIN_ICON, Ui.fit(pet.name, Ui.INS15, 160f), Ui.INS15, pet.isDead() ? Ui.gray() : Ui.text(), Ui.LEFT, new String[0], new Color[0]);
             int[] d = e.getValue();
             String of = d[0] == d[1] ? generation(d[0]) : generation(d[0]) + ", " + generation(d[1]).toLowerCase(Locale.ROOT);
@@ -443,9 +443,9 @@ public class PetTree {
         float th = small ? s : TILE_H;
         CustomPanelAPI t = UiButtons.row(p, x, y, s, th, focus, true, null, click);
         float alpha = pet.isDead() ? PetCard.DIM : 1f;
-        if (small) UiImages.img(t, 2f, 2f, SMALL_PORTRAIT, SMALL_PORTRAIT, pet.getData().icon, null, alpha);
+        if (small) UiImages.img(t, 2f, 2f, SMALL_PORTRAIT, SMALL_PORTRAIT, pet.getIcon(), null, alpha);
         else {
-            UiImages.img(t, Math.round((s - PORTRAIT) / 2f), 5f, PORTRAIT, PORTRAIT, pet.getData().icon, null, alpha);
+            UiImages.img(t, Math.round((s - PORTRAIT) / 2f), 5f, PORTRAIT, PORTRAIT, pet.getIcon(), null, alpha);
             Ui.textIn(t, 2f, 56f, s - 4f, Ui.LINE_H - 2f, Ui.fit(pet.name, Ui.INS15, s - 4f), Ui.INS15, pet.isDead() ? Ui.gray() : Ui.text(), Ui.CENTER, new String[0], new Color[0]);
             if (pet.isDead()) Ui.textIn(t, 2f, 73f, s - 4f, Ui.LINE_H - 2f, goneTag(pet), Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
             else PetCard.hearts(t, Math.round((s - PetCard.heartsWidth(HEART, HEART_GAP)) / 2f), 78f, pet, HEART, HEART_GAP);
@@ -494,7 +494,7 @@ public class PetTree {
         }
         if (!reveal.flawsRead(pet)) body.add(new Row(null, "Unknown", "", null));
 
-        String line = pet.getData().species + ". " + (pet.isDead() ? goneAge(pet) : PetCard.age(pet)) + ".";
+        String line = PetCard.species(pet) + ". " + (pet.isDead() ? goneAge(pet) : PetCard.age(pet)) + ".";
         String family = a != null && b != null ? "Young of " + a.name + " and " + b.name + "." : a != null || b != null ? "Young of " + (a != null ? a : b).name + "." : "Parents unknown.";
         boolean none = !known && !talents.isEmpty();
 

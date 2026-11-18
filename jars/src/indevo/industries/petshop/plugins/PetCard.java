@@ -101,7 +101,7 @@ public class PetCard {
 
     static void tile(PetsPanel panel, CustomPanelAPI p, float x, float y, Pet pet, boolean selected) {
         CustomPanelAPI t = UiButtons.row(p, x, y, PetsPanel.TILE_W, PetsPanel.TILE_H, selected, true, null, () -> panel.select(pet));
-        UiImages.img(t, 11f, 5f, PORTRAIT, PORTRAIT, pet.getData().icon);
+        UiImages.img(t, 11f, 5f, PORTRAIT, PORTRAIT, pet.getIcon());
 
         Marker marker = marker(pet);
         if (marker != null) {
@@ -204,7 +204,7 @@ public class PetCard {
 
     // dim while Unsettled; hang puts the marker over the corner, else inside it
     private static void picture(CustomPanelAPI p, float x, float y, float size, Pet pet, boolean hang) {
-        UiImages.img(p, x, y, size, size, pet.getData().icon, null, pet.isUnsettled() ? DIM : 1f);
+        UiImages.img(p, x, y, size, size, pet.getIcon(), null, pet.isUnsettled() ? DIM : 1f);
 
         Marker marker = marker(pet);
         if (marker == null) return;
@@ -218,10 +218,10 @@ public class PetCard {
         float gw = t.getWidthSoFar();
         if (heading) {
             t.addSectionHeading(pet.name, Alignment.MID, 10f);
-            t.addCustom(heartsLine(gw, pet.getData().species, Ui.gray(), pet), 10f);
+            t.addCustom(heartsLine(gw, species(pet), Ui.gray(), pet), 10f);
         } else {
             t.addCustom(heartsLine(gw, pet.name, Ui.hl(), pet), 0f);
-            t.addPara(pet.getData().species, Ui.gray(), 2f);
+            t.addPara(species(pet), Ui.gray(), 2f);
         }
 
         String line = dailyLine(pet);
@@ -401,9 +401,9 @@ public class PetCard {
         PetHusbandry.tagline(p, w, goneLine(pet));
 
         Ui.card(p, 0f, IDENT_Y, IDENT, IDENT);
-        UiImages.img(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, pet.getData().icon, null, DIM);
+        UiImages.img(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, pet.getIcon(), null, DIM);
         List<GridRow> rows = new ArrayList<>();
-        rows.add(GridRow.of("Species", pet.getData().species, Ui.text()));
+        rows.add(GridRow.of("Species", species(pet), Ui.text()));
         rows.add(GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition)));
         rows.add(GridRow.of("Age", PetTree.goneAge(pet), Ui.text()));
         rows.add(GridRow.of("Young", String.valueOf(PetTree.young(pet)), Ui.hl()));
@@ -506,7 +506,7 @@ public class PetCard {
     private void addIdent(CustomPanelAPI p, float w, Pet pet, CampaignFleetAPI away) {
         boolean canPet = away == null;
         CustomPanelAPI card = UiButtons.row(p, 0f, IDENT_Y, IDENT, IDENT, false, canPet, null, canPet ? () -> pet(pet) : null);
-        SpriteAPI sprite = Global.getSettings().getSprite(pet.getData().icon);
+        SpriteAPI sprite = Global.getSettings().getSprite(pet.getIcon());
         Ui.painted(card, 4f, 4f, PORTRAIT, PORTRAIT, null, (pos, a) -> paintPortrait(sprite, pos, a));
         if (!canPet) Ui.tooltip(p, card, null, pet.name + " is out with " + away.getName() + ".");
         if (pet.want != null) UiImages.img(p, IDENT - 18f, IDENT_Y, 16f, 16f, quest());
@@ -515,7 +515,7 @@ public class PetCard {
 
         PetMood mood = pet.getMood();
         List<GridRow> rows = new ArrayList<>();
-        rows.add(GridRow.of("Species", pet.getData().species, Ui.text()));
+        rows.add(GridRow.of("Species", species(pet), Ui.text()));
         rows.add(GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition)));
         rows.add(GridRow.of("Age", age(pet), Ui.text()));
         rows.add(GridRow.of("Mood", mood.label, mood.getColor()));
@@ -970,6 +970,12 @@ public class PetCard {
         ButtonAPI button = UiButtons.button(p, 0f, y, TREE_W, BUTTON_H, "Show in Pets", listed ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
                 listed ? () -> panel.showInPets(pet) : null);
         if (reason != null) Ui.tooltip(p, button, "Show in Pets", reason);
+    }
+
+    // the look before the species name, none for Wild type
+    static String species(Pet pet) {
+        PetDataRepo.Look look = pet.getLook();
+        return look != null ? look.name() + " " + pet.getData().species : pet.getData().species;
     }
 
     // a planned young with this pet in the first place, on the Planner tab
