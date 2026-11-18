@@ -530,6 +530,38 @@ public final class PetChecks {
         PetSheet seen = PetGenetics.seen(hidden);
         check(seen.getGrade(PetGenetics.SLOW_GROWER) == 0 && PetGenetics.broodDays(medium, seen, plain, traits) == PetGenetics.broodDays(medium, plain, plain, traits),
                 "a preview leaves out traits not read yet");
+
+        checkOutcomes();
+    }
+
+    // the chart shows the chances inherit rolls: per case the outcomes add up to 1 and match 20000 rolls by level
+    private void checkOutcomes() {
+        Random random = new Random(11);
+        int[][] cases = {{3, 2}, {2, 2}, {1, 4}, {2, 0}, {0, 3}};
+        boolean sums = true;
+        boolean rolls = true;
+        for (boolean flaw : new boolean[]{false, true}) {
+            for (int[] c : cases) {
+                List<PetGenetics.Outcome> outcomes = PetGenetics.outcomes(flaw, true, c[0], c[1], 40f, 0.2f);
+                float total = 0f;
+                Map<Integer, Float> byLevel = new HashMap<>();
+                for (PetGenetics.Outcome o : outcomes) {
+                    total += o.chance();
+                    byLevel.merge(o.level(), o.chance(), Float::sum);
+                }
+                sums &= near(total, 1f);
+
+                Map<Integer, Integer> counts = new HashMap<>();
+                for (int i = 0; i < 20000; i++) counts.merge(PetGenetics.inherit(flaw, c[0], c[1], 40f, 0.2f, random), 1, Integer::sum);
+                for (Map.Entry<Integer, Float> e : byLevel.entrySet()) rolls &= Math.abs(counts.getOrDefault(e.getKey(), 0) / 20000f - e.getValue()) < 0.02f;
+                for (int level : counts.keySet()) rolls &= byLevel.containsKey(level);
+            }
+        }
+        check(sums, "the chances of a cross add up to 1");
+        check(rolls, "the cross chart matches what inherit rolls");
+
+        List<PetGenetics.Outcome> both = PetGenetics.outcomes(false, false, 1, 1, 40f, 0.2f);
+        check(both.size() == 1 && both.get(0).lane().equals(PetSheet.FROM_SUM) && near(both.get(0).chance(), 1f), "a trait without levels both parents have always passes on");
     }
 
     private void checkBody(PetData medium, PetData hamster, PetSheet plain, Map<String, Trait> traits) {

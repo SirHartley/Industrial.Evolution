@@ -34,6 +34,7 @@ public final class PetGenetics {
     public static final String SLOW_GROWER = PetDataRepo.TRAIT_PREFIX + "slow_grower";
     public static final String MAYFLY = PetDataRepo.TRAIT_PREFIX + "mayfly";
     public static final String STERILE = PetDataRepo.TRAIT_PREFIX + "sterile";
+    public static final String NONE = "none";
 
     private PetGenetics() {
     }
@@ -115,6 +116,51 @@ public final class PetGenetics {
         int level = Math.max(a, b);
         if (flaw) return random.nextFloat() < dropChance(care) ? 0 : level;
         return random.nextFloat() < betterChance(care) ? level : 0;
+    }
+
+    // one result of a trait in the cross: where it comes from (PetSheet.FROM_ constants or NONE), its level, its chance
+    public record Outcome(String lane, int level, float chance) {
+    }
+
+    // the chances of inherit, a parent without the trait is 0; equal levels of both split their share between the two lanes
+    public static List<Outcome> outcomes(boolean flaw, boolean levels, int a, int b, float care, float sum) {
+        List<Outcome> list = new ArrayList<>();
+        float better = betterChance(care);
+
+        if (a > 0 && b > 0) {
+            if (!levels) {
+                list.add(new Outcome(PetSheet.FROM_SUM, 1, 1f));
+                return list;
+            }
+
+            float rest = 1f - sum;
+            int high = Math.max(a, b);
+            int low = Math.min(a, b);
+            float highChance = rest * (flaw ? 1f - better : better);
+            float lowChance = rest - highChance;
+            if (a == b) {
+                list.add(new Outcome(PetSheet.FROM_A, a, rest / 2f));
+                list.add(new Outcome(PetSheet.FROM_SUM, a + b, sum));
+                list.add(new Outcome(PetSheet.FROM_B, b, rest / 2f));
+            } else {
+                list.add(new Outcome(PetSheet.FROM_A, a, a == high ? highChance : lowChance));
+                list.add(new Outcome(PetSheet.FROM_SUM, a + b, sum));
+                list.add(new Outcome(PetSheet.FROM_B, b, b == high ? highChance : lowChance));
+            }
+            return list;
+        }
+
+        String lane = a > 0 ? PetSheet.FROM_A : PetSheet.FROM_B;
+        int level = levels ? Math.max(a, b) : 1;
+        float kept = flaw ? 1f - dropChance(care) : better;
+        if (lane.equals(PetSheet.FROM_A)) {
+            list.add(new Outcome(lane, level, kept));
+            list.add(new Outcome(NONE, 0, 1f - kept));
+        } else {
+            list.add(new Outcome(NONE, 0, 1f - kept));
+            list.add(new Outcome(lane, level, kept));
+        }
+        return list;
     }
 
     public static float betterChance(float care) {

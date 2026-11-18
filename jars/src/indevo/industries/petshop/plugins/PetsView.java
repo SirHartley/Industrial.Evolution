@@ -15,6 +15,7 @@ public class PetsView {
     public static final String LIST = "list";
     public static final String TALENTS = "talents";
     public static final String ADULTS = "adults";
+    public static final String CROSS = "cross";
     public static final int TAB_PETS = 0;
     public static final int TAB_HUSBANDRY = 1;
 
@@ -26,6 +27,8 @@ public class PetsView {
     // Husbandry: the selected habitat (-1 picks the first free one) and the adults picked for it
     int habitat = -1;
     final List<String> pair = new ArrayList<>();
+    // the cross row drawn large, by trait id or the look, disposition or malformed key; null picks the best talent
+    String crossTrait = null;
     final UiFilter.State adults = PetHusbandry.newFilter();
     // a ready brood opens its New young popup by itself once, on the first frame of the panel
     boolean youngChecked = false;
