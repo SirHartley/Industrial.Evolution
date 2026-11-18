@@ -9,6 +9,7 @@ public final class PetConstants {
     public static final float HAPPY_DAYS = 3f;
     public static final int PETTING_CLICKS = 5;
     public static final float REHOME_FEE = 2000f;
+    public static final int GENE_SCAN_COST = 10;
     public static final int NAME_MAX_CHARS = 40;
 
     // bond days for hearts 1 to 5; time aboard gives the first three, wants and shared events the rest

@@ -207,6 +207,16 @@ public class Pet {
         return seat == null || seat.isDefault();
     }
 
+    // a gene scan reads every trait, flaws included
+    public void scan() {
+        sheet.known.addAll(sheet.traits.keySet());
+        sheet.flawsRead = true;
+    }
+
+    public boolean isRead() {
+        return sheet.flawsRead && sheet.known.containsAll(sheet.traits.keySet());
+    }
+
     // console: sets a grade and reads it, 0 removes the trait
     public void setTrait(String traitId, int grade) {
         if (grade <= 0) {

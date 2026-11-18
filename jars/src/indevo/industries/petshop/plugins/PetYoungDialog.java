@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
@@ -57,6 +58,9 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     private InteractionDialogAPI dialog;
     private UiRoot root;
     private float clock = 0f;
+    private final PetReveal reveal = new PetReveal();
+    // the young whose gene scan reveal runs: its kind shows with glow and sparks once the last row is read
+    private Pet scanning = null;
 
     enum Tier {
         PLAIN, SUM, MUTATION, MALFORMED
@@ -106,6 +110,18 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
             @Override
             public void advance(float amount) {
                 clock += amount;
+                if (!reveal.tick(clock)) return;
+
+                if (scanning != null && !reveal.reading(scanning)) {
+                    if (Setting.PET_MOTION.enabled() && tier(scanning, null) != Tier.PLAIN) openedAt.put(scanning.id, clock - FLIP);
+                    scanning = null;
+                }
+                refresh();
+            }
+
+            @Override
+            public void processInput(List<InputEventAPI> events) {
+                for (InputEventAPI event : events) if (event.isLMBDownEvent()) reveal.skip();
             }
         };
     }
@@ -209,13 +225,13 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     }
 
     // sum and the talent tables only once its talents are read; a mutation and Malformed always show
-    static Tier tier(Pet pet) {
+    static Tier tier(Pet pet, PetReveal reveal) {
         PetSheet sheet = pet.sheet;
         if (sheet.malformed) return Tier.MALFORMED;
         if (sheet.from == null) return Tier.PLAIN;
         if (sheet.from.containsValue(PetSheet.FROM_MUTATION)) return Tier.MUTATION;
         for (Map.Entry<String, String> e : sheet.from.entrySet()) {
-            if (PetSheet.FROM_SUM.equals(e.getValue()) && sheet.isKnown(e.getKey())) return Tier.SUM;
+            if (PetSheet.FROM_SUM.equals(e.getValue()) && (reveal != null ? reveal.known(pet, e.getKey()) : sheet.isKnown(e.getKey()))) return Tier.SUM;
         }
         return Tier.PLAIN;
     }
@@ -239,10 +255,10 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     }
 
     private void openCard(CustomPanelAPI parent, float x, float y, Pet pet) {
-        Tier tier = tier(pet);
+        Tier tier = tier(pet, reveal);
         Color border = color(tier);
         CustomPanelAPI p = Ui.panel(parent, x, y, CARD_W, CARD_H);
-        Ui.box(p, 0f, 0f, CARD_W, CARD_H, border, Color.BLACK);
+        Ui.box(p, 0f, 0f, CARD_W, CARD_H, reveal.on(pet) ? PetReveal.GREEN : border, Color.BLACK);
 
         fields.put(pet.id, PetCard.nameField(p, 8f, 8f, CARD_W - 16f, pet.name));
         Ui.card(p, 8f, 42f, PetCard.IDENT, PetCard.IDENT);
@@ -256,7 +272,13 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         }
 
         float ty = addTalents(p, 130f, pet);
-        addBody(p, ty + PetsPanel.HEAD_GAP, pet);
+        float by = addBody(p, ty + PetsPanel.HEAD_GAP, pet);
+        PetCard.scanButton(p, 8f, by + 8f, shop, pet, reveal, null, () -> {
+            reveal.begin(pet, clock);
+            scanning = pet;
+            shop.geneScan(pet);
+            refresh();
+        });
         addPlace(p, pet);
 
         String tag = tag(tier);
@@ -268,6 +290,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
 
         Float at = openedAt.get(pet.id);
         if (at != null) Ui.painted(parent, x, y, CARD_W, CARD_H, null, (pos, a) -> paintOpening(pos, a, clock - at, tier == Tier.PLAIN ? null : border));
+        if (reveal.on(pet)) reveal.border(parent, x, y, CARD_W, CARD_H, 0f);
     }
 
     // first FLIP: a black cover with the card turning as a narrowing then widening frame; then a glow and sparks in its colour
@@ -311,7 +334,8 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         if (talents.isEmpty()) return row(p, y, null, "None", null, false);
 
         for (String id : talents) {
-            if (!pet.sheet.isKnown(id)) {
+            if (reveal.lit(pet, id)) lit(p, y);
+            if (!reveal.known(pet, id)) {
                 y = row(p, y, "?", "Unknown", null, false);
                 continue;
             }
@@ -329,14 +353,21 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         int rows = 0;
         for (String id : pet.sheet.traits.keySet()) {
             PetDataRepo.Trait trait = PetDataRepo.getTrait(id);
-            if (trait == null || trait.isTalent() || !pet.sheet.isKnown(id)) continue;
+            if (trait == null || trait.isTalent() || !reveal.known(pet, id)) continue;
+            if (reveal.lit(pet, id)) lit(p, y);
             String level = trait.hasLevels() ? String.valueOf(pet.sheet.getGrade(id)) : null;
             y = row(p, y, level, trait.name(), pet.sheet.getFrom(id), true, pet);
             rows++;
         }
 
-        if (!pet.sheet.flawsRead) return row(p, y, "?", "Flaws: Unknown", null, false);
-        return rows == 0 ? row(p, y, null, "None", null, false) : y;
+        if (!reveal.flawsRead(pet)) return row(p, y, "?", "Flaws: Unknown", null, false);
+        if (rows > 0) return y;
+        if (reveal.lit(pet, PetReveal.FLAWS)) lit(p, y);
+        return row(p, y, null, "None", null, false);
+    }
+
+    private static void lit(CustomPanelAPI p, float y) {
+        PetReveal.lit(Ui.panel(p, 8f, y, CARD_W - 16f, ROW_H), CARD_W - 16f, ROW_H);
     }
 
     private static void tableHead(CustomPanelAPI p, float y, String first, String second) {

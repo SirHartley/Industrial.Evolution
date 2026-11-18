@@ -47,9 +47,14 @@ public final class UiButtons {
         return button(p, x, y, w, h, label, kind, cut, null, null, Ui.ORB12, action);
     }
 
-    // icon and sub text are drawn over an empty button face, labels never take the click
     public static ButtonAPI button(CustomPanelAPI p, float x, float y, float w, float h, String label, Kind kind, CutStyle cut,
                                    String icon, String sub, String font, Runnable action) {
+        return button(p, x, y, w, h, label, kind, cut, icon, sub, null, font, action);
+    }
+
+    // icon and sub text are drawn over an empty button face, labels never take the click; subColor null is highlight, grey when off
+    public static ButtonAPI button(CustomPanelAPI p, float x, float y, float w, float h, String label, Kind kind, CutStyle cut,
+                                   String icon, String sub, Color subColor, String font, Runnable action) {
         boolean off = kind == Kind.OFF || action == null;
         boolean face = icon == null && sub == null;
 
@@ -74,7 +79,7 @@ public final class UiButtons {
         float left = x + Math.round((w - iconW - textW) / 2f);
 
         if (icon != null) UiImages.img(p, left, y + Math.round((h - iconSize) / 2f), iconSize, iconSize, icon, null, off ? 0.4f : 1f);
-        Ui.textIn(p, left + iconW, y, textW, h, line, font, fg, Ui.LEFT, new String[]{sub}, new Color[]{off ? Ui.gray() : Ui.hl()});
+        Ui.textIn(p, left + iconW, y, textW, h, line, font, fg, Ui.LEFT, new String[]{sub}, new Color[]{subColor != null ? subColor : off ? Ui.gray() : Ui.hl()});
         return button;
     }
 

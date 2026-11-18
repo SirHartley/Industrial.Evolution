@@ -314,6 +314,29 @@ public class PetHusbandry {
         return n;
     }
 
+    // unknown talents as the card shows them, a running reveal holds back the rows it has not reached
+    private int unknown(Pet pet) {
+        int n = 0;
+        for (String id : pet.getTalents()) if (!view.reveal.known(pet, id)) n++;
+        return n;
+    }
+
+    private boolean lit(CrossRow row, Pet a, Pet b) {
+        return view.reveal.lit(a, row.key()) || view.reveal.lit(b, row.key());
+    }
+
+    // one Gene scan for the pair: the parent it reads now, else the first with anything unread; the green border while it runs
+    private void scanControls(CustomPanelAPI p, float w, float h, Pet a, Pet b) {
+        PetReveal reveal = view.reveal;
+        Pet target = reveal.reading(a) ? a : reveal.reading(b) ? b : !a.isRead() ? a : !b.isRead() ? b : null;
+        if (target != null) PetCard.scanButton(p, 0f, h - PetCard.BUTTON_H, shop, target, reveal, PetCard.scanHeld(target, shop, PetsPanel.awayFleet(target)), () -> {
+            reveal.begin(target, view.clock);
+            shop.geneScan(target);
+            panel.refresh();
+        });
+        if (reveal.on(a) || reveal.on(b)) reveal.border(p, 0f, 0f, w, h);
+    }
+
     // a second adult of another species starts the pair again
     private void pick(Pet pet) {
         List<String> pair = view.pair;
@@ -355,7 +378,10 @@ public class PetHusbandry {
         title(p, w, pair ? a.name + " x " + b.name : "Habitat " + (habitat + 1));
         tagline(p, w, pair ? kinLine(a, b) : a != null ? "Pick a second " + a.getData().species + "." : "Pick two adults of one species.");
         dials(p, w, a, b);
-        if (pair && a.typeID.equals(b.typeID)) cross(p, w, h, a, b);
+        if (pair && a.typeID.equals(b.typeID)) {
+            cross(p, w, h, a, b);
+            scanControls(p, w, h, a, b);
+        }
 
         float y = h - 60f;
         float fee = shop.getFee();
@@ -363,8 +389,8 @@ public class PetHusbandry {
         boolean broke = fee > 0f && credits < fee;
         if (pair) {
             PetData data = a.getData();
-            PetSheet sa = PetGenetics.seen(a.sheet);
-            PetSheet sb = PetGenetics.seen(b.sheet);
+            PetSheet sa = view.reveal.seen(a);
+            PetSheet sb = view.reveal.seen(b);
             String size = broodSize(PetGenetics.broodRange(data, sa, sb, PetDataRepo.getTraits()));
             String days = String.valueOf(Math.round(PetGenetics.broodDays(data, sa, sb, PetDataRepo.getTraits())));
             List<String> parts = new ArrayList<>(List.of(sizeParts(size)));
@@ -469,9 +495,12 @@ public class PetHusbandry {
         CrossRow selected = rows.stream().filter(r -> r.key().equals(view.crossTrait)).findFirst()
                 .orElse(rows.stream().filter(PetHusbandry::isTrait).findFirst().orElse(rows.get(0)));
 
-        boolean ua = unknownTalents(a) > 0;
-        boolean ub = unknownTalents(b) > 0;
-        String note = ua && ub ? "Both have unknown traits" : ua ? a.name + " has unknown traits" : ub ? b.name + " has unknown traits" : null;
+        PetReveal reveal = view.reveal;
+        boolean ua = unknown(a) > 0;
+        boolean ub = unknown(b) > 0;
+        Pet reading = reveal.reading(a) ? a : reveal.reading(b) ? b : null;
+        String note = reading != null ? "Reading " + reading.name + ", " + reveal.count() + " of " + reveal.total()
+                : ua && ub ? "Both have unknown traits" : ua ? a.name + " has unknown traits" : ub ? b.name + " has unknown traits" : null;
         Ui.thead(p, 0f, CROSS_Y, w, new String[]{"Traits", note != null ? note : ""}, new float[]{8f, 118f}, new float[]{100f, w - 126f},
                 new Alignment[]{Ui.LEFT, Ui.RIGHT});
 
@@ -482,8 +511,8 @@ public class PetHusbandry {
         float cw = Math.round((list.width() - 8f) / 2f);
         for (int i = 0; i < rows.size(); i += 2) {
             CustomPanelAPI line = list.block(CHIP_H, i == 0 ? 0f : CHIP_PITCH - CHIP_H);
-            chip(line, 0f, cw, rows.get(i), rows.get(i) == selected);
-            if (i + 1 < rows.size()) chip(line, cw + 8f, cw, rows.get(i + 1), rows.get(i + 1) == selected);
+            chip(line, 0f, cw, rows.get(i), rows.get(i) == selected, lit(rows.get(i), a, b));
+            if (i + 1 < rows.size()) chip(line, cw + 8f, cw, rows.get(i + 1), rows.get(i + 1) == selected, lit(rows.get(i + 1), a, b));
         }
         list.end();
 
@@ -496,11 +525,12 @@ public class PetHusbandry {
         return !row.key().equals(LOOK) && !row.key().equals(DISPOSITION) && !row.key().equals(MALFORMED);
     }
 
-    private void chip(CustomPanelAPI p, float x, float cw, CrossRow row, boolean selected) {
+    private void chip(CustomPanelAPI p, float x, float cw, CrossRow row, boolean selected, boolean lit) {
         CustomPanelAPI chip = UiButtons.row(p, x, 0f, cw, CHIP_H, selected, true, null, () -> {
             view.crossTrait = row.key();
             panel.refresh();
         });
+        if (lit) PetReveal.lit(chip, cw, CHIP_H);
         Ui.textIn(chip, 9f, 0f, CHIP_BAR_X - 14f, CHIP_H, Ui.fit(row.name(), Ui.INS15, CHIP_BAR_X - 14f), Ui.INS15, row.flaw() ? Ui.neg() : Ui.text(), Ui.LEFT, new String[0], new Color[0]);
 
         List<Result> results = row.results();
@@ -540,8 +570,8 @@ public class PetHusbandry {
     private List<CrossRow> crossRows(Pet a, Pet b) {
         List<CrossRow> rows = new ArrayList<>();
         PetData data = a.getData();
-        PetSheet sa = PetGenetics.seen(a.sheet);
-        PetSheet sb = PetGenetics.seen(b.sheet);
+        PetSheet sa = view.reveal.seen(a);
+        PetSheet sb = view.reveal.seen(b);
         float care = shop.getCare();
         float sum = PetGenetics.sumChance(data, a.getHearts() + b.getHearts());
         String fromA = "from " + a.name;
@@ -615,9 +645,9 @@ public class PetHusbandry {
     }
 
     // what the node of a parent says about the trait: its grade or level, Unknown while it may hide one, else None
-    private static String parentLine(PetDataRepo.Trait trait, Pet pet, int level) {
+    private String parentLine(PetDataRepo.Trait trait, Pet pet, int level) {
         if (level > 0) return trait.hasLevels() ? (trait.isTalent() ? "Grade " : "Level ") + level : "Has it";
-        boolean hidden = trait.isFlaw() ? !pet.sheet.flawsRead : trait.isTalent() && unknownTalents(pet) > 0;
+        boolean hidden = trait.isFlaw() ? !view.reveal.flawsRead(pet) : trait.isTalent() && unknown(pet) > 0;
         return hidden ? "Unknown" : "None";
     }
 
@@ -681,10 +711,10 @@ public class PetHusbandry {
         Ui.painted(p, Math.round(x), y, Math.round(w), 1f, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), 1f, Ui.base(), a), null);
     }
 
-    private static void node(CustomPanelAPI p, float x, float y, Pet pet, String line) {
+    private void node(CustomPanelAPI p, float x, float y, Pet pet, String line) {
         Ui.card(p, x, y, NODE_W, NODE_H);
         UiImages.img(p, x + 4f, y + 4f, 44f, 44f, pet.getData().icon);
-        if (unknownTalents(pet) > 0) UiImages.img(p, x + 29f, y + 1f, 20f, 20f, PetCard.unknownSprite());
+        if (unknown(pet) > 0) UiImages.img(p, x + 29f, y + 1f, 20f, 20f, PetCard.unknownSprite());
         float hw = PetCard.heartsWidth(9f, 2f);
         Ui.textIn(p, x + 58f, y + 6f, NODE_W - 66f - hw - 6f, Ui.LINE_H, Ui.fit(pet.name, Ui.INS15, NODE_W - 66f - hw - 6f), Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
         PetCard.hearts(p, x + NODE_W - 8f - hw, y + 12f, pet, 9f, 2f);
@@ -713,10 +743,11 @@ public class PetHusbandry {
         tagline(p, w, kinLine(a, b));
         dials(p, w, a, b);
         cross(p, w, h, a, b);
+        scanControls(p, w, h, a, b);
 
         float left = shop.getDaysLeft(brood);
         String days = String.valueOf(Math.max(1, (int) Math.ceil(left)));
-        String size = broodSize(PetGenetics.broodRange(a.getData(), PetGenetics.seen(a.sheet), PetGenetics.seen(b.sheet), PetDataRepo.getTraits()));
+        String size = broodSize(PetGenetics.broodRange(a.getData(), view.reveal.seen(a), view.reveal.seen(b), PetDataRepo.getTraits()));
         float y = h - 62f;
         Ui.textIn(p, 0f, y, 200f, Ui.LINE_H, days + (days.equals("1") ? " day left" : " days left"), Ui.INS15, Ui.text(), Ui.LEFT, new String[]{days}, new Color[]{Ui.hl()});
         Ui.textIn(p, w - 200f, y, 200f, Ui.LINE_H, size, Ui.INS15, Ui.text(), Ui.RIGHT, sizeParts(size), hls(sizeParts(size).length));
