@@ -13,6 +13,7 @@ import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetMood;
 import indevo.industries.petshop.PetWant;
+import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.plugins.PetCard;
@@ -125,7 +126,15 @@ public class Pet {
 
     // ship stats are only rebuilt on a fleet sync, the next fleet advance runs it
     private void syncShip() {
-        if (assignedFleetMember != null && assignedFleetMember.getFleetData() != null) assignedFleetMember.getFleetData().setSyncNeeded();
+        FleetMemberAPI member = assignedFleetMember;
+        if (member == null || member.getFleetData() == null) return;
+
+        member.getFleetData().setSyncNeeded();
+        // a ship in market storage has no fleet, a lost ship's wings are gone with it
+        if (member.getFleetData().getFleet() == null || !member.getFleetData().getMembersListCopy().contains(member)) return;
+
+        List<String> lost = PetHullmod.updateShip(member);
+        if (!lost.isEmpty()) PetStatusManager.getInstance().reportRoomLost(this, member, lost);
     }
 
     // console: sets a grade and reads it, 0 removes the trait

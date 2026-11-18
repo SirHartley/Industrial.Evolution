@@ -1,8 +1,12 @@
 package indevo.industries.petshop.hullmods;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.ShipAPI;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.industries.petshop.listener.PetStatusManager;
@@ -11,6 +15,9 @@ import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.patches.PetRefitRowPatch;
 import indevo.industries.petshop.plugins.PetCard;
 import patchlib.api.PatchLib;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Use indevo.other.YourMod_PetName_PetHullmod for a ready-made copy and paste solution for custom pet hullmods that won't crash unlike this one.
@@ -94,6 +101,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
                 stats.getDynamic().getStat(Stats.EXPLOSION_RADIUS_MULT).modifyPercent(id, value, source);
                 stats.getDynamic().getStat(Stats.EXPLOSION_DAMAGE_MULT).modifyPercent(id, value, source);
             }
+            case "fighter_bays" -> stats.getNumFighterBays().modifyFlat(id, value, source);
             case "recovery" -> {
                 stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyFlat(id, value * 0.01f, source);
                 stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, 1f - Math.min(DMOD_CAP, value) * 0.01f, source);
@@ -108,6 +116,27 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         }
 
         return true;
+    }
+
+    // rebuilds a ship of a fleet now; a talent that went takes its room, fighters in lost bays go to the cargo; names what went
+    public static List<String> updateShip(FleetMemberAPI member) {
+        member.updateStats();
+        ShipVariantAPI variant = member.getVariant();
+        List<String> lost = new ArrayList<>();
+
+        CargoAPI cargo = member.getFleetData().getFleet().getCargo();
+        List<String> wings = variant.getWings();
+        for (int i = (int) member.getStats().getNumFighterBays().getModifiedValue(); i < wings.size(); i++) {
+            String wing = variant.getWingId(i);
+            if (wing == null || variant.getHullSpec().isBuiltInWing(i)) continue;
+
+            variant.setWingId(i, null);
+            cargo.addFighters(wing, 1);
+            lost.add(Global.getSettings().getFighterWingSpec(wing).getWingName());
+        }
+
+        if (!lost.isEmpty()) member.updateStats();
+        return lost;
     }
 
     @Override

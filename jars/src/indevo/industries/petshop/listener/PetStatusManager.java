@@ -488,6 +488,11 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         message("%s the " + pet.getData().species + " shows a talent: %s.", Misc.getTextColor(), pet.name, trait.name(), Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
+    public void reportRoomLost(Pet pet, FleetMemberAPI member, List<String> lost) {
+        String them = lost.size() > 1 ? "them" : "it";
+        message("The " + member.getShipName() + " lost %s, %s no longer makes room for " + them + ".", Misc.getTextColor(), Misc.getAndJoined(lost), pet.name, Misc.getNegativeHighlightColor(), Misc.getHighlightColor());
+    }
+
     public void reportPetStarving(Pet pet) {
         message("%s the " + pet.getData().species + " has started %s", Misc.getTextColor(), pet.name, "starving. Feed it or it will die.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
     }
