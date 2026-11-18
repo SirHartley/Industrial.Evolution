@@ -19,6 +19,8 @@ import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.memory.PetSheet;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
+import org.lazywizard.lazylib.ui.LazyFont;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.List;
@@ -38,6 +40,9 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     static final float SCREEN_MARGIN = 200f;
     static final float ROW_H = 18f;
     static final float FROM_W = 80f;
+    // the board hangs the tag 9 px over the right edge, turned 7 degrees clockwise
+    static final float TAG_OVER = 9f;
+    static final float TAG_TILT = 7f;
     static final float PLACE_Y = CARD_H - 8f - 17f - 6f - 24f;
     // turn over, then one glow in the card's colour; real seconds
     static final float FLIP = 0.33f;
@@ -47,6 +52,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     // sparks: start offset from the card's top left, as a share of its size, and the push outwards in px
     static final float[][] SPARKS = {{-0.05f, 0.08f, -18f, 0f}, {-0.04f, 0.4f, -14f, 0f}, {-0.06f, 0.8f, -20f, 0f}, {1.03f, 0.16f, 16f, 0f},
             {1.04f, 0.56f, 20f, 0f}, {1.02f, 0.88f, 14f, 0f}, {0.24f, -0.04f, 0f, -16f}, {0.72f, -0.03f, 0f, -12f}, {0.48f, 1.02f, 0f, 14f}};
+    private static final Map<String, LazyFont.DrawableString> TAG_TEXT = new HashMap<>();
 
     private final PetShop shop;
     private final PetBrood brood;
@@ -285,8 +291,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         String tag = tag(tier);
         if (tag != null) {
             float tw = Ui.width(tag, Ui.ORB12) + 18f;
-            Ui.box(parent, x + CARD_W - tw - 8f, y - 10f, tw, 20f, border, Color.BLACK);
-            Ui.textIn(parent, x + CARD_W - tw - 8f, y - 10f, tw, 20f, tag, Ui.ORB12, border, Ui.CENTER, new String[0], new Color[0]);
+            Ui.painted(parent, x + CARD_W - tw + TAG_OVER, y - 10f, tw, 20f, null, (pos, a) -> paintTag(pos, a, tag, border));
         }
 
         Float at = openedAt.get(pet.id);
@@ -365,6 +370,38 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         if (rows > 0) return y;
         if (reveal.lit(pet, PetReveal.FLAWS)) lit(p, y);
         return row(p, y, null, "None", null, false);
+    }
+
+    // labels can not turn, so the tag is drawn: box, outline and text around its centre
+    private static void paintTag(PositionAPI pos, float alpha, String tag, Color c) {
+        float w = pos.getWidth();
+        float h = pos.getHeight();
+        GL11.glPushMatrix();
+        GL11.glTranslatef(pos.getCenterX(), pos.getCenterY(), 0f);
+        GL11.glRotatef(-TAG_TILT, 0f, 0f, 1f);
+        UiDraw.quad(-w / 2f, -h / 2f, w, h, Color.BLACK, alpha);
+        UiDraw.outline(-w / 2f, -h / 2f, w, h, c, alpha);
+        LazyFont.DrawableString text = tagText(tag);
+        if (text != null) {
+            text.setBaseColor(Misc.scaleAlpha(c, alpha));
+            text.draw(-text.getWidth() / 2f, text.getHeight() / 2f);
+        }
+        GL11.glPopMatrix();
+    }
+
+    private static LazyFont.DrawableString tagText(String tag) {
+        LazyFont.DrawableString text = TAG_TEXT.get(tag);
+        if (text != null) return text;
+
+        try {
+            LazyFont font = LazyFont.loadFont(Ui.ORB12);
+            text = font.createText(tag, Color.WHITE, font.getBaseHeight());
+        } catch (Exception e) {
+            Global.getLogger(PetYoungDialog.class).warn("IndEvo: no font for the young tag", e);
+            return null;
+        }
+        TAG_TEXT.put(tag, text);
+        return text;
     }
 
     private void lit(CustomPanelAPI p, float y) {
