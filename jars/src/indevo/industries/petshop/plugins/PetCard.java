@@ -333,7 +333,7 @@ public class PetCard {
                     down = true;
                 } else if (event.isLMBUpEvent()) {
                     event.consume();
-                    if (!down) continue;
+                    if (!down || action == null) continue;
 
                     down = false;
                     Global.getSoundPlayer().playUISound("ui_button_pressed", 1f, 1f);
@@ -366,12 +366,13 @@ public class PetCard {
     // gold when set, an outline when not, grey when every favourite slot is taken
     private void addStar(CustomPanelAPI p, float x, float y, Pet pet) {
         boolean can = PetStatusManager.getInstance().canFavourite(pet);
-        Click click = can ? new Click(() -> {
+        // a blocked star still takes the click, the name field under it would start editing
+        Click click = new Click(can ? () -> {
             pet.setFavourite(!pet.favourite);
             panel.refresh();
-        }, false) : null;
+        } : null, false);
 
-        CustomPanelAPI star = p.createCustomPanel(STAR_SIZE, STAR_SIZE, click != null ? click : new UiCanvas());
+        CustomPanelAPI star = p.createCustomPanel(STAR_SIZE, STAR_SIZE, click);
         p.addComponent(star).inTL(x, y);
         Ui.painted(star, 0f, 0f, STAR_SIZE, STAR_SIZE, null, (pos, a) -> {
             Color c = pet.favourite ? Ui.hl() : can ? (click.hover ? Ui.bright() : Ui.base()) : STAR_OFF;
