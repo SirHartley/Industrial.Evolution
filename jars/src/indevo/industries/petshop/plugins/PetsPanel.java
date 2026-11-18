@@ -208,6 +208,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         if (shop != null) {
             List<Pet> stored = new ArrayList<>();
             for (Pet pet : shop.getStoredPetsPetsCopy()) if (!pet.isDead()) stored.add(pet);
+            stored.addAll(shop.getHabitatPets());
             groups.add(new Group("Pet storage", stored, "No pets in storage."));
         }
 
@@ -223,7 +224,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     // the fleet a pet's ship is out with when that is not the player fleet, else null
-    static CampaignFleetAPI awayFleet(Pet pet) {
+    public static CampaignFleetAPI awayFleet(Pet pet) {
         FleetMemberAPI member = pet.assignedFleetMember;
         if (member == null || member.getFleetData() == null) return null;
 

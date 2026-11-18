@@ -68,6 +68,21 @@ public final class PetConstants {
     public static final float HAMSTER_MALFORMED = 0.5f;
     public static final int MAX_BROOD = 3;
     public static final float HAMSTER_FLAW_DAYS = 3f;
+    // brood time by pace, the hamster on its own; Slow grower and Mayfly change it, never past MAX_BROOD_DAYS
+    public static final float[] BROOD_DAYS = {30f, 60f, 90f};
+    public static final float HAMSTER_BROOD_DAYS = 7f;
+    public static final float MAX_BROOD_DAYS = 90f;
+    public static final float YOUNG_DAYS = 30f;
+    public static final float HAMSTER_YOUNG_DAYS = 7f;
+    public static final int NPC_HABITATS = 2;
+    public static final int PLAYER_HABITATS = 4;
+    public static final float NPC_CARE = 20f;
+    public static final float PLAYER_CARE = 40f;
+    public static final float GAMMA_CARE = 20f;
+    public static final float IMPROVED_CARE = 20f;
+    // a month per busy habitat at an npc center
+    public static final float HABITAT_FEE = 3000f;
+    public static final int INBREEDING_GENERATIONS = 6;
     // Glutton's ship, percent a level; its csv value is the food
     public static final float GLUTTON_SUPPLIES = 15f;
 
