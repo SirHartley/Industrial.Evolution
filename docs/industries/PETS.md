@@ -25,7 +25,7 @@ Code paths relative to `jars/src/indevo/`.
 | `industries/petshop/listener/EscapeInterceptListener.java` | `CampaignInputListener` (priority 99999): eats Escape while `$IndEvo_BlockESC` is set and calls `EscapeBlockingDialoguePluginAPI.close()` |
 | `industries/petshop/script/EscBlockerMemoryIterator.java` | Transient script that keeps `$IndEvo_BlockESC` alive while the host dialog is open |
 | `industries/petshop/patches/PetScuttlePatch.java` | PatchLib `@After` on `FleetDataAPI.scuttle(FleetMemberAPI)` (vanilla `FleetData`, `obf/campaign/fleet/FleetData.java:1172`; only caller the fleet screen ship card). Calls `PetStatusManager.reportScuttled` |
-| `industries/petshop/rules/IndEvo_PetDockingLine.java` | Rule command on `MarketPostOpen` (row `IndEvo_petDockingLine`): calls `PetStatusManager.sayDocking` |
+| `industries/petshop/rules/IndEvo_PetDockingLine.java` | Rule command on `PopulateOptions` (row `IndEvo_petDockingLine`): calls `PetStatusManager.sayDocking` |
 | `tools/PetChecks.java` | Headless checks, never shipped ([Checks](#checks)) |
 | `console/PetCommand.java` | `indevo_pet list`, `give <species> [name]`, `age <pet> <days>` ([Console](../core/CONSOLE.md)) |
 | `industries/petshop/item/PetItemPlugin.java` | `IndEvo_PetBox` special item. Item data = pet type id. Icon render, drop tiers, price, right-click use |
@@ -92,9 +92,9 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Daily and monthly
 
-- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:141`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:285`); no food -> starving -> `STARVED` death.
+- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:141`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:286`); no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
-- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:301`); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
+- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:302`); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
 
 ### Hand over and menagerie
 
@@ -105,11 +105,11 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Lines
 
-- `pet_lines.csv`: one row per line. `event` is `ambient`, `docking` or `status`. `match` holds pet ids, body tags (`b_`) or class tags (`c_`), space separated, or `any`. `mood` (`PetMood.id()`), `disposition` (officer personality id) and `context` (`docked`, `storage`, `old`) are space separated sets; blank or `any` matches all. `text` has one `%s` for the pet name, shown highlighted.
+- `pet_lines.csv`: one row per line. `event` is `ambient`, `docking` or `status`. `match` holds pet ids, body tags (`b_`) or class tags (`c_`), space separated, or `any`. `mood` (`PetMood.id()`), `disposition` (officer personality id) and `context` (`docked`, `storage`, `old`, `hyperspace`) are space separated sets; blank or `any` matches all. `text` has one `%s` for the pet name, shown highlighted.
 - `pets.csv` `body`: `b_fourleg`, `b_legs`, `b_wings`, `b_water`, `b_float`, `b_blob`, `b_machine`, `b_jar`, `b_coil`, `b_human`. A row without it (another mod's pet) matches only class and `any` lines.
 - `PetDataRepo.pickLine`: every row of the event whose mood, disposition and context fit goes into one weighted pick. Weight by the best `match` token that fits: pet id 4, body 2, class 1.5, `any` 1. Class and `any` lines describe no body.
-- `PetStatusManager.getLine(pet, event, docked)` builds the context: `storage` for a stored pet, else `docked` when docked; `old` past 80% of `lifetime` (`Pet.isOld()`). `say(pet, event, dialog)` adds the line to the dialog text, or posts a `MessageIntel` with the pet's icon when there is no dialog. Docked means the dialog target has a real market.
-- Cadence (`advanceLines`, saved `daysSinceLine`, `lineRoll`): in flight, an ambient line comes once `daysSinceLine` passes `IndEvo_petLineDays` x `lineRoll` (1 to 1.5, `PetConstants.LINE_DAYS_SPREAD`). Docking (`sayDocking`, rule `IndEvo_petDockingLine` on `MarketPostOpen`, `$hasMarket`) shows a line once `daysSinceLine` passes the setting; `MarketPostOpen` also fires on a return to the market menu, the cadence keeps it to one. Either resets both fields. Speaker: a living pet on a ship of the player fleet or in the menagerie, the flagship pet x3 (`FLAGSHIP_LINE_WEIGHT`).
+- `PetStatusManager.getLine(pet, event, docked)` builds the context: `storage` for a stored pet, else `docked` when docked; `old` past 80% of `lifetime` (`Pet.isOld()`); `hyperspace` while the player fleet is in hyperspace (lines about a jump). `say(pet, event, dialog)` adds the line to the dialog text, or posts a `MessageIntel` with the pet's icon when there is no dialog. Docked means the dialog target has a real market.
+- Cadence (`advanceLines`, saved `daysSinceLine`, `lineRoll`): in flight, an ambient line comes once `daysSinceLine` passes `IndEvo_petLineDays` x `lineRoll` (1 to 1.5, `PetConstants.LINE_DAYS_SPREAD`). Docking (`sayDocking`, rule `IndEvo_petDockingLine` on `PopulateOptions`, `$hasMarket`, `$menuState == main`) shows a line once `daysSinceLine` passes the setting; the main market menu is populated again on every return to it, the cadence keeps it to one. Either resets both fields. Speaker: a living pet on a ship of the player fleet or in the menagerie, the flagship pet x3 (`FLAGSHIP_LINE_WEIGHT`).
 - `status` lines are for the Pets card (package 1.4) and are not shown yet.
 
 ### Storage
@@ -137,7 +137,7 @@ Run from the repository root after the compile gate. Use `;` in place of `:` on 
 
 ## Contracts
 
-- `MarketPostOpen` is a `FireAll` trigger (vanilla `FireAll MarketPostOpen` from `MarketCMD`, `EndConversation`, `AbandonMarketPluginImpl`), so `IndEvo_petDockingLine` runs next to vanilla's rows; its line comes after their text in load order. A `FireBest MarketPostOpen` (vanilla `kpRemnantTrophyDesc`) picks a vanilla row, which has more conditions.
+- `IndEvo_petDockingLine` is on `PopulateOptions`, a `FireAll` trigger (vanilla `marketDock`: `FireAll PopulateOptions` after `FireBest MarketPostDock`), so it runs next to vanilla's option rows and its line follows the docking text. `MarketPostOpen` is `FireBest` (vanilla `marketOpen` row, `EndConversation.java:54`; the `FireAll` calls in `MarketCMD` and `AbandonMarketPluginImpl` are commented out): a row there competes with `marketPostOpenDefault`, and a win would drop the vanilla row that sets `$tradeMode` and fires `MarketPostDock`.
 - `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:63`, `:250`); see [Academy](ACADEMY.md).
 - A box whose data has no `pets.csv` row (unknown id, or null data in a real cargo) is invalid (`PetItemPlugin.isInvalid()`): no icon, the tooltip says so, a right-click throws `IllegalStateException`. Codex stacks have null data and no cargo (`obf/codex2/CodexDetailPanel.java:935`) and show the `hampter` fallback.
 - Dialogs from `showInteractionDialogFromCargo` do not become `getCurrentInteractionDialog()` (`obf/campaign/CampaignState.java:2298-2318`, `:2372`), so `isFleetCargo()` stays true while the picker is open. A second box still cannot be clicked: the dialog opens inside the right-click and its full screen backing panel absorbs all input (`com.fs.starfarer.ui.oo0O`, `absorbOutsideEvents` defaults to true, `obf/ui/_c199.java:18`, `:44-63`; input order inferred from vanilla dialogs being modal).

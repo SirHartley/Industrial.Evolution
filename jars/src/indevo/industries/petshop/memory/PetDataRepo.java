@@ -20,6 +20,7 @@ public class PetDataRepo {
     public static final String CONTEXT_DOCKED = "docked";
     public static final String CONTEXT_STORAGE = "storage";
     public static final String CONTEXT_OLD = "old";
+    public static final String CONTEXT_HYPERSPACE = "hyperspace";
     public static final float WEIGHT_PET = 4f;
     public static final float WEIGHT_BODY = 2f;
     public static final float WEIGHT_CLASS = 1.5f;

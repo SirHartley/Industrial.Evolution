@@ -155,6 +155,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         if (pet.storage != null) context.add(PetDataRepo.CONTEXT_STORAGE);
         else if (docked) context.add(PetDataRepo.CONTEXT_DOCKED);
         if (pet.isOld()) context.add(PetDataRepo.CONTEXT_OLD);
+        if (Global.getSector().getPlayerFleet().isInHyperspace()) context.add(PetDataRepo.CONTEXT_HYPERSPACE);
 
         PetDataRepo.Line line = PetDataRepo.pickLine(PetDataRepo.getLines(), event, pet.getData(), pet.getMood().id(), pet.personality, context, Misc.random);
         return line != null ? line.text() : null;

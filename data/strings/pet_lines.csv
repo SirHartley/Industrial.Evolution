@@ -35,7 +35,7 @@ IndEvo_pl_amb_content_1,ambient,any,content,,,The night shift has started saying
 IndEvo_pl_amb_content_2,ambient,any,content,,,The quartermaster has added %s to the weekly inventory count.
 IndEvo_pl_amb_content_3,ambient,any,content,,,The crew is running a betting pool on what %s does next.
 IndEvo_pl_amb_fourleg_1,ambient,b_fourleg,content,,,%s chased a maintenance drone across the hangar deck and lost.
-IndEvo_pl_amb_fourleg_2,ambient,b_fourleg,content,,,%s fell asleep in the navigator's chair. The jump was plotted from the spare console.
+IndEvo_pl_amb_fourleg_2,ambient,b_fourleg,content,,hyperspace,%s fell asleep in the navigator's chair. The jump was plotted from the spare console.
 IndEvo_pl_amb_legs_1,ambient,b_legs,content,,,%s climbed into the coolant pipe housing again. The engineers leave the panel open for it now.
 IndEvo_pl_amb_legs_2,ambient,b_legs,content,,,%s has started following the maintenance crew from one repair to the next.
 IndEvo_pl_amb_wings_1,ambient,b_wings,content,,,%s flew three laps of the hangar during the shuttle launch.
@@ -43,12 +43,12 @@ IndEvo_pl_amb_wings_2,ambient,b_wings,content,,,%s took a stylus from the duty o
 IndEvo_pl_amb_water_1,ambient,b_water,content,,,%s rearranged the gravel in its tank overnight.
 IndEvo_pl_amb_water_2,ambient,b_water,content,,,%s follows anyone who walks past its tank from one end to the other.
 IndEvo_pl_amb_float_1,ambient,b_float,content,,,%s drifted into the air recycler duct again. Life support had to switch the fans off to get it out.
-IndEvo_pl_amb_float_2,ambient,b_float,content,,,%s hung over the navigation table for the whole jump plot.
+IndEvo_pl_amb_float_2,ambient,b_float,content,,hyperspace,%s hung over the navigation table for the whole jump plot.
 IndEvo_pl_amb_blob_1,ambient,b_blob,content,,,%s spent the shift on the deck above the reactor. The crew steps around it.
 IndEvo_pl_amb_blob_2,ambient,b_blob,content,,,%s ate a spare bolt from the repair tray. The engineers have stopped leaving them out.
 IndEvo_pl_amb_machine_1,ambient,b_machine,content,,,%s logged another full patrol of the lower decks.
 IndEvo_pl_amb_machine_2,ambient,b_machine,content,,,%s took the spare charging port in the shuttle bay. The shuttle waited.
-IndEvo_pl_amb_jar,ambient,b_jar,content,,,%s turned a deep blue during the jump and stayed that way for an hour.
+IndEvo_pl_amb_jar,ambient,b_jar,content,,hyperspace,%s turned a deep blue during the jump and stayed that way for an hour.
 IndEvo_pl_amb_coil,ambient,b_coil,content,,,%s shorted the lights in the cargo bay again.
 IndEvo_pl_amb_human_1,ambient,b_human,content,,,%s told the deck crew another story about a raid nobody can find a record of.
 IndEvo_pl_amb_human_2,ambient,b_human,content,,,%s has been giving the gunnery crew advice they did not ask for.
@@ -66,7 +66,8 @@ IndEvo_pl_amb_shock,ambient,any,shell_shocked,,,The crew says %s goes quiet ever
 IndEvo_pl_amb_shock_fourleg,ambient,b_fourleg,shell_shocked,,,%s has been sleeping under the medbay cot since the battle.
 IndEvo_pl_amb_food,ambient,any,unhappy_with_food,,,%s left most of its Supplies ration.
 IndEvo_pl_amb_food_fourleg,ambient,b_fourleg,unhappy_with_food,,,%s buried its Supplies ration under a cargo blanket.
-IndEvo_pl_amb_sleepy,ambient,any,sleepy,,,%s slept through the whole jump.
+IndEvo_pl_amb_sleepy,ambient,any,sleepy,,hyperspace,%s slept through the whole jump.
+IndEvo_pl_amb_sleepy_2,ambient,any,sleepy,,,%s slept through the general quarters drill and woke up in time for the next meal.
 IndEvo_pl_amb_sleepy_water,ambient,b_water,sleepy,,,%s spends most of the night resting on the bottom of its tank.
 IndEvo_pl_dock_1,docking,any,,,,A dockhand asks after %s while the clamps lock on.
 IndEvo_pl_dock_2,docking,any,,,,"The customs officer adds %s to the cargo declaration, under personal effects."
