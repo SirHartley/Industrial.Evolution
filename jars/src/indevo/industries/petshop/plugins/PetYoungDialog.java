@@ -177,7 +177,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         refresh();
     }
 
-    // the back of a closed card: a diamond lattice, a diamond in the middle with the question mark, a hint under it
+    // the back of a closed card: the plain card outline, a diamond lattice, a diamond in the middle with the question mark, a hint under it
     static void back(CustomPanelAPI p, float x, float y, float w, float h, boolean hint) {
         float scale = h / CARD_H;
         float tile = Math.max(8f, 20f * scale);
@@ -193,6 +193,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
             float iw = pos.getWidth() - 10f;
             float ih = pos.getHeight() - 10f;
             UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), Color.BLACK, a);
+            UiDraw.outline(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), color(Tier.PLAIN), a);
 
             float reach = ih / slope;
             for (float c = -reach - tile; c <= iw + reach + tile; c += tile) {
