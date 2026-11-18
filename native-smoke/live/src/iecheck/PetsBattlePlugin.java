@@ -31,7 +31,7 @@ public class PetsBattlePlugin extends BaseEveryFrameCombatPlugin {
         this.engine = engine;
         String groups = System.getProperty("ie.check", "");
         sig = Arrays.asList(groups.split(",")).contains("petssig");
-        pods = Arrays.asList(groups.split(",")).contains("petspods") || sig;
+        pods = Arrays.asList(groups.split(",")).contains("petspods") || sig || Arrays.asList(groups.split(",")).contains("petstitles");
         active = (Arrays.asList(groups.split(",")).contains("petsfight") || pods) && !engine.isSimulation() && engine.isInCampaign();
         if (!active) return;
         ((CombatEngine) engine).setShowDeploymentDialog(false);
