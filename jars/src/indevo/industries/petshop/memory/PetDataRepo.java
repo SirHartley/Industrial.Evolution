@@ -14,6 +14,14 @@ public class PetDataRepo {
 
     public static final String CSV_PATH = "data/campaign/pets.csv";
     public static final String LINES_PATH = "data/strings/pet_lines.csv";
+    public static final String TRAITS_PATH = "data/campaign/pet_traits.csv";
+    // saves hold trait ids, never rename one after release
+    public static final String TRAIT_PREFIX = "IndEvo_pt_";
+    public static final String KIND_STAT = "stat";
+    public static final String KIND_FLEET = "fleet";
+    public static final String MODE_PERCENT = "percent";
+    public static final String MODE_REDUCE = "reduce";
+    public static final String MODE_FLAT = "flat";
     public static final String ANY = "any";
     public static final String EVENT_AMBIENT = "ambient";
     public static final String EVENT_DOCKING = "docking";
@@ -56,12 +64,45 @@ public class PetDataRepo {
         }
     }
 
+    // value of grades: perLevel for every full step of per grades, times the pet's talent mult, then the cap
+    public record Trait(String id, String name, String kind, String stat, String mode, float perLevel, int per, float cap, float weight,
+                        String effect, String desc, String flavour) {
+
+        public float value(int grade, float mult) {
+            float v = perLevel * (grade / per) * mult;
+            return cap > 0f ? Math.min(cap, v) : v;
+        }
+
+        public boolean isTalent() {
+            return kind.equals(KIND_STAT) || kind.equals(KIND_FLEET);
+        }
+
+        public boolean isFleet() {
+            return kind.equals(KIND_FLEET);
+        }
+
+        // +10%, -10% for a reduction, +1 for a flat value
+        public String format(float v) {
+            String n = Math.abs(v - Math.round(v)) < 0.05f ? String.valueOf(Math.round(v)) : String.format(Locale.ROOT, "%.1f", v);
+            return (mode.equals(MODE_REDUCE) ? "-" : "+") + n + (mode.equals(MODE_FLAT) ? "" : "%");
+        }
+    }
+
     public static Collection<PetData> getAll() {
         return getPets().values();
     }
 
     public static PetData get(String id) {
         return getPets().get(id);
+    }
+
+    public static Map<String, Trait> getTraits() {
+        return load(TRAITS_PATH, PetDataRepo::parseTraits);
+    }
+
+    // null for an id no loaded mod has, a save can hold traits of a removed mod
+    public static Trait getTrait(String id) {
+        return getTraits().get(id);
     }
 
     public static List<Line> getLines() {
@@ -123,11 +164,44 @@ public class PetDataRepo {
             float rarity = (float) row.getDouble("rarity");
             String body = row.optString("body", "").trim();
             String pace = row.optString("pace", "").trim();
+            Map<String, Float> talents = new HashMap<>();
+            for (String token : tokens(row.optString("talents", ""))) {
+                String[] lean = token.split(":");
+                talents.put(TRAIT_PREFIX + lean[0], lean.length > 1 ? Float.parseFloat(lean[1]) : 1f);
+            }
 
-            dataMap.put(id, new PetData(id, name, value, maxLife, tags, desc, natDeath, icon, hullmod, foodCommodityIDs, foodPerMonth, rarity, body, pace));
+            dataMap.put(id, new PetData(id, name, value, maxLife, tags, desc, natDeath, icon, hullmod, foodCommodityIDs, foodPerMonth, rarity, body, pace, talents));
         }
 
         return dataMap;
+    }
+
+    public static Map<String, Trait> parseTraits(JSONArray rows) throws JSONException {
+        Map<String, Trait> traits = new LinkedHashMap<>();
+
+        for (int i = 0; i < rows.length(); i++) {
+            JSONObject row = rows.getJSONObject(i);
+
+            String id = row.optString("id", "").trim();
+            if (id.isEmpty() || id.startsWith("#")) continue;
+
+            String per = row.optString("per", "").trim();
+            String cap = row.optString("cap", "").trim();
+            traits.put(id, new Trait(id,
+                    row.getString("name").trim(),
+                    row.getString("kind").trim(),
+                    row.optString("stat", "").trim(),
+                    row.getString("mode").trim(),
+                    (float) row.getDouble("perLevel"),
+                    per.isEmpty() ? 1 : Integer.parseInt(per),
+                    cap.isEmpty() ? 0f : Float.parseFloat(cap),
+                    (float) row.getDouble("weight"),
+                    row.getString("effect").trim(),
+                    row.getString("desc").trim(),
+                    row.optString("flavour", "").trim()));
+        }
+
+        return traits;
     }
 
     public static List<Line> parseLines(JSONArray rows) throws JSONException {

@@ -9,9 +9,8 @@ import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetMood;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.industry.PetShop;
@@ -21,6 +20,8 @@ import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
@@ -33,7 +34,7 @@ public class Pet {
     public float lifetime;
     public FleetMemberAPI assignedFleetMember = null;
     public IntervalUtil feedInterval = new IntervalUtil(Global.getSector().getClock().getSecondsPerDay() * DEFAULT_FEED_INTERVAL, Global.getSector().getClock().getSecondsPerDay() * DEFAULT_FEED_INTERVAL);
-    public String personality;
+    public PetSheet sheet;
 
     private boolean isAssigned = false;
     private boolean isStarving = false;
@@ -62,11 +63,7 @@ public class Pet {
         this.typeID = typeID;
         this.name = name;
         this.lifetime = MathUtils.getRandomNumberInRange(0.9f, 1.1f) * getData().maxLife;
-
-        WeightedRandomPicker<String> personalities = new WeightedRandomPicker<>();
-        personalities.addAll(Academy.COLOURS_BY_PERSONALITY.keySet());
-
-        this.personality = personalities.pick();
+        this.sheet = PetGenetics.rollSheet(getData(), PetDataRepo.getTraits(), Misc.random);
 
         if (Global.getSettings().isDevMode()) this.feedInterval = new IntervalUtil(10f, 10f); //10 seconds
     }
@@ -101,7 +98,47 @@ public class Pet {
     // answered wants and shared events; past the time hearts only a favourite takes it
     public void addBond(float days) {
         float cap = PetConstants.HEART_DAYS[(favourite ? PetConstants.MAX_HEARTS : PetConstants.TIME_HEARTS) - 1];
-        if (bondDays < cap) bondDays = Math.min(cap, bondDays + days);
+        if (bondDays < cap) setBondDays(Math.min(cap, bondDays + days));
+    }
+
+    public void setBondDays(float days) {
+        int hearts = getHearts();
+        bondDays = days;
+        if (getHearts() != hearts) effectsChanged();
+    }
+
+    // a talent shows itself when its heart switches it on, and every talent at READ_HEARTS
+    private void effectsChanged() {
+        List<String> talents = getTalents();
+        int hearts = getHearts();
+        int on = PetGenetics.activeCount(talents.size(), hearts);
+
+        for (int i = 0; i < talents.size(); i++) {
+            String id = talents.get(i);
+            if ((i < on || hearts >= PetConstants.READ_HEARTS) && sheet.known.add(id)) {
+                PetStatusManager.getInstance().reportTalentShown(this, PetDataRepo.getTrait(id));
+            }
+        }
+
+        syncShip();
+    }
+
+    // ship stats are only rebuilt on a fleet sync, the next fleet advance runs it
+    private void syncShip() {
+        if (assignedFleetMember != null && assignedFleetMember.getFleetData() != null) assignedFleetMember.getFleetData().setSyncNeeded();
+    }
+
+    // console: sets a grade and reads it, 0 removes the trait
+    public void setTrait(String traitId, int grade) {
+        if (grade <= 0) {
+            sheet.traits.remove(traitId);
+            sheet.known.remove(traitId);
+        } else {
+            sheet.traits.put(traitId, grade);
+            sheet.known.add(traitId);
+        }
+
+        syncShip();
     }
 
     public void setFavourite(boolean on) {
@@ -166,6 +203,7 @@ public class Pet {
         isAssigned = true;
         toMember.getVariant().addPermaMod(getData().hullmod);
         toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
+        syncShip();
     }
 
     private void leave() {
@@ -186,6 +224,7 @@ public class Pet {
             if (s.startsWith(HULLMOD_DATA_PREFIX)) variant.getTags().remove(s);
         }
 
+        syncShip();
         assignedFleetMember = null;
         isAssigned = false;
     }
@@ -199,6 +238,8 @@ public class Pet {
 
         boolean ages = storage == null || !Commodities.BETA_CORE.equals(storage.getAICoreId());
         float dayAmt = Global.getSector().getClock().convertToDays(amt);
+        int hearts = getHearts();
+        float mult = getTalentMult();
 
         if (ages) {
             age += dayAmt;
@@ -233,6 +274,8 @@ public class Pet {
             float cap = PetConstants.HEART_DAYS[PetConstants.TIME_HEARTS - 1];
             if (!isStarving && !isUnsettled() && bondDays < cap) bondDays = Math.min(cap, bondDays + dayAmt * getHeartRate());
         }
+
+        if (getHearts() != hearts || getTalentMult() != mult) effectsChanged();
 
         if (feedInterval.intervalElapsed()) {
             PetStatusManager manager = PetStatusManager.getInstance();
@@ -331,9 +374,42 @@ public class Pet {
         if (isUnsettled() || getHearts() < PetConstants.MASCOT_HEARTS) return 0f;
 
         float mult = 1f;
-        if (getData().isHamster()) mult *= PetConstants.HAMSTER_MASCOT_MULT;
+        if (getData().isHamster()) mult *= PetConstants.HAMSTER_MULT;
         if (hasNest()) mult *= PetConstants.NEST_MULT;
         return mult;
+    }
+
+    // off while Unsettled; the hamster and a nest raise it like the mascot effect
+    public float getTalentMult() {
+        if (isUnsettled()) return 0f;
+
+        float mult = 1f;
+        if (getData().isHamster()) mult *= PetConstants.HAMSTER_MULT;
+        if (hasNest()) mult *= PetConstants.NEST_MULT;
+        return mult;
+    }
+
+    public List<String> getTalents() {
+        return PetGenetics.talents(sheet, PetDataRepo.getTraits());
+    }
+
+    // switched on by hearts: the best one per heart, all at MAX_HEARTS
+    public List<String> getActiveTalents() {
+        List<String> talents = getTalents();
+        return talents.subList(0, PetGenetics.activeCount(talents.size(), getHearts()));
+    }
+
+    // what an active talent gives on its ship now, 0 when it is off
+    public float getTalentValue(String traitId) {
+        if (!getActiveTalents().contains(traitId)) return 0f;
+        return PetDataRepo.getTrait(traitId).value(sheet.getGrade(traitId), getTalentMult());
+    }
+
+    public List<String> getKnownTalentNames() {
+        List<String> names = new ArrayList<>();
+        Map<String, PetDataRepo.Trait> traits = PetDataRepo.getTraits();
+        for (String id : getTalents()) if (sheet.isKnown(id)) names.add(traits.get(id).name());
+        return names;
     }
 
     // kept for copies of indevo.other.YourMod_PetName_PetHullmod

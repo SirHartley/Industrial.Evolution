@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetMood;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
@@ -71,6 +72,7 @@ public class PetCard {
     static final float TALENT_W = 180f;
     static final float EFFECT_X = 254f;
     static final float DIM = 0.4f;
+    static final String NO_SHIP = "Effects work only on a ship.";
     public static final float REFIT_ICON = 34f;
     static final float REFIT_CUT = 12f;
     static final float REFIT_GAP = 3f;
@@ -247,12 +249,26 @@ public class PetCard {
             t.addCustom(want, 10f);
         }
 
-        CustomPanelAPI effects = Global.getSettings().createCustom(gw, UiData.GRID_ROW_H, new UiCanvas());
+        List<String> active = pet.getActiveTalents();
+        CustomPanelAPI effects = Global.getSettings().createCustom(gw, (1 + active.size()) * UiData.GRID_ROW_H, new UiCanvas());
         String value = mascotValue(pet);
         if (off) hoverRow(effects, 0f, gw, "Mascot effect", Ui.gray(), "off", Ui.gray(), null);
         else if (pet.getHearts() < PetConstants.MASCOT_HEARTS) hoverRow(effects, 0f, gw, "Mascot effect", Ui.gray(), "at 1 heart", Ui.gray(), null);
         else hoverRow(effects, 0f, gw, "Mascot effect", Ui.text(), "Combat CR decay " + value, Ui.text(), value);
+
+        float ty = UiData.GRID_ROW_H;
+        for (String id : active) {
+            PetDataRepo.Trait trait = PetDataRepo.getTrait(id);
+            if (offReason(pet, trait) != null) ty += hoverRow(effects, ty, gw, trait.name(), Ui.gray(), "off", Ui.gray(), null);
+            else {
+                String v = trait.format(pet.getTalentValue(id));
+                ty += hoverRow(effects, ty, gw, trait.name(), Ui.text(), trait.effect() + " " + v, Ui.text(), v);
+            }
+        }
         t.addCustom(effects, 10f);
+
+        String more = moreTalents(pet);
+        if (more != null) t.addPara(more, Ui.gray(), 0f);
 
         if (click) t.addPara("Click to open the Pets panel.", Ui.gray(), 10f);
     }
@@ -352,7 +368,7 @@ public class PetCard {
         addIdent(p, w, pet, away);
         float shipY = addWant(p, addHearts(p, w, pet), w, pet, away);
         addPlace(p, shipY, w, pet, away);
-        addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, pet);
+        addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h, pet);
         addBottom(p, w, h, pet, away);
         Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> paintHearts(pos, a));
     }
@@ -444,7 +460,7 @@ public class PetCard {
         PetMood mood = pet.getMood();
         List<GridRow> rows = new ArrayList<>();
         rows.add(GridRow.of("Species", pet.getData().species, Ui.text()));
-        rows.add(GridRow.of("Disposition", Misc.ucFirst(pet.personality), Academy.COLOURS_BY_PERSONALITY.get(pet.personality)));
+        rows.add(GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition)));
         rows.add(GridRow.of("Age", age(pet), Ui.text()));
         rows.add(GridRow.of("Mood", mood.label, mood.getColor()));
         UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, rows);
@@ -588,24 +604,103 @@ public class PetCard {
         return pet.lastMealSupplies ? next + " It grows at " + Math.round(PetConstants.SUPPLIES_HEART_RATE * 100f) + "% on Supplies." : next;
     }
 
-    // the mascot effect row; stat talents join this table later
-    private void addTalents(CustomPanelAPI p, float y, float w, Pet pet) {
+    // mascot effect, then the talents best first; only the rows scroll, unknown talents last
+    private void addTalents(CustomPanelAPI p, float y, float w, float h, Pet pet) {
+        float ew = w - EFFECT_X - UiScroll.GUTTER;
         Ui.thead(p, 0f, y, w, new String[]{"Grade", "Talents", "Effect"}, new float[]{GRADE_X, TALENT_X, EFFECT_X},
-                new float[]{GRADE_W, TALENT_W, w - EFFECT_X - 8f}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
+                new float[]{GRADE_W, TALENT_W, ew}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
         float ty = y + Ui.HEADING_H + 4f;
+        UiScroll.Column rows = UiScroll.list(p, 0f, ty, w, h - 44f - ty, view.scroll, PetsView.TALENTS);
 
         String value = mascotValue(pet);
-        boolean on = pet.getMascotMult() > 0f;
-        String effect = pet.isUnsettled() ? "off" : on ? "Combat CR decay " + value : "at 1 heart";
-        Color c = on ? Ui.text() : Ui.gray();
-        Ui.textIn(p, TALENT_X, ty, TALENT_W, UiData.GRID_ROW_H, "Mascot effect", Ui.INS15, c, Ui.LEFT, new String[0], new Color[0]);
-        Ui.textIn(p, EFFECT_X, ty, w - EFFECT_X - 8f, UiData.GRID_ROW_H, effect, Ui.INS15, c, Ui.RIGHT,
-                on ? new String[]{value} : new String[0], on ? new Color[]{Ui.hl()} : new Color[0]);
+        boolean on = pet.getMascotMult() > 0f && pet.isAboard();
+        String effect = pet.isUnsettled() ? "off" : pet.getHearts() < PetConstants.MASCOT_HEARTS ? "at 1 heart" : on ? "Combat CR decay " + value : "off";
+        CustomPanelAPI mascot = rows.block(UiData.GRID_ROW_H, 0f);
+        talentRow(mascot, ew, null, "Mascot effect", effect, on ? value : null, on);
 
         String rate = Misc.getRoundedValueMaxOneAfterDecimal(PetHullmod.BASE_DECREASE);
         String nest = Math.round((PetConstants.NEST_MULT - 1f) * 100f) + "%";
-        String tip = "Its ship loses combat readiness " + rate + "% slower in battle, from 1 heart. A nest adds " + nest + ".";
-        Ui.tooltip(p, Ui.panel(p, 0f, ty, w, UiData.GRID_ROW_H), "Mascot effect", pet.getData().isHamster() ? new String[]{tip, "A hamster counts twice."} : new String[]{tip});
+        List<String> tip = new ArrayList<>(List.of("Its ship loses combat readiness " + rate + "% slower in battle, from 1 heart. A nest adds " + nest + "."));
+        if (pet.getData().isHamster()) tip.add("A hamster counts twice.");
+        if (pet.getHearts() >= PetConstants.MASCOT_HEARTS && !pet.isUnsettled() && !pet.isAboard()) tip.add(NO_SHIP);
+        Ui.tooltip(mascot, mascot, "Mascot effect", tip.toArray(new String[0]));
+
+        List<String> talents = pet.getTalents();
+        int active = PetGenetics.activeCount(talents.size(), pet.getHearts());
+        List<Integer> order = new ArrayList<>();
+        for (int i = 0; i < talents.size(); i++) if (pet.sheet.isKnown(talents.get(i))) order.add(i);
+        for (int i = 0; i < talents.size(); i++) if (!pet.sheet.isKnown(talents.get(i))) order.add(i);
+
+        for (int i : order) {
+            String id = talents.get(i);
+            PetDataRepo.Trait trait = PetDataRepo.getTrait(id);
+            CustomPanelAPI row = rows.block(UiData.GRID_ROW_H, 0f);
+
+            if (!pet.sheet.isKnown(id)) {
+                talentRow(row, ew, "?", "Unknown", "", null, false);
+                Ui.tooltip(row, row, "Unknown", "A talent it has not shown yet. It shows itself once a heart switches it on.");
+                continue;
+            }
+
+            String grade = String.valueOf(pet.sheet.getGrade(id));
+            String off = i < active ? offReason(pet, trait) : null;
+            if (i >= active) {
+                int at = Math.min(PetConstants.MAX_HEARTS, i + 1);
+                talentRow(row, ew, grade, trait.name(), "at " + at + (at == 1 ? " heart" : " hearts"), null, false);
+            } else if (off != null) talentRow(row, ew, grade, trait.name(), "off", null, false);
+            else {
+                String v = trait.format(pet.getTalentValue(id));
+                talentRow(row, ew, grade, trait.name(), trait.effect() + " " + v, v, true);
+            }
+
+            Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> talentTip(t, pet, trait, off));
+        }
+
+        rows.end();
+    }
+
+    private static void talentRow(CustomPanelAPI b, float ew, String grade, String name, String effect, String hl, boolean on) {
+        Color c = on ? Ui.text() : Ui.gray();
+        if (grade != null) Ui.textIn(b, GRADE_X, 0f, GRADE_W, UiData.GRID_ROW_H, grade, Ui.INS15, on ? Ui.hl() : c, Ui.CENTER, new String[0], new Color[0]);
+        Ui.textIn(b, TALENT_X, 0f, TALENT_W, UiData.GRID_ROW_H, name, Ui.INS15, c, Ui.LEFT, new String[0], new Color[0]);
+        Ui.textIn(b, EFFECT_X, 0f, ew, UiData.GRID_ROW_H, effect, Ui.INS15, c, Ui.RIGHT,
+                hl != null ? new String[]{hl} : new String[0], hl != null ? new Color[]{Ui.hl()} : new Color[0]);
+    }
+
+    private static void talentTip(TooltipMakerAPI t, Pet pet, PetDataRepo.Trait trait, String off) {
+        t.addPara(trait.name(), Ui.hl(), 0f);
+        t.addPara(trait.desc(), 10f, Ui.hl(), trait.format(trait.value(trait.per(), 1f)));
+        if (trait.cap() > 0f) t.addPara("At most %s.", 0f, Ui.hl(), trait.format(trait.cap()));
+        if (trait.isFleet()) t.addPara("Counts once per fleet, from the best pet.", 0f);
+        if (off != null) t.addPara(off, Ui.neg(), 10f);
+        if (!trait.flavour().isEmpty()) t.addPara(trait.flavour().replace("%s", pet.name), 10f);
+    }
+
+    // why an active talent gives nothing now, null when it works
+    private static String offReason(Pet pet, PetDataRepo.Trait trait) {
+        if (pet.isUnsettled()) return "Effects are off while it is Unsettled.";
+        if (!pet.isAboard()) return NO_SHIP;
+        if (!trait.isFleet()) return null;
+
+        Pet lead = PetStatusManager.getInstance().getLead(pet.assignedFleetMember.getFleetData().getFleet(), trait.id());
+        return lead == null || lead == pet ? null : lead.name + " has a better " + trait.name() + " in this fleet.";
+    }
+
+    // "2 more talents at 4 and 5 hearts.", null when every talent is on
+    private static String moreTalents(Pet pet) {
+        List<String> talents = pet.getTalents();
+        int active = PetGenetics.activeCount(talents.size(), pet.getHearts());
+        int n = talents.size() - active;
+        if (n <= 0) return null;
+
+        List<String> at = new ArrayList<>();
+        for (int i = active; i < talents.size(); i++) {
+            String heart = String.valueOf(Math.min(PetConstants.MAX_HEARTS, i + 1));
+            if (!at.contains(heart)) at.add(heart);
+        }
+
+        String hearts = at.size() == 1 ? at.get(0) : String.join(", ", at.subList(0, at.size() - 1)) + " and " + at.get(at.size() - 1);
+        return n + (n == 1 ? " more talent at " : " more talents at ") + hearts + (at.size() == 1 && at.get(0).equals("1") ? " heart." : " hearts.");
     }
 
     private void addPlace(CustomPanelAPI p, float y, float w, Pet pet, CampaignFleetAPI away) {

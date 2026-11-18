@@ -261,8 +261,8 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     private void addHelp(TooltipMakerAPI tooltip) {
         Color hl = Misc.getHighlightColor();
-        tooltip.addPara("Every pet on a ship reaches %s hearts with time. Its mascot effect starts at %s heart.", 0f, hl,
-                String.valueOf(PetConstants.TIME_HEARTS), String.valueOf(PetConstants.MASCOT_HEARTS));
+        tooltip.addPara("Every pet on a ship reaches %s hearts with time. Each heart switches on one talent, the best first.", 0f, hl,
+                String.valueOf(PetConstants.TIME_HEARTS));
         tooltip.addPara("Hearts %s and %s are for favourites: answer their wants and take them along. A favourite asks for something about every %s months. An unanswered want costs nothing.", 10f, hl,
                 String.valueOf(PetConstants.NEST_HEARTS), String.valueOf(PetConstants.MAX_HEARTS), String.valueOf(Math.round(PetConstants.WANT_COOLDOWN_DAYS / 30f)));
         tooltip.addPara("A pet that moves to another ship is Unsettled for %s days, %s if it had a nest. Its effects are off. Hearts stay.", 10f, hl,
@@ -272,7 +272,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     // the selected pet keeps its card while the filter hides its tile
     private void addList(CustomPanelAPI p, float h, List<Group> groups, Pet selected) {
         UiFilter.State filter = view.filter;
-        float bar = UiFilter.bar(p, 2f, BODY_Y, filter, "Name or species", "Filters and sort order of this list.", TOGGLES, null, KEYS, this::filtered, this::refresh);
+        float bar = UiFilter.bar(p, 2f, BODY_Y, filter, "Name, species or trait", "Filters and sort order of this list.", TOGGLES, null, KEYS, this::filtered, this::refresh);
         float top = bar + UiFilter.BELOW;
 
         UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y + top, LIST_W, h - top, view.scroll, PetsView.LIST);
@@ -282,7 +282,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         for (Group group : groups) {
             List<Pet> pets = new ArrayList<>();
-            for (Pet pet : group.pets()) if (filter.matches(pet.name, pet.getData().species) && (!filter.on.contains(MARKED) || PetCard.marked(pet))) pets.add(pet);
+            for (Pet pet : group.pets()) if (filter.matches(searchText(pet)) && (!filter.on.contains(MARKED) || PetCard.marked(pet))) pets.add(pet);
             if (filtering && pets.isEmpty()) continue;
             filter.sort(pets, order(filter.sort));
 
@@ -311,6 +311,13 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     // null keeps the group order: the fleet order on ships, the order they came in elsewhere
+    // talents the player has not seen stay out of the search
+    private static String[] searchText(Pet pet) {
+        List<String> text = new ArrayList<>(List.of(pet.name, pet.getData().species));
+        text.addAll(pet.getKnownTalentNames());
+        return text.toArray(new String[0]);
+    }
+
     private static Comparator<Pet> order(String key) {
         Comparator<Pet> name = Comparator.comparing(pet -> pet.name, String.CASE_INSENSITIVE_ORDER);
         return switch (key) {

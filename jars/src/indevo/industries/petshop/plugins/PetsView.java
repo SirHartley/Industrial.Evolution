@@ -13,6 +13,7 @@ import java.util.Map;
 public class PetsView {
 
     public static final String LIST = "list";
+    public static final String TALENTS = "talents";
 
     public String selected = null;
     public final UiScroll.Offsets scroll = new UiScroll.Offsets();
@@ -44,6 +45,7 @@ public class PetsView {
         if (id.equals(selected)) return;
 
         selected = id;
+        scroll.reset(TALENTS);
         clicks = 0;
         answer = null;
         pettedAt = -1f;

@@ -17,7 +17,8 @@ public final class PetConstants {
     public static final int TIME_HEARTS = 3;
     public static final float SUPPLIES_HEART_RATE = 0.25f;
     public static final int MASCOT_HEARTS = 1;
-    public static final float HAMSTER_MASCOT_MULT = 2f;
+    // hamsters count twice, for the mascot effect and for talents
+    public static final float HAMSTER_MULT = 2f;
     public static final int NEST_HEARTS = 4;
     public static final float NEST_MULT = 1.3f;
     public static final float NEST_REBUILD_DAYS = 120f;
@@ -33,6 +34,10 @@ public final class PetConstants {
     public static final float WANT_BOND_DAYS = 30f;
     public static final float EVENT_BOND_DAYS = 3f;
     public static final int SULK_LAPSES = 3;
+
+    // one talent switches on per heart, best first, all at MAX_HEARTS; at READ_HEARTS every talent is read
+    public static final int READ_HEARTS = 3;
+    public static final float TWO_TALENTS_CHANCE = 0.5f;
 
     private PetConstants() {
     }

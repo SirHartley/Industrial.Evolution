@@ -6,6 +6,7 @@ import com.fs.starfarer.api.util.Pair;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Map;
 
 public class PetData {
     public static final String TAG_NO_SELL = "no_sell";
@@ -33,8 +34,10 @@ public class PetData {
     public float rarity;
     public String body;
     public String pace;
+    // talent roll weight per trait id, a missing talent weighs 1
+    public Map<String, Float> talentWeights;
 
-    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity, String body, String pace) {
+    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity, String body, String pace, Map<String, Float> talentWeights) {
         this.id = id;
         this.species = species;
         this.value = value;
@@ -49,6 +52,7 @@ public class PetData {
         this.rarity = rarity;
         this.body = body;
         this.pace = pace == null || pace.isEmpty() ? paceFor(maxLife) : pace;
+        this.talentWeights = talentWeights;
     }
 
     // a blank pace column follows the life span
@@ -62,6 +66,10 @@ public class PetData {
     public String getFavouriteFood() {
         for (String food : foodCommodities) if (!Commodities.SUPPLIES.equals(food)) return food;
         return null;
+    }
+
+    public float getTalentWeight(String traitId) {
+        return talentWeights.getOrDefault(traitId, 1f);
     }
 
     public boolean isHamster() {

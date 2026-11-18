@@ -1,0 +1,23 @@
+id,name,kind,stat,mode,perLevel,per,cap,weight,effect,desc,flavour
+IndEvo_pt_capacitor,Capacitor,stat,flux_capacity,percent,5,,,1,Flux capacity,Flux capacity %s per grade on its ship.,The crew swears the capacitors hold more charge with %s close by.
+IndEvo_pt_vent,Vent,stat,flux_dissipation,percent,5,,,1,Flux dissipation,Flux dissipation %s per grade on its ship.,"The vents run cleaner since %s moved in, the engineers say."
+IndEvo_pt_runner,Runner,stat,max_speed,percent,5,,,1,Top speed,Top speed %s per grade on its ship.,The pilots swear the ship runs faster with %s on the bridge.
+IndEvo_pt_nimble,Nimble,stat,maneuverability,percent,5,,,1,Maneuverability,Maneuverability %s per grade on its ship.,The helm swears the ship turns tighter with %s aboard.
+IndEvo_pt_plating,Plating,stat,armor,percent,5,,,1,Armor,Armor %s per grade on its ship.,%s checks every armor plate twice a day.
+IndEvo_pt_bulwark,Bulwark,stat,hull,percent,5,,,1,Hull,Hull %s per grade on its ship.,"The crew knocks on the hull for luck, then on %s."
+IndEvo_pt_ward,Ward,stat,shield_damage,reduce,5,,90,1,Shield damage taken,Shield damage taken %s per grade on its ship.,Shield techs keep %s near the emitters. Nobody asks why.
+IndEvo_pt_far_sight,Far sight,stat,weapon_range,percent,5,,,1,Weapon range,Ballistic and energy weapon range %s per grade on its ship.,%s seems to notice things on the sensors before anyone else does.
+IndEvo_pt_quick_trigger,Quick trigger,stat,rate_of_fire,percent,5,,,1,Rate of fire,Weapon rate of fire %s per grade on its ship.,The gun crews race to beat %s to the loading bay.
+IndEvo_pt_gunner,Gunner,stat,ballistic_damage,percent,5,,,1,Ballistic damage,Ballistic weapon damage %s per grade on its ship.,%s keeps the ballistic mounts company through every fight.
+IndEvo_pt_burner,Burner,stat,energy_damage,percent,5,,,1,Energy damage,Energy weapon damage %s per grade on its ship.,%s basks in the glow of the energy mounts.
+IndEvo_pt_loader,Loader,stat,missile,percent,5,,,1,"Missile damage, ammo",Missile damage and missile ammo %s per grade on its ship.,"%s counts every missile in the racks, then counts them again."
+IndEvo_pt_deck_hand,Deck hand,stat,fighter_refit,reduce,5,,90,1,Fighter refit time,Fighter refit time %s per grade on its ship.,The deck crew works faster with %s around. It wants to see the fighters come home.
+IndEvo_pt_steady_nerves,Steady nerves,stat,peak_time,percent,5,,,1,Peak performance,Peak performance time %s per grade on its ship.,Nobody panics with %s on the bridge.
+IndEvo_pt_ships_nurse,Ship's nurse,stat,cr_recovery,percent,5,,,1,"CR recovery, repairs",CR recovery and repair rate %s per grade on its ship.,%s visits every crew member in the medbay.
+IndEvo_pt_high_spirits,High spirits,stat,max_cr,percent,3,,,1,Maximum CR,Maximum combat readiness %s per grade on its ship.,Morale is up. The crew credits %s.
+IndEvo_pt_pest_hunter,Pest hunter,stat,supplies,reduce,5,,90,1,Supplies per month,Supplies per month %s per grade on its ship.,Not a single pest has been seen in the stores since %s came aboard.
+IndEvo_pt_quiet,Quiet,stat,sensor_profile,reduce,5,,90,1,Sensor profile,Sensor profile %s per grade on its ship.,"%s goes still when a scan sweeps the ship, and the crew follows suit."
+IndEvo_pt_lucky_charm,Lucky charm,stat,recovery,percent,5,,,1,Recovery chance,Recovery chance %s per grade for its ship. D-mods are as much less likely.,Spacers touch %s for luck before a fight.
+IndEvo_pt_pathfinder,Pathfinder,fleet,fleet_burn,flat,1,4,,1,Fleet burn,Fleet burn %s per 4 grades.,%s always seems to know the shortest way.
+IndEvo_pt_scavenger,Scavenger,fleet,salvage,percent,5,,,1,Salvage,"Salvage %s per grade, as a Salvage Gantry gives.",%s will not leave a sealed panel alone.
+IndEvo_pt_marine_mascot,Marine mascot,fleet,ground_support,flat,50,,,1,Ground support,Ground support %s per grade.,The marines take %s along on every drop.
