@@ -161,7 +161,20 @@ public final class PetsLinesChecks {
             float after = days();
             c.expect(text.contains("Talker"), "docking at Jangala adds a pet line to the market text (" + text.replace('\n', '|') + ")");
             c.expect(after < 0.05f, "the docking line resets the counter (" + after + ")");
+            InteractionDialogAPI dialog = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
+            int vanilla = text.indexOf("docking clearance"), pet = text.lastIndexOf("Talker");
+            c.expect(vanilla >= 0 && pet > vanilla, "the pet line comes after the vanilla docking text");
+            c.expect(dialog.getOptionPanel().hasOption("marketOpenCoreUI") && dialog.getOptionPanel().hasOption("marketCommDir"), "the market options are there (trade, comm directory)");
             c.shot("petslines-docking-jangala");
+            // back to the main menu, as after trade or the comm directory
+            com.fs.starfarer.api.impl.campaign.rulecmd.FireAll.fire(null, dialog, dialog.getPlugin().getMemoryMap(), "PopulateOptions");
+            c.frames(10);
+        });
+        steps.add(c -> {
+            String text = dialogText();
+            int count = text.split("Talker", -1).length - 1;
+            c.expect(count == 1, "going back to the main menu adds no second line (" + count + " lines)");
+            c.expect(Global.getSector().getCampaignUI().getCurrentInteractionDialog().getOptionPanel().hasOption("marketOpenCoreUI"), "the market options are rebuilt");
             Global.getSector().getCampaignUI().getCurrentInteractionDialog().dismiss();
             c.frames(10);
         });
@@ -177,6 +190,7 @@ public final class PetsLinesChecks {
         });
         steps.add(c -> {
             c.expect(!resets.isEmpty() && days() < 0.1f, "ambient line came and reset the counter");
+            c.expect(!resets.isEmpty() && resets.get(0) >= 0.99f, "no ambient line right after the docking line (" + resets + " days after it)");
             dock(c, entity("jangala"));
         });
         steps.add(c -> {
@@ -280,6 +294,53 @@ public final class PetsLinesChecks {
             }
             c.near(d, 0.7f, 0.05f, "daysSinceLine survives save and load");
             c.near(roll, 1.3f, 0.001f, "lineRoll survives save and load");
+
+            Pet dog = pet("doge", "Hyperdog", null);
+            Pet ray = pet("vapourray", "Hyperray", null);
+            Pet jar = pet("mipacem7_souljar", "Hyperjar", null);
+            Pet old = pet("doge", "Oldtimer", null);
+            old.age = old.lifetime * 0.9f;
+            Pet[] pets = {dog, ray, jar, old};
+            Map<String, String> jumpIds = new HashMap<>();
+            for (PetDataRepo.Line l : PetDataRepo.getLines()) {
+                if (List.of("IndEvo_pl_amb_fourleg_2", "IndEvo_pl_amb_float_2", "IndEvo_pl_amb_jar", "IndEvo_pl_amb_sleepy", "IndEvo_pl_amb_sleepy_2").contains(l.id())) jumpIds.put(l.text(), l.id());
+            }
+            c.expect(jumpIds.size() == 5, "the four jump lines and the new sleepy line exist (" + jumpIds.values() + ")");
+            c.expect(old.getMood() == indevo.industries.petshop.PetMood.SLEEPY, "the old pet is Sleepy");
+
+            java.util.Set<String> normal = new java.util.HashSet<>(), hyper = new java.util.HashSet<>();
+            for (int i = 0; i < 300; i++) for (Pet p : pets) {
+                String id = jumpIds.get(manager().getLine(p, PetDataRepo.EVENT_AMBIENT, false));
+                if (id != null) normal.add(id);
+            }
+            CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+            com.fs.starfarer.api.campaign.LocationAPI from = fleet.getContainingLocation();
+            float x = fleet.getLocation().x, y = fleet.getLocation().y;
+            from.removeEntity(fleet);
+            Global.getSector().getHyperspace().addEntity(fleet);
+            boolean inHyper = fleet.isInHyperspace();
+            try {
+                for (int i = 0; i < 300; i++) for (Pet p : pets) {
+                    String id = jumpIds.get(manager().getLine(p, PetDataRepo.EVENT_AMBIENT, false));
+                    if (id != null) hyper.add(id);
+                }
+            } finally {
+                Global.getSector().getHyperspace().removeEntity(fleet);
+                from.addEntity(fleet);
+                fleet.setLocation(x, y);
+            }
+            c.expect(inHyper, "the fleet counted as in hyperspace for the sample");
+            c.expect(normal.equals(java.util.Set.of("IndEvo_pl_amb_sleepy_2")), "in normal space no jump line, the sleepy pet gets the new line (" + normal + ")");
+            c.expect(hyper.containsAll(List.of("IndEvo_pl_amb_fourleg_2", "IndEvo_pl_amb_float_2", "IndEvo_pl_amb_jar", "IndEvo_pl_amb_sleepy")), "in hyperspace all four jump lines come up (" + hyper + ")");
+
+            set("daysSinceLine", 1.2f);
+            set("lineRoll", 1.5f);
+            dock(c, entity("jangala"));
+        });
+        steps.add(c -> {
+            c.expect(dialogText().contains("Talker") || dialogText().contains("Boss") || dialogText().contains("Menagerie") || dialogText().contains("Hyper") || dialogText().contains("Oldtimer"), "a docking line for the held market dialog");
+            org.apache.log4j.Logger.getLogger(PetsLinesChecks.class).info("LIVE_CHECK hold");
+            c.frames(100000000);
         });
         return steps;
     }
