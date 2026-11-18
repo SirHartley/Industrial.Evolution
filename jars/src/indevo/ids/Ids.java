@@ -180,6 +180,7 @@ public class Ids {
     public static final String PROJ_MORGANA = "indevo_proj_morgana";
     public static final String PROJ_MJOLNIR = "indevo_proj_mjolnir";
     public static final String PROJ_REFORGE = "indevo_proj_reforge";
+    public static final String PROJ_LONGEVITY = "indevo_proj_longevity";
 
     //id
     //IndEvo_cryoartillery

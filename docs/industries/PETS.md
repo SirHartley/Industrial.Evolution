@@ -16,14 +16,15 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|
 | `industries/petshop/industry/PetShop.java` | Industry plugin. Owns `storedPets`, `petStorageCostMult`, `broods`, `offers`. Food demand, submarket add/remove, storage fee (`getMonthlyStorageCost`), `rehome`, `geneScan` ([Gene scan](#gene-scan)), habitats ([Habitats and broods](#habitats-and-broods)), adoption offers ([Adoption tab](#adoption-tab)), AI cores, the improvement. `EconomyTickListener` |
 | `industries/petshop/memory/PetBrood.java` | Saved busy habitat: `habitat` slot, `parentA`, `parentB`, `start` (clock timestamp), `days`, `young` (null while running), `opened`, `shown` |
-| `industries/petshop/memory/Pet.java` | Pet state: `typeID`, `id`, `name`, `age`, `lifetime` (0.9 to 1.1 x `maxLife`), `assignedFleetMember`, `storage`, `inChamber` (a young in a Cryochamber), `sheet`, `deathData`, `unsettledDays`, `shellShockedDays`, `happyDays`, `lastMealSupplies`, `homeShipId`, `captain`, `fights`, `jumps`, `answeredWants`, `finds`, `flagshipDays`, `hyperspaceDays`, `markets`, `titles`, `parentA`, `parentB`, `bondDays`, `nestRebuildDays`, `favourite`, `want`, `wantDaysLeft`, `wantCooldownDays`, `lapsedWants`. `place()`, `advance()`, `pet()`, `play()`, `addBond()`, `setBondDays()`, `answerWant()`, `getMood()`, `isYoung()`, `getYoungDays()`, `toHabitat()`, `unsettle()`, `getLifetime()`, `getFoodPerMonth()`, `getTalents()`, `getActiveTalents()`, `getTalentMult()`, `getTalentValue()`, `getKnownTraitNames()`, `setTrait()`, `rename()`, feeding, hullmod tooltip section |
+| `industries/petshop/memory/Pet.java` | Pet state: `typeID`, `id`, `name`, `age`, `lifetime` (0.9 to 1.1 x `maxLife`), `assignedFleetMember`, `storage`, `inChamber` (a young in a Cryochamber), `sheet`, `deathData`, `unsettledDays`, `shellShockedDays`, `happyDays`, `lastMealSupplies`, `homeShipId`, `captain`, `fights`, `jumps`, `answeredWants`, `finds`, `flagshipDays`, `hyperspaceDays`, `markets`, `titles`, `parentA`, `parentB`, `bondDays`, `nestRebuildDays`, `favourite`, `want`, `wantDaysLeft`, `wantCooldownDays`, `lapsedWants`, `treatments`, `treatedDays`, `lifeWarnings` ([Longevity](#longevity)). `place()`, `advance()`, `pet()`, `play()`, `addBond()`, `setBondDays()`, `answerWant()`, `getMood()`, `isYoung()`, `getYoungDays()`, `toHabitat()`, `unsettle()`, `getLifetime()` (with `treatedDays`), `treat()`, `getSyringeYears()`, `getFoodPerMonth()`, `getTalents()`, `getActiveTalents()`, `getTalentMult()`, `getTalentValue()`, `getKnownTraitNames()`, `setTrait()`, `rename()`, feeding, hullmod tooltip section |
 | `industries/petshop/memory/PetSheet.java` | Saved trait sheet of a pet: `disposition` (officer personality id), `traits` (trait id to grade, in arrival order), `known` (read trait ids), `flawsRead` (false until a gene scan; mutations are always known), `from` (a young's trait id to `FROM_A`, `FROM_B`, `FROM_SUM`, `FROM_MUTATION` or `FROM_MALFORMED`; null for a bought pet), `malformed`. No `Global` |
 | `industries/petshop/memory/PetPlan.java` | Saved planned young: `id` (`plan_` + UID), `typeID`, `name`, `parentA`, `parentB` (a pet id, a plan id or null), `look` (look id, `PetGenetics.NONE` for Wild type, null for any), `wanted` (trait id or `MALFORMED` to a grade; for a flaw the highest level allowed, 0 for none). `sheet()`: what it counts as in a parent place ([Planner tab](#planner-tab)) |
 | `industries/petshop/PetGenetics.java` | Trait math, static, no `Global` so `PetChecks` runs it: `rollSheet`, `talents` (best first), `activeCount`, `DISPOSITIONS`, the husbandry rolls and the body traits ([Genetics](#genetics)), `shared` (shared ancestors of two pets, [Family tree](#family-tree)), the plan math `wantedChance`, `wantedChances`, `product`, `broods` and the `MALFORMED` row id ([Planner tab](#planner-tab)) |
 | `industries/petshop/PetMood.java` | Display only moods with label, colour and the line id (`id()`, lower case name) |
 | `industries/petshop/PetTitle.java` | The titles: label, reason, count ([Titles](#titles)) |
 | `industries/petshop/PetWant.java` | The six wants: label, card button or hint, line event (`event()`, `want_` + lower case name) |
-| `industries/petshop/PetConstants.java` | Tuning numbers that are not per species: Unsettled, Shell shocked and Happy days, Sleepy age, line weights, petting clicks, Rehome fee, gene scan cost, name length, hearts, nest, escape pods, favourites and wants, talents, titles, the Scavenger find |
+| `industries/petshop/PetConstants.java` | Tuning numbers that are not per species: Unsettled, Shell shocked and Happy days, Sleepy age, line weights, petting clicks, Rehome fee, gene scan cost, name length, hearts, nest, escape pods, favourites and wants, talents, titles, the Scavenger find, the end of life warnings, hamster treatment years, placed syringes |
+| `industries/petshop/PetLongevity.java` | Longevity outside the pet: `syringeName`, `hasSyringe`, `getNomios` (null when Nomios is gone or has no cryosanctum), `placeSyringes` ([Longevity](#longevity)) |
 | `industries/petshop/memory/PetData.java` | One `pets.csv` row. Tags `no_sell`, `no_drop`; `getClassTag()` (`c_` tag, `c_alien` when none); `body`; `pace` (`fast`, `medium`, `slow`, `hamster`; blank follows `maxLife`: under 1800 days fast, under 3000 medium, else slow); `talentWeights` from the `talents` column |
 | `industries/petshop/memory/PetDataRepo.java` | Loads `pets.csv`, `pet_traits.csv` and `pet_lines.csv` with `getMergedSpreadsheetDataForMod`, cached in session transient memory; a load failure throws `IllegalStateException`. `parsePets`, `parseTraits`, `parseLines` take a `JSONArray` and use no `Global`. Trait rows are the nested record `Trait` (`value`, `format`, [Talents](#talents)), line rows `Line`; `pickLine` ([Lines](#lines)) |
 | `industries/petshop/memory/DeathData.java` | Cause, date, location of a dead pet; `timestamp` (clock timestamp, 0 for deaths saved before it) |
@@ -39,6 +40,7 @@ Code paths relative to `jars/src/indevo/`.
 | `tools/PetChecks.java` | Headless checks, never shipped ([Checks](#checks)) |
 | `console/PetCommand.java` | `indevo_pet list`, `give <species> [name]`, `age <pet> <days>`, `hearts <pet> <0-5>`, `want <pet> <want>`, `trait <pet> <trait> <grade>`, `scan <pet>`, `look <pet> <look>` ([Console](../core/CONSOLE.md)) |
 | `industries/petshop/item/PetItemPlugin.java` | `IndEvo_PetBox` special item. Item data = pet type id for a new pet, `<type id>:<pet id>` for a young in a Cryochamber (`chamberData`, `chamberPet`). Icon render, drop tiers, price (sale value for a young); a right-click opens `PetPlaceDialog.chamber` |
+| `industries/petshop/item/LongevitySyringeItemPlugin.java` | `IndEvo_LongevitySyringe` special item: tooltip with the years from `IndEvo_petLongevityYears` and the hamster note ([Longevity](#longevity)) |
 | `industries/petshop/plugins/PetsDialogPlugin.java` | Escape blocking host of the Pets panel. `show(shop, view)`; `shop` is the docked Animal Center, null in flight. `over(pet, onClose)` from a vanilla screen ([Pet on its ship](#pet-on-its-ship)) |
 | `industries/petshop/plugins/PetsPanel.java` | Pets panel ([Pets panel](#pets-panel)): groups, tile list, header, name commit, popups |
 | `industries/petshop/plugins/PetCard.java` | Tile and card of one pet: markers, petting, ship strip, Rehome, Euthanize; the offer card (`buildOffer`); name field helpers; the hover block and ship icons ([Pet on its ship](#pet-on-its-ship)) |
@@ -67,7 +69,10 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|---|
 | Industry | `IndEvo_PetStore` "Animal Center" (`Ids.PET_STORE`) | `data/campaign/industries.csv:54` |
 | Submarket | `IndEvo_PetSubMarket` (`Ids.PETMARKET`) | `data/campaign/submarkets.csv:10` |
-| Special item | `IndEvo_PetBox` (`ItemIds.PET_CHAMBER`) | `data/campaign/special_items.csv:17` |
+| Special item | `IndEvo_PetBox` (`ItemIds.PET_CHAMBER`) | `data/campaign/special_items.csv:13` |
+| Special item | `IndEvo_LongevitySyringe` (`ItemIds.LONGEVITY_SYRINGE`), base price 20000, placeholder icon | `data/campaign/special_items.csv:14` |
+| Drop group | `indEvo_petLongevity`: syringe 1, nothing 4; one roll in the pet center's `drop_random` | `data/campaign/procgen/drop_groups.csv:100-101`, `salvage_entity_gen_data.csv:18` |
+| Research project | `indevo_proj_longevity` (`Ids.PROJ_LONGEVITY`) Project Methuselah ([Research](../dialogue/RESEARCH.md)) | `ResearchProjectTemplateRepo.java:260` |
 | Hullmod | `IndEvo_petHullmod` | `data/hullmods/hull_mods.csv:13` |
 | Ability | `pet_management` | `data/campaign/abilities.csv:3` |
 | Pets | 38 rows: `id,name,value,maxlife,tags,foodCommodities,rarity,foodPerMonth,desc,natural_death,icon,hullmod,body,pace,talents` | `data/campaign/pets.csv` |
@@ -80,17 +85,19 @@ Code paths relative to `jars/src/indevo/`.
 | Setting | `IndEvo_pets` | `LunaSettings.csv:10` |
 | Setting | `IndEvo_petLineDays` (`Setting.PET_LINE_DAYS`): minimum days between two ambient or docking lines, default 14, 0 off | `LunaSettings.csv:35` |
 | Setting | `IndEvo_petMotion` (`Setting.PET_MOTION`): petting motion and hearts in the Pets panel, default on | `LunaSettings.csv:36` |
+| Setting | `IndEvo_petLongevityYears` (`Setting.PET_LONGEVITY_YEARS`): years one syringe gives, default 2, 1 to 10 | `LunaSettings.csv:37` |
 | Faction (colour only) | `petStoreColour` | `data/world/factions/submarkets/` |
 | Entity | `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:1220` |
 | Variant tag | `PET_DATA_ID_<pet id>` on the pet's ship | `Pet.place()` |
 | Memory | `$IndEvo_BlockESC` | sector memory |
+| Memory | `$IndEvo_longevitySyringesPlaced` (`PetLongevity.PLACED_KEY`) | sector memory |
 | Common file | `IndEvo_pet_bestiary.json`: `species` and `looks`, sorted id arrays ([Bestiary tab](#bestiary-tab)) | `common/IndEvo_pet_bestiary.json.data` under the game's save folder (`obf/settings/StarfarerSettings.java:1919`, `PetBestiaryFile`) |
-| Person | `foogAristo` at `athulf`, sells the `lordandsaviour` pet box for 300000 at cooperative (rules `IndEvo_foog_*`) | `ModPlugin.addLordFoogRep()` (`utils/ModPlugin.java:226`) |
+| Person | `foogAristo` at `athulf`, sells the `lordandsaviour` pet box for 300000 at cooperative (rules `IndEvo_foog_*`) | `ModPlugin.addLordFoogRep()` (`utils/ModPlugin.java:238`) |
 
 ## Registration and lifecycle
 
 - Industry, submarket, item and ability plugins from CSV plugin columns.
-- `PetManagementAbilityPlugin.applySetting()` (`abilities/pets/PetManagementAbilityPlugin.java:19-43`): with `IndEvo_pets` on, adds `pet_management` (`Ids.ABILITY_PET_MANAGEMENT`) to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)) and loads pet textures; a texture that fails to load throws `IllegalStateException`. With the setting off, removes the ability. `PlayerSettings.applyCampaignSettings()` runs it from `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:171`) and after a Save in the LunaLib menu in the campaign ([Settings](../core/SETTINGS.md#reading-a-setting)). On new game with pets on, `onGameLoad` also adds Lord Foog (`:173`).
+- `PetManagementAbilityPlugin.applySetting()` (`abilities/pets/PetManagementAbilityPlugin.java:19-43`): with `IndEvo_pets` on, adds `pet_management` (`Ids.ABILITY_PET_MANAGEMENT`) to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)) and loads pet textures; a texture that fails to load throws `IllegalStateException`. With the setting off, removes the ability. `PlayerSettings.applyCampaignSettings()` runs it from `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:183`) and after a Save in the LunaLib menu in the campaign ([Settings](../core/SETTINGS.md#reading-a-setting)). On new game with pets on, `onGameLoad` also adds Lord Foog (`:184`). With pets on, every load calls `PetLongevity.placeSyringes()` (`:185`), which runs once per game ([Longevity](#longevity)).
 - `IndEvo_PetDockingLine` is found through the `ruleCommandPackages` entry `indevo.industries.petshop.rules` ([Rule commands](../dialogue/RULE_COMMANDS.md)).
 - `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:466`).
 - `PetStatusManager.getInstance()` (`PetStatusManager.java:75`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
@@ -182,8 +189,14 @@ Code paths relative to `jars/src/indevo/`.
 ### Daily and monthly
 
 - `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:280`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `Pet.getFoodPerMonth()` (`foodPerMonth` x Glutton) of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:381`); no food -> starving -> `STARVED` death.
-- Age past `getLifetime()` -> `NATURAL` death (a hamster at or under 0 lives only where it does not age), message from `natural_death` or the hamster CSV.
+- Age past `getLifetime()` -> `NATURAL` death (a hamster at or under 0 lives only where it does not age), message from `natural_death` or the hamster CSV; a treated pet "died when its treatments ran out." The message names the ship, the Animal Center or the menagerie.
 - `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:408`); battle losses below.
+
+### Longevity
+
+- `Pet.treat(years)`: `treatedDays += years x 365`, `treatments++`, `lifeWarnings` back to 0. `getLifetime()` adds `treatedDays` after the Long lived, Short lived and hamster flaw math, so a treatment always gives the full years. Years per syringe: `getSyringeYears()`, `IndEvo_petLongevityYears` (read at use), `HAMSTER_TREATMENT_YEARS` (1) for a hamster.
+- Warnings (`Pet.warnLifeEnding`, in `advance` while the pet ages): for a pet with the player, at `LIFE_WARNING_DAYS` 60, 14 and 1 days left. `lifeWarnings` holds the last one shown, so each comes once per treatment; a pet that comes back from storage or a detachment gets only the latest one it passed. `PetStatusManager.reportLifeEnding`: "<name> the <species> on the <ship> (or in the menagerie) has <days> left to live.", then "A Longevity Syringe in your cargo gives it more time.", or with none in cargo the syringe and Nomios (only while `getNomios()` is not null), else the syringe alone. Held while the Pets panel is open.
+- Syringe sources: Project Methuselah ([Research](../dialogue/RESEARCH.md)), one roll of `indEvo_petLongevity` (20%) on every derelict pet center (salvage reads the spec when salvaged, so older saves get it too), and `PLACED_SYRINGES` (3) placed once per game. `placeSyringes()` sets `$IndEvo_longevitySyringesPlaced` and adds one syringe as extra salvage (`BaseSalvageSpecial.addExtraSalvage`, `$extraSpecialSalvage`) to 3 random pet centers still in the sector; fewer than 3 are filled up with IE orbital laboratories. New games run it on the first `onGameLoad`, after `DerelictStationPlacer`. The log line "Longevity syringes placed" gives the count.
 
 ### Battles
 
@@ -339,6 +352,7 @@ Run from the repository root after the compile gate. Use `;` in place of `:` on 
 
 | Item | State |
 |---|---|
+| Longevity | The syringe has no right-click yet and Nomios no treatment: both wait for the treatment picker |
 | Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
 | `YourMod_PetName_PetHullmod` | Checks `isModEnabled("indEvo")` (`:31`, `:48`); the mod id is `IndEvo` and `ModManager.isModEnabled` compares exactly (`obf/launcher/ModManager.java:196`), so a copy of the template never applies effects or tooltip |
 | `PetStatusManager.dev()` | Runcode helper |

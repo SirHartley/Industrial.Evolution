@@ -29,6 +29,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
+import indevo.industries.petshop.PetLongevity;
 import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
@@ -609,14 +610,18 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 break;
             case NATURAL:
                 String message = "";
-                if (pet.typeID.equals("hampter")) {
+                if (pet.treatments > 0) message = "died when its treatments ran out.";
+                else if (pet.typeID.equals("hampter")) {
                     picker = new WeightedRandomPicker<>();
                     picker.addAll(MiscIE.getCSVSetFromMemory(HAMSTER_DEATH_CAUSES));
                     message = picker.pick();
                 } else message = pet.getData().naturalDeath;
 
-                if (pet.isAssigned()) message("%s the " + pet.getData().species + ", formerly living on the " + petLocation + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
-                else if (pet.storage != null)  message("%s the " + pet.getData().species + ", formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                String home;
+                if (pet.isAssigned()) home = "formerly living on the " + petLocation;
+                else if (pet.storage != null) home = "formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase();
+                else home = "formerly of the menagerie";
+                message("%s the " + pet.getData().species + ", " + home + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
 
                 break;
             case STARVED:
@@ -652,6 +657,23 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     private void message(String format, Color color, String hl1, String hl2, Color hlColor1, Color hlColor2) {
         Runnable post = () -> Global.getSector().getCampaignUI().addMessage(format, color, hl1, hl2, hlColor1, hlColor2);
+        if (held != null) held.add(post);
+        else post.run();
+    }
+
+    public void reportLifeEnding(Pet pet, float daysLeft) {
+        String where = pet.assignedFleetMember != null ? "on the " + pet.assignedFleetMember.getShipName() : "in the menagerie";
+        String left = Misc.getStringForDays(Math.max(1, (int) Math.ceil(daysLeft)));
+        Color hl = Misc.getHighlightColor();
+
+        MessageIntel intel = new MessageIntel("%s the " + pet.getData().species + " " + where + " has %s left to live.", Misc.getTextColor(), new String[]{pet.name, left}, hl, Misc.getNegativeHighlightColor());
+        if (PetLongevity.hasSyringe()) intel.addLine("A %s in your cargo gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName()}, hl);
+        else if (PetLongevity.getNomios() != null) intel.addLine("A %s or a treatment at %s gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName(), PetLongevity.getNomios().getName()}, hl, hl);
+        else intel.addLine("A %s gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName()}, hl);
+
+        intel.setIcon(pet.getIcon());
+        intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
+        Runnable post = () -> Global.getSector().getCampaignUI().addMessage(intel);
         if (held != null) held.add(post);
         else post.run();
     }

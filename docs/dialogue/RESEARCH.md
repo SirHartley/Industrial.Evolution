@@ -42,13 +42,13 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge` | `indevo/ids/Ids.java:167` to `:180` |
+| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge`, `_longevity` (Methuselah) | `indevo/ids/Ids.java:169` to `:183` |
 | Hullmods | `IndEvo_augfield`, `IndEvo_CamouflageFieldEmitter` | `data/hullmods/hull_mods.csv:16`, `:17` |
 | Tag | `IndEvo_ship_unique_signature` (parked vanilla tag) | `CamouflageFieldEmitter.TAG_UNIQUE` |
 | Memory, sector | `$IndEvo_ResearchProgress_<id>` (`Progress`), `$IndEvo_ProjRand_<id>` (5 `Random`s) | `ResearchProject.java:39`, `ResearchProjectTemplateRepo.java:590` |
 | Memory, sector | `$IndEvo_HasFoundDoritoGun`, `$IndEvo_HasFoundAutopulse`, `$IndEvo_HasUniqueShipChecker`, `$IndEvo_SlowShipFleetCheckerDone`, `$IndEvo_HyperTopoCheckerDone`, `$IndEvo_HasHadCorruptedNanoforge` | unlock listeners |
 | Memory, combat engine custom data | `$IndEvo_GlitcherOverlayAttached_<shipId>` | `CamouflageFieldEmitter.java:14` |
-| Settings | `IndEvo_pets` (Navi), `IndEvo_consumables_researchProject` (Mjolnir) | `data/config/LunaSettings.csv:11`, `:35`; read through `Setting` (see [Settings](../core/SETTINGS.md)) |
+| Settings | `IndEvo_pets` (Navi, Methuselah), `IndEvo_consumables_researchProject` (Mjolnir) | `data/config/LunaSettings.csv:11`, `:35`; read through `Setting` (see [Settings](../core/SETTINGS.md)) |
 | Sprite | `IndEvo` / `galatia_proj` | `data/config/settings.json:162` |
 | Rules | `IndEvo_JobMenuPoint`, `IndEvo_JobMenuInit` | `data/campaign/rules.csv:418`, `:419` |
 | Entity | `station_galatia_academy` (vanilla) | intel map location, rules condition |
@@ -62,6 +62,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | Sonic | 5000 | no | slow ship found | fuel 1 | `IndEvo_augfield` |
 | Prospector | 100 | yes | topography progress 101 to 999 | survey data 1/3/5/10/30 (+ `sun_data` 1 with `sun_perilous_expanse`) | topographic data item + 75 topography points |
 | Navi | 200 | no | `IndEvo_pets` on | rare parts 1, `IndEvo_parts` 0.1, drone replicator 200 | `IndEvo_PetBox` fairy |
+| Methuselah (`indevo_proj_longevity`) | 50 | yes | `IndEvo_pets` on | rare parts 1 | 1 `IndEvo_LongevitySyringe` ([Pets](../industries/PETS.md#longevity)) |
 | Snowblind | 4 | no | omega gun found | `cryoflux` 2, `cryoblaster` 2 | 2x `IndEvo_cryoartillery` + BP |
 | Spitfire | 4 | no | omega gun found | `amsrm` 1.5, `resonatormrm` 2, `disintegrator` 2 | 3x `IndEvo_degrader` + BP |
 | Eureka | 4 | no | omega gun found | `disintegrator` 2, `rifttorpedo` 4, `realitydisruptor` 4 | 1x `IndEvo_causalitygun` + BP |

@@ -257,6 +257,40 @@ public class ResearchProjectTemplateRepo {
             }
         });
 
+        put(Ids.PROJ_LONGEVITY, new ResearchProject(Ids.PROJ_LONGEVITY, "Project Methuselah", 50, true) {
+
+            @Override
+            public boolean display() {
+                return Setting.PETS.enabled();
+            }
+
+            @Override
+            public CargoAPI getRewards() {
+                CargoAPI c = Global.getFactory().createCargo(true);
+                c.addSpecial(new SpecialItemData(ItemIds.LONGEVITY_SYRINGE, null), 1);
+
+                return c;
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem(ItemIds.RARE_PARTS, CargoAPI.CargoItemType.RESOURCES, 1f));
+
+                return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "An ongoing project of the biology department, rebuilding a pre-Collapse cell repair formula for animals. Each round of relic components pays for the equipment that makes one more Longevity Syringe.";
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "The department cat has outlived four professors. We would like to know why.";
+            }
+        });
+
         put(Ids.PROJ_SNOWBLIND, new ResearchProject(Ids.PROJ_SNOWBLIND,
                 "Project Snowblind", 4, false) {
 

@@ -95,6 +95,9 @@ Added - Sale value for young: read talents, mutations, a look and a titled ances
 Added - Animal Centers you do not own offer named pets for adoption, new ones each month
 Added - Bestiary in the Pets panel: every species you owned or saw on offer, with its looks and the mutations found. It carries over between games.
 Added - Memorial: a Remembered section lists the pets that died, with their species, age and cause. F1 shows more, with their titles and last ship.
+Added - Longevity Syringe: gives a pet 2 more years, again and again. From Project Methuselah at the Galatia Academy (50 relic components, repeatable) and from derelict pet centers.
+Added - Warnings 60 days, 14 days and one day before a pet in your fleet dies of old age
+Added - Setting for the years one Longevity Syringe gives (default 2)
 Adjusted - Opening a Cryochamber asks for a name and a home in one popup, with a name filled in
 Adjusted - Pet hullmod tooltip shows the pet's mood, next meal and mascot effect
 Adjusted - Pets eat Supplies only when none of their other food is in the cargo
