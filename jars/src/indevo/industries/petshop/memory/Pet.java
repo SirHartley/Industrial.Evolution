@@ -24,7 +24,6 @@ import java.util.ArrayList;
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
     public static final String HULLMOD_DATA_PREFIX = "PET_DATA_ID_";
-    public static final float MAX_EFFECT_AFTER_DAYS = 365f;
 
     public String typeID;
     public String id;
@@ -34,8 +33,6 @@ public class Pet {
     public FleetMemberAPI assignedFleetMember = null;
     public IntervalUtil feedInterval = new IntervalUtil(Global.getSector().getClock().getSecondsPerDay() * DEFAULT_FEED_INTERVAL, Global.getSector().getClock().getSecondsPerDay() * DEFAULT_FEED_INTERVAL);
     public String personality;
-
-    private float serveDuration = 0f;
 
     private boolean isAssigned = false;
     private boolean isStarving = false;
@@ -49,6 +46,10 @@ public class Pet {
     public float happyDays = 0f;
     public boolean lastMealSupplies = false;
     public String homeShipId = null;
+    // hearts are read from it, never stored
+    public float bondDays = 0f;
+    // 0: the nest stands once it has NEST_HEARTS
+    public float nestRebuildDays = 0f;
 
     public Pet(String typeID, String name) {
         this.id = Misc.genUID();
@@ -68,9 +69,10 @@ public class Pet {
         leave();
 
         if (toMember != null) {
-            if (!toMember.getId().equals(homeShipId)) {
-                if (homeShipId != null) unsettledDays = PetConstants.UNSETTLED_DAYS;
-                serveDuration = 0f;
+            if (homeShipId != null && !toMember.getId().equals(homeShipId)) {
+                boolean nest = getHearts() >= PetConstants.NEST_HEARTS && nestRebuildDays <= 0f;
+                unsettledDays = nest ? PetConstants.NEST_UNSETTLED_DAYS : PetConstants.UNSETTLED_DAYS;
+                if (nest) nestRebuildDays = PetConstants.NEST_REBUILD_DAYS;
             }
 
             homeShipId = toMember.getId();
@@ -157,7 +159,11 @@ public class Pet {
         if (storage != null) return;
 
         feedInterval.advance(amt);
-        if (isAssigned) serveDuration += dayAmt;
+        if (isAboard()) {
+            nestRebuildDays = Math.max(0f, nestRebuildDays - dayAmt);
+            float cap = PetConstants.HEART_DAYS[PetConstants.TIME_HEARTS - 1];
+            if (!isStarving && !isUnsettled() && bondDays < cap) bondDays = Math.min(cap, bondDays + dayAmt * getHeartRate());
+        }
 
         if (feedInterval.intervalElapsed()) {
             PetStatusManager manager = PetStatusManager.getInstance();
@@ -215,8 +221,54 @@ public class Pet {
         leave();
     }
 
+    // on a ship of a live fleet, the player's or a detachment; a ship in storage is not aboard
+    public boolean isAboard() {
+        if (assignedFleetMember == null || assignedFleetMember.getFleetData() == null) return false;
+        return assignedFleetMember.getFleetData().getFleet() != null;
+    }
+
+    public float getHeartRate() {
+        return lastMealSupplies ? PetConstants.SUPPLIES_HEART_RATE : 1f;
+    }
+
+    public int getHearts() {
+        int hearts = 0;
+        while (hearts < PetConstants.MAX_HEARTS && bondDays >= PetConstants.HEART_DAYS[hearts]) hearts++;
+        return hearts;
+    }
+
+    // share of the way to the next heart, 1 at the last
+    public float getHeartProgress() {
+        int hearts = getHearts();
+        if (hearts >= PetConstants.MAX_HEARTS) return 1f;
+
+        float from = hearts == 0 ? 0f : PetConstants.HEART_DAYS[hearts - 1];
+        return Math.max(0f, Math.min(1f, (bondDays - from) / (PetConstants.HEART_DAYS[hearts] - from)));
+    }
+
+    // days aboard to the next heart at today's rate, -1 when time alone does not reach it
+    public float getDaysToHeart() {
+        int hearts = getHearts();
+        if (hearts >= PetConstants.TIME_HEARTS) return -1f;
+        return (PetConstants.HEART_DAYS[hearts] - bondDays) / getHeartRate();
+    }
+
+    public boolean hasNest() {
+        return isAboard() && getHearts() >= PetConstants.NEST_HEARTS && nestRebuildDays <= 0f;
+    }
+
+    public float getMascotMult() {
+        if (isUnsettled() || getHearts() < PetConstants.MASCOT_HEARTS) return 0f;
+
+        float mult = 1f;
+        if (getData().isHamster()) mult *= PetConstants.HAMSTER_MASCOT_MULT;
+        if (hasNest()) mult *= PetConstants.NEST_MULT;
+        return mult;
+    }
+
+    // kept for copies of indevo.other.YourMod_PetName_PetHullmod
     public float getEffectFract() {
-        return Math.min(1f, serveDuration / MAX_EFFECT_AFTER_DAYS);
+        return getMascotMult();
     }
 
     public String getAgeString(){
@@ -233,7 +285,7 @@ public class Pet {
         deathData = new DeathData(name,
                 Global.getSector().getClock().getDateString(),
                 age,
-                serveDuration,
+                bondDays,
                 cause,
                 storage != null,
                 (storage != null ? storage.getMarket().getName() : null),

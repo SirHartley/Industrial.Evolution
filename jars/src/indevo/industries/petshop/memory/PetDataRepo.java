@@ -120,8 +120,9 @@ public class PetDataRepo {
             float foodPerMonth = row.getInt("foodPerMonth");
             float rarity = (float) row.getDouble("rarity");
             String body = row.optString("body", "").trim();
+            String pace = row.optString("pace", "").trim();
 
-            dataMap.put(id, new PetData(id, name, value, maxLife, tags, desc, natDeath, icon, hullmod, foodCommodityIDs, foodPerMonth, rarity, body));
+            dataMap.put(id, new PetData(id, name, value, maxLife, tags, desc, natDeath, icon, hullmod, foodCommodityIDs, foodPerMonth, rarity, body, pace));
         }
 
         return dataMap;

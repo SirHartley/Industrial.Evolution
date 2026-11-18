@@ -11,6 +11,12 @@ public class PetData {
     public static final String TAG_NO_DROP = "no_drop";
     public static final String TAG_SPECIES_PREFIX = "c_";
     public static final String BODY_PREFIX = "b_";
+    public static final String PACE_FAST = "fast";
+    public static final String PACE_MEDIUM = "medium";
+    public static final String PACE_SLOW = "slow";
+    public static final String PACE_HAMSTER = "hamster";
+    public static final float FAST_UNDER_DAYS = 1800f;
+    public static final float MEDIUM_UNDER_DAYS = 3000f;
 
     public String id;
     public String species;
@@ -25,8 +31,9 @@ public class PetData {
     public float foodPerMonth;
     public float rarity;
     public String body;
+    public String pace;
 
-    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity, String body) {
+    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity, String body, String pace) {
         this.id = id;
         this.species = species;
         this.value = value;
@@ -40,6 +47,18 @@ public class PetData {
         this.foodPerMonth = foodPerMonth;
         this.rarity = rarity;
         this.body = body;
+        this.pace = pace == null || pace.isEmpty() ? paceFor(maxLife) : pace;
+    }
+
+    // a blank pace column follows the life span
+    public static String paceFor(float maxLife) {
+        if (maxLife < FAST_UNDER_DAYS) return PACE_FAST;
+        if (maxLife < MEDIUM_UNDER_DAYS) return PACE_MEDIUM;
+        return PACE_SLOW;
+    }
+
+    public boolean isHamster() {
+        return PACE_HAMSTER.equals(pace);
     }
 
     public boolean isNoSell() {

@@ -108,14 +108,14 @@ public final class PetsChecks {
             c.put("mover", pet.id);
             c.put("moverFirst", first);
             c.put("moverShip", second);
-            // the 365 day ramp starts at 0, a zero modifier is never stored
-            c.days(5f);
+            // the effect starts at the first heart, 14 days aboard, a zero modifier is never stored
+            c.days(15f);
         });
         steps.add(c -> {
             Pet pet = PetStatusManager.getInstance().get((String) c.get("mover"));
             FleetMemberAPI first = (FleetMemberAPI) c.get("moverFirst");
             FleetMemberAPI second = (FleetMemberAPI) c.get("moverShip");
-            c.expect(pet.getEffectFract() > 0f && hasEffect(pet, first), "settled pet applies its hullmod effect after 5 days (fract " + pet.getEffectFract() + ")");
+            c.expect(pet.getHearts() == 1 && hasEffect(pet, first), "settled pet applies its hullmod effect at 1 heart after 15 days (" + pet.getHearts() + " hearts)");
 
             pet.place(second, null);
             c.expect(pet.assignedFleetMember == second && PetStatusManager.getInstance().getPet(first.getVariant()) == null, "moved pet sits on the new ship only");
@@ -128,7 +128,7 @@ public final class PetsChecks {
             Pet pet = PetStatusManager.getInstance().get((String) c.get("mover"));
             c.expect(!pet.isDead() && !pet.isUnsettled(), "pet settles after 30 days");
             c.expect(pet.getMood() == PetMood.CONTENT, "settled fed pet is Content (" + pet.getMood() + ")");
-            c.expect(pet.getEffectFract() > 0f && hasEffect(pet, (FleetMemberAPI) c.get("moverShip")), "settled pet applies its effect again (fract " + pet.getEffectFract() + ")");
+            c.expect(pet.getHearts() >= 1 && hasEffect(pet, (FleetMemberAPI) c.get("moverShip")), "settled pet keeps its hearts and applies its effect again (" + pet.getHearts() + " hearts)");
 
             pet.shellShock();
             c.expect(pet.getMood() == PetMood.SHELL_SHOCKED, "shell shocked pet shows the mood (" + pet.getMood() + ")");

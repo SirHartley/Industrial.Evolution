@@ -16,6 +16,7 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.abilities.splitfleet.FleetUtils;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.petshop.PetConstants;
@@ -458,15 +459,38 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
-        if (fleet == null || !fleet.isPlayerFleet()) return;
+    }
 
-        List<FleetMemberAPI> membersLost = Misc.getSnapshotMembersLost(fleet);
+    // the global report also comes for battles of detachments, the fleet report only for fleets that carry this listener
+    @Override
+    public void reportBattleOccurred(CampaignFleetAPI primaryWinner, BattleAPI battle) {
+        if (!Setting.PETS.enabled()) return;
 
-        for (Pet pet : new ArrayList<>(pets)) {
-            if (membersLost.contains(pet.assignedFleetMember)) {
-                reportPetDied(pet, PetDeathCause.COMBAT);
+        for (CampaignFleetAPI fleet : battle.getSnapshotBothSides()) {
+            if (!fleet.isPlayerFleet() && !FleetUtils.isDetachmentFleet(fleet)) continue;
+
+            List<FleetMemberAPI> lost = Misc.getSnapshotMembersLost(fleet);
+            for (Pet pet : new ArrayList<>(pets)) {
+                if (!pet.isDead() && lost.contains(pet.assignedFleetMember)) escapeOrDie(pet, fleet, lost);
             }
         }
+    }
+
+    // autoresolve reports every round with the same snapshot, a survivor has left the lost ship by then
+    private void escapeOrDie(Pet pet, CampaignFleetAPI fleet, List<FleetMemberAPI> lost) {
+        if (Misc.random.nextFloat() >= pet.getHearts() * PetConstants.POD_CHANCE_PER_HEART) {
+            reportPetDied(pet, PetDeathCause.COMBAT);
+            return;
+        }
+
+        String ship = pet.assignedFleetMember.getShipName();
+        FleetMemberAPI to = fleet.isPlayerFleet() ? null : getFreeShip(fleet, lost);
+        pet.place(to, null);
+        pet.shellShock();
+
+        String start = "%s the " + pet.getData().species + " escaped the destroyed " + ship + " in an escape pod";
+        if (to == null) message(start + " and waits in the %s.", Misc.getTextColor(), pet.name, "menagerie", Misc.getHighlightColor(), Misc.getHighlightColor());
+        else message(start + " and moved to the %s.", Misc.getTextColor(), pet.name, to.getShipName(), Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     @Override

@@ -247,7 +247,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Privateer | Current changeling government; `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | Split fleet | Courier `ShippingTargetHelper` for targets | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
-| Pets | `Academy.COLOURS_BY_PERSONALITY` | `Pet.java:63` |
+| Pets | `Academy.COLOURS_BY_PERSONALITY` | `Pet.java:61` |
 | Changeling, distress | `SelfRepairingBuiltInHullmod`, `PetHullmod` from the pet shop | [PETS](industries/PETS.md) |
 | Museum | Pet shop escape interceptor | [MUSEUM](industries/MUSEUM.md) |
 | Requisitions center, salvage specials, `IndEvo_notAtWar` | Embassy ambassador | [EMBASSY](industries/EMBASSY.md) |
