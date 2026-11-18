@@ -681,6 +681,9 @@ public class PetCard {
     private static String offReason(Pet pet, PetDataRepo.Trait trait) {
         if (pet.isUnsettled()) return "Effects are off while it is Unsettled.";
         if (!pet.isAboard()) return NO_SHIP;
+        if (trait.id().equals(PetHullmod.CAPTAIN) && pet.captain != null && pet.assignedFleetMember.getCaptain() != pet.captain) {
+            return "Another captain commands the " + pet.assignedFleetMember.getShipName() + ".";
+        }
         if (!trait.isFleet()) return null;
 
         Pet lead = PetStatusManager.getInstance().getLead(pet.assignedFleetMember.getFleetData().getFleet(), trait.id());

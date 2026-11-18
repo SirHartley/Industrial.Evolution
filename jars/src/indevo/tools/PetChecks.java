@@ -46,7 +46,7 @@ public final class PetChecks {
     private static final float PLAY_MINUTES_PER_DAY = 1.5f / 7f;
     private static final Set<String> PACES = Set.of(PetData.PACE_FAST, PetData.PACE_MEDIUM, PetData.PACE_SLOW, PetData.PACE_HAMSTER);
     private static final Set<String> KINDS = Set.of(KIND_STAT, KIND_FLEET, KIND_SIGNATURE);
-    private static final Set<String> MODES = Set.of(MODE_PERCENT, MODE_REDUCE, MODE_FLAT);
+    private static final Set<String> MODES = Set.of(MODE_PERCENT, MODE_REDUCE, MODE_FLAT, MODE_COUNT);
     private static final float REDUCE_CAP = 90f;
     // Skeleton crew needs no crew at all from grade 10
     private static final Set<String> FULL_REDUCE = Set.of("min_crew");

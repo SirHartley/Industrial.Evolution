@@ -24,6 +24,7 @@ public class PetDataRepo {
     public static final String MODE_PERCENT = "percent";
     public static final String MODE_REDUCE = "reduce";
     public static final String MODE_FLAT = "flat";
+    public static final String MODE_COUNT = "count";
     public static final String ANY = "any";
     public static final String EVENT_AMBIENT = "ambient";
     public static final String EVENT_DOCKING = "docking";
@@ -87,8 +88,9 @@ public class PetDataRepo {
             return kind.equals(KIND_FLEET);
         }
 
-        // +10%, -10% for a reduction, +1 for a flat value
+        // +10%, -10% for a reduction, +1 for a flat value, a count in whole steps
         public String format(float v) {
+            if (mode.equals(MODE_COUNT)) return "+" + Math.round(v);
             String n = Math.abs(v - Math.round(v)) < 0.005f ? String.valueOf(Math.round(v)) : new BigDecimal(String.format(Locale.ROOT, "%.2f", v)).stripTrailingZeros().toPlainString();
             return (mode.equals(MODE_REDUCE) ? "-" : "+") + n + (mode.equals(MODE_FLAT) ? "" : "%");
         }

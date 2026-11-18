@@ -36,6 +36,8 @@ public class Ids {
     public static final String MEM_SYSTEM_DISABLE_WATCHTOWERS = "$IndEvo_SystemDisableWatchtowers";
     public static final String MEM_SYSTEM_ARTILLERY_VISION = "$IndEvo_artilleryVision";
     public static final String TAG_YEETOPULT = "IndEvo_yeetopult";
+    // a pet commands the ship, never an officer of the fleet
+    public static final String TAG_PET_CAPTAIN = "IndEvo_pet_captain";
 
     //Submarkets
     public static final String REPSTORAGE = "IndEvo_RepairStorage";

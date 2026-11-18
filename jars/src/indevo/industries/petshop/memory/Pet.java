@@ -2,6 +2,7 @@ package indevo.industries.petshop.memory;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
@@ -49,6 +50,8 @@ public class Pet {
     public float happyDays = 0f;
     public boolean lastMealSupplies = false;
     public String homeShipId = null;
+    // the Captain talent's person while the talent is on, in the seat whenever no one else is
+    public PersonAPI captain = null;
     // hearts are read from it, never stored
     public float bondDays = 0f;
     // 0: the nest stands once it has NEST_HEARTS
@@ -102,6 +105,11 @@ public class Pet {
         if (bondDays < cap) setBondDays(Math.min(cap, bondDays + days));
     }
 
+    public void rename(String newName) {
+        name = newName;
+        if (captain != null) captain.getName().setFirst(newName);
+    }
+
     public void setBondDays(float days) {
         int hearts = getHearts();
         bondDays = days;
@@ -127,7 +135,10 @@ public class Pet {
     // ship stats are only rebuilt on a fleet sync, the next fleet advance runs it
     private void syncShip() {
         FleetMemberAPI member = assignedFleetMember;
-        if (member == null || member.getFleetData() == null) return;
+        if (member == null) return;
+
+        updateCaptain();
+        if (member.getFleetData() == null) return;
 
         member.getFleetData().setSyncNeeded();
         // a ship in market storage has no fleet, a lost ship's wings are gone with it
@@ -135,6 +146,27 @@ public class Pet {
 
         List<String> lost = PetHullmod.updateShip(member);
         if (!lost.isEmpty()) PetStatusManager.getInstance().reportRoomLost(this, member, lost);
+    }
+
+    // an officer, an ai core or the player keeps the seat; a lost ship gives its captain back too
+    private void updateCaptain() {
+        FleetMemberAPI member = assignedFleetMember;
+        int skills = isAssigned && isAboard() ? Math.round(getTalentValue(PetHullmod.CAPTAIN)) : 0;
+
+        if (skills <= 0) {
+            if (captain != null && member.getCaptain() == captain) member.setCaptain(null);
+            captain = null;
+            return;
+        }
+
+        if (captain == null) captain = PetHullmod.createCaptain(this);
+        PetHullmod.fitCaptain(captain, this, skills);
+        if (isSeatFree(member)) member.setCaptain(captain);
+    }
+
+    private static boolean isSeatFree(FleetMemberAPI member) {
+        PersonAPI seat = member.getCaptain();
+        return seat == null || seat.isDefault();
     }
 
     // console: sets a grade and reads it, 0 removes the trait
@@ -233,9 +265,9 @@ public class Pet {
             if (s.startsWith(HULLMOD_DATA_PREFIX)) variant.getTags().remove(s);
         }
 
+        isAssigned = false;
         syncShip();
         assignedFleetMember = null;
-        isAssigned = false;
     }
 
     public PetData getData() {
@@ -276,6 +308,11 @@ public class Pet {
         }
 
         if (storage != null) return;
+
+        // no callback tells of an officer put on or taken off a ship
+        if (captain != null && isAboard() && assignedFleetMember.getCaptain() != captain && isSeatFree(assignedFleetMember)) {
+            assignedFleetMember.setCaptain(captain);
+        }
 
         feedInterval.advance(amt);
         if (isAboard()) {
