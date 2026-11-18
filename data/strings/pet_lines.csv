@@ -163,3 +163,25 @@ IndEvo_pl_name_legs_2,name,b_legs,,,,Tick
 IndEvo_pl_name_human_1,name,b_human,,,,Doris
 IndEvo_pl_name_human_2,name,b_human,,,,Hank
 IndEvo_pl_name_hampter,name,hampter,,,,Hampter
+IndEvo_pl_want_attention_1,want_attention,any,,,,The crew says %s has been restless all shift. It wants some attention.
+IndEvo_pl_want_attention_2,want_attention,any,,,,%s will not settle until someone comes by. It wants some attention.
+IndEvo_pl_want_play_1,want_play,any,,,,%s is wide awake and bored. It wants to play.
+IndEvo_pl_want_play_2,want_play,any,,,,The night shift reports %s up and looking for trouble. It wants to play.
+IndEvo_pl_want_treat_1,want_treat,any,,,,%s ignores its usual food today. It wants a treat.
+IndEvo_pl_want_treat_2,want_treat,any,,,,The quartermaster caught %s watching the galley stores again. It wants a treat.
+IndEvo_pl_want_comfort_1,want_comfort,any,,,,%s has gone quiet since the fight. It wants comfort.
+IndEvo_pl_want_comfort_2,want_comfort,any,,,,The crew found %s hiding after the battle. It wants comfort.
+IndEvo_pl_want_shore_1,want_shore_leave,any,,,,%s has been restless since the last port. It wants shore leave.
+IndEvo_pl_want_shore_2,want_shore_leave,any,,,,The crew says %s needs to get off the ship for a while. It wants shore leave.
+IndEvo_pl_want_along_1,want_come_along,any,,,,%s watches every survey team leave. It wants to come along.
+IndEvo_pl_want_along_2,want_come_along,any,,,,%s got into the salvage crew's gear again. It wants to come along.
+IndEvo_pl_play_1,play,any,,,,%s plays until the whole shift has joined in.
+IndEvo_pl_play_2,play,any,,,,%s wins the game by its own rules.
+IndEvo_pl_play_3,play,any,,,,"You play with %s until it loses interest, which takes a while."
+IndEvo_pl_treat_1,treat,any,,,,%s takes the treat and disappears with it.
+IndEvo_pl_treat_2,treat,any,,,,%s finishes the treat and checks your pockets for a second one.
+IndEvo_pl_treat_3,treat,any,,,,"%s eats the treat slowly, to make it last."
+IndEvo_pl_st_sulking_1,status,any,sulking,,,%s ignores everyone who walks past
+IndEvo_pl_st_sulking_2,status,any,sulking,,,%s turns away when the crew calls it
+IndEvo_pl_amb_sulking_1,ambient,any,sulking,,,%s has stopped coming when called. The crew says it is sulking.
+IndEvo_pl_amb_sulking_2,ambient,any,sulking,,,%s ignores the crew all shift. It still remembers being left waiting.

@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetMood;
+import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import org.json.JSONArray;
@@ -28,7 +29,7 @@ import static indevo.industries.petshop.memory.PetDataRepo.*;
 public final class PetChecks {
 
     private static final Set<String> BODIES = Set.of("b_fourleg", "b_legs", "b_wings", "b_water", "b_float", "b_blob", "b_machine", "b_jar", "b_coil", "b_human");
-    private static final Set<String> EVENTS = Set.of(EVENT_AMBIENT, EVENT_DOCKING, EVENT_STATUS, EVENT_PETTING, EVENT_PETTING_STARVING, EVENT_NAME);
+    private static final Set<String> EVENTS = events();
     private static final Set<String> CONTEXTS = Set.of(CONTEXT_DOCKED, CONTEXT_STORAGE, CONTEXT_OLD, CONTEXT_HYPERSPACE);
     private static final Set<String> DISPOSITIONS = Set.of(Personalities.TIMID, Personalities.CAUTIOUS, Personalities.STEADY, Personalities.AGGRESSIVE, Personalities.RECKLESS);
     private static final Pattern BODY_WORDS = Pattern.compile("\\b(legs?|paws?|hands?|fur|wings?|feathers?|beak|claws?|tails?|fins?|glass|tank|swims?|fl(y|ies|ew|ying)|sniff\\w*)\\b", Pattern.CASE_INSENSITIVE);
@@ -54,6 +55,7 @@ public final class PetChecks {
         run.checkCoverage(lines, pets);
         run.checkWeights(pets);
         run.checkHearts();
+        run.checkWants();
 
         if (!run.problems.isEmpty()) {
             for (String problem : run.problems) System.out.println("FAIL " + problem);
@@ -208,6 +210,38 @@ public final class PetChecks {
         check(PetData.paceFor(PetData.FAST_UNDER_DAYS - 1f).equals(PetData.PACE_FAST), "a short life span is fast");
         check(PetData.paceFor(PetData.FAST_UNDER_DAYS).equals(PetData.PACE_MEDIUM), "the fast limit is medium");
         check(PetData.paceFor(PetData.MEDIUM_UNDER_DAYS).equals(PetData.PACE_SLOW), "the medium limit is slow");
+    }
+
+    // one favourite, every want answered the day it opens, no shared events: the slowest way to hearts 4 and 5
+    private void checkWants() {
+        float[] days = PetConstants.HEART_DAYS;
+        float timeCap = days[PetConstants.TIME_HEARTS - 1];
+        float bond = 0f;
+        float cooldown = 0f;
+        float[] reached = new float[days.length];
+        for (int day = 0; day < 5000 && bond < days[days.length - 1]; day++) {
+            if (bond < timeCap) bond = Math.min(timeCap, bond + 1f);
+            cooldown = Math.max(0f, cooldown - 1f);
+            if (cooldown <= 0f) {
+                bond = Math.min(days[days.length - 1], bond + PetConstants.WANT_BOND_DAYS);
+                cooldown = PetConstants.WANT_COOLDOWN_DAYS;
+            }
+            for (int h = 0; h < days.length; h++) if (reached[h] == 0f && bond >= days[h]) reached[h] = day + 1f;
+        }
+
+        float fourth = reached[PetConstants.NEST_HEARTS - 1] * PLAY_MINUTES_PER_DAY;
+        float fifth = reached[days.length - 1] * PLAY_MINUTES_PER_DAY;
+        check(fourth > 0f && fourth <= 90f, "fourth heart from wants in " + fourth + " minutes of play, at most 90");
+        check(fifth > 0f && fifth <= 180f, "fifth heart from wants in " + fifth + " minutes of play, at most 180");
+        check(PetConstants.WANT_DAYS * PLAY_MINUTES_PER_DAY >= 5f, "a want stays open " + PetConstants.WANT_DAYS * PLAY_MINUTES_PER_DAY + " minutes of play, at least 5");
+        check(PetConstants.WANT_GAP_DAYS * PLAY_MINUTES_PER_DAY >= 1f, "wants in the fleet at least " + PetConstants.WANT_GAP_DAYS * PLAY_MINUTES_PER_DAY + " minutes apart, at least 1");
+        check(PetConstants.WANT_COOLDOWN_DAYS > PetConstants.WANT_DAYS, "a favourite's cooldown is longer than a want stays open");
+    }
+
+    private static Set<String> events() {
+        Set<String> events = new HashSet<>(Set.of(EVENT_AMBIENT, EVENT_DOCKING, EVENT_STATUS, EVENT_PETTING, EVENT_PETTING_STARVING, EVENT_NAME, EVENT_PLAY, EVENT_TREAT));
+        for (PetWant want : PetWant.values()) events.add(want.event());
+        return events;
     }
 
     private void share(Map<String, Integer> counts, String id, float expected) {

@@ -3,6 +3,7 @@ package indevo.console;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -13,7 +14,7 @@ import org.lazywizard.console.Console;
 import java.util.Collections;
 
 public class PetCommand implements BaseCommand {
-    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days> or indevo_pet hearts <pet> <0-5>.";
+    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5> or indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>.";
 
     @Override
     public CommandResult runCommand(String args, CommandContext context) {
@@ -30,7 +31,8 @@ public class PetCommand implements BaseCommand {
             case "list" -> {
                 for (Pet pet : manager.getPets()) {
                     if (pet.isDead()) continue;
-                    Console.showMessage(pet.name + " (" + pet.id + "), " + pet.getData().species + ", " + place(pet) + ", " + pet.getMood().label + ", " + pet.getHearts() + " hearts");
+                    Console.showMessage(pet.name + " (" + pet.id + "), " + pet.getData().species + ", " + place(pet) + ", " + pet.getMood().label + ", " + pet.getHearts() + " hearts"
+                            + (pet.favourite ? ", favourite" : "") + (pet.want != null ? ", " + pet.want.label.toLowerCase() : ""));
                 }
                 return CommandResult.SUCCESS;
             }
@@ -92,6 +94,40 @@ public class PetCommand implements BaseCommand {
 
                 pet.bondDays = hearts == 0 ? 0f : PetConstants.HEART_DAYS[hearts - 1];
                 Console.showMessage(pet.name + " now has " + pet.getHearts() + " hearts.");
+                return CommandResult.SUCCESS;
+            }
+            case "want" -> {
+                int split = rest.lastIndexOf(' ');
+                Pet pet = split > 0 ? find(manager, rest.substring(0, split).trim()) : null;
+                PetWant want = null;
+                for (PetWant w : PetWant.values()) if (w.id().equals(rest.substring(split + 1).toLowerCase())) want = w;
+
+                if (want == null) {
+                    Console.showMessage(SYNTAX);
+                    return CommandResult.BAD_SYNTAX;
+                }
+
+                if (pet == null || !pet.isWithPlayer()) {
+                    Console.showMessage("No living pet with that name or id on a ship of your fleet or in the menagerie.");
+                    return CommandResult.ERROR;
+                }
+
+                if (want == PetWant.TREAT && pet.getData().getFavouriteFood() == null) {
+                    Console.showMessage(pet.name + " eats only Supplies and has no treat.");
+                    return CommandResult.ERROR;
+                }
+
+                if (!manager.canFavourite(pet)) {
+                    Console.showMessage("Already " + PetConstants.MAX_FAVOURITES + " favourites. Unstar one on the Pets panel first.");
+                    return CommandResult.ERROR;
+                }
+
+                // skips the fleet gap and the cooldown, an open want of another pet is dropped
+                Pet open = manager.getOpenWant();
+                if (open != null) open.want = null;
+                pet.setFavourite(true);
+                manager.openWant(pet, want);
+                Console.showMessage(pet.name + " " + want.label.toLowerCase() + ", " + Math.round(pet.wantDaysLeft) + " days.");
                 return CommandResult.SUCCESS;
             }
             default -> {

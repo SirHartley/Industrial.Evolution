@@ -5,9 +5,12 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
+import com.fs.starfarer.api.campaign.listeners.DiscoverEntityListener;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
+import com.fs.starfarer.api.campaign.listeners.SurveyPlanetListener;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -20,6 +23,7 @@ import indevo.abilities.splitfleet.FleetUtils;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -38,7 +42,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-public class PetStatusManager extends BaseCampaignEventListener implements EconomyTickListener, FleetEventListener, EveryFrameScript {
+public class PetStatusManager extends BaseCampaignEventListener implements EconomyTickListener, FleetEventListener, EveryFrameScript, ShowLootListener, SurveyPlanetListener, DiscoverEntityListener {
 
     public static void dev() {
         Pet pet = new Pet("slaghound", "Hartleys Pile o' Rocks");
@@ -87,11 +91,24 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private List<Pet> pets = new ArrayList<>();
     private float daysSinceLine = 0f;
     private float lineRoll = 0f;
+    private float wantGapDays = 0f;
     // the message list sits under the Pets panel, so its messages wait until it closes
     private transient List<Runnable> held = null;
 
+    // the first pet is starred for the player
     public void register(Pet pet) {
         pets.add(pet);
+        if (getFavourites().isEmpty()) pet.setFavourite(true);
+    }
+
+    public List<Pet> getFavourites() {
+        List<Pet> list = new ArrayList<>();
+        for (Pet pet : pets) if (!pet.isDead() && pet.favourite) list.add(pet);
+        return list;
+    }
+
+    public boolean canFavourite(Pet pet) {
+        return pet.favourite || getFavourites().size() < PetConstants.MAX_FAVOURITES;
     }
 
     @Override
@@ -111,8 +128,68 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         if (!fleet.getEventListeners().contains(this)) fleet.addEventListener(this);
 
-        for (Pet pet : pets) pet.advance(amount);
+        for (Pet pet : new ArrayList<>(pets)) pet.advance(amount);
         advanceLines(amount);
+        advanceWants(amount);
+    }
+
+    // one want open in the fleet at a time, from a favourite whose cooldown is over
+    private void advanceWants(float amount) {
+        wantGapDays = Math.max(0f, wantGapDays - Global.getSector().getClock().convertToDays(amount));
+        if (!canOpenWant()) return;
+
+        WeightedRandomPicker<Pet> ready = new WeightedRandomPicker<>(Misc.random);
+        for (Pet pet : getFavourites()) if (isReady(pet)) ready.add(pet);
+        Pet pet = ready.pick();
+        if (pet == null) return;
+
+        WeightedRandomPicker<PetWant> wants = new WeightedRandomPicker<>(Misc.random);
+        wants.add(PetWant.ATTENTION);
+        wants.add(PetWant.PLAY);
+        wants.add(PetWant.SHORE_LEAVE);
+        wants.add(PetWant.COME_ALONG);
+        if (pet.getData().getFavouriteFood() != null) wants.add(PetWant.TREAT);
+        openWant(pet, wants.pick());
+    }
+
+    private boolean canOpenWant() {
+        return wantGapDays <= 0f && getOpenWant() == null;
+    }
+
+    private static boolean isReady(Pet pet) {
+        return pet.favourite && pet.want == null && pet.wantCooldownDays <= 0f && pet.isWithPlayer();
+    }
+
+    public Pet getOpenWant() {
+        for (Pet pet : pets) if (!pet.isDead() && pet.want != null) return pet;
+        return null;
+    }
+
+    public void openWant(Pet pet, PetWant want) {
+        pet.openWant(want);
+        say(pet, want.event(), null);
+    }
+
+    public void wantEnded() {
+        wantGapDays = PetConstants.WANT_GAP_DAYS;
+    }
+
+    private void answer(PetWant want) {
+        for (Pet pet : new ArrayList<>(pets)) if (pet.want == want && pet.isWithPlayer()) pet.answerWant();
+    }
+
+    // one unit of its favourite food from the cargo it eats from
+    public boolean hasTreat(Pet pet) {
+        String food = pet.getData().getFavouriteFood();
+        CargoAPI cargo = getFoodCargo(pet);
+        return food != null && cargo != null && cargo.getCommodityQuantity(food) >= 1f;
+    }
+
+    public void treat(Pet pet) {
+        if (pet.want != PetWant.TREAT || !hasTreat(pet)) return;
+
+        getFoodCargo(pet).removeCommodity(pet.getData().getFavouriteFood(), 1f);
+        pet.answerWant();
     }
 
     private void advanceLines(float amount) {
@@ -181,7 +258,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             FleetMemberAPI member = pet.assignedFleetMember;
             if (member != null && (member.getFleetData() == null || member.getFleetData().getFleet() != fleet)) continue;
 
-            picker.add(pet, member != null && member.isFlagship() ? PetConstants.FLAGSHIP_LINE_WEIGHT : 1f);
+            float weight = member != null && member.isFlagship() ? PetConstants.FLAGSHIP_LINE_WEIGHT : 1f;
+            picker.add(pet, pet.favourite ? weight * PetConstants.FAVOURITE_LINE_WEIGHT : weight);
         }
 
         return picker.pick();
@@ -505,9 +583,40 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
             for (FleetMemberAPI member : fought) {
                 Pet pet = getPet(member.getVariant());
-                if (pet != null) pet.shellShock();
+                if (pet == null || pet.isDead()) continue;
+
+                pet.shellShock();
+                pet.addBond(PetConstants.EVENT_BOND_DAYS);
+                if (canOpenWant() && isReady(pet)) openWant(pet, PetWant.COMFORT);
             }
         }
+    }
+
+    @Override
+    public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
+        if (!fleet.isPlayerFleet() || !Setting.PETS.enabled()) return;
+
+        for (Pet pet : pets) if (pet.isAboard() && pet.isWithPlayer()) pet.addBond(PetConstants.EVENT_BOND_DAYS);
+    }
+
+    @Override
+    public void reportPlayerOpenedMarket(MarketAPI market) {
+        if (market != null && !market.isPlanetConditionMarketOnly()) answer(PetWant.SHORE_LEAVE);
+    }
+
+    @Override
+    public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
+        answer(PetWant.COME_ALONG);
+    }
+
+    @Override
+    public void reportPlayerSurveyedPlanet(PlanetAPI planet) {
+        answer(PetWant.COME_ALONG);
+    }
+
+    @Override
+    public void reportEntityDiscovered(SectorEntityToken entity) {
+        answer(PetWant.COME_ALONG);
     }
 
     private void showFoodMessage() {
