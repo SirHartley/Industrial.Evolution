@@ -84,6 +84,16 @@ public final class PetsCrossChecks {
         });
         steps.add(c -> {
             PetShop shop = (PetShop) c.market("a").getIndustry(Ids.PET_STORE);
+            String sw = System.getProperty("ie.switches", "");
+            // SWITCHES=one: the ready brood keeps a single young, for the narrow popup
+            PetBrood ready = shop.getBrood(0);
+            if (sw.contains("one") && ready != null && ready.isReady()) while (ready.young.size() > 1) ready.young.remove(ready.young.size() - 1);
+            // with a ready brood, a second one runs beside it for the running card
+            if (sw.contains("ready")) {
+                Pet mom = manager().get((String) c.get("Mom"));
+                Pet dad = manager().get((String) c.get("Dad"));
+                shop.startBrood(mom, dad, 3);
+            }
             c.keepDialog(true);
             c.expect(PetsDialogPlugin.show(shop, new PetsView()), "the Pets panel of the player center opens");
             c.frames(60);
