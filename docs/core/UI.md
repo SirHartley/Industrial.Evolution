@@ -42,6 +42,7 @@ Every IE panel follows these rules.
 | `UiRoot` | Rebuild host |
 | `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children; `shown` holds the fraction a kit progress bar shows, for checks |
 | `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code |
+| `UiConfirm` | The game's confirmation popup over a panel, in its own interaction dialog |
 | `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, dashed box, fades, mark, contain fit sprite) |
 
 Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordinates and the content, and returns the created element. Panels the kit creates use `UiCanvas`, so a button anywhere below them reports to the nearest kit panel and runs its `Runnable`. No helper keeps global state; view state lives in the panel's state object.
@@ -214,7 +215,7 @@ public class FooPanel extends BaseCustomDialogDelegate {
 One custom dialog can be open per interaction dialog. Two ways to confirm:
 
 - Inline: `UiButtons.confirm` turns the action button into Confirm and Cancel in place. Use it when the button area can hold two buttons.
-- Real dialog (Edict enact, Research redeem): `industries/senate/dialogue/EdictConfirmDialog.show(onClose)` opens a second interaction dialog with `CampaignUIAPI.showInteractionDialogFromCargo(plugin, null, onClose)`; its plugin's `init` calls `dialog.showCustomDialog(w, h, this)` and Confirm or Cancel call `dialog.dismiss()`; `onClose` rebuilds the panel below. `showCustomDialog` can not stack a second custom dialog in one dialog.
+- Real dialog (Edict enact, Remove and Bribe): `UiConfirm(confirmText[, height], body, onConfirm).show(onClose)`, 500 x 130 by default, the body in the large paragraph font. It opens a second interaction dialog with `CampaignUIAPI.showInteractionDialogFromCargo(plugin, null, onClose)`; its plugin's `init` calls `dialog.showCustomDialog(w, h, this)` and Confirm or Cancel call `dialog.dismiss()`; `onClose` rebuilds the panel below. `showCustomDialog` can not stack a second custom dialog in one dialog.
 
 ## Opening a panel
 

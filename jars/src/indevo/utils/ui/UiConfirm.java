@@ -1,17 +1,18 @@
-package indevo.industries.senate.dialogue;
+package indevo.utils.ui;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.ui.*;
-import indevo.dialogue.sidepanel.ButtonReportingDialogueDelegate;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
+// the game's confirmation popup over a panel: text in the large paragraph font, confirm and Cancel
+public class UiConfirm extends BaseCustomDialogDelegate {
 
     public static final float WIDTH = 500f;
     public static final float HEIGHT = 130f;
@@ -23,18 +24,18 @@ public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
 
     private InteractionDialogAPI dialog;
 
-    public EdictConfirmDialog(String confirmText, Consumer<TooltipMakerAPI> body, Runnable onConfirm) {
+    public UiConfirm(String confirmText, Consumer<TooltipMakerAPI> body, Runnable onConfirm) {
         this(confirmText, HEIGHT, body, onConfirm);
     }
 
-    public EdictConfirmDialog(String confirmText, float height, Consumer<TooltipMakerAPI> body, Runnable onConfirm) {
+    public UiConfirm(String confirmText, float height, Consumer<TooltipMakerAPI> body, Runnable onConfirm) {
         this.confirmText = confirmText;
         this.height = height;
         this.body = body;
         this.onConfirm = onConfirm;
     }
 
-    // opens over the edict panel, showCustomDialog can not stack a second custom dialog in one dialog
+    // opens its own interaction dialog, showCustomDialog can not stack a second custom dialog in one dialog
     public void show(Runnable onClose) {
         Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new Host(), null, onClose::run);
     }
@@ -77,11 +78,11 @@ public class EdictConfirmDialog extends ButtonReportingDialogueDelegate {
 
         @Override
         public void init(InteractionDialogAPI dialog) {
-            EdictConfirmDialog.this.dialog = dialog;
+            UiConfirm.this.dialog = dialog;
             dialog.setPromptText("");
             dialog.hideVisualPanel();
             dialog.hideTextPanel();
-            dialog.showCustomDialog(WIDTH, height, EdictConfirmDialog.this);
+            dialog.showCustomDialog(WIDTH, height, UiConfirm.this);
         }
 
         @Override
