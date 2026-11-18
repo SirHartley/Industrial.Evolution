@@ -29,13 +29,13 @@ Code paths relative to `jars/src/indevo/`.
 | `tools/PetChecks.java` | Headless checks, never shipped ([Checks](#checks)) |
 | `console/PetCommand.java` | `indevo_pet list`, `give <species> [name]`, `age <pet> <days>` ([Console](../core/CONSOLE.md)) |
 | `industries/petshop/item/PetItemPlugin.java` | `IndEvo_PetBox` special item. Item data = pet type id. Icon render, drop tiers, price; a right-click opens `PetPlaceDialog.chamber` |
-| `industries/petshop/plugins/PetsDialogPlugin.java` | Escape blocking host of the Pets panel. `show(shop, view)`; `shop` is the docked Animal Center, null in flight |
+| `industries/petshop/plugins/PetsDialogPlugin.java` | Escape blocking host of the Pets panel. `show(shop, view)`; `shop` is the docked Animal Center, null in flight. `over(pet, onClose)` from a vanilla screen ([Pet on its ship](#pet-on-its-ship)) |
 | `industries/petshop/plugins/PetsPanel.java` | Pets panel ([Pets panel](#pets-panel)): groups, tile list, header, name commit, popups |
-| `industries/petshop/plugins/PetCard.java` | Tile and card of one pet: markers, petting, ship strip, Rehome, Euthanize; name field helpers |
+| `industries/petshop/plugins/PetCard.java` | Tile and card of one pet: markers, petting, ship strip, Rehome, Euthanize; name field helpers; the hover block and ship icons ([Pet on its ship](#pet-on-its-ship)) |
 | `industries/petshop/plugins/PetPlaceDialog.java` | Where to popup of Move... and Assign..., and the Cryochamber popup (`chamber`) |
 | `industries/petshop/plugins/PetsView.java` | Panel state kept over rebuilds: selection, scroll, petting, name field |
 | `industries/petshop/submarket/PetSubMarket.java` | Pet shop submarket. Sells pet boxes, buys nothing |
-| `industries/petshop/hullmods/PetHullmod.java` | Base pet hullmod: CR loss -5% x effect fraction, tooltip from `Pet` |
+| `industries/petshop/hullmods/PetHullmod.java` | Base pet hullmod: CR loss -5% x effect fraction, tooltip `PetCard.hover` |
 | `industries/petshop/hullmods/SelfRepairingBuiltInHullmod.java` | Base class that re-adds itself as a perma mod. Also used outside pets (see Contracts) |
 | `industries/petshop/plugins/PetCenterOptionProvider.java` | Industry button "Manage Pets..." on a functional Animal Center at the current market |
 | `abilities/pets/PetManagementAbilityPlugin.java` | Ability `pet_management`; opens `PetsDialogPlugin.show(null, ...)`. `applySetting()` adds or removes the ability for `IndEvo_pets` |
@@ -128,6 +128,14 @@ Code paths relative to `jars/src/indevo/`.
 - Bottom row: Euthanize (grey with a tooltip while out with a detachment), and when docked Rehome (`REHOME_FEE`, 2,000 credits, grey with a tooltip when short or out with a detachment). Both ask through `UiConfirm`; Euthanize reports `EUTHANIZED`, Rehome takes the fee and reports `REHOMED` (`PetShop.rehome`).
 - Popups open as a second interaction dialog through `UiHost.over`; while one is open `PetsDialogPlugin.advance` stops setting `$IndEvo_BlockESC`, so Escape reaches the popup. The panel rebuilds when it closes.
 - The campaign message list sits under the panel, so `PetsDialogPlugin` calls `PetStatusManager.holdMessages` in `init` and `releaseMessages` after `leave` dismisses: death messages (Euthanize, Rehome) post when the panel closes.
+
+### Pet on its ship
+
+- `PetCard.hover(tooltip, pet, heading, click)` is the pet's hover block: name (a section heading when `heading`), species, a status line, Mood, Last meal (only when it was Supplies), Next meal (`Pet.getDaysToMeal`, "No food aboard" when `hasFood` is false), the Unsettled days left, and Mascot effect (Combat CR decay, "off" while Unsettled). `click` adds the "Click to open" line.
+- The status line is a `status` line picked with a `Random` seeded by pet id and game date (`PetCard.dailyLine`), so it holds for the day.
+- `PetHullmod.addPostDescriptionSection` shows the block for the ship's pet; `IndEvo_petHullmod` has an empty `desc`. `Pet.addHullmodDescriptionSection` is kept for copies of `YourMod_PetName_PetHullmod` and shows the same block.
+- Ship icons: `PetCard.shipIcon(pet, size)` is the picture alone; `shipButton(pet, size, onClose)` opens the Pets panel at the pet and shows the block on hover; `refitButton(pet, onClose)` is a cut button for a refit hullmod row. The picture is the portrait with the tile marker, at 40% alpha while Unsettled. `shipButton` consumes mouse moves over itself, so a vanilla tooltip under it does not show; `refitButton` does not, so the row keeps its hullmod tooltip.
+- `PetsDialogPlugin.over(pet, onClose)` opens the panel at the pet through `showInteractionDialogFromCargo`, with the docked functional Animal Center as `shop`; `onClose` refreshes the vanilla screen.
 
 ### Storage
 

@@ -1,25 +1,32 @@
 package indevo.industries.petshop.plugins;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
+import com.fs.starfarer.api.campaign.CampaignClockAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetMood;
+import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.utils.helper.MiscIE;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 // the tiles of the Pets list and the card of the selected pet, column coordinates
 public class PetCard {
@@ -42,6 +49,13 @@ public class PetCard {
     static final float BUTTON_W = 96f;
     static final float WIDE_W = 116f;
     static final float BUTTON_H = 24f;
+    static final float HOVER_W = 340f;
+    static final float DIM = 0.4f;
+    public static final float REFIT_ICON = 34f;
+    static final float REFIT_CUT = 12f;
+    static final float REFIT_GAP = 3f;
+    // the refit button: both left corners cut by 6, in a 34 box with y down
+    static final float[] CUT = {6, 0, 12, 0, 12, 34, 6, 34, 0, 28, 0, 6};
 
     private final PetsPanel panel;
     private final PetsView view;
@@ -82,6 +96,151 @@ public class PetCard {
 
     private static String sprite(String id) {
         return Global.getSettings().getSpriteName("IndEvo", id);
+    }
+
+    // the pet picture on a vanilla screen, the marker hangs over its top right corner as on the tiles
+    public static CustomPanelAPI shipIcon(Pet pet, float size) {
+        CustomPanelAPI icon = Global.getSettings().createCustom(size, size, new UiCanvas());
+        picture(icon, 0f, 0f, size, pet, true);
+        return icon;
+    }
+
+    // same with the hover block; a click opens the Pets panel on this pet and runs onClose after it
+    public static CustomPanelAPI shipButton(Pet pet, float size, Runnable onClose) {
+        CustomPanelAPI icon = Global.getSettings().createCustom(size, size, new Click(() -> PetsDialogPlugin.over(pet, onClose), true));
+        picture(icon, 0f, 0f, size, pet, true);
+        Ui.tooltip(icon, icon, HOVER_W, TooltipMakerAPI.TooltipLocation.RIGHT, t -> hover(t, pet, false, true));
+        return icon;
+    }
+
+    // refit row: the cut button and the framed picture over the hull mod icon, which keeps its tooltip
+    public static CustomPanelAPI refitButton(Pet pet, Runnable onClose) {
+        Click click = new Click(() -> PetsDialogPlugin.over(pet, onClose), false);
+        CustomPanelAPI p = Global.getSettings().createCustom(REFIT_CUT + REFIT_GAP + REFIT_ICON, REFIT_ICON, click);
+        Ui.painted(p, 0f, 0f, REFIT_CUT, REFIT_ICON, (pos, a) -> UiDraw.fan(pos.getX(), pos.getY(), REFIT_ICON, REFIT_ICON, CUT, 6f, 17f, click.hover ? Ui.base() : Ui.dark(), a), null);
+
+        float x = REFIT_CUT + REFIT_GAP;
+        Ui.painted(p, x, 0f, REFIT_ICON, REFIT_ICON, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), Color.BLACK, a), null);
+        picture(p, x + 1f, 1f, REFIT_ICON - 2f, pet, false);
+        Ui.painted(p, x, 0f, REFIT_ICON, REFIT_ICON, null, (pos, a) -> UiDraw.outline(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), click.hover ? Ui.bright() : Ui.line(), a));
+        return p;
+    }
+
+    // dim while Unsettled; hang puts the marker over the corner, else inside it
+    private static void picture(CustomPanelAPI p, float x, float y, float size, Pet pet, boolean hang) {
+        UiImages.img(p, x, y, size, size, pet.getData().icon, null, pet.isUnsettled() ? DIM : 1f);
+
+        Marker marker = marker(pet);
+        if (marker == null) return;
+
+        float s = size <= 32f ? 16f : 22f;
+        UiImages.img(p, hang ? x + size - s + 6f : x + size - s, hang ? y - 5f : y, s, s, marker.sprite());
+    }
+
+    // the hover of the pet picture on a ship card; with heading it is the pet part of the hull mod tooltip
+    public static void hover(TooltipMakerAPI t, Pet pet, boolean heading, boolean click) {
+        if (heading) t.addSectionHeading(pet.name, Alignment.MID, 10f);
+        else t.addPara(pet.name, Ui.hl(), 0f);
+        t.addPara(pet.getData().species, Ui.gray(), heading ? 10f : 2f);
+        float gw = t.getWidthSoFar();
+
+        String line = dailyLine(pet);
+        if (!line.isEmpty()) t.addPara(line, Ui.gray(), 10f);
+
+        PetMood mood = pet.getMood();
+        int rows = pet.lastMealSupplies ? 3 : 2;
+        CustomPanelAPI grid = Global.getSettings().createCustom(gw, rows * UiData.GRID_ROW_H, new UiCanvas());
+        float y = 0f;
+        y += hoverRow(grid, y, gw, "Mood", Ui.text(), mood.label, mood.getColor(), null);
+        if (pet.lastMealSupplies) y += hoverRow(grid, y, gw, "Last meal", Ui.text(), "Supplies", Ui.neg(), null);
+        if (!PetStatusManager.getInstance().hasFood(pet)) hoverRow(grid, y, gw, "Next meal", Ui.text(), "No food aboard", Ui.neg(), null);
+        else {
+            int days = Math.max(1, (int) Math.ceil(pet.getDaysToMeal()));
+            hoverRow(grid, y, gw, "Next meal", Ui.text(), "in " + days + (days == 1 ? " day" : " days"), Ui.text(), String.valueOf(days));
+        }
+        t.addCustom(grid, 10f);
+
+        boolean off = pet.isUnsettled();
+        if (off) {
+            int days = (int) Math.ceil(pet.unsettledDays);
+            t.addPara("Moved here. Effects are off for %s " + (days == 1 ? "day." : "days."), 10f, Ui.neg(), Ui.hl(), String.valueOf(days));
+        }
+
+        CustomPanelAPI effects = Global.getSettings().createCustom(gw, UiData.GRID_ROW_H, new UiCanvas());
+        String value = "-" + Misc.getRoundedValueMaxOneAfterDecimal(PetHullmod.BASE_DECREASE * pet.getEffectFract()) + "%";
+        if (off) hoverRow(effects, 0f, gw, "Mascot effect", Ui.gray(), "off", Ui.gray(), null);
+        else hoverRow(effects, 0f, gw, "Mascot effect", Ui.text(), "Combat CR decay " + value, Ui.text(), value);
+        t.addCustom(effects, 10f);
+
+        if (click) t.addPara("Click to open the Pets panel.", Ui.gray(), 10f);
+    }
+
+    private static float hoverRow(CustomPanelAPI p, float y, float w, String label, Color labelColor, String value, Color color, String hl) {
+        float h = UiData.GRID_ROW_H;
+        float vw = Math.min(Ui.width(value, Ui.INS15) + 2f, w * UiData.VALUE_SHARE);
+        String[] parts = hl == null ? new String[0] : new String[]{hl};
+        Color[] colors = hl == null ? new Color[0] : new Color[]{Ui.hl()};
+        Ui.textIn(p, w - vw, y, vw, h, value, Ui.INS15, color, Ui.RIGHT, parts, colors);
+        Ui.textIn(p, 0f, y, w - vw - 8f, h, label, Ui.INS15, labelColor, Ui.LEFT, new String[0], new Color[0]);
+        return h;
+    }
+
+    // one status line a pet and day, so the hover does not change on every show
+    private static String dailyLine(Pet pet) {
+        CampaignClockAPI clock = Global.getSector().getClock();
+        Random random = new Random(Objects.hash(pet.id, clock.getCycle(), clock.getMonth(), clock.getDay()));
+        String line = PetStatusManager.getInstance().getLine(pet, PetDataRepo.EVENT_STATUS, MiscIE.getCurrentInteractionTargetMarket() != null, random);
+        return line == null ? "" : status(pet, line);
+    }
+
+    // takes the left click on its rect before the vanilla screen under it; takeMoves also hides the hover from what lies under it
+    private static class Click extends BaseCustomUIPanelPlugin {
+        private final Runnable action;
+        private final boolean takeMoves;
+        private PositionAPI pos;
+        private boolean down = false;
+        boolean hover = false;
+
+        Click(Runnable action, boolean takeMoves) {
+            this.action = action;
+            this.takeMoves = takeMoves;
+        }
+
+        @Override
+        public void positionChanged(PositionAPI position) {
+            pos = position;
+        }
+
+        @Override
+        public void advance(float amount) {
+            if (pos == null) return;
+            float mx = Global.getSettings().getMouseX();
+            float my = Global.getSettings().getMouseY();
+            hover = mx >= pos.getX() && mx < pos.getX() + pos.getWidth() && my >= pos.getY() && my < pos.getY() + pos.getHeight();
+        }
+
+        @Override
+        public void processInput(List<InputEventAPI> events) {
+            if (pos == null) return;
+
+            for (InputEventAPI event : events) {
+                if (event.isConsumed() || !pos.containsEvent(event)) continue;
+
+                if (event.isMouseMoveEvent()) {
+                    if (takeMoves) event.consume();
+                } else if (event.isLMBDownEvent()) {
+                    event.consume();
+                    down = true;
+                } else if (event.isLMBUpEvent()) {
+                    event.consume();
+                    if (!down) continue;
+
+                    down = false;
+                    Global.getSoundPlayer().playUISound("ui_button_pressed", 1f, 1f);
+                    action.run();
+                }
+            }
+        }
     }
 
     void build(CustomPanelAPI parent, float x, float y, float w, float h, Pet pet) {
