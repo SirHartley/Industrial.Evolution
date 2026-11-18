@@ -67,6 +67,7 @@ Added - A pet on a sold, stored or scuttled ship moves to a free ship in the fle
 Added - Console command indevo_pet: list, give and age pets
 Adjusted - Pets eat Supplies only when none of their other food is in the cargo
 Adjusted - Moving a pet to another ship makes it Unsettled for 30 days, no pet effect until then
+Adjusted - A pet put back on its last ship no longer restarts its effect from zero
 Fixed - Animal market now gets correctly removed if Animal Center is removed or pets disabled
 Fixed - Pet storage fees now match the tooltip
 Fixed - Animal Center AI core bonuses now apply and match the description

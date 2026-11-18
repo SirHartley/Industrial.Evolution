@@ -62,7 +62,7 @@ Code paths relative to `jars/src/indevo/`.
 - Industry, submarket, item and ability plugins from CSV plugin columns.
 - `PetManagementAbilityPlugin.applySetting()` (`abilities/pets/PetManagementAbilityPlugin.java:19-43`): with `IndEvo_pets` on, adds `pet_management` (`Ids.ABILITY_PET_MANAGEMENT`) to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)) and loads pet textures; a texture that fails to load throws `IllegalStateException`. With the setting off, removes the ability. `PlayerSettings.applyCampaignSettings()` runs it from `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:171`) and after a Save in the LunaLib menu in the campaign ([Settings](../core/SETTINGS.md#reading-a-setting)). On new game with pets on, `onGameLoad` also adds Lord Foog (`:173`).
 - `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:466`).
-- `PetStatusManager.getInstance()` (`PetStatusManager.java:60`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
+- `PetStatusManager.getInstance()` (`PetStatusManager.java:63`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
 - `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:214`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:200-204`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` on the "Pet storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)). `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:176-177`); `notifyBeingRemoved()` releases it (`:183`).
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).
 
@@ -79,14 +79,14 @@ Code paths relative to `jars/src/indevo/`.
 ### Assigned pet
 
 - `place(member, storage)` is the only method that moves a pet: it takes the pet off its ship and out of storage, then puts it on the member or into the Animal Center storage (both null: on no ship and in no storage). On a ship it adds `PetData.hullmod` as a perma mod and the `PET_DATA_ID_` tag and switches to a custom variant unless called from refit.
-- Effect fraction = `serveDuration / 365`, capped at 1. Pet hullmods look up their pet through `PetStatusManager.getPet(variant)`.
+- Effect fraction = `serveDuration / 365`, capped at 1. `serveDuration` counts days on a ship; arriving on a ship other than `homeShipId` sets it to 0, a return to the same ship keeps it. Pet hullmods look up their pet through `PetStatusManager.getPet(variant)`.
 - A pet that arrives on a ship other than `homeShipId`, the last ship it lived on, is Unsettled for `UNSETTLED_DAYS` (30): Assign and Re-Assign in the manager (`PetShopDialogPlugin.showShipPicker`). Its first ship (from a Cryochamber) and a return to the same ship after storage are no move. While Unsettled, `PetHullmod` applies no effect and its tooltip shows the days left.
 - `reportPlayerEngagement` sets every pet on a deployed or retreated player ship Shell shocked for `SHELL_SHOCKED_DAYS` (7).
 - Mood (`Pet.getMood()`, first match wins): Hungry (starving), Unsettled, Shell shocked, Unhappy with its food (last meal was Supplies), Sleepy (age over 80% of `lifetime`), Content. Display only, shown in the hullmod tooltip. Concept moods not built yet: Happy (petting), Sulking (wants), Irate (no trigger decided).
 
 ### Daily and monthly
 
-- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:139`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:138`); no food -> starving -> `STARVED` death.
+- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:141`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:199`); no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
 - `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:215`); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
 
@@ -107,12 +107,12 @@ Code paths relative to `jars/src/indevo/`.
 | Core | Effect | Where |
 |---|---|---|
 | Alpha | rare pet weight x1.3 in restock | `PetSubMarket.java:32` |
-| Beta | pets stop aging in storage; tariff 0 | `Pet.java:139`, `PetSubMarket.java:61` |
+| Beta | pets stop aging in storage; tariff 0 | `Pet.java:141`, `PetSubMarket.java:61` |
 | Gamma | `petStorageCostMult` 0.7 | `PetShop.java:318` |
 
 ## Contracts
 
-- `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:63`, `:240`); see [Academy](ACADEMY.md).
+- `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:63`, `:246`); see [Academy](ACADEMY.md).
 - A box whose data has no `pets.csv` row (unknown id, or null data in a real cargo) is invalid (`PetItemPlugin.isInvalid()`): no icon, the tooltip says so, a right-click throws `IllegalStateException`. Codex stacks have null data and no cargo (`obf/codex2/CodexDetailPanel.java:935`) and show the `hampter` fallback.
 - Dialogs from `showInteractionDialogFromCargo` do not become `getCurrentInteractionDialog()` (`obf/campaign/CampaignState.java:2298-2318`, `:2372`), so `isFleetCargo()` stays true while the picker is open. A second box still cannot be clicked: the dialog opens inside the right-click and its full screen backing panel absorbs all input (`com.fs.starfarer.ui.oo0O`, `absorbOutsideEvents` defaults to true, `obf/ui/_c199.java:18`, `:44-63`; input order inferred from vanilla dialogs being modal).
 - `EscapeInterceptListener` and `EscBlockerMemoryIterator` are also used by `industries/museum/plugins/ManageParadeDialoguePlugin.java` ([Museum](MUSEUM.md)).

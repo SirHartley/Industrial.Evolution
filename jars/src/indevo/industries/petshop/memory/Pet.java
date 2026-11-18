@@ -71,7 +71,11 @@ public class Pet {
         leave();
 
         if (toMember != null) {
-            if (homeShipId != null && !homeShipId.equals(toMember.getId())) unsettledDays = PetConstants.UNSETTLED_DAYS;
+            if (!toMember.getId().equals(homeShipId)) {
+                if (homeShipId != null) unsettledDays = PetConstants.UNSETTLED_DAYS;
+                serveDuration = 0f;
+            }
+
             homeShipId = toMember.getId();
             attach(toMember);
         } else if (toStorage != null) {
@@ -101,7 +105,6 @@ public class Pet {
 
         assignedFleetMember = toMember;
         isAssigned = true;
-        serveDuration = 0f;
         toMember.getVariant().addPermaMod(getData().hullmod);
         toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
     }
@@ -114,7 +117,6 @@ public class Pet {
 
         if (assignedFleetMember == null) return;
 
-        serveDuration = 0f;
         ShipVariantAPI variant = assignedFleetMember.getVariant();
         String hullmod = getData().hullmod;
 
@@ -153,7 +155,7 @@ public class Pet {
         if (storage != null) return;
 
         feedInterval.advance(amt);
-        serveDuration += dayAmt;
+        if (isAssigned) serveDuration += dayAmt;
 
         if (feedInterval.intervalElapsed()) {
             PetStatusManager manager = PetStatusManager.getInstance();
