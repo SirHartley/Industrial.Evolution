@@ -88,7 +88,10 @@ public class PetsPanel extends BaseCustomDialogDelegate {
                 view.clock += amount;
                 view.hearts.removeIf(h -> view.clock - h.start() > PetCard.HEART_LIFE);
                 if (!open) return;
-                if ((view.tab == PetsView.TAB_HUSBANDRY ? view.adults : view.filter).poll()) filtered();
+                if (polled().poll()) {
+                    if (view.tab == PetsView.TAB_TREE) PetTree.find(view);
+                    filtered();
+                }
                 if (!youngChecked) openReadyBrood();
                 if (view.reveal.tick(view.clock) && !popupOpen) refresh();
             }
@@ -174,7 +177,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         for (PetBrood brood : shop.getBroods()) {
             if (!brood.isReady() || brood.shown) continue;
 
-            view.tab = PetsView.TAB_HUSBANDRY;
+            tab(PetsView.TAB_HUSBANDRY);
             view.habitat = brood.habitat;
             refresh();
             popup(new PetYoungDialog(shop, brood));
@@ -187,9 +190,56 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         refresh();
     }
 
+    private UiFilter.State polled() {
+        return view.tab == PetsView.TAB_HUSBANDRY ? view.adults : view.tab == PetsView.TAB_TREE ? view.find : view.filter;
+    }
+
     void filtered() {
-        view.scroll.reset(view.tab == PetsView.TAB_HUSBANDRY ? PetsView.ADULTS : PetsView.LIST);
+        view.scroll.reset(view.tab == PetsView.TAB_HUSBANDRY ? PetsView.ADULTS : view.tab == PetsView.TAB_TREE ? PetsView.TREE : PetsView.LIST);
         refresh();
+    }
+
+    // the Family tree of one pet, from its card
+    void showTree(Pet pet) {
+        view.treeRoot = pet.id;
+        view.treeCard = pet.id;
+        view.treePair.clear();
+        view.treeFull = false;
+        openTree();
+    }
+
+    // the Family tree of a pair, from the cross
+    void showPair(Pet a, Pet b) {
+        view.treeRoot = a.id;
+        view.treeCard = null;
+        view.treePair.clear();
+        view.treePair.addAll(List.of(a.id, b.id));
+        view.treeFull = false;
+        openTree();
+    }
+
+    private void openTree() {
+        view.tab = PetsView.TAB_TREE;
+        view.treeX = 0f;
+        view.scroll.reset(PetsView.TREE);
+        refresh();
+    }
+
+    void showHusbandry() {
+        tab(PetsView.TAB_HUSBANDRY);
+        refresh();
+    }
+
+    void showInPets(Pet pet) {
+        tab(PetsView.TAB_PETS);
+        view.select(pet.id);
+        refresh();
+    }
+
+    // dead branches fold again once the tab is left
+    private void tab(int tab) {
+        if (view.tab == PetsView.TAB_TREE && tab != PetsView.TAB_TREE) view.unfolded.clear();
+        view.tab = tab;
     }
 
     // typed names are kept on every rebuild, before a popup and on leave; an empty field keeps the old name
@@ -206,11 +256,15 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     private void build(CustomPanelAPI p, float w, float h) {
         List<Group> groups = groups();
-        if (shop == null) view.tab = PetsView.TAB_PETS;
+        if (shop == null && view.tab == PetsView.TAB_HUSBANDRY) view.tab = PetsView.TAB_PETS;
         addHeader(p, w, groups);
 
         if (view.tab == PetsView.TAB_HUSBANDRY) {
             new PetHusbandry(this, view).build(p, w, h);
+            return;
+        }
+        if (view.tab == PetsView.TAB_TREE) {
+            new PetTree(this, view).build(p, w, h);
             return;
         }
 
@@ -301,9 +355,16 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         int count = 0;
         for (Group group : groups) count += group.pets().size();
-        String[] tabs = shop != null ? new String[]{"Pets " + count, "Husbandry " + PetHusbandry.busy(shop)} : new String[]{"Pets " + count};
-        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, tabWidth(tabs), UiFrame.HEADER_H, tabs, view.tab, null, i -> {
-            view.tab = i;
+        List<Integer> ids = shop != null ? List.of(PetsView.TAB_PETS, PetsView.TAB_HUSBANDRY, PetsView.TAB_TREE) : List.of(PetsView.TAB_PETS, PetsView.TAB_TREE);
+        String[] tabs = shop != null ? new String[]{"Pets " + count, "Husbandry " + PetHusbandry.busy(shop), "Family tree"} : new String[]{"Pets " + count, "Family tree"};
+        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, tabWidth(tabs), UiFrame.HEADER_H, tabs, ids.indexOf(view.tab), null, i -> {
+            int tab = ids.get(i);
+            if (tab == PetsView.TAB_TREE && view.tab != PetsView.TAB_TREE) {
+                Pet pet = PetStatusManager.getInstance().get(view.selected);
+                if (pet != null) view.treeRoot = view.treeCard = pet.id;
+                view.treePair.clear();
+            }
+            tab(tab);
             refresh();
         });
 

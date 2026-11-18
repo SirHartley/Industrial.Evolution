@@ -15,6 +15,7 @@ import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.memory.PetSheet;
+import indevo.industries.petshop.plugins.PetTreeLayout;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -78,6 +79,7 @@ public final class PetChecks {
         run.checkWants();
         run.checkTitles();
         run.checkGenetics(pets, traits);
+        run.checkTree();
 
         if (!run.problems.isEmpty()) {
             for (String problem : run.problems) System.out.println("FAIL " + problem);
@@ -641,6 +643,79 @@ public final class PetChecks {
         check(PetConstants.WANT_DAYS * PLAY_MINUTES_PER_DAY >= 5f, "a want stays open " + PetConstants.WANT_DAYS * PLAY_MINUTES_PER_DAY + " minutes of play, at least 5");
         check(PetConstants.WANT_GAP_DAYS * PLAY_MINUTES_PER_DAY >= 1f, "wants in the fleet at least " + PetConstants.WANT_GAP_DAYS * PLAY_MINUTES_PER_DAY + " minutes apart, at least 1");
         check(PetConstants.WANT_COOLDOWN_DAYS > PetConstants.WANT_DAYS, "a favourite's cooldown is longer than a want stays open");
+    }
+
+    // the family tree of the mockups: four generations, a pet with two mates, back crossing, a dead branch, an unrelated family
+    private void checkTree() {
+        List<PetTreeLayout.Item> items = new ArrayList<>(List.of(
+                item("Jack", null, null), item("Sable", null, null), item("Hook", null, null), item("Mist", null, null),
+                item("Corvo", "Jack", "Sable"), item("Magpie", "Jack", "Sable"), item("Flint", "Hook", "Mist"), item("Dusk", null, null),
+                item("Jet", "Dusk", "Corvo"), item("Biscuit", "Magpie", "Flint"), item("Rook", "Magpie", "Flint"), item("Tank", null, null), item("Wren", null, null),
+                item("Crumb", "Tank", "Biscuit"), item("Fuse", "Tank", "Biscuit"), item("Spoon", "Tank", "Biscuit"), item("Pip", "Biscuit", "Wren"),
+                item("Mote", "Biscuit", "Fuse"), item("Speck", "Biscuit", "Mote"), item("Dot", "Fuse", "Mote"), item("Chip", "Dot", "Speck"),
+                item("Ash", "Jack", "Sable"), item("Cinder", null, null), item("Soot", "Ash", "Cinder"), item("Coal", "Ash", "Cinder"),
+                item("Onyx", null, null), item("Kettle", null, null), item("Nix", "Onyx", "Kettle"), item("Grit", null, null), item("Lost", null, null), item("Gone", null, null)));
+        Set<String> gone = Set.of("Jack", "Sable", "Hook", "Mist", "Magpie", "Ash", "Cinder", "Soot", "Coal", "Lost", "Gone");
+
+        PetTreeLayout.Folded folded = PetTreeLayout.fold(items, gone, Set.of(), Set.of(), true);
+        List<String> branch = folded.stubs().get("stub:Ash");
+        check(branch != null && branch.size() == 4, "a dead branch folds with its mate and young into one stub of 4, got " + branch);
+        check(folded.stubs().getOrDefault(PetTreeLayout.SINGLES, List.of()).size() == 2, "gone pets with no family fold into one stub");
+        check(folded.items().stream().anyMatch(i -> i.id().equals("stub:Ash") && "Jack".equals(i.a()) && "Sable".equals(i.b())), "the stub hangs under the parents of the branch");
+        check(folded.items().stream().anyMatch(i -> i.id().equals("Jack")), "a dead ancestor of living pets stays");
+        check(!PetTreeLayout.fold(items, gone, Set.of("Soot"), Set.of(), true).stubs().containsKey("stub:Ash"), "a pet in focus does not fold, nor do its parents");
+        check(!PetTreeLayout.fold(items, gone, Set.of(), Set.of("stub:Ash"), true).stubs().containsKey("stub:Ash"), "an opened stub shows its pets");
+
+        for (PetTreeLayout.Metrics m : List.of(PetTreeLayout.FULL, PetTreeLayout.SMALL)) {
+            PetTreeLayout.Result result = PetTreeLayout.layout(folded.items(), folded.pairs(), m, true);
+            check(result.families().size() == 2, "two families, got " + result.families().size());
+            check(result.singles().containsAll(List.of("Grit", PetTreeLayout.SINGLES)), "pets with no family stand apart, got " + result.singles());
+            checkRows(result, folded.items(), m);
+        }
+
+        PetTreeLayout.Result pair = PetTreeLayout.layout(PetTreeLayout.family(items, "Biscuit"), List.of(new PetTreeLayout.Pair("Biscuit", "Jet", true)), PetTreeLayout.FULL, false);
+        check(pair.broods().stream().anyMatch(b -> b.dashed && b.kids.isEmpty()), "the pair view joins a pair without young by a dashed line");
+        check(pair.broods().stream().noneMatch(b -> b.dashed && b.has("Biscuit") && b.has("Fuse")), "a pair with young gets no dashed line");
+
+        Map<String, String[]> parents = new HashMap<>();
+        for (PetTreeLayout.Item i : items) parents.put(i.id(), new String[]{i.a(), i.b()});
+        Map<String, int[]> shared = PetGenetics.shared("Biscuit", "Jet", parents::get);
+        check(shared.keySet().equals(Set.of("Jack", "Sable")) && shared.values().stream().allMatch(d -> d[0] == 2 && d[1] == 2), "cousins share their two grandparents and nothing above them");
+        check(PetGenetics.shared("Biscuit", "Mote", parents::get).containsKey("Biscuit"), "a parent is the nearest shared ancestor of its young");
+        check(PetGenetics.shared("Biscuit", "Nix", parents::get).isEmpty(), "two families share no ancestor");
+    }
+
+    // every pet one row under its younger parent, a lane through each row a pair spans, no two tiles closer than a tile and a gap
+    private void checkRows(PetTreeLayout.Result result, List<PetTreeLayout.Item> items, PetTreeLayout.Metrics m) {
+        Map<String, PetTreeLayout.Node> nodes = result.nodes();
+        for (PetTreeLayout.Item i : items) {
+            PetTreeLayout.Node n = nodes.get(i.id());
+            int row = -1;
+            if (nodes.containsKey(i.a())) row = Math.max(row, nodes.get(i.a()).row);
+            if (nodes.containsKey(i.b())) row = Math.max(row, nodes.get(i.b()).row);
+            if (row >= 0) check(n.row == row + 1, i.id() + " stands one row under its younger parent");
+        }
+        for (PetTreeLayout.Brood b : result.broods()) {
+            if (b.b == null) continue;
+            int span = Math.abs(nodes.get(b.a).row - nodes.get(b.b).row);
+            check(b.lane.size() == span, b.a + " x " + b.b + " has a lane node in each of the " + span + " rows it spans");
+        }
+
+        Map<Integer, List<PetTreeLayout.Node>> rows = new HashMap<>();
+        for (PetTreeLayout.Node n : nodes.values()) rows.computeIfAbsent(n.row, k -> new ArrayList<>()).add(n);
+        for (List<PetTreeLayout.Node> row : rows.values()) {
+            row.sort((x, y) -> Float.compare(x.x, y.x));
+            for (int k = 1; k < row.size(); k++) {
+                PetTreeLayout.Node a = row.get(k - 1);
+                PetTreeLayout.Node b = row.get(k);
+                float need = ((a.lane ? m.laneW() : a.w) + (b.lane ? m.laneW() : b.w)) / 2f + m.gap() - 1f;
+                check(b.x - a.x >= need, a.id + " and " + b.id + " keep apart in row " + a.row + ": " + (b.x - a.x) + " of " + need);
+            }
+        }
+    }
+
+    private static PetTreeLayout.Item item(String id, String a, String b) {
+        return new PetTreeLayout.Item(id, a, b);
     }
 
     private static Set<String> events() {

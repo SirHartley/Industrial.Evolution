@@ -9,6 +9,7 @@ import indevo.industries.petshop.memory.PetSheet;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -291,6 +292,34 @@ public final class PetGenetics {
             }
         }
         return value;
+    }
+
+    // the ancestors a path up from a and a path up from b meet at and nowhere else, with the generations up from each on the
+    // shortest such pair, nearest first; a or b itself is one when it is an ancestor of the other
+    public static Map<String, int[]> shared(String a, String b, Function<String, String[]> parents) {
+        Map<String, List<List<String>>> up = new HashMap<>();
+        ancestors(a, new ArrayList<>(), parents, up);
+        Map<String, List<List<String>>> down = new HashMap<>();
+        ancestors(b, new ArrayList<>(), parents, down);
+
+        Map<String, int[]> shared = new HashMap<>();
+        for (Map.Entry<String, List<List<String>>> entry : up.entrySet()) {
+            List<List<String>> other = down.get(entry.getKey());
+            if (other == null) continue;
+
+            for (List<String> pa : entry.getValue()) {
+                for (List<String> pb : other) {
+                    if (!meetOnlyAtTop(pa, pb)) continue;
+                    int[] d = shared.get(entry.getKey());
+                    if (d == null || pa.size() + pb.size() - 2 < d[0] + d[1]) shared.put(entry.getKey(), new int[]{pa.size() - 1, pb.size() - 1});
+                }
+            }
+        }
+
+        Map<String, int[]> sorted = new LinkedHashMap<>();
+        shared.entrySet().stream().sorted(Comparator.comparingInt((Map.Entry<String, int[]> e) -> e.getValue()[0] + e.getValue()[1]).thenComparing(Map.Entry::getKey))
+                .forEach(e -> sorted.put(e.getKey(), e.getValue()));
+        return sorted;
     }
 
     // every path from the pet up to each ancestor, the pet itself included at generation 0
