@@ -17,6 +17,8 @@ public class PetDataRepo {
     public static final String EVENT_AMBIENT = "ambient";
     public static final String EVENT_DOCKING = "docking";
     public static final String EVENT_STATUS = "status";
+    public static final String EVENT_PETTING = "petting";
+    public static final String EVENT_PETTING_STARVING = "petting_starving";
     public static final String CONTEXT_DOCKED = "docked";
     public static final String CONTEXT_STORAGE = "storage";
     public static final String CONTEXT_OLD = "old";

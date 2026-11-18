@@ -26,6 +26,12 @@ public class UiHost implements InteractionDialogPlugin {
         return Global.getSector().getCampaignUI().showInteractionDialog(new UiHost(opener), entity);
     }
 
+    // a popup over an open panel: showCustomDialog can not stack a second custom dialog in one dialog,
+    // showInteractionDialogFromCargo opens one more without the open dialog check
+    public static void over(Opener opener, Runnable onClose) {
+        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new UiHost(opener), null, onClose::run);
+    }
+
     @Override
     public void init(InteractionDialogAPI dialog) {
         dialog.setPromptText("");

@@ -17,6 +17,8 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.BillingHelper;
@@ -77,8 +79,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
                 i++;
             }
 
-            // player markets pay storage as upkeep, so the upkeep mults apply to it
-            float cost = getTotalStorageCost() * (market.isPlayerOwned() ? getUpkeep().getMult() : 1f);
+            float cost = getTotalStorageCost() * getStorageMult();
 
             tooltip.addTable("You do not have any pets stored here.", storedPets.size() - 10, opad);
             tooltip.addPara("Total storage costs per Month: %s", 10f, Misc.getHighlightColor(), Misc.getDGSCredits(cost));
@@ -90,6 +91,20 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (!market.isPlayerOwned()) cost += FLAT_MANAGEMENT_FEE;
 
         return cost;
+    }
+
+    // what the player pays a month for one pet here; player markets pay it as upkeep, so the upkeep mults apply
+    public float getMonthlyStorageCost(Pet pet) {
+        return getStorageCost(pet) * getStorageMult();
+    }
+
+    private float getStorageMult() {
+        return market.isPlayerOwned() ? getUpkeep().getMult() : 1f;
+    }
+
+    public void rehome(Pet pet) {
+        Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(PetConstants.REHOME_FEE);
+        PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.REHOMED);
     }
 
     public float getTotalStorageCost() {

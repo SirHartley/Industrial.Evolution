@@ -50,6 +50,7 @@ public class Pet {
 
     public float unsettledDays = 0f;
     public float shellShockedDays = 0f;
+    public float happyDays = 0f;
     public boolean lastMealSupplies = false;
     public String homeShipId = null;
 
@@ -86,6 +87,10 @@ public class Pet {
 
     public void shellShock() {
         shellShockedDays = PetConstants.SHELL_SHOCKED_DAYS;
+    }
+
+    public void pet() {
+        happyDays = PetConstants.HAPPY_DAYS;
     }
 
     public static void cycleToCustomVariant(FleetMemberAPI member) {
@@ -151,6 +156,7 @@ public class Pet {
 
         unsettledDays = Math.max(0f, unsettledDays - dayAmt);
         shellShockedDays = Math.max(0f, shellShockedDays - dayAmt);
+        happyDays = Math.max(0f, happyDays - dayAmt);
 
         if (storage != null) return;
 
@@ -194,10 +200,11 @@ public class Pet {
     }
 
     public PetMood getMood() {
-        if (isStarving) return PetMood.HUNGRY;
+        if (isStarving || storage == null && !PetStatusManager.getInstance().hasFood(this)) return PetMood.HUNGRY;
         if (isUnsettled()) return PetMood.UNSETTLED;
         if (shellShockedDays > 0f) return PetMood.SHELL_SHOCKED;
         if (lastMealSupplies) return PetMood.UNHAPPY_WITH_FOOD;
+        if (happyDays > 0f) return PetMood.HAPPY;
         if (isOld()) return PetMood.SLEEPY;
         return PetMood.CONTENT;
     }

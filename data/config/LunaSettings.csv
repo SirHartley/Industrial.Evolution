@@ -33,6 +33,7 @@ IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,T
 ,,,,,,,,
 IndEvo_header_pets,Pets,Header,Pets,,,,,Exploration & Items
 IndEvo_petLineDays,[Pets] Days Between Pet Lines,Int,14,,"Minimum days between two short lines about what your pets are up to: a message in flight, or a line in the market text when you dock. 0 turns them off. Default 14.",0,90,Exploration & Items
+IndEvo_petMotion,[Pets] Pet Animations,Boolean,TRUE,,"Petting a pet in the Pets panel makes its portrait grow and turn and throws hearts. Off keeps the panel still. Default on.",,,Exploration & Items
 ,,,,,,,,
 IndEvo_header_meteor,Meteor Swarms,Header,Meteor Swarms,,,,,Meteor Swarms
 IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,"Spawn meteor showers immediately, without an advance intel warning. Default off.",,,Meteor Swarms

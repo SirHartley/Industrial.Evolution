@@ -207,8 +207,12 @@ public final class UiButtons {
 
     // vanilla text field; read getText() in the action that uses it and keep it in the view state before a refresh
     public static TextFieldAPI field(CustomPanelAPI p, float x, float y, float w, float h, String text, int maxChars) {
+        return field(p, x, y, w, h, text, maxChars, Ui.INS15);
+    }
+
+    public static TextFieldAPI field(CustomPanelAPI p, float x, float y, float w, float h, String text, int maxChars, String font) {
         TooltipMakerAPI element = p.createUIElement(w + Ui.INSET, h, false);
-        TextFieldAPI field = element.addTextField(w, h, Ui.INS15, 0f);
+        TextFieldAPI field = element.addTextField(w, h, font, 0f);
         field.setMaxChars(maxChars);
         field.setText(text == null ? "" : text);
         p.addUIElement(element).inTL(x - Ui.INSET, y);

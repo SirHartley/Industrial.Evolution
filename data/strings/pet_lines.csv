@@ -77,3 +77,28 @@ IndEvo_pl_dock_water,docking,b_water,,,,A dockhand stops to tap on the glass of 
 IndEvo_pl_dock_machine,docking,b_machine,,,,%s plugs into the port's maintenance network. The dockmaster sends a polite complaint.
 IndEvo_pl_dock_human,docking,b_human,,,,%s asks the dock crew for news of old friends. Nobody admits to knowing any of them.
 IndEvo_pl_dock_hungry,docking,any,hungry,,,The dockmaster asks whether anyone has fed %s recently.
+IndEvo_pl_st_happy_steady,status,any,happy,steady,,%s gets a visit from every shift
+IndEvo_pl_st_happy_reckless,status,b_fourleg,happy,reckless,,%s has learned to ride the cargo lift and does it every shift change
+IndEvo_pl_st_happy_machine,status,b_machine,happy,,docked,%s is following a dock drone around the bay
+IndEvo_pl_st_happy_1,status,any,happy,,,%s greets everyone who comes through the hatch
+IndEvo_pl_amb_happy_1,ambient,any,happy,,,%s spent the whole shift making the rounds of the duty stations.
+IndEvo_pl_pet_fourleg_1,petting,b_fourleg,,,,%s leans into the scratch and kicks one back leg against the deck plating.
+IndEvo_pl_pet_fourleg_2,petting,b_fourleg,,,,"%s allows four strokes, bites your sleeve and leaves."
+IndEvo_pl_pet_legs,petting,b_legs,,,,%s climbs onto your boot and stays there until you move.
+IndEvo_pl_pet_water,petting,b_water,,,,%s comes up to the glass where your hand is and stays there until you take it away.
+IndEvo_pl_pet_float,petting,b_float,,,,"%s drifts down until it touches your palm, then lifts away again."
+IndEvo_pl_pet_wings,petting,b_wings,,,,%s lands on your shoulder and stays there through the next comm call.
+IndEvo_pl_pet_blob,petting,b_blob,,,,%s leans its whole weight against your hand.
+IndEvo_pl_pet_machine,petting,b_machine,,,,%s stops its rounds and lets you run a thumb over the warm housing.
+IndEvo_pl_pet_reptile,petting,c_reptile,,,,%s does not move. The quartermaster says that is how it shows approval.
+IndEvo_pl_pet_cyberparrot,petting,cyberparrot,,,,%s pushes its head under your fingers and mutters a word it learned from the deck crew.
+IndEvo_pl_pet_agravifish,petting,agravifish,,,,%s wraps one tentacle around your wrist. The medic gets the antitoxin out of the cabinet.
+IndEvo_pl_pet_voidsquid,petting,voidsquid,,,,%s changes colour along the line of your hand and holds the pattern for a few seconds.
+IndEvo_pl_pet_gigabee,petting,gigabee,,,,%s buzzes once and settles against your arm.
+IndEvo_pl_pet_plasmasnek,petting,plasmasnek,,,,%s winds once around your forearm. The cabin lights dim for a second.
+IndEvo_pl_pet_souljar,petting,mipacem7_souljar,,,,%s drifts to the side of the jar nearest your hand and turns a shade warmer.
+IndEvo_pl_pet_human,petting,b_human,,,,%s accepts a pat on the shoulder and tells you which of your officers it would have hired.
+IndEvo_pl_pet_any,petting,any,,,,"%s puts up with it, which the crew says is a good sign."
+IndEvo_pl_pet_starving,petting_starving,any,,,,%s does not react to you. The feeding log ends the day the stores ran out.
+IndEvo_pl_pet_starving_fourleg,petting_starving,b_fourleg,,,,%s ignores your hand and goes back to licking the empty bowl.
+IndEvo_pl_pet_starving_water,petting_starving,b_water,,,,%s stays at the bottom of the tank and does not come up to the glass.

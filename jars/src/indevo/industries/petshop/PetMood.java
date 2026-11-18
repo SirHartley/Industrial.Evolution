@@ -10,6 +10,7 @@ public enum PetMood {
     UNSETTLED("Unsettled", true),
     SHELL_SHOCKED("Shell shocked", true),
     UNHAPPY_WITH_FOOD("Unhappy with its food", true),
+    HAPPY("Happy", false),
     SLEEPY("Sleepy", false),
     CONTENT("Content", false);
 
@@ -26,6 +27,11 @@ public enum PetMood {
     }
 
     public Color getColor() {
-        return bad ? Misc.getNegativeHighlightColor() : Misc.getHighlightColor();
+        if (bad) return Misc.getNegativeHighlightColor();
+        return switch (this) {
+            case HAPPY -> Misc.getPositiveHighlightColor();
+            case SLEEPY -> Misc.getGrayColor();
+            default -> Misc.getBasePlayerColor();
+        };
     }
 }

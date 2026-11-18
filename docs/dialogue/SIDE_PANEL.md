@@ -32,10 +32,9 @@ Users:
 
 | Pattern | Users |
 |---|---|
-| `ButtonReportingCustomPanel` + `ButtonAction` | `PetManagerDialogueDelegate`, `ParadeManagementDialogueDelegate`, `OrbitalWorksSlotPanelDelegate`, `WarehouseAddSubmarketOptionProvider`, `warehouses/plugin/wi/WarehouseManagementDialogueDelegate` (folder excluded by `IndEvo.iml`) |
-| `ButtonReportingDialogueDelegate` alone | `EdictConfirmDialog` |
+| `ButtonReportingCustomPanel` + `ButtonAction` | `ParadeManagementDialogueDelegate`, `OrbitalWorksSlotPanelDelegate`, `WarehouseAddSubmarketOptionProvider`, `warehouses/plugin/wi/WarehouseManagementDialogueDelegate` (folder excluded by `IndEvo.iml`) |
 | own copy of `ButtonReportingCustomPanel` | `ChangelingIndustryDialogueDelegate.ButtonReportingCustomPanel` (inner class, `:230`) |
-| `EscapeBlockingDialoguePluginAPI` | `AcademyDialogPlugin`, `SalvageYardsDialogPlugin`, `CourierPortDialoguePlugin`, `ManageParadeDialoguePlugin`, `ParadeManagementDialogueDelegate`, `PetShopDialogPlugin` |
+| `EscapeBlockingDialoguePluginAPI` | `AcademyDialogPlugin`, `SalvageYardsDialogPlugin`, `CourierPortDialoguePlugin`, `ManageParadeDialoguePlugin`, `ParadeManagementDialogueDelegate`, `PetsDialogPlugin` |
 
 ## Flow
 

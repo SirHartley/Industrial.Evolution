@@ -27,7 +27,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | Tab | Fields | Content |
 |---|---|---|
 | Quick Settings | 17 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_fog_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic, meteor and artillery spawn chance, derelict station and automated shipyard amounts |
-| Exploration & Items | 13 | Salvage specials, derelict stations, relic components, `IndEvo_consumables_*`, `IndEvo_petLineDays` |
+| Exploration & Items | 14 | Salvage specials, derelict stations, relic components, `IndEvo_consumables_*`, `IndEvo_petLineDays`, `IndEvo_petMotion` |
 | Meteor Swarms | 17 | `IndEvo_meteor_*` tuning, rogue asteroid chance |
 | Minefields | 10 | `IndEvo_Minefield_*` |
 | Artillery | 32 | `IndEvo_Artillery_*` tuning, watchtower, vision type weights, lighthouse beams, drone net |

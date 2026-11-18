@@ -343,37 +343,37 @@ class EdictDetail {
         else Ui.text(b, 0f, BUTTON_H + 4f, w, "No penalty", Ui.pos(), Ui.CENTER);
     }
 
-    private EdictConfirmDialog createEnactConfirm(String edictId) {
+    private UiConfirm createEnactConfirm(String edictId) {
         String edictName = EdictRepo.getShortName(Global.getSettings().getMarketConditionSpec(edictId).getName());
         MarketAPI market = colony;
         EdictAPI edict = panel.getPreview(edictId);
 
-        return new EdictConfirmDialog("Enact", info -> {
+        return new UiConfirm("Enact", info -> {
             info.addPara("Enact %s on %s?", 0f, Misc.getHighlightColor(), edictName, market.getName());
             edict.addRuntimeText(info, market, 10f);
         }, () -> EdictHelper.enact(market, edictId));
     }
 
-    private EdictConfirmDialog createRemoveConfirm(EdictAPI active, MarketConditionAPI condition) {
+    private UiConfirm createRemoveConfirm(EdictAPI active, MarketConditionAPI condition) {
         Color hl = Misc.getHighlightColor();
         String edictName = EdictRepo.getShortName(condition.getName());
         MarketAPI market = colony;
         int unrest = active.getRemovalUnrest();
 
-        return new EdictConfirmDialog("Remove", info -> {
+        return new UiConfirm("Remove", info -> {
             if (unrest > 0) info.addPara("Remove %s from %s? This causes %s.", 0f, new Color[]{hl, hl, Misc.getNegativeHighlightColor()}, edictName, market.getName(), unrest + " unrest");
             else info.addPara("Remove %s from %s? There is %s.", 0f, new Color[]{hl, hl, Misc.getPositiveHighlightColor()}, edictName, market.getName(), "no penalty");
         }, active::removeWithPenalty);
     }
 
-    private EdictConfirmDialog createBribeConfirm(EdictAPI active, MarketConditionAPI condition) {
+    private UiConfirm createBribeConfirm(EdictAPI active, MarketConditionAPI condition) {
         Color hl = Misc.getHighlightColor();
         String edictName = EdictRepo.getShortName(condition.getName());
         MarketAPI market = colony;
         int cost = active.getRelicRemovalCost();
         int relicUnrest = active.getRelicRemovalUnrest();
 
-        return new EdictConfirmDialog("Bribe", BRIBE_CONFIRM_H, info -> {
+        return new UiConfirm("Bribe", BRIBE_CONFIRM_H, info -> {
             info.addPara("Bribe the senators to remove %s from %s now?", 0f, hl, edictName, market.getName());
             if (relicUnrest > 0) info.addPara("Removal still causes %s.", 10f, Misc.getNegativeHighlightColor(), relicUnrest + " unrest");
             else info.addPara("There is %s.", 10f, Misc.getPositiveHighlightColor(), "no unrest");

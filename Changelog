@@ -62,7 +62,11 @@ Fixed - Swarm warning path and radiation no longer linger from scattered treasur
 Fixed - A second meteor storm can no longer start alongside the tutorial storm
 
 Pets
-Added - Pet moods: Hungry, Unsettled, Shell shocked, Unhappy with its food, Sleepy or Content, shown in the pet's hullmod tooltip
+Added - Pet moods: Hungry, Unsettled, Shell shocked, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel
+Added - Pets panel: your pets as tiles by ship, detachment, menagerie and storage, with a card to rename, move, store or euthanize each
+Added - Petting: click a pet's portrait five times in the Pets panel and it is Happy for 3 days
+Added - Rehome: an Animal Center finds a pet a new home for 2,000 credits
+Added - Setting to turn off the petting animation
 Added - A pet on a sold, stored or scuttled ship moves to a free ship in the fleet, flagship first, then the largest
 Added - Console command indevo_pet: list, give and age pets
 Added - Pet lines: your pets post short messages in flight and when you dock
