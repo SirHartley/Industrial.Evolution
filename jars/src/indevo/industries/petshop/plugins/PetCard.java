@@ -97,12 +97,21 @@ public class PetCard {
     }
 
     private void addName(CustomPanelAPI p, float w, Pet pet) {
-        TextFieldAPI field = UiButtons.field(p, 0f, 0f, w, NAME_H, pet.name, PetConstants.NAME_MAX_CHARS, Ui.ORB20);
+        view.nameField = nameField(p, 0f, 0f, w, pet.name);
+        view.namePet = pet.id;
+    }
+
+    static TextFieldAPI nameField(CustomPanelAPI p, float x, float y, float w, String name) {
+        TextFieldAPI field = UiButtons.field(p, x, y, w, NAME_H, name, PetConstants.NAME_MAX_CHARS, Ui.ORB20);
         field.setMidAlignment();
         field.setColor(Ui.bright());
         field.setBorderColor(Misc.scaleAlpha(Ui.base(), 0.45f));
-        view.nameField = field;
-        view.namePet = pet.id;
+        return field;
+    }
+
+    static String trimName(String typed) {
+        String name = typed.trim();
+        return name.length() > PetConstants.NAME_MAX_CHARS ? name.substring(0, PetConstants.NAME_MAX_CHARS).trim() : name;
     }
 
     private void addTagline(CustomPanelAPI p, float w, Pet pet) {
@@ -211,7 +220,7 @@ public class PetCard {
     private void addPlace(CustomPanelAPI p, float w, Pet pet, CampaignFleetAPI away) {
         Ui.card(p, 0f, SHIP_Y, w, STRIP_H);
         float by = SHIP_Y + 13f;
-        List<FleetMemberAPI> free = freeShips(pet);
+        List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
         String noShip = free.isEmpty() ? "No ship without a pet." : null;
         FleetMemberAPI member = pet.assignedFleetMember;
 
@@ -258,19 +267,6 @@ public class PetCard {
 
     static String shipClass(FleetMemberAPI member) {
         return member.getHullSpec().getHullName() + " class " + member.getHullSpec().getDesignation().toLowerCase();
-    }
-
-    // ships of the player fleet without a pet, in fleet order
-    static List<FleetMemberAPI> freeShips(Pet pet) {
-        PetStatusManager manager = PetStatusManager.getInstance();
-        List<FleetMemberAPI> free = new ArrayList<>();
-
-        for (FleetMemberAPI m : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
-            if (m.isFighterWing() || m == pet.assignedFleetMember || manager.getPet(m.getVariant()) != null) continue;
-            free.add(m);
-        }
-
-        return free;
     }
 
     private void addBottom(CustomPanelAPI p, float w, float h, Pet pet, CampaignFleetAPI away) {

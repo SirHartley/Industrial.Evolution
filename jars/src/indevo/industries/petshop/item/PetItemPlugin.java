@@ -12,9 +12,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.plugins.PetPlaceDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -190,6 +190,6 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     @Override
     public void performRightClickAction(RightClickActionHelper helper) {
         if (pet == null) throw new IllegalStateException("IndEvo pet box without valid pet data, id " + stack.getSpecialDataIfSpecial().getData());
-        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new PetPickerInteractionDialoguePlugin(pet, helper), null, null);
+        PetPlaceDialog.chamber(pet, helper).show(() -> {});
     }
 }

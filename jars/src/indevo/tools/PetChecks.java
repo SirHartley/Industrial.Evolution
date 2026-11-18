@@ -2,6 +2,7 @@ package indevo.tools;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
+import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetMood;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -27,7 +28,7 @@ import static indevo.industries.petshop.memory.PetDataRepo.*;
 public final class PetChecks {
 
     private static final Set<String> BODIES = Set.of("b_fourleg", "b_legs", "b_wings", "b_water", "b_float", "b_blob", "b_machine", "b_jar", "b_coil", "b_human");
-    private static final Set<String> EVENTS = Set.of(EVENT_AMBIENT, EVENT_DOCKING, EVENT_STATUS, EVENT_PETTING, EVENT_PETTING_STARVING);
+    private static final Set<String> EVENTS = Set.of(EVENT_AMBIENT, EVENT_DOCKING, EVENT_STATUS, EVENT_PETTING, EVENT_PETTING_STARVING, EVENT_NAME);
     private static final Set<String> CONTEXTS = Set.of(CONTEXT_DOCKED, CONTEXT_STORAGE, CONTEXT_OLD, CONTEXT_HYPERSPACE);
     private static final Set<String> DISPOSITIONS = Set.of(Personalities.TIMID, Personalities.CAUTIOUS, Personalities.STEADY, Personalities.AGGRESSIVE, Personalities.RECKLESS);
     private static final Pattern BODY_WORDS = Pattern.compile("\\b(legs?|paws?|hands?|fur|wings?|feathers?|beak|claws?|tails?|fins?|glass|tank|swims?|fl(y|ies|ew|ying)|sniff\\w*)\\b", Pattern.CASE_INSENSITIVE);
@@ -122,6 +123,11 @@ public final class PetChecks {
 
             String text = line.text();
             check(!text.isBlank(), id + " has text");
+            if (line.event().equals(EVENT_NAME)) {
+                check(line.moods().isEmpty() && line.dispositions().isEmpty() && line.contexts().isEmpty(), id + " name has no mood, disposition or context");
+                check(text.length() <= PetConstants.NAME_MAX_CHARS && text.matches("[A-Z][A-Za-z' ]*[a-z]"), id + " name is a short capitalized name");
+                continue;
+            }
             check(text.indexOf("%s") >= 0 && text.indexOf("%s") == text.lastIndexOf("%s"), id + " has one %s for the name");
             check(text.replace("%s", "").indexOf('%') < 0, id + " has no other %");
             check(line.event().equals(EVENT_STATUS) != text.endsWith("."), id + (line.event().equals(EVENT_STATUS) ? " status note has no full stop" : " ends with a full stop"));

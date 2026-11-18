@@ -230,6 +230,13 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         return best;
     }
 
+    // ships of that fleet a pet can move to, in fleet order
+    public List<FleetMemberAPI> getFreeShips(CampaignFleetAPI fleet) {
+        List<FleetMemberAPI> free = new ArrayList<>();
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) if (isFree(m, Collections.emptySet())) free.add(m);
+        return free;
+    }
+
     private boolean isFree(FleetMemberAPI m, Collection<FleetMemberAPI> except) {
         return m != null && !m.isFighterWing() && !except.contains(m) && getPet(m.getVariant()) == null;
     }

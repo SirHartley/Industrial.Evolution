@@ -11,12 +11,11 @@ import com.fs.starfarer.api.campaign.CargoAPI.CargoItemType;
 import com.fs.starfarer.api.campaign.SpecialItemPlugin;
 import indevo.ids.Ids;
 import indevo.industries.petshop.PetMood;
-import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
-import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.plugins.PetPlaceDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,32 +40,22 @@ public final class PetsChecks {
         return pet;
     }
 
-    // the real Cryochamber dialog, counting how often advance opens the ship picker
-    static final class CountingPicker extends PetPickerInteractionDialoguePlugin {
-        static CountingPicker last;
-        int shown = 0;
+    // the cargo side of a Cryochamber right click, counting the chambers taken
+    static final class CountingChamber implements SpecialItemPlugin.RightClickActionHelper {
+        int removed = 0;
 
-        CountingPicker(PetData data) {
-            super(data, new SpecialItemPlugin.RightClickActionHelper() {
-                public void removeFromClickedStackFirst(int num) {
-                }
-
-                public void removeFromAnyStack(CargoItemType type, Object data, int num) {
-                }
-
-                public void addItems(CargoItemType type, Object data, float quantity) {
-                }
-
-                public float getNumItems(CargoItemType type, Object data) {
-                    return 1f;
-                }
-            });
+        public void removeFromClickedStackFirst(int num) {
+            removed += num;
         }
 
-        @Override
-        public void showShipPicker() {
-            shown++;
-            super.showShipPicker();
+        public void removeFromAnyStack(CargoItemType type, Object data, int num) {
+        }
+
+        public void addItems(CargoItemType type, Object data, float quantity) {
+        }
+
+        public float getNumItems(CargoItemType type, Object data) {
+            return 1f;
         }
     }
 
@@ -202,19 +191,29 @@ public final class PetsChecks {
             c.expect(crash == null, "pet with no ship and no storage dies without a crash (" + crash + ")");
             c.expect(orphan.isDead() && orphan.deathData != null, "the orphan pet is dead with death data");
 
-            CountingPicker picker = new CountingPicker(PetDataRepo.get("bugdog"));
-            CountingPicker.last = picker;
+            CountingChamber chamber = new CountingChamber();
+            List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
+            PetPlaceDialog popup = PetPlaceDialog.chamber(PetDataRepo.get("bugdog"), chamber);
+            c.put("chamber", chamber);
+            c.put("chamberPopup", popup);
+            c.put("chamberShip", free.isEmpty() ? null : free.get(0));
             c.keepDialog(true);
-            Global.getSector().getCampaignUI().showInteractionDialog(picker, Global.getSector().getPlayerFleet());
+            popup.show(() -> c.put("chamberClosed", Boolean.TRUE));
             c.frames(30);
         });
         steps.add(c -> {
-            CountingPicker.last.setName("Cryo");
-            c.frames(120);
+            c.shot("pets-cryo-popup");
+            ((PetPlaceDialog) c.get("chamberPopup")).customDialogConfirm();
+            c.frames(60);
         });
         steps.add(c -> {
-            c.expect(CountingPicker.last.shown == 1, "the Cryochamber ship picker opens once after naming (" + CountingPicker.last.shown + ")");
-            c.shot("pets-cryo-picker");
+            CountingChamber chamber = (CountingChamber) c.get("chamber");
+            FleetMemberAPI ship = (FleetMemberAPI) c.get("chamberShip");
+            Pet born = ship != null ? PetStatusManager.getInstance().getPet(ship.getVariant()) : null;
+            c.expect(born != null && born.getData().id.equals("bugdog"), "Cryochamber Confirm puts the new pet on the first free ship");
+            c.expect(born != null && !born.name.isEmpty(), "the new pet has the suggested name (" + (born == null ? null : born.name) + ")");
+            c.expect(chamber.removed == 1, "Cryochamber Confirm takes one chamber (" + chamber.removed + ")");
+            c.expect(Boolean.TRUE.equals(c.get("chamberClosed")), "the Cryochamber popup closed");
         });
         steps.add(c -> {
             c.keepDialog(false);
