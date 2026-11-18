@@ -74,7 +74,7 @@ Code paths relative to `jars/src/indevo/`.
 - `IndEvo_PetDockingLine` is found through the `ruleCommandPackages` entry `indevo.industries.petshop.rules` ([Rule commands](../dialogue/RULE_COMMANDS.md)).
 - `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:466`).
 - `PetStatusManager.getInstance()` (`PetStatusManager.java:69`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
-- `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:172`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:161`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` on the "Pet storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)). `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:144-145`); `notifyBeingRemoved()` releases it (`:151`).
+- `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:174`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (`STORAGE_FEE_FRACT` 10% of the species `value` a month, at least `MIN_STORAGE_FEE` 100, x `NPC_STORAGE_FEE_MULT` 1.5 on NPC markets, then x `petStorageCostMult`; the species value, never the pet's own, so the fee shows no unread traits). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:163`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` on the "Pet storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)). `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:146-147`); `notifyBeingRemoved()` releases it (`:153`).
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).
 
 ## Flow
@@ -124,10 +124,11 @@ Code paths relative to `jars/src/indevo/`.
 
 - Opened by "Manage Pets..." on a functional Animal Center (`PetCenterOptionProvider`, `shop` = that PetShop) or by the `pet_management` ability (`shop` null). Board 1060 x 720 in `UiFrame` ([UI](../core/UI.md)); "Return" closes it, Escape too.
 - List, by group: Mascots (pets on ships of the player fleet, fleet order), one group per detachment fleet by fleet name (`PetsPanel.awayFleet`), Menagerie, and with `shop` set Pet storage (this shop's living stored pets). Pets on ships in a storage submarket are not listed. Six tiles per row: portrait, marker, name, ship sprite.
+- Filter bar over the list (`UiFilter`, state `PetsView.filter`, kept while the panel is open): field "Name or species" (traits join it with talents), Marked (pets with a tile marker), sort Ship (group order: fleet order on ships), Name, Species, Age (oldest first) inside each group. While filtering, a group with no match is not drawn and the rest count "2 of 11"; nothing left shows "No pet matches.". The selected pet keeps its card while the filter hides its tile.
 - Tile marker, first match: starving, hungry (not stored and `PetStatusManager.hasFood` false: no food for its next meal), shell shocked.
 - Card of the selected pet, the first listed pet when none: name field (at most `NAME_MAX_CHARS`, 40; committed on every rebuild, before a popup and on leave; an empty field keeps the old name), tagline, portrait with Species, Disposition, Age, Mood, the ship strip and the bottom row.
 - Petting: `PETTING_CLICKS` (5) clicks on the portrait call `Pet.pet()` and show a `petting` line in the tagline (`petting_starving` while starving). With `IndEvo_petMotion` on, each click throws a heart and the portrait grows and turns; the fifth throws six. Off for a pet out with a detachment.
-- Ship strip: on a ship, Move... and Unassign (to the menagerie); in storage, Assign... and To menagerie; in the menagerie, Assign.... Move... and Assign... open `PetPlaceDialog`: ships of the player fleet without a pet (`PetStatusManager.getFreeShips`: fleet order, no fighter wings, no ship with a pet), and To storage with its monthly cost when docked, except from storage. A pet out with a detachment shows "Out with <fleet>" and its buttons are grey.
+- Ship strip: on a ship, Move... and Unassign (to the menagerie); in storage, Assign... and To menagerie; in the menagerie, Assign.... Move... and Assign... open `PetPlaceDialog`: ships of the player fleet without a pet (`PetStatusManager.getFreeShips`: fleet order, no fighter wings, no ship with a pet), and To storage with its monthly cost when docked, except from storage. Over 8 ships the list scrolls and gets a filter bar: field "Ship or class", one hull size at a time (All, Frigate, Destroyer, Cruiser, Capital), sort Fleet, Name, Size (largest first). The popup can not grow after it opens, so it is sized for the open fold and the open fold shows three rows of ships instead of four. A filter that hides the picked ship picks the first one shown. A pet out with a detachment shows "Out with <fleet>" and its buttons are grey.
 - Bottom row: Euthanize (grey with a tooltip while out with a detachment), and when docked Rehome (`REHOME_FEE`, 2,000 credits, grey with a tooltip when short or out with a detachment). Both ask through `UiConfirm`; Euthanize reports `EUTHANIZED`, Rehome takes the fee and reports `REHOMED` (`PetShop.rehome`).
 - Popups open as a second interaction dialog through `UiHost.over`; while one is open `PetsDialogPlugin.advance` stops setting `$IndEvo_BlockESC`, so Escape reaches the popup. The panel rebuilds when it closes.
 - The campaign message list sits under the panel, so `PetsDialogPlugin` calls `PetStatusManager.holdMessages` in `init` and `releaseMessages` after `leave` dismisses: death messages (Euthanize, Rehome) post when the panel closes.
@@ -146,7 +147,7 @@ Code paths relative to `jars/src/indevo/`.
 ### Storage
 
 - Store with Move... on the card while docked at an Animal Center, To storage in the where to popup: the pet leaves the ship, `storage` = the PetShop.
-- `PetShop.reportEconomyTick()` on the last iteration of the month charges non player markets `foodPerMonth x 500` plus 2000 per live pet through `BillingHelper.charge`.
+- `PetShop.reportEconomyTick()` on the last iteration of the month charges non player markets `getTotalStorageCost()` through `BillingHelper.charge`.
 
 ### AI cores
 
@@ -154,7 +155,7 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|---|
 | Alpha | rare pet weight x1.3 in restock | `PetSubMarket.java:32` |
 | Beta | pets stop aging in storage; tariff 0 | `Pet.java:146`, `PetSubMarket.java:61` |
-| Gamma | `petStorageCostMult` 0.7 | `PetShop.java:276` |
+| Gamma | `petStorageCostMult` 0.3 (storage fee 70% off) | `PetShop.java:278` |
 
 ## Checks
 

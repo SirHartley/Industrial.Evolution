@@ -39,6 +39,7 @@ Every IE panel follows these rules.
 | `UiData` | Progress bars, pips, marks and check rows, costs, value grids |
 | `UiFrame` | Dialog sizing, title strip with `?`, header slots and counters |
 | `UiScroll` | Scroll columns and the per panel scroll offsets |
+| `UiFilter` | Filter bar over a big list: text field, Show filters fold with toggles and sort keys, and its state |
 | `UiRoot` | Rebuild host |
 | `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children; `shown` holds the fraction a kit progress bar shows, for checks |
 | `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code (`show`) and popups over a panel (`over`) |
@@ -170,9 +171,23 @@ Header layout of the boards: title at y 0, tabs at `HEADER_Y` 30 with `HEADER_H`
 
 Blocks need their height before they are built, so detail columns compute each block's height first (`wrapHeight`, `guardHeight`, row counts).
 
+### UiFilter
+
+Every big list gets one (Philipp's rule). The bar takes no list: the caller filters and sorts its own items with the state and builds the list under it.
+
+| Signature | Does |
+|---|---|
+| `State(defaultSort, defaultOn...)` | View state of one bar: typed text, `open`, lit toggles `on`, `sort` key and `reversed`. Kept in the panel's view state, so it lives while the screen is open |
+| `State.matches(values...)` | True when the trimmed text is empty or any value contains it, ignoring case |
+| `State.isFiltering()` | Text typed or toggles not at their default; lists then hide empty groups and count "2 of 11" |
+| `State.sort(list, comparator)` | Sorts by the comparator (null keeps the list order), then reverses when `reversed` |
+| `State.poll()` | True when the typed text changed; call it from the panel plugin's `advance`, then reset the list scroll and refresh |
+| `height(state or open, toggles, keys)` | `H` 26 closed; open adds 30 per row of toggles and of sort keys |
+| `bar(p, x, y, state, hint, showTip, toggles, onToggle, keys, changed, refresh)` | Field 150 x 26 with a grey hint while empty, then the Show filters toggle (108, 124 with the gold count of toggles and sort that differ from the default, "Hide filters" while open). Open: a row of `Item` toggles (`onToggle` null flips one, a radio group passes its own), then "Sort" and one left aligned key per `Item`, the key in use lit with an 8 x 5 arrow 18 px from its right edge, a second click turns the order. `changed` runs after a filter or sort change, `refresh` after the fold opens or closes. Returns the height used; the list starts `BELOW` 8 px under it |
+
 ## Rebuild and scroll pattern
 
-A click changes the view state and rebuilds the body; scroll offsets survive. Buttons carry a `Runnable` as their data, so there are no id strings and no per frame polling.
+A click changes the view state and rebuilds the body; scroll offsets survive. Buttons carry a `Runnable` as their data, so there are no id strings and no per frame polling. The one exception is the `UiFilter` text field: a text field has no change callback (`api/ui/TextFieldAPI.java`), so the panel plugin polls it and every typed letter rebuilds the body; the new field takes the focus back.
 
 ```java
 public class FooPanel extends BaseCustomDialogDelegate {
@@ -252,6 +267,7 @@ Verified in the decompiled 0.98a-RC8 source unless noted.
 - Progress bars: the vanilla bar is `com.fs.starfarer.campaign.ui.N` (cargo screen bars, `obf/campaign/ui/trade/o0OO.java:43`), no API. `UiData.bar` is a translation of its `renderImpl` at rest (`obf/campaign/ui/N.java:481-700`): black over the rect; usable width `w - 8` from `x + 3` (`w - 6` from `x + 2` at 5 px or less); fill `fraction * usable + 1` wide, `h - 2` high, `y + 1`; the empty part `y + 3`, `h - 6` high, from 5 px after the fill end. Fill routine `obf/renderers/O.java:339-381`: the colour 15 % toward white at alpha 0.75, then an additive vertical gradient of the colour, 0 at the edges and 0.75 in the middle; the empty part is the same at 0.65 alpha with a black (alpha 127) gradient on top instead. End lines (`obf/renderers/E.java:386-430`; every bar line is textured with `graphics/hud/line4x4.png`, which vanilla loads at startup, through `UiDraw.line` with a texture): 2 px at x and x + w at 0.5, a 2 px additive line at x + 1 and x + w - 1, 15 px corner stubs along top and bottom fading 1, 0.5, 0; along the empty part 1 px edge lines at y + 1 and y + h - 2 that fade in over 10 px at the right end, and a divider plus an additive white one where it starts; a 1 px line over the full height at `x + fraction * usable + 5.5`, alpha 0.5, 1, 0.5 (`obf/campaign/ui/N.java:716`). Not translated: easing toward the target value, the overflow part and the hover brightness. The frame and line colour is the settings colour `widgetBorderColorBright` (the `N` widget colour default, `obf/O0OO.java:29`). Bars under 2 px get no fill in vanilla, so `thinbar` is a kit bar in the same fill colour.
 - Bar colours are the vanilla settings colours where a meaning exists (`Ui.barColor(key)`): `progressBarStandardColor` (progress, `barBlue`), `progressBarCargoColor`, `progressBarFuelColor`, `progressBarCrewColor` (Detachments), `progressBarOverflowColor` (over capacity, over budget), `progressBarWarningColor` (paused training, an Edict before its minimum term), `progressBarDangerColor` (Detachments short on supplies). Ready or done has no vanilla colour and uses `Ui.GREEN` (Research ready, Hub hull at 100 %, Edict after its term).
 - `showPlanetInfo(planet, w, h, withName, pad)` draws the vanilla planet render at that size; there is no market level planet widget, so `planet(market)` shows the faction crest for a station and `planet(entity)` the entity sprite.
+- Text field (`obf/ui/B.java`, the `TextFieldAPI` implementation): the text sits `pad x 2` in, pad 2 by default (`:15`, `:49`). `setHint` exists only on the obf class and centres a grey hint (`:78-82`), so `UiFilter` draws its own left aligned hint label over the empty field; labels let the click through to the field. `grabFocus(false)` takes the focus without the typing sound (`:284-291`).
 - `CampaignClockAPI.getShortDate()` is `cycle.month.day` and `getDateString()` is `Mon d, cN` (`obf/campaign/CampaignClock.java:30-36`).
 
 ## Known limits

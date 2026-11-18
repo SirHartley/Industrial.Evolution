@@ -330,10 +330,12 @@ public final class RestChecks {
             c.near(shop.getUpkeep().getModifiedValue() - upkeep, cost, 1f, "1002 player colony bills the listed fee as upkeep");
             c.expect(tooltip(shop).contains(Misc.getDGSCredits(cost)), "1002 tooltip shows that fee (" + Misc.getDGSCredits(cost) + ")");
 
+            float own = shop.getTotalStorageCost();
+            c.near(own, Math.max(PetShop.MIN_STORAGE_FEE, pet.getData().value * PetShop.STORAGE_FEE_FRACT), 1f, "1002 fee is a share of the species value");
             a.setPlayerOwned(false);
             a.reapplyIndustries();
             float fee = shop.getTotalStorageCost();
-            c.expect(fee > PetShop.FLAT_MANAGEMENT_FEE, "npc colony adds the management fee");
+            c.near(fee, own * PetShop.NPC_STORAGE_FEE_MULT, 1f, "npc colony adds the management share");
             c.expect(tooltip(shop).contains(Misc.getDGSCredits(fee)), "1002 npc colony tooltip shows that fee (" + Misc.getDGSCredits(fee) + ")");
             MonthlyReport report = SharedData.getData().getCurrentReport();
             MonthlyReport.FDNode node = report.getNode(report.getNode(report.getNode(BillingHelper.SERVICES_NODE), a.getId()), shop.getId() + "_storage");
