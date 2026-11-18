@@ -89,15 +89,22 @@ public class PetRefitRowPatch {
             ReflectionUtils.invoke("saveCurrentVariant", refit, NO_ARGS, false);
         }
 
-        PetsDialogPlugin.over(pet, refit == null ? null : () -> ReflectionUtils.invoke("recreateUI", refit, NO_ARGS, false));
+        PetsDialogPlugin.over(pet, refit == null ? null : () -> reload(refit));
     }
 
-    // the refit panel is the first parent that declares all three
+    // the ship display skips a member it already shows unless the panel forces it, setFleetMember clears the flag again
+    private static void reload(Object refit) {
+        ReflectionUtils.invoke("setForceSetMemberNextCall", refit, new Object[]{true}, false);
+        ReflectionUtils.invoke("recreateUI", refit, NO_ARGS, false);
+    }
+
+    // the refit panel is the first parent that declares all four
     private static Object refitPanel(Object node) {
         for (Object p = node; p != null; p = ReflectionUtils.invoke("getParent", p, NO_ARGS, false)) {
             if (ReflectionUtils.hasMethodOfName("recreateUI", p, false)
                     && ReflectionUtils.hasMethodOfName("saveCurrentVariant", p, false)
-                    && ReflectionUtils.hasMethodOfName("isEditedSinceSave", p, false)) return p;
+                    && ReflectionUtils.hasMethodOfName("isEditedSinceSave", p, false)
+                    && ReflectionUtils.hasMethodOfName("setForceSetMemberNextCall", p, false)) return p;
         }
 
         log.warn("No refit panel above the pet row, the refit screen is not refreshed after the Pets panel");
