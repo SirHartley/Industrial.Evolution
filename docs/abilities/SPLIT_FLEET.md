@@ -135,7 +135,7 @@ Closing the panel opened on a detachment clears the player's interaction target 
 
 ### Payroll
 
-Vanilla `CoreScript.reportEconomyTick` bills only the player fleet's cargo crew and marines and its `OfficerDataAPI` list. Detachment officers stay captains of their ships but leave the player fleet's officer list, so nothing billed them. `DetachmentPayroll.reportEconomyTick` adds each live detachment's crew and marines to the vanilla `CREW` and `MARINES` nodes under `FLEET` and each officer captain (not default, AI core, player or pet captain) as a child of `OFFICERS` named "<officer> (Detachment N)", at the vanilla rates (`crewSalary`, `marineSalary`, `Misc.getOfficerSalary`) divided by `economyIterPerMonth`. Dormant detachments and the tutorial are not billed.
+Vanilla `CoreScript.reportEconomyTick` bills only the player fleet's cargo crew and marines and its `OfficerDataAPI` list. Detachment officers stay captains of their ships but leave the player fleet's officer list, so nothing billed them. `DetachmentPayroll.reportEconomyTick` adds each live detachment's crew and marines to the vanilla `CREW` and `MARINES` nodes under `FLEET` and each officer captain (not default, AI core, player or pet captain) as a child of `OFFICERS` named "<officer> (Detachment N)", at the vanilla rates (`crewSalary`, `marineSalary`, `DetachmentPayroll.getSalary`: officer pay with the inactive mult, without the populated system mult, which vanilla reads from the player fleet's location) divided by `economyIterPerMonth`. Dormant detachments and the tutorial are not billed.
 
 ### Combat losses and recovery
 

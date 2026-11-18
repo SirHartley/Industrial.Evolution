@@ -1,6 +1,7 @@
 --------------------------- Changelog -----------------------------
 4.2.a - UNRELEASED
 General
+Adjusted - Updated for Starsector 0.98.5a
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game

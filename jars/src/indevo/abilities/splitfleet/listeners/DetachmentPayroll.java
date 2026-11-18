@@ -52,7 +52,7 @@ public class DetachmentPayroll implements EconomyTickListener {
 
                 FDNode oNode = report.getNode(officersNode, officer.getId());
                 oNode.name = officer.getNameString() + " (" + detachment.getName() + ")";
-                oNode.upkeep += Misc.getOfficerSalary(officer) * f;
+                oNode.upkeep += getSalary(officer) * f;
             }
         }
     }
@@ -71,5 +71,10 @@ public class DetachmentPayroll implements EconomyTickListener {
 
     @Override
     public void reportEconomyMonthEnd() {
+    }
+
+    // vanilla payroll pay with the inactive mult; the populated system mult is left out, vanilla reads it from the player fleet's location
+    public static float getSalary(PersonAPI officer) {
+        return Misc.getOfficerSalary(officer, Misc.isMercenary(officer), false, true);
     }
 }

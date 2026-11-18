@@ -146,6 +146,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         unmodifyOfficerQualityIncrease();
     }
 
+    // base pay without the populated system and inactive mults, the pay before 0.98.5a
+    public static float getBaseSalary(PersonAPI person) {
+        return Misc.getOfficerSalary(person, Misc.isMercenary(person), false, false);
+    }
+
     public static Academy get(MarketAPI market) {
         return market != null && market.hasIndustry(Ids.ACADEMY) ? (Academy) market.getIndustry(Ids.ACADEMY) : null;
     }
@@ -264,7 +269,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         float totalCost = 0;
 
         for (PersonAPI person : getOfficerStorage()) {
-            totalCost += Misc.getOfficerSalary(person);
+            totalCost += getBaseSalary(person);
         }
 
         for (PersonAPI person : getAdminStorage()) {
@@ -874,7 +879,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         person.setFaction(Factions.INDEPENDENT);
         person.setPostId(Ranks.POST_OFFICER_FOR_HIRE);
 
-        int salary = (int) Misc.getOfficerSalary(person);
+        int salary = (int) getBaseSalary(person);
 
         return new OfficerManagerEvent.AvailableOfficer(person, market.getId(), person.getStats().getLevel() * 2000, salary);
     }

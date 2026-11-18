@@ -163,7 +163,7 @@ class AcademyDetail {
             UiData.grid(b, GRID_X, 2f, w - GRID_X, GRID_ROW, List.of(
                     GridRow.of("Level", person.getStats().getLevel() + ""),
                     GridRow.of("Personality", AcademyPanelDelegate.getPersonalityName(personality), AcademyPanelDelegate.getPersonalityColor(personality)),
-                    GridRow.of("Salary", Misc.getDGSCredits(Misc.getOfficerSalary(person))),
+                    GridRow.of("Salary", Misc.getDGSCredits(Academy.getBaseSalary(person))),
                     GridRow.of("Steps used", used + " of " + Math.max(used, academy.getMaxOfficerSteps()))));
 
             float lineY = 2f + 4f * GRID_ROW;
