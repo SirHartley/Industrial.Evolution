@@ -113,9 +113,9 @@ public class PetCard {
         return icon;
     }
 
-    // refit row: the cut button and the framed picture over the hull mod icon, which keeps its tooltip
-    public static CustomPanelAPI refitButton(Pet pet, Runnable onClose) {
-        Click click = new Click(() -> PetsDialogPlugin.over(pet, onClose), false);
+    // refit row: the cut button and the framed picture over the hull mod icon, which keeps its tooltip; the caller opens the panel
+    public static CustomPanelAPI refitButton(Pet pet, Runnable action) {
+        Click click = new Click(action, false);
         CustomPanelAPI p = Global.getSettings().createCustom(REFIT_CUT + REFIT_GAP + REFIT_ICON, REFIT_ICON, click);
         Ui.painted(p, 0f, 0f, REFIT_CUT, REFIT_ICON, (pos, a) -> UiDraw.fan(pos.getX(), pos.getY(), REFIT_ICON, REFIT_ICON, CUT, 6f, 17f, click.hover ? Ui.base() : Ui.dark(), a), null);
 
