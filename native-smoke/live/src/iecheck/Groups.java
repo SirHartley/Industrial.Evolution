@@ -21,6 +21,8 @@ public final class Groups {
                 return ArcMath.steps();
             case "pets":
                 return PetsChecks.steps();
+            case "petsui":
+                return PetsUiChecks.steps();
             case "petslines":
                 return PetsLinesChecks.steps();
             case "petsmove":
