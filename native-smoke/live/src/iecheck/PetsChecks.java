@@ -25,7 +25,7 @@ public final class PetsChecks {
 
         Pet pet = new Pet("slaghound", name);
         PetStatusManager.getInstance().register(pet);
-        pet.assign(member);
+        pet.place(member, null);
 
         CargoAPI storage = Misc.getStorageCargo(market);
         storage.initMothballedShips(Global.getSector().getPlayerFaction().getId());
@@ -78,14 +78,14 @@ public final class PetsChecks {
 
             Pet pet = new Pet("slaghound", "Mover");
             PetStatusManager.getInstance().register(pet);
-            pet.assign(first);
+            pet.place(first, null);
             c.expect(!pet.isUnsettled() && pet.getMood() == PetMood.CONTENT, "first assign is no move (" + pet.getMood() + ")");
             c.expect(hasEffect(pet, first), "settled pet applies its hullmod effect");
 
-            pet.moveTo(second);
+            pet.place(second, null);
             c.expect(pet.assignedFleetMember == second && PetStatusManager.getInstance().getPet(first.getVariant()) == null, "moved pet sits on the new ship only");
             c.expect(pet.isUnsettled() && pet.getMood() == PetMood.UNSETTLED, "moved pet is Unsettled (" + pet.getMood() + ")");
-            c.near(pet.getBond().unsettledDays, 30f, 0.01f, "Unsettled lasts 30 days");
+            c.near(pet.unsettledDays, 30f, 0.01f, "Unsettled lasts 30 days");
             c.expect(!hasEffect(pet, second), "Unsettled pet applies no hullmod effect");
 
             c.put("mover", pet.id);
@@ -113,7 +113,7 @@ public final class PetsChecks {
 
             Pet eater = new Pet("bugdog", "Eater");
             PetStatusManager.getInstance().register(eater);
-            eater.assign(ship());
+            eater.place(ship(), null);
             float supplies = cargo.getCommodityQuantity("supplies");
             c.expect(PetStatusManager.getInstance().feed(eater), "pet with food in the cargo eats");
             c.near(cargo.getCommodityQuantity("supplies"), supplies, 0.01f, "pet eats its food before Supplies");

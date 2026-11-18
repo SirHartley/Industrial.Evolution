@@ -34,7 +34,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
 
         tooltip.addSectionHeading("Effect", Alignment.MID, opad);
         if (pet.isUnsettled()) {
-            int days = (int) Math.ceil(pet.getBond().unsettledDays);
+            int days = (int) Math.ceil(pet.unsettledDays);
             tooltip.addPara("Unsettled after a move, no effect for %s", opad, Misc.getNegativeHighlightColor(), Misc.getStringForDays(days));
         } else {
             tooltip.addPara("Reduces CR decay during combat by %s", opad, hl, Misc.getRoundedValueMaxOneAfterDecimal(BASE_DECREASE * pet.getEffectFract()) + " %");

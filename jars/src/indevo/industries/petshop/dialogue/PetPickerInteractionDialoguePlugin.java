@@ -81,7 +81,7 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
 
                             Pet pet = new Pet(data.id, getName());
                             PetStatusManager.getInstance().register(pet);
-                            pet.assign(newHome);
+                            pet.place(newHome, null);
 
                             Global.getSector().getCampaignUI().getMessageDisplay().addMessage("Assigned " + getName() + " to " + newHome.getShipName());//,
                             helper.removeFromClickedStackFirst(1);

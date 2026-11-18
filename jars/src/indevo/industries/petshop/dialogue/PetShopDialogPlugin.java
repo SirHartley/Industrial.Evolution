@@ -96,7 +96,7 @@ public class PetShopDialogPlugin implements InteractionDialogPlugin, EscapeBlock
                         if (members != null && !members.isEmpty()) {
                             FleetMemberAPI newHome = members.get(0);
 
-                            pet.moveTo(newHome);
+                            pet.place(newHome, null);
 
                             Global.getSector().getCampaignUI().getMessageDisplay().addMessage("Assigned " + pet.name + " to " + newHome.getShipName());
                             showDelegate = true;

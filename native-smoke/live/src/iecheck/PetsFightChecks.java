@@ -77,12 +77,12 @@ public final class PetsFightChecks {
 
             Pet steady = new Pet("slaghound", "Steady");
             manager.register(steady);
-            steady.assign(ship("wolf_Assault", "ISS Steady Home"));
+            steady.place(ship("wolf_Assault", "ISS Steady Home"), null);
 
             Pet mover = new Pet("bugdog", "Mover");
             manager.register(mover);
-            mover.assign(ship("wolf_Assault", "ISS Old Home"));
-            mover.moveTo(ship("wolf_Assault", "ISS New Home"));
+            mover.place(ship("wolf_Assault", "ISS Old Home"), null);
+            mover.place(ship("wolf_Assault", "ISS New Home"), null);
             ship("lasher_CS", "ISS Spare Berth");
 
             c.expect(steady.getMood() == PetMood.CONTENT && mover.getMood() == PetMood.UNSETTLED, "moods before the fight: " + steady.getMood() + ", " + mover.getMood());
@@ -140,10 +140,10 @@ public final class PetsFightChecks {
             Pet steady = manager.get((String) c.get("steady"));
             Pet mover = manager.get((String) c.get("mover"));
             c.expect(!steady.isDead() && !mover.isDead(), "both pets survived the fight");
-            c.near(steady.getBond().shellShockedDays, 7f, 0.5f, "deployed pet is Shell shocked for 7 days");
+            c.near(steady.shellShockedDays, 7f, 0.5f, "deployed pet is Shell shocked for 7 days");
             c.expect(steady.getMood() == PetMood.SHELL_SHOCKED, "settled pet after the fight is Shell shocked (" + steady.getMood() + ")");
             c.expect(mood(steady).contains("Mood: " + PetMood.SHELL_SHOCKED.label), "pet data section shows Mood: Shell shocked");
-            c.expect(mover.getBond().shellShockedDays > 0f && mover.getMood() == PetMood.UNSETTLED, "Unsettled wins over Shell shocked in the mood (" + mover.getMood() + ")");
+            c.expect(mover.shellShockedDays > 0f && mover.getMood() == PetMood.UNSETTLED, "Unsettled wins over Shell shocked in the mood (" + mover.getMood() + ")");
             c.keepDialog(false);
             c.frames(30);
         });
@@ -194,7 +194,7 @@ public final class PetsFightChecks {
                 Pet pet = petId == null ? null : PetStatusManager.getInstance().get((String) petId);
                 if (pet == null) continue;
                 state.append(pet.name).append(" on ").append(pet.assignedFleetMember == null ? "none" : pet.assignedFleetMember.getShipName())
-                        .append(" mood ").append(pet.getMood()).append(" unsettled ").append(Math.round(pet.getBond().unsettledDays)).append("; ");
+                        .append(" mood ").append(pet.getMood()).append(" unsettled ").append(Math.round(pet.unsettledDays)).append("; ");
             }
             String now = state.toString();
             if (!now.equals(last)) log.info("LIVE_CHECK note: petwatch " + now);

@@ -35,7 +35,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public static void dev() {
         Pet pet = new Pet("slaghound", "Hartleys Pile o' Rocks");
         getInstance().register(pet);
-        pet.assign(Global.getSector().getPlayerFleet().getFlagship());
+        pet.place(Global.getSector().getPlayerFleet().getFlagship(), null);
 
         //runcode indevo.industries.petshop.listener.PetStatusManager.dev()
 
@@ -131,7 +131,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         if (foodToEat == null) return false;
 
         cargo.removeCommodity(foodToEat, data.foodPerMonth);
-        pet.getBond().lastMealSupplies = eatsSupplies;
+        pet.lastMealSupplies = eatsSupplies;
 
         if (foodTakenLastMonth.containsKey(foodToEat))
             foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + data.foodPerMonth);

@@ -15,8 +15,7 @@ Code paths relative to `jars/src/indevo/`.
 | File | Owner / role |
 |---|---|
 | `industries/petshop/industry/PetShop.java` | Industry plugin. Owns `storedPets`, `petStorageCostMult`. Food demand, submarket add/remove, storage fee, AI cores. `EconomyTickListener` |
-| `industries/petshop/memory/Pet.java` | Pet state: `typeID`, `id`, `name`, `age`, `lifetime` (0.9 to 1.1 x `maxLife`), `assignedFleetMember`, `storage`, `personality`, `serveDuration`, `deathData`, `bond`. `assign()`, `moveTo()`, `store()`, `advance()`, `getMood()`, feeding, hullmod tooltip section |
-| `industries/petshop/memory/PetBond.java` | Saved on `Pet`: `unsettledDays`, `shellShockedDays`, `lastMealSupplies` |
+| `industries/petshop/memory/Pet.java` | Pet state: `typeID`, `id`, `name`, `age`, `lifetime` (0.9 to 1.1 x `maxLife`), `assignedFleetMember`, `storage`, `personality`, `serveDuration`, `deathData`, `unsettledDays`, `shellShockedDays`, `lastMealSupplies`, `homeShipId`. `place()`, `advance()`, `getMood()`, feeding, hullmod tooltip section |
 | `industries/petshop/PetMood.java` | Display only moods with label and colour |
 | `industries/petshop/PetConstants.java` | Tuning numbers that are not per species: Unsettled and Shell shocked days, Sleepy age |
 | `industries/petshop/memory/PetData.java` | One `pets.csv` row. Tags `no_sell`, `no_drop` |
@@ -52,7 +51,7 @@ Code paths relative to `jars/src/indevo/`.
 | Setting | `IndEvo_pets` | `LunaSettings.csv:11` |
 | Faction (colour only) | `petStoreColour` | `data/world/factions/submarkets/` |
 | Entity | `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:1220` |
-| Variant tag | `PET_DATA_ID_<pet id>` on the pet's ship | `Pet.assign()` |
+| Variant tag | `PET_DATA_ID_<pet id>` on the pet's ship | `Pet.place()` |
 | Memory | `$IndEvo_BlockESC` | sector memory |
 | Person | `foogAristo` at `athulf`, sells the `lordandsaviour` pet box for 300000 at cooperative (rules `IndEvo_foog_*`) | `ModPlugin.addLordFoogRep()` (`utils/ModPlugin.java:226`) |
 
@@ -69,7 +68,7 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Getting a pet
 
-`PetSubMarket` restock -> `IndEvo_PetBox` in cargo -> right-click in fleet cargo tab (`PetItemPlugin.performRightClickAction(RightClickActionHelper)`) -> `showInteractionDialogFromCargo` opens `PetPickerInteractionDialoguePlugin` over the cargo screen -> name -> ship picker -> `new Pet` -> `PetStatusManager.register` -> `Pet.assign(member)` -> box removed through `helper.removeFromClickedStackFirst(1)`. Every dismiss (assigned, cancelled) returns to the cargo screen.
+`PetSubMarket` restock -> `IndEvo_PetBox` in cargo -> right-click in fleet cargo tab (`PetItemPlugin.performRightClickAction(RightClickActionHelper)`) -> `showInteractionDialogFromCargo` opens `PetPickerInteractionDialoguePlugin` over the cargo screen -> name -> ship picker -> `new Pet` -> `PetStatusManager.register` -> `Pet.place(member, null)` -> box removed through `helper.removeFromClickedStackFirst(1)`. Every dismiss (assigned, cancelled) returns to the cargo screen.
 
 - Restock: weighted picker over pets without `no_sell`, weight = rarity (x1.3 with an alpha core when rarity < 0.5). Picks = market size; amount per pick = floor(rarity x 3), at least 1.
 - Tariff 0.2, 0 with a beta core. Selling to the submarket is illegal.
@@ -77,15 +76,15 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Assigned pet
 
-- `assign()` adds `PetData.hullmod` as a perma mod and the `PET_DATA_ID_` tag; switches to a custom variant unless called from refit.
+- `place(member, storage)` is the only method that moves a pet: it takes the pet off its ship and out of storage, then puts it on the member or into the Animal Center storage (both null: on no ship and in no storage). On a ship it adds `PetData.hullmod` as a perma mod and the `PET_DATA_ID_` tag and switches to a custom variant unless called from refit.
 - Effect fraction = `serveDuration / 365`, capped at 1. Pet hullmods look up their pet through `PetStatusManager.getPet(variant)`.
-- `moveTo()` (Assign and Re-Assign in the manager, `PetShopDialogPlugin.showShipPicker`) takes the pet out of storage or off its ship, assigns it and sets it Unsettled for `UNSETTLED_DAYS` (30). The first assign from a Cryochamber is no move. While Unsettled, `PetHullmod` applies no effect and its tooltip shows the days left.
+- A pet that arrives on a ship other than `homeShipId`, the last ship it lived on, is Unsettled for `UNSETTLED_DAYS` (30): Assign and Re-Assign in the manager (`PetShopDialogPlugin.showShipPicker`). Its first ship (from a Cryochamber) and a return to the same ship after storage are no move. While Unsettled, `PetHullmod` applies no effect and its tooltip shows the days left.
 - `reportPlayerEngagement` sets every pet on a deployed or retreated player ship Shell shocked for `SHELL_SHOCKED_DAYS` (7).
 - Mood (`Pet.getMood()`, first match wins): Hungry (starving), Unsettled, Shell shocked, Unhappy with its food (last meal was Supplies), Sleepy (age over 80% of `lifetime`), Content. Display only, shown in the hullmod tooltip. Concept moods not built yet: Happy (petting), Sulking (wants), Irate (no trigger decided).
 
 ### Daily and monthly
 
-- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:141`), counts down the bond timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:138`); no food -> starving -> `STARVED` death.
+- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:139`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:138`); no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
 - `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:154-166`); `reportPlayerMarketTransaction` -> pet ship sold -> `SOLD` (warns when sold into a free transfer submarket); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
 - `reportPetDied()` ignores a pet that is already dead, removes the hullmod and tag, posts a message, keeps `DeathData`.
@@ -100,12 +99,12 @@ Code paths relative to `jars/src/indevo/`.
 | Core | Effect | Where |
 |---|---|---|
 | Alpha | rare pet weight x1.3 in restock | `PetSubMarket.java:32` |
-| Beta | pets stop aging in storage; tariff 0 | `Pet.java:141`, `PetSubMarket.java:61` |
+| Beta | pets stop aging in storage; tariff 0 | `Pet.java:139`, `PetSubMarket.java:61` |
 | Gamma | `petStorageCostMult` 0.7 | `PetShop.java:318` |
 
 ## Contracts
 
-- `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:59`, `:249`); see [Academy](ACADEMY.md).
+- `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:63`, `:240`); see [Academy](ACADEMY.md).
 - A box whose data has no `pets.csv` row (unknown id, or null data in a real cargo) is invalid (`PetItemPlugin.isInvalid()`): no icon, the tooltip says so, a right-click throws `IllegalStateException`. Codex stacks have null data and no cargo (`obf/codex2/CodexDetailPanel.java:935`) and show the `hampter` fallback.
 - Dialogs from `showInteractionDialogFromCargo` do not become `getCurrentInteractionDialog()` (`obf/campaign/CampaignState.java:2298-2318`, `:2372`), so `isFleetCargo()` stays true while the picker is open. A second box still cannot be clicked: the dialog opens inside the right-click and its full screen backing panel absorbs all input (`com.fs.starfarer.ui.oo0O`, `absorbOutsideEvents` defaults to true, `obf/ui/_c199.java:18`, `:44-63`; input order inferred from vanilla dialogs being modal).
 - `EscapeInterceptListener` and `EscBlockerMemoryIterator` are also used by `industries/museum/plugins/ManageParadeDialoguePlugin.java` ([Museum](MUSEUM.md)).
