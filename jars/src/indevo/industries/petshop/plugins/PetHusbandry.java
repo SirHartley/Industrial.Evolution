@@ -5,6 +5,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
+import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.academy.industry.Academy;
@@ -32,13 +33,13 @@ public class PetHusbandry {
     static final float HAB_FACE = 36f;
     static final float TILE_H = 134f;
     static final float DIAL_ROW = 18f;
-    static final float DIALS_Y = 82f;
+    static final float DIALS_Y = 62f;
     static final float START_W = 104f;
     static final float YOUNG_W = 40f;
     static final float YOUNG_H = 56f;
     static final float YOUNG_GAP = 8f;
     static final String WILD_TYPE = "Wild type";
-    static final float CROSS_Y = 134f;
+    static final float CROSS_Y = 118f;
     static final float CHIP_H = 24f;
     static final float CHIP_PITCH = 28f;
     static final float CHIP_BAR_X = 124f;
@@ -338,9 +339,12 @@ public class PetHusbandry {
         Ui.textIn(p, 4f, 0f, w - 8f, PetCard.NAME_H, Ui.fit(title, Ui.ORB20, w - 8f), Ui.ORB20, Ui.bright(), Ui.CENTER, new String[0], new Color[0]);
     }
 
+    // one line, so the traits get a fourth row at 1280x768
     private static void tagline(CustomPanelAPI p, float w, String line) {
         if (line == null || line.isEmpty()) return;
-        Ui.wrap(p, 0f, PetCard.TAG_Y, w, Ui.lines(line, Ui.INS15, w, 2), Ui.INS15, Ui.gray(), Alignment.TMID, new String[0], new Color[0]);
+        String shown = Ui.fit(line, Ui.INS15, w);
+        LabelAPI label = Ui.wrap(p, 0f, PetCard.TAG_Y, w, shown, Ui.INS15, Ui.gray(), Alignment.TMID, new String[0], new Color[0]);
+        if (!shown.equals(line)) Ui.tooltip(p, label, null, line);
     }
 
     private void pairCard(CustomPanelAPI p, float w, float h, int habitat) {

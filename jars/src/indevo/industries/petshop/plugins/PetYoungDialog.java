@@ -31,6 +31,10 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     static final float CARD_GAP = 12f;
     static final float CARDS_Y = 46f;
     static final float MIN_W = 330f;
+    static final String TITLE = "New young: ";
+    static final float OPEN_W = 96f;
+    static final float OPEN_GAP = 14f;
+    static final float SCREEN_MARGIN = 200f;
     static final float ROW_H = 18f;
     static final float FROM_W = 80f;
     static final float PLACE_Y = CARD_H - 8f - 17f - 6f - 24f;
@@ -83,8 +87,11 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         return count() * CARD_W + (count() - 1) * CARD_GAP;
     }
 
+    // wide enough for the title next to Open all, within the screen; a longer title is cut with a tooltip
     private float width() {
-        return Math.max(cardsWidth(), MIN_W);
+        float title = Ui.width(TITLE + pair, Ui.INS21) + 4f + OPEN_W + OPEN_GAP;
+        float max = Global.getSettings().getScreenWidth() - SCREEN_MARGIN;
+        return Math.max(Math.max(cardsWidth(), MIN_W), Math.min(Math.round(title), max));
     }
 
     @Override
@@ -112,9 +119,11 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         boolean closed = false;
         for (Pet young : brood.getYoung()) if (!brood.opened.contains(young.id)) closed = true;
 
-        float tw = closed ? w - 110f : w;
-        Ui.runs(p, 0f, 2f, tw, Ui.INS21, Ui.text(), Ui.LEFT, "New young: " + Ui.fit(pair, Ui.INS21, tw - 140f), new String[]{Ui.fit(pair, Ui.INS21, tw - 140f)}, new Color[]{Ui.hl()});
-        if (closed) UiButtons.button(p, w - 96f, 2f, 96f, PetCard.BUTTON_H, "Open all", UiButtons.Kind.STD, CutStyle.TL_BR, this::openAll);
+        float tw = closed ? w - OPEN_W - OPEN_GAP : w;
+        String shown = Ui.fit(pair, Ui.INS21, tw - Ui.width(TITLE, Ui.INS21) - 4f);
+        LabelAPI title = Ui.runs(p, 0f, 2f, tw, Ui.INS21, Ui.text(), Ui.LEFT, TITLE + shown, new String[]{shown}, new Color[]{Ui.hl()});
+        if (!shown.equals(pair)) Ui.tooltip(p, title, null, pair);
+        if (closed) UiButtons.button(p, w - OPEN_W, 2f, OPEN_W, PetCard.BUTTON_H, "Open all", UiButtons.Kind.STD, CutStyle.TL_BR, this::openAll);
 
         fields.clear();
         float x0 = Math.round((w - cardsWidth()) / 2f);
