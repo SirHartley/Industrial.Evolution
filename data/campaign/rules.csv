@@ -896,3 +896,5 @@ IndEvo_CPCExpress apply $cpc_ref
 Call $cpc_ref repSuccess
 Call $cpc_ref addContacts",,,
 ,,,,,,
+# Pets,,,,,,
+IndEvo_petDockingLine,MarketPostOpen,$hasMarket,IndEvo_PetDockingLine,,,"pet line on docking, cadence in PetStatusManager.sayDocking"

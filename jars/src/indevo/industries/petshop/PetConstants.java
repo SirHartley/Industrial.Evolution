@@ -4,6 +4,8 @@ public final class PetConstants {
     public static final float UNSETTLED_DAYS = 30f;
     public static final float SHELL_SHOCKED_DAYS = 7f;
     public static final float SLEEPY_AGE_FRACTION = 0.8f;
+    public static final float FLAGSHIP_LINE_WEIGHT = 3f;
+    public static final float LINE_DAYS_SPREAD = 0.5f;
 
     private PetConstants() {
     }

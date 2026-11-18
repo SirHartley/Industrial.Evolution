@@ -65,6 +65,8 @@ Pets
 Added - Pet moods: Hungry, Unsettled, Shell shocked, Unhappy with its food, Sleepy or Content, shown in the pet's hullmod tooltip
 Added - A pet on a sold, stored or scuttled ship moves to a free ship in the fleet, flagship first, then the largest
 Added - Console command indevo_pet: list, give and age pets
+Added - Pet lines: your pets post short messages in flight and when you dock
+Added - Setting to adjust the days between pet lines (default 14, 0 turns them off)
 Adjusted - Pets eat Supplies only when none of their other food is in the cargo
 Adjusted - Moving a pet to another ship makes it Unsettled for 30 days, no pet effect until then
 Adjusted - A pet put back on its last ship no longer restarts its effect from zero

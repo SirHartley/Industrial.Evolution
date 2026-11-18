@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-A pet is a `Pet` object bound to one fleet member (perma hullmod plus variant tag) or stored in an Animal Center. Pets age, eat food commodities from fleet cargo (or from the storage their ship sits in) once a month, and die of old age, starvation, combat loss, sale or euthanasia. The pet's hullmod effect grows with time served. The Animal Center sells pets as `IndEvo_PetBox` special items, stores pets and opens the management panel. The `pet_management` ability opens the same panel from anywhere, fleet pets only.
+A pet is a `Pet` object bound to one fleet member (perma hullmod plus variant tag) or stored in an Animal Center. Pets age, eat food commodities from fleet cargo (or from the storage their ship sits in) once a month, and die of old age, starvation, combat loss, sale or euthanasia. The pet's hullmod effect grows with time served. The Animal Center sells pets as `IndEvo_PetBox` special items, stores pets and opens the management panel. The `pet_management` ability opens the same panel from anywhere, fleet pets only. Pets in the fleet post short lines about what they are up to, in flight and when docking.
 
 ## Files
 
@@ -16,15 +16,17 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|
 | `industries/petshop/industry/PetShop.java` | Industry plugin. Owns `storedPets`, `petStorageCostMult`. Food demand, submarket add/remove, storage fee, AI cores. `EconomyTickListener` |
 | `industries/petshop/memory/Pet.java` | Pet state: `typeID`, `id`, `name`, `age`, `lifetime` (0.9 to 1.1 x `maxLife`), `assignedFleetMember`, `storage`, `personality`, `serveDuration`, `deathData`, `unsettledDays`, `shellShockedDays`, `lastMealSupplies`, `homeShipId`. `place()`, `advance()`, `getMood()`, feeding, hullmod tooltip section |
-| `industries/petshop/PetMood.java` | Display only moods with label and colour |
-| `industries/petshop/PetConstants.java` | Tuning numbers that are not per species: Unsettled and Shell shocked days, Sleepy age |
-| `industries/petshop/memory/PetData.java` | One `pets.csv` row. Tags `no_sell`, `no_drop` |
-| `industries/petshop/memory/PetDataRepo.java` | Loads `pets.csv` with `getMergedSpreadsheetDataForMod`, cached in session transient memory |
+| `industries/petshop/PetMood.java` | Display only moods with label, colour and the line id (`id()`, lower case name) |
+| `industries/petshop/PetConstants.java` | Tuning numbers that are not per species: Unsettled and Shell shocked days, Sleepy age, line weights |
+| `industries/petshop/memory/PetData.java` | One `pets.csv` row. Tags `no_sell`, `no_drop`; `getClassTag()` (`c_` tag, `c_alien` when none); `body` |
+| `industries/petshop/memory/PetDataRepo.java` | Loads `pets.csv` and `pet_lines.csv` with `getMergedSpreadsheetDataForMod`, cached in session transient memory; a load failure throws `IllegalStateException`. `parsePets`, `parseLines` take a `JSONArray` and use no `Global`. Line rows are the nested record `Line`; `pickLine` ([Lines](#lines)) |
 | `industries/petshop/memory/DeathData.java` | Cause, date, location of a dead pet |
-| `industries/petshop/listener/PetStatusManager.java` | Singleton registry of all pets. `BaseCampaignEventListener(true)`, `EconomyTickListener`, `FleetEventListener`, `EveryFrameScript`. Feeding, death reports, sale and combat loss detection, `getFreeShip`, `handOver`, `reportScuttled`, `getMenageriePets` |
+| `industries/petshop/listener/PetStatusManager.java` | Singleton registry of all pets. `BaseCampaignEventListener(true)`, `EconomyTickListener`, `FleetEventListener`, `EveryFrameScript`. Feeding, death reports, sale and combat loss detection, `getFreeShip`, `handOver`, `reportScuttled`, `getMenageriePets`, the line cadence, `say`, `getLine`, `sayDocking` |
 | `industries/petshop/listener/EscapeInterceptListener.java` | `CampaignInputListener` (priority 99999): eats Escape while `$IndEvo_BlockESC` is set and calls `EscapeBlockingDialoguePluginAPI.close()` |
 | `industries/petshop/script/EscBlockerMemoryIterator.java` | Transient script that keeps `$IndEvo_BlockESC` alive while the host dialog is open |
 | `industries/petshop/patches/PetScuttlePatch.java` | PatchLib `@After` on `FleetDataAPI.scuttle(FleetMemberAPI)` (vanilla `FleetData`, `obf/campaign/fleet/FleetData.java:1172`; only caller the fleet screen ship card). Calls `PetStatusManager.reportScuttled` |
+| `industries/petshop/rules/IndEvo_PetDockingLine.java` | Rule command on `MarketPostOpen` (row `IndEvo_petDockingLine`): calls `PetStatusManager.sayDocking` |
+| `tools/PetChecks.java` | Headless checks, never shipped ([Checks](#checks)) |
 | `console/PetCommand.java` | `indevo_pet list`, `give <species> [name]`, `age <pet> <days>` ([Console](../core/CONSOLE.md)) |
 | `industries/petshop/item/PetItemPlugin.java` | `IndEvo_PetBox` special item. Item data = pet type id. Icon render, drop tiers, price, right-click use |
 | `industries/petshop/dialogue/PetPickerInteractionDialoguePlugin.java` | Opened by the item: name dialog, then ship picker, then creates and assigns the pet |
@@ -47,10 +49,13 @@ Code paths relative to `jars/src/indevo/`.
 | Special item | `IndEvo_PetBox` (`ItemIds.PET_CHAMBER`) | `data/campaign/special_items.csv:17` |
 | Hullmod | `IndEvo_petHullmod` | `data/hullmods/hull_mods.csv:13` |
 | Ability | `pet_management` | `data/campaign/abilities.csv:3` |
-| Pets | 38 rows: `id,name,value,maxlife,tags,foodCommodities,rarity,foodPerMonth,desc,natural_death,icon,hullmod` | `data/campaign/pets.csv` |
+| Pets | 38 rows: `id,name,value,maxlife,tags,foodCommodities,rarity,foodPerMonth,desc,natural_death,icon,hullmod,body` | `data/campaign/pets.csv` |
+| Pet lines | `id,event,match,mood,disposition,context,text` ([Lines](#lines)) | `data/strings/pet_lines.csv` |
+| Rule | `IndEvo_petDockingLine` (block `# Pets`) | `data/campaign/rules.csv` |
 | Death texts | `hamster_death_causes.csv` (natural death of hamsters), `combat_death_causes.csv` | `data/strings/` |
 | Sprites | `IndEvo/pets_large`, `IndEvo/pets_small`; icons in `graphics/pets` | `data/config/settings.json:102-103` |
-| Setting | `IndEvo_pets` | `LunaSettings.csv:11` |
+| Setting | `IndEvo_pets` | `LunaSettings.csv:10` |
+| Setting | `IndEvo_petLineDays` (`Setting.PET_LINE_DAYS`): minimum days between two ambient or docking lines, default 14, 0 off | `LunaSettings.csv:35` |
 | Faction (colour only) | `petStoreColour` | `data/world/factions/submarkets/` |
 | Entity | `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:1220` |
 | Variant tag | `PET_DATA_ID_<pet id>` on the pet's ship | `Pet.place()` |
@@ -61,8 +66,9 @@ Code paths relative to `jars/src/indevo/`.
 
 - Industry, submarket, item and ability plugins from CSV plugin columns.
 - `PetManagementAbilityPlugin.applySetting()` (`abilities/pets/PetManagementAbilityPlugin.java:19-43`): with `IndEvo_pets` on, adds `pet_management` (`Ids.ABILITY_PET_MANAGEMENT`) to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)) and loads pet textures; a texture that fails to load throws `IllegalStateException`. With the setting off, removes the ability. `PlayerSettings.applyCampaignSettings()` runs it from `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:171`) and after a Save in the LunaLib menu in the campaign ([Settings](../core/SETTINGS.md#reading-a-setting)). On new game with pets on, `onGameLoad` also adds Lord Foog (`:173`).
+- `IndEvo_PetDockingLine` is found through the `ruleCommandPackages` entry `indevo.industries.petshop.rules` ([Rule commands](../dialogue/RULE_COMMANDS.md)).
 - `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:466`).
-- `PetStatusManager.getInstance()` (`PetStatusManager.java:63`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
+- `PetStatusManager.getInstance()` (`PetStatusManager.java:67`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
 - `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:214`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:200-204`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` on the "Pet storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)). `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:176-177`); `notifyBeingRemoved()` releases it (`:183`).
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).
 
@@ -86,9 +92,9 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Daily and monthly
 
-- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:141`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:199`); no food -> starving -> `STARVED` death.
+- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:141`), counts down the Unsettled and Shell shocked timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:285`); no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
-- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:215`); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
+- `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:301`); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
 
 ### Hand over and menagerie
 
@@ -96,6 +102,15 @@ Code paths relative to `jars/src/indevo/`.
 - No free ship: a sold ship's pet dies (`SOLD`), a stored ship's pet stays aboard with the forgotten pet warning, a scuttled ship's pet dies at once (`UNKNOWN`), as at month end before.
 - Menagerie: a living pet with no ship and no storage (`Pet.isInMenagerie()`). It ages and eats from the player fleet cargo, has no effect, and shows in the manager under Fleet, where it can be assigned or stored. Only `indevo_pet give` without a free ship puts a pet there for now.
 - `reportPetDied()` ignores a pet that is already dead, removes the hullmod and tag, posts a message, keeps `DeathData`.
+
+### Lines
+
+- `pet_lines.csv`: one row per line. `event` is `ambient`, `docking` or `status`. `match` holds pet ids, body tags (`b_`) or class tags (`c_`), space separated, or `any`. `mood` (`PetMood.id()`), `disposition` (officer personality id) and `context` (`docked`, `storage`, `old`) are space separated sets; blank or `any` matches all. `text` has one `%s` for the pet name, shown highlighted.
+- `pets.csv` `body`: `b_fourleg`, `b_legs`, `b_wings`, `b_water`, `b_float`, `b_blob`, `b_machine`, `b_jar`, `b_coil`, `b_human`. A row without it (another mod's pet) matches only class and `any` lines.
+- `PetDataRepo.pickLine`: every row of the event whose mood, disposition and context fit goes into one weighted pick. Weight by the best `match` token that fits: pet id 4, body 2, class 1.5, `any` 1. Class and `any` lines describe no body.
+- `PetStatusManager.getLine(pet, event, docked)` builds the context: `storage` for a stored pet, else `docked` when docked; `old` past 80% of `lifetime` (`Pet.isOld()`). `say(pet, event, dialog)` adds the line to the dialog text, or posts a `MessageIntel` with the pet's icon when there is no dialog. Docked means the dialog target has a real market.
+- Cadence (`advanceLines`, saved `daysSinceLine`, `lineRoll`): in flight, an ambient line comes once `daysSinceLine` passes `IndEvo_petLineDays` x `lineRoll` (1 to 1.5, `PetConstants.LINE_DAYS_SPREAD`). Docking (`sayDocking`, rule `IndEvo_petDockingLine` on `MarketPostOpen`, `$hasMarket`) shows a line once `daysSinceLine` passes the setting; `MarketPostOpen` also fires on a return to the market menu, the cadence keeps it to one. Either resets both fields. Speaker: a living pet on a ship of the player fleet or in the menagerie, the flagship pet x3 (`FLAGSHIP_LINE_WEIGHT`).
+- `status` lines are for the Pets card (package 1.4) and are not shown yet.
 
 ### Storage
 
@@ -110,9 +125,20 @@ Code paths relative to `jars/src/indevo/`.
 | Beta | pets stop aging in storage; tariff 0 | `Pet.java:141`, `PetSubMarket.java:61` |
 | Gamma | `petStorageCostMult` 0.7 | `PetShop.java:318` |
 
+## Checks
+
+`indevo/tools/PetChecks.java`, headless, never shipped, not part of `ReleaseBuild`. It reads `pets.csv` and `pet_lines.csv` with the `SettingsChecks` CSV parser and checks: UTF-8 without BOM, no curly quotes, cell counts, unique ids; every pet has a class tag and a known body; every line row has a known event, mood, disposition and context, match tokens that are pet ids, bodies or class tags in use, one `%s`, no other `%`, a full stop except on status notes, status notes that start with the name; class and `any` lines have no body words; every pet finds an ambient, docking and status line for every mood and disposition; the pick weights 4, 2, 1.5 and 1 hold over 40,000 seeded picks.
+
+```sh
+java -cp "out/release-build-<n>/classes:lib/*" indevo.tools.PetChecks
+```
+
+Run from the repository root after the compile gate. Use `;` in place of `:` on Windows. It prints `Pets: N checks passed` or every failure and exits 1. It refuses to run inside the game.
+
 ## Contracts
 
-- `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:63`, `:246`); see [Academy](ACADEMY.md).
+- `MarketPostOpen` is a `FireAll` trigger (vanilla `FireAll MarketPostOpen` from `MarketCMD`, `EndConversation`, `AbandonMarketPluginImpl`), so `IndEvo_petDockingLine` runs next to vanilla's rows; its line comes after their text in load order. A `FireBest MarketPostOpen` (vanilla `kpRemnantTrophyDesc`) picks a vanilla row, which has more conditions.
+- `Pet.personality` uses `Academy.COLOURS_BY_PERSONALITY` (`Pet.java:63`, `:250`); see [Academy](ACADEMY.md).
 - A box whose data has no `pets.csv` row (unknown id, or null data in a real cargo) is invalid (`PetItemPlugin.isInvalid()`): no icon, the tooltip says so, a right-click throws `IllegalStateException`. Codex stacks have null data and no cargo (`obf/codex2/CodexDetailPanel.java:935`) and show the `hampter` fallback.
 - Dialogs from `showInteractionDialogFromCargo` do not become `getCurrentInteractionDialog()` (`obf/campaign/CampaignState.java:2298-2318`, `:2372`), so `isFleetCargo()` stays true while the picker is open. A second box still cannot be clicked: the dialog opens inside the right-click and its full screen backing panel absorbs all input (`com.fs.starfarer.ui.oo0O`, `absorbOutsideEvents` defaults to true, `obf/ui/_c199.java:18`, `:44-63`; input order inferred from vanilla dialogs being modal).
 - `EscapeInterceptListener` and `EscBlockerMemoryIterator` are also used by `industries/museum/plugins/ManageParadeDialoguePlugin.java` ([Museum](MUSEUM.md)).

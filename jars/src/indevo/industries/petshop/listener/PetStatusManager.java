@@ -18,8 +18,10 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
+import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 
@@ -29,8 +31,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PetStatusManager extends BaseCampaignEventListener implements EconomyTickListener, FleetEventListener, EveryFrameScript {
 
@@ -77,6 +81,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     private List<Pet> pets = new ArrayList<>();
+    private float daysSinceLine = 0f;
+    private float lineRoll = 0f;
 
     public void register(Pet pet) {
         pets.add(pet);
@@ -100,6 +106,86 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         if (!fleet.getEventListeners().contains(this)) fleet.addEventListener(this);
 
         for (Pet pet : pets) pet.advance(amount);
+        advanceLines(amount);
+    }
+
+    private void advanceLines(float amount) {
+        int interval = Setting.PET_LINE_DAYS.intValue();
+        if (interval <= 0) return;
+
+        daysSinceLine += Global.getSector().getClock().convertToDays(amount);
+        if (lineRoll <= 0f) lineRoll = 1f + Misc.random.nextFloat() * PetConstants.LINE_DAYS_SPREAD;
+        if (daysSinceLine < interval * lineRoll) return;
+
+        Pet pet = pickSpeaker();
+        if (pet != null) say(pet, PetDataRepo.EVENT_AMBIENT, null);
+        resetLines();
+    }
+
+    public boolean sayDocking(InteractionDialogAPI dialog) {
+        int interval = Setting.PET_LINE_DAYS.intValue();
+        if (interval <= 0 || daysSinceLine < interval) return false;
+
+        Pet pet = pickSpeaker();
+        if (pet == null || !say(pet, PetDataRepo.EVENT_DOCKING, dialog)) return false;
+
+        resetLines();
+        return true;
+    }
+
+    public boolean say(Pet pet, String event, InteractionDialogAPI dialog) {
+        String line = getLine(pet, event, isDocked(dialog));
+        if (line == null) return false;
+
+        Color hl = Misc.getHighlightColor();
+
+        if (dialog != null) {
+            dialog.getTextPanel().addPara(line, hl, pet.name);
+            return true;
+        }
+
+        MessageIntel intel = new MessageIntel(line, Misc.getTextColor(), new String[]{pet.name}, hl);
+        intel.setIcon(pet.getData().icon);
+        Global.getSector().getCampaignUI().addMessage(intel);
+        return true;
+    }
+
+    public String getLine(Pet pet, String event, boolean docked) {
+        Set<String> context = new HashSet<>();
+        if (pet.storage != null) context.add(PetDataRepo.CONTEXT_STORAGE);
+        else if (docked) context.add(PetDataRepo.CONTEXT_DOCKED);
+        if (pet.isOld()) context.add(PetDataRepo.CONTEXT_OLD);
+
+        PetDataRepo.Line line = PetDataRepo.pickLine(PetDataRepo.getLines(), event, pet.getData(), pet.getMood().id(), pet.personality, context, Misc.random);
+        return line != null ? line.text() : null;
+    }
+
+    private Pet pickSpeaker() {
+        CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
+        WeightedRandomPicker<Pet> picker = new WeightedRandomPicker<>(Misc.random);
+
+        for (Pet pet : pets) {
+            if (pet.isDead() || pet.storage != null) continue;
+
+            FleetMemberAPI member = pet.assignedFleetMember;
+            if (member != null && (member.getFleetData() == null || member.getFleetData().getFleet() != fleet)) continue;
+
+            picker.add(pet, member != null && member.isFlagship() ? PetConstants.FLAGSHIP_LINE_WEIGHT : 1f);
+        }
+
+        return picker.pick();
+    }
+
+    private void resetLines() {
+        daysSinceLine = 0f;
+        lineRoll = 0f;
+    }
+
+    private static boolean isDocked(InteractionDialogAPI dialog) {
+        if (dialog == null || dialog.getInteractionTarget() == null) return false;
+
+        MarketAPI market = dialog.getInteractionTarget().getMarket();
+        return market != null && !market.isPlanetConditionMarketOnly();
     }
 
     public Pet get(String id) {
