@@ -21,7 +21,7 @@ Code paths relative to `jars/src/indevo/`.
 | `industries/petshop/memory/PetData.java` | One `pets.csv` row. Tags `no_sell`, `no_drop`; `getClassTag()` (`c_` tag, `c_alien` when none); `body` |
 | `industries/petshop/memory/PetDataRepo.java` | Loads `pets.csv` and `pet_lines.csv` with `getMergedSpreadsheetDataForMod`, cached in session transient memory; a load failure throws `IllegalStateException`. `parsePets`, `parseLines` take a `JSONArray` and use no `Global`. Line rows are the nested record `Line`; `pickLine` ([Lines](#lines)) |
 | `industries/petshop/memory/DeathData.java` | Cause, date, location of a dead pet |
-| `industries/petshop/listener/PetStatusManager.java` | Singleton registry of all pets. `BaseCampaignEventListener(true)`, `EconomyTickListener`, `FleetEventListener`, `EveryFrameScript`. Feeding, `hasFood`, death reports, sale and combat loss detection, `getFreeShip`, `handOver`, `reportScuttled`, `getMenageriePets`, the line cadence, `say`, `getLine`, `sayDocking` |
+| `industries/petshop/listener/PetStatusManager.java` | Singleton registry of all pets. `BaseCampaignEventListener(true)`, `EconomyTickListener`, `FleetEventListener`, `EveryFrameScript`. Feeding, `hasFood`, death reports, sale and combat loss detection, `getFreeShip`, `handOver`, `reportScuttled`, `getMenageriePets`, `holdMessages`, `releaseMessages`, the line cadence, `say`, `getLine`, `sayDocking` |
 | `industries/petshop/listener/EscapeInterceptListener.java` | `CampaignInputListener` (priority 99999): eats Escape while `$IndEvo_BlockESC` is set and calls `EscapeBlockingDialoguePluginAPI.close()` |
 | `industries/petshop/script/EscBlockerMemoryIterator.java` | Transient script that keeps `$IndEvo_BlockESC` alive while the host dialog is open |
 | `industries/petshop/patches/PetScuttlePatch.java` | PatchLib `@After` on `FleetDataAPI.scuttle(FleetMemberAPI)` (vanilla `FleetData`, `obf/campaign/fleet/FleetData.java:1172`; only caller the fleet screen ship card). Calls `PetStatusManager.reportScuttled` |
@@ -92,7 +92,7 @@ Code paths relative to `jars/src/indevo/`.
 - Effect fraction = `serveDuration / 365`, capped at 1. `serveDuration` counts days on a ship; arriving on a ship other than `homeShipId` sets it to 0, a return to the same ship keeps it. Pet hullmods look up their pet through `PetStatusManager.getPet(variant)`.
 - A pet that arrives on a ship other than `homeShipId`, the last ship it lived on, is Unsettled for `UNSETTLED_DAYS` (30): Move... and Assign... in the Pets panel. Its first ship (from a Cryochamber) and a return to the same ship after storage are no move. While Unsettled, `PetHullmod` applies no effect and its tooltip shows the days left.
 - `reportPlayerEngagement` sets every pet on a deployed or retreated player ship Shell shocked for `SHELL_SHOCKED_DAYS` (7).
-- Mood (`Pet.getMood()`, first match wins): Hungry (starving), Unsettled, Shell shocked, Unhappy with its food (last meal was Supplies), Happy (petted in the last `HAPPY_DAYS`, 3), Sleepy (age over 80% of `lifetime`), Content. Display only, shown in the hullmod tooltip and on the card. Concept mood not built yet: Sulking (wants).
+- Mood (`Pet.getMood()`, first match wins): Hungry (starving, or not stored and `PetStatusManager.hasFood` false: no food for its next meal), Unsettled, Shell shocked, Unhappy with its food (last meal was Supplies), Happy (petted in the last `HAPPY_DAYS`, 3), Sleepy (age over 80% of `lifetime`), Content. Display only, shown in the hullmod tooltip and on the card. Concept mood not built yet: Sulking (wants).
 
 ### Daily and monthly
 
@@ -114,7 +114,7 @@ Code paths relative to `jars/src/indevo/`.
 - `PetDataRepo.pickLine`: every row of the event whose mood, disposition and context fit goes into one weighted pick. Weight by the best `match` token that fits: pet id 4, body 2, class 1.5, `any` 1. Class and `any` lines describe no body.
 - `PetStatusManager.getLine(pet, event, docked)` builds the context: `storage` for a stored pet, else `docked` when docked; `old` past 80% of `lifetime` (`Pet.isOld()`); `hyperspace` while the player fleet is in hyperspace (lines about a jump). `say(pet, event, dialog)` adds the line to the dialog text, or posts a `MessageIntel` with the pet's icon when there is no dialog. Docked means the dialog target has a real market.
 - Cadence (`advanceLines`, saved `daysSinceLine`, `lineRoll`): in flight, an ambient line comes once `daysSinceLine` passes `IndEvo_petLineDays` x `lineRoll` (1 to 1.5, `PetConstants.LINE_DAYS_SPREAD`). Docking (`sayDocking`, rule `IndEvo_petDockingLine` on `PopulateOptions`, `$hasMarket`, `$menuState == main`) shows a line once `daysSinceLine` passes the setting; the main market menu is populated again on every return to it, the cadence keeps it to one. Either resets both fields. Speaker: a living pet on a ship of the player fleet or in the menagerie, the flagship pet x3 (`FLAGSHIP_LINE_WEIGHT`).
-- `status` lines are the card tagline; one is picked per pet when the panel opens and kept while it is open. `petting` and `petting_starving` lines answer petting ([Pets panel](#pets-panel)).
+- `status` lines are the card tagline; one is picked per pet when the panel opens and kept with its `%s` while it is open, so a rename shows at once. `petting` and `petting_starving` lines answer petting ([Pets panel](#pets-panel)).
 
 ### Pets panel
 
@@ -124,8 +124,9 @@ Code paths relative to `jars/src/indevo/`.
 - Card of the selected pet, the first listed pet when none: name field (at most `NAME_MAX_CHARS`, 40; committed on every rebuild, before a popup and on leave; an empty field keeps the old name), tagline, portrait with Species, Disposition, Age, Mood, the ship strip and the bottom row.
 - Petting: `PETTING_CLICKS` (5) clicks on the portrait call `Pet.pet()` and show a `petting` line in the tagline (`petting_starving` while starving). With `IndEvo_petMotion` on, each click throws a heart and the portrait grows and turns; the fifth throws six. Off for a pet out with a detachment.
 - Ship strip: on a ship, Move... and Unassign (to the menagerie); in storage, Assign... and To menagerie; in the menagerie, Assign.... Move... and Assign... open `PetPlaceDialog`: ships of the player fleet without a pet (`PetCard.freeShips`: fleet order, no fighter wings, not its own ship), and To storage with its monthly cost when docked, except from storage. A pet out with a detachment shows "Out with <fleet>" and its buttons are grey.
-- Bottom row: Euthanize, and when docked Rehome (`REHOME_FEE`, 2,000 credits, grey with a tooltip when short or out with a detachment). Both ask through `UiConfirm`; Euthanize reports `EUTHANIZED`, Rehome takes the fee and reports `REHOMED` (`PetShop.rehome`).
+- Bottom row: Euthanize (grey with a tooltip while out with a detachment), and when docked Rehome (`REHOME_FEE`, 2,000 credits, grey with a tooltip when short or out with a detachment). Both ask through `UiConfirm`; Euthanize reports `EUTHANIZED`, Rehome takes the fee and reports `REHOMED` (`PetShop.rehome`).
 - Popups open as a second interaction dialog through `UiHost.over`; while one is open `PetsDialogPlugin.advance` stops setting `$IndEvo_BlockESC`, so Escape reaches the popup. The panel rebuilds when it closes.
+- The campaign message list sits under the panel, so `PetsDialogPlugin` calls `PetStatusManager.holdMessages` in `init` and `releaseMessages` after `leave` dismisses: death messages (Euthanize, Rehome) post when the panel closes.
 
 ### Storage
 

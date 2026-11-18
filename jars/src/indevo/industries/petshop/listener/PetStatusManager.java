@@ -85,6 +85,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private List<Pet> pets = new ArrayList<>();
     private float daysSinceLine = 0f;
     private float lineRoll = 0f;
+    // the message list sits under the Pets panel, so its messages wait until it closes
+    private transient List<Runnable> held = null;
 
     public void register(Pet pet) {
         pets.add(pet);
@@ -336,7 +338,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
                 picker.addAll(MiscIE.getCSVSetFromMemory(COMBAT_DEATH_CAUSES));
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", living on the destroyed " + petLocation + ", " + picker.pick() + "", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
+                message("%s the " + pet.getData().species + ", living on the destroyed " + petLocation + ", " + picker.pick() + "", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
             case NATURAL:
                 String message = "";
@@ -346,33 +348,49 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                     message = picker.pick();
                 } else message = pet.getData().naturalDeath;
 
-                if (pet.isAssigned()) Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly living on the " + petLocation + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
-                else if (pet.storage != null)  Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                if (pet.isAssigned()) message("%s the " + pet.getData().species + ", formerly living on the " + petLocation + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                else if (pet.storage != null)  message("%s the " + pet.getData().species + ", formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase() + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
 
                 break;
             case STARVED:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has %s on the " + petLocation, Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message("%s the " + pet.getData().species + " has %s on the " + petLocation, Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case SOLD:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " was sold with the " + petLocation + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message("%s the " + pet.getData().species + " was sold with the " + petLocation + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case UNKNOWN:
                 //if sold and not caught or magic'd away
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly of the " + petLocation + ", has %s", Misc.getTextColor(), pet.name, "died.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message("%s the " + pet.getData().species + ", formerly of the " + petLocation + ", has %s", Misc.getTextColor(), pet.name, "died.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case EUTHANIZED:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has been %s", Misc.getTextColor(), pet.name, "euthanized.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message("%s the " + pet.getData().species + " has been %s", Misc.getTextColor(), pet.name, "euthanized.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case REHOMED:
-                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " went to a new home.", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
+                message("%s the " + pet.getData().species + " went to a new home.", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
         }
 
         pet.setDead(cause);
     }
 
+    public void holdMessages() {
+        if (held == null) held = new ArrayList<>();
+    }
+
+    public void releaseMessages() {
+        List<Runnable> out = held;
+        held = null;
+        if (out != null) out.forEach(Runnable::run);
+    }
+
+    private void message(String format, Color color, String hl1, String hl2, Color hlColor1, Color hlColor2) {
+        Runnable post = () -> Global.getSector().getCampaignUI().addMessage(format, color, hl1, hl2, hlColor1, hlColor2);
+        if (held != null) held.add(post);
+        else post.run();
+    }
+
     public void reportPetStarving(Pet pet) {
-        Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has started %s", Misc.getTextColor(), pet.name, "starving. Feed it or it will die.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+        message("%s the " + pet.getData().species + " has started %s", Misc.getTextColor(), pet.name, "starving. Feed it or it will die.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
     }
 
     @Override

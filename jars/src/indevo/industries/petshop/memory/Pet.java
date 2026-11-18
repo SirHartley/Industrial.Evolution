@@ -200,7 +200,7 @@ public class Pet {
     }
 
     public PetMood getMood() {
-        if (isStarving) return PetMood.HUNGRY;
+        if (isStarving || storage == null && !PetStatusManager.getInstance().hasFood(this)) return PetMood.HUNGRY;
         if (isUnsettled()) return PetMood.UNSETTLED;
         if (shellShockedDays > 0f) return PetMood.SHELL_SHOCKED;
         if (lastMealSupplies) return PetMood.UNHAPPY_WITH_FOOD;

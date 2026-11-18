@@ -107,16 +107,21 @@ public class PetCard {
 
     private void addTagline(CustomPanelAPI p, float w, Pet pet) {
         boolean answer = view.answer != null;
-        String text = answer ? view.answer : view.lines.computeIfAbsent(pet.id, id -> status(pet));
+        String text = answer ? view.answer.replace("%s", pet.name) : status(pet, view.lines.computeIfAbsent(pet.id, id -> line(pet)));
         if (text == null || text.isEmpty()) return;
 
         String shown = Ui.lines(text, Ui.INS15, w, 2);
         Ui.wrap(p, 0f, TAG_Y, w, shown, Ui.INS15, answer ? Ui.text() : Ui.gray(), Alignment.TMID, new String[0], new Color[0]);
     }
 
-    private String status(Pet pet) {
+    // the line is kept with its %s, so a rename shows at once
+    private String line(Pet pet) {
         String line = PetStatusManager.getInstance().getLine(pet, PetDataRepo.EVENT_STATUS, shop != null);
-        return line == null ? "" : line.replace("%s", pet.name) + ".";
+        return line == null ? "" : line;
+    }
+
+    private static String status(Pet pet, String line) {
+        return line.isEmpty() ? "" : line.replace("%s", pet.name) + ".";
     }
 
     private void addIdent(CustomPanelAPI p, float w, Pet pet, CampaignFleetAPI away) {
@@ -153,7 +158,7 @@ public class PetCard {
             pet.pet();
             String event = pet.isStarving() ? PetDataRepo.EVENT_PETTING_STARVING : PetDataRepo.EVENT_PETTING;
             String line = PetStatusManager.getInstance().getLine(pet, event, shop != null);
-            view.answer = line == null ? null : line.replace("%s", pet.name);
+            view.answer = line;
 
             if (motion) {
                 view.pettedAt = view.clock;
@@ -274,7 +279,7 @@ public class PetCard {
         Color hl = Misc.getHighlightColor();
 
         if (shop == null) {
-            UiButtons.button(p, w - WIDE_W, y, WIDE_W, BUTTON_H, "Euthanize", UiButtons.Kind.RED, CutStyle.TL_BR, () -> euthanize(pet));
+            euthanizeButton(p, w - WIDE_W, y, WIDE_W, pet, away);
             return;
         }
 
@@ -289,7 +294,13 @@ public class PetCard {
         if (away != null) Ui.tooltip(p, rehome, "Rehome", pet.name + " is out with " + away.getName() + ".");
         else if (broke) Ui.tooltip(p, rehome, "Rehome", "Rehoming costs " + fee + ". You have " + Misc.getDGSCredits(credits) + ".");
 
-        UiButtons.button(p, w - BUTTON_W, y, BUTTON_W, BUTTON_H, "Euthanize", UiButtons.Kind.RED, CutStyle.TL_BR, () -> euthanize(pet));
+        euthanizeButton(p, w - BUTTON_W, y, BUTTON_W, pet, away);
+    }
+
+    private void euthanizeButton(CustomPanelAPI p, float x, float y, float w, Pet pet, CampaignFleetAPI away) {
+        ButtonAPI button = UiButtons.button(p, x, y, w, BUTTON_H, "Euthanize", away != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
+                away != null ? null : () -> euthanize(pet));
+        if (away != null) Ui.tooltip(p, button, "Euthanize", pet.name + " is out with " + away.getName() + ".");
     }
 
     private void euthanize(Pet pet) {

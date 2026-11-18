@@ -10,6 +10,7 @@ import com.fs.starfarer.api.combat.EngagementResultAPI;
 import indevo.dialogue.sidepanel.EscapeBlockingDialoguePluginAPI;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.EscapeInterceptListener;
+import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
 
 import java.util.Map;
@@ -48,6 +49,7 @@ public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlocking
 
         if (!hasScript) Global.getSector().addTransientScript(new EscBlockerMemoryIterator());
 
+        PetStatusManager.getInstance().holdMessages();
         dialog.setPromptText("");
         dialog.getOptionPanel().clearOptions();
         dialog.hideVisualPanel();
@@ -63,6 +65,7 @@ public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlocking
 
     public void leave() {
         dialog.dismiss();
+        PetStatusManager.getInstance().releaseMessages();
     }
 
     @Override
