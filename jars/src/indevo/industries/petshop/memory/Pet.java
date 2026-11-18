@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetMood;
+import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
@@ -22,8 +23,10 @@ import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
@@ -63,6 +66,16 @@ public class Pet {
     public float wantDaysLeft = 0f;
     public float wantCooldownDays = 0f;
     public int lapsedWants = 0;
+    // title counters; titles holds PetTitle names in the order earned
+    public int fights = 0;
+    public int jumps = 0;
+    public int answeredWants = 0;
+    public int finds = 0;
+    public float flagshipDays = 0f;
+    public float hyperspaceDays = 0f;
+    // market ids, kept only until Globetrotter is earned
+    public Set<String> markets = new HashSet<>();
+    public List<String> titles = new ArrayList<>();
 
     public Pet(String typeID, String name) {
         this.id = Misc.genUID();
@@ -131,6 +144,7 @@ public class Pet {
             }
         }
 
+        if (hearts >= PetConstants.MAX_HEARTS) earn(PetTitle.BELOVED);
         syncShip();
     }
 
@@ -184,6 +198,50 @@ public class Pet {
         syncShip();
     }
 
+    public void addFight() {
+        if (++fights >= PetConstants.VETERAN_FIGHTS) earn(PetTitle.VETERAN);
+    }
+
+    public void addJump() {
+        if (++jumps >= PetConstants.NAVIGATOR_JUMPS) earn(PetTitle.NAVIGATOR);
+    }
+
+    public void addFind() {
+        if (++finds >= PetConstants.TREASURE_HUNTER_FINDS) earn(PetTitle.TREASURE_HUNTER);
+    }
+
+    public void addMarket(String marketId) {
+        if (getTitleIds().contains(PetTitle.GLOBETROTTER.name())) return;
+        if (markets == null) markets = new HashSet<>();
+        if (markets.add(marketId) && markets.size() >= PetConstants.GLOBETROTTER_MARKETS) {
+            earn(PetTitle.GLOBETROTTER);
+            markets.clear();
+        }
+    }
+
+    public void earn(PetTitle title) {
+        List<String> earned = getTitleIds();
+        if (earned.contains(title.name())) return;
+
+        earned.add(title.name());
+        PetStatusManager.getInstance().reportTitle(this, title);
+    }
+
+    // a pet from a save before titles has none
+    public List<String> getTitleIds() {
+        if (titles == null) titles = new ArrayList<>();
+        return titles;
+    }
+
+    // an id no PetTitle has any more is left out
+    public List<PetTitle> getTitles() {
+        List<PetTitle> list = new ArrayList<>();
+        for (String id : getTitleIds()) {
+            for (PetTitle title : PetTitle.values()) if (title.name().equals(id)) list.add(title);
+        }
+        return list;
+    }
+
     public void setFavourite(boolean on) {
         favourite = on;
         if (on) return;
@@ -205,6 +263,7 @@ public class Pet {
         if (want == null) return;
 
         lapsedWants = 0;
+        if (++answeredWants >= PetConstants.PAMPERED_WANTS) earn(PetTitle.PAMPERED);
         addBond(PetConstants.WANT_BOND_DAYS);
         happyDays = PetConstants.HAPPY_DAYS;
         endWant();
@@ -287,6 +346,7 @@ public class Pet {
 
         if (ages) {
             age += dayAmt;
+            if (age > getData().maxLife) earn(PetTitle.OLD_TIMER);
 
             if (age > lifetime) {
                 PetStatusManager.getInstance().reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
@@ -315,6 +375,11 @@ public class Pet {
         // no callback tells of an officer put on or taken off a ship
         if (captain != null && isAboard() && assignedFleetMember.getCaptain() != captain && isSeatFree(assignedFleetMember)) {
             assignedFleetMember.setCaptain(captain);
+        }
+
+        if (isWithPlayer()) {
+            if (isAboard() && assignedFleetMember.isFlagship() && (flagshipDays += dayAmt) >= PetConstants.ADMIRAL_DAYS) earn(PetTitle.ADMIRAL);
+            if (Global.getSector().getPlayerFleet().isInHyperspace() && (hyperspaceDays += dayAmt) >= PetConstants.STARGAZER_DAYS) earn(PetTitle.STARGAZER);
         }
 
         feedInterval.advance(amt);

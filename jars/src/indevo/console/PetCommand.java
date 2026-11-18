@@ -3,6 +3,7 @@ package indevo.console;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
@@ -12,9 +13,10 @@ import org.lazywizard.console.CommonStrings;
 import org.lazywizard.console.Console;
 
 import java.util.Collections;
+import java.util.Locale;
 
 public class PetCommand implements BaseCommand {
-    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along> or indevo_pet trait <pet> <trait> <grade>.";
+    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>, indevo_pet trait <pet> <trait> <grade> or indevo_pet title <pet> <veteran|navigator|old_timer|survivor|beloved|pampered|treasure_hunter|admiral|globetrotter|stargazer|clear>.";
 
     @Override
     public CommandResult runCommand(String args, CommandContext context) {
@@ -158,6 +160,32 @@ public class PetCommand implements BaseCommand {
 
                 pet.setTrait(trait.id(), grade);
                 Console.showMessage(grade == 0 ? pet.name + " no longer has " + trait.name() + "." : pet.name + " has " + trait.name() + " at grade " + grade + ", read.");
+                return CommandResult.SUCCESS;
+            }
+            case "title" -> {
+                int split = rest.lastIndexOf(' ');
+                Pet pet = split > 0 ? find(manager, rest.substring(0, split).trim()) : null;
+                String word = rest.substring(split + 1).toUpperCase(Locale.ROOT);
+                PetTitle title = null;
+                for (PetTitle t : PetTitle.values()) if (t.name().equals(word)) title = t;
+
+                if (split <= 0 || (title == null && !word.equals("CLEAR"))) {
+                    Console.showMessage(SYNTAX);
+                    return CommandResult.BAD_SYNTAX;
+                }
+
+                if (pet == null) {
+                    Console.showMessage("No living pet with that name or id.");
+                    return CommandResult.ERROR;
+                }
+
+                if (title == null) {
+                    pet.getTitleIds().clear();
+                    Console.showMessage(pet.name + " has no titles now.");
+                } else {
+                    pet.earn(title);
+                    Console.showMessage(pet.name + " has the title " + title.label + ".");
+                }
                 return CommandResult.SUCCESS;
             }
             default -> {

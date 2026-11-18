@@ -9,6 +9,7 @@ import com.fs.starfarer.api.util.DynamicStatsAPI;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetMood;
+import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.hullmods.PetHullmod;
@@ -72,6 +73,7 @@ public final class PetChecks {
         run.checkWeights(pets);
         run.checkHearts();
         run.checkWants();
+        run.checkTitles();
 
         if (!run.problems.isEmpty()) {
             for (String problem : run.problems) System.out.println("FAIL " + problem);
@@ -355,6 +357,15 @@ public final class PetChecks {
     }
 
     // one favourite, every want answered the day it opens, no shared events: the slowest way to hearts 4 and 5
+    private void checkTitles() {
+        Set<String> labels = new HashSet<>();
+        for (PetTitle title : PetTitle.values()) {
+            check(labels.add(title.label), title + " label " + title.label + " is not used twice");
+            check(title.reason.contains("%s") == title.count > 0, title + " reason has a %s exactly when it has a count");
+            check(title.getReason().endsWith(".") && !title.getReason().contains("%"), title + " reason reads as a sentence: " + title.getReason());
+        }
+    }
+
     private void checkWants() {
         float[] days = PetConstants.HEART_DAYS;
         float timeCap = days[PetConstants.TIME_HEARTS - 1];
@@ -381,7 +392,7 @@ public final class PetChecks {
     }
 
     private static Set<String> events() {
-        Set<String> events = new HashSet<>(Set.of(EVENT_AMBIENT, EVENT_DOCKING, EVENT_STATUS, EVENT_PETTING, EVENT_PETTING_STARVING, EVENT_NAME, EVENT_PLAY, EVENT_TREAT));
+        Set<String> events = new HashSet<>(Set.of(EVENT_AMBIENT, EVENT_DOCKING, EVENT_STATUS, EVENT_PETTING, EVENT_PETTING_STARVING, EVENT_NAME, EVENT_PLAY, EVENT_TREAT, EVENT_SCAVENGER, EVENT_JUMP, EVENT_FIGHT));
         for (PetWant want : PetWant.values()) events.add(want.event());
         return events;
     }

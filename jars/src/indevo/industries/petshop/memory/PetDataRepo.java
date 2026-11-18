@@ -34,6 +34,9 @@ public class PetDataRepo {
     public static final String EVENT_NAME = "name";
     public static final String EVENT_PLAY = "play";
     public static final String EVENT_TREAT = "treat";
+    public static final String EVENT_SCAVENGER = "scavenger";
+    public static final String EVENT_JUMP = "jump";
+    public static final String EVENT_FIGHT = "fight";
     public static final String CONTEXT_DOCKED = "docked";
     public static final String CONTEXT_STORAGE = "storage";
     public static final String CONTEXT_OLD = "old";
