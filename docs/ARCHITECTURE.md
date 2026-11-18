@@ -117,9 +117,9 @@ Every load (`:153` to `:173`):
 |---|---|---|
 | `X.register()` | `getListenerManager().addListener(new X(), true)`: transient, added on every load, not saved | `DepositMessage.register()` |
 | `X.getInstanceOrRegister()` | Returns the saved instance from `getListeners(X.class)` or adds a persistent one | `ShippingManager`, `AdminGovernTimeTracker`; `RelayNetworkBrain` is the transient variant, see below |
-| `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all five IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:493` to `:497` |
+| `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all four IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:516` to `:519` |
 | `@Patch` class | PatchLib finds it in `jars/IndEvo.jar` at startup, no registration. A hook installs when its target class loads | [Patches](#patches) |
-| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:499` |
+| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:522` |
 | `system.addScript` guarded by a system memory key | Saved script on one star system, added at placement | `DroneNetScript.getInstanceOrRegister` ([ARTILLERY](industries/ARTILLERY.md#drone-net)) |
 | `LunaCampaignRenderer.addTransientRenderer` guarded by `hasRendererOfClass` or `getRendererOfClass` | Transient LunaLib campaign renderer, one per session, not saved | `ShuttleTrafficRenderer.register()` ([SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md)), `RogueRockDustRenderer.register()` ([METEOR](exploration/METEOR.md#rogue-asteroids)), `ArtilleryFireRenderer.getInstanceOrRegister` on the first shot ([ARTILLERY](industries/ARTILLERY.md#fire-animation)) |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |

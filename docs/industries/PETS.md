@@ -20,7 +20,6 @@ Code paths relative to `jars/src/indevo/`.
 | `industries/petshop/memory/PetDataRepo.java` | Loads `pets.csv` with `getMergedSpreadsheetDataForMod`, cached in session transient memory |
 | `industries/petshop/memory/DeathData.java` | Cause, date, location of a dead pet |
 | `industries/petshop/listener/PetStatusManager.java` | Singleton registry of all pets. `BaseCampaignEventListener(true)`, `EconomyTickListener`, `FleetEventListener`, `EveryFrameScript`. Feeding, death reports, sale and combat loss detection |
-| `industries/petshop/listener/PetStatusListenerAPI.java` | Interface, no implementers or callers |
 | `industries/petshop/listener/EscapeInterceptListener.java` | `CampaignInputListener` (priority 99999): eats Escape while `$IndEvo_BlockESC` is set and calls `EscapeBlockingDialoguePluginAPI.close()` |
 | `industries/petshop/script/EscBlockerMemoryIterator.java` | Transient script that keeps `$IndEvo_BlockESC` alive while the host dialog is open |
 | `industries/petshop/item/PetItemPlugin.java` | `IndEvo_PetBox` special item. Item data = pet type id. Icon render, drop tiers, price, right-click use |
@@ -32,7 +31,6 @@ Code paths relative to `jars/src/indevo/`.
 | `industries/petshop/hullmods/PetHullmod.java` | Base pet hullmod: CR loss -5% x effect fraction, tooltip from `Pet` |
 | `industries/petshop/hullmods/SelfRepairingBuiltInHullmod.java` | Base class that re-adds itself as a perma mod. Also used outside pets (see Contracts) |
 | `industries/petshop/plugins/PetCenterOptionProvider.java` | Industry button "Manage Pets..." on a functional Animal Center at the current market |
-| `industries/petshop/plugins/PetShopCampaignPlugin.java` | Picks `PetShopDialogPlugin` for entities tagged `IndEvo_PetShop` (legacy station entity) |
 | `abilities/pets/PetManagementAbilityPlugin.java` | Ability `pet_management`; opens `PetShopDialogPlugin(null)`. `applySetting()` adds or removes the ability for `IndEvo_pets` |
 | `other/YourMod_PetName_PetHullmod.java` | Copy template for other mods adding pets (see issues) |
 
@@ -50,7 +48,7 @@ Code paths relative to `jars/src/indevo/`.
 | Sprites | `IndEvo/pets_large`, `IndEvo/pets_small`; icons in `graphics/pets` | `data/config/settings.json:102-103` |
 | Setting | `IndEvo_pets` | `LunaSettings.csv:11` |
 | Faction (colour only) | `petStoreColour` | `data/world/factions/submarkets/` |
-| Entities | `IndEvo_PetShop` (`Ids.PET_SHOP_ENTITY`, legacy), `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:791`, `:1142` |
+| Entity | `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:1220` |
 | Variant tag | `PET_DATA_ID_<pet id>` on the pet's ship | `Pet.assign()` |
 | Memory | `$IndEvo_BlockESC` | sector memory |
 | Person | `foogAristo` at `athulf`, sells the `lordandsaviour` pet box for 300000 at cooperative (rules `IndEvo_foog_*`) | `ModPlugin.addLordFoogRep()` (`utils/ModPlugin.java:226`) |
@@ -59,7 +57,7 @@ Code paths relative to `jars/src/indevo/`.
 
 - Industry, submarket, item and ability plugins from CSV plugin columns.
 - `PetManagementAbilityPlugin.applySetting()` (`abilities/pets/PetManagementAbilityPlugin.java:19-43`): with `IndEvo_pets` on, adds `pet_management` (`Ids.ABILITY_PET_MANAGEMENT`) to the player fleet and character, clears `no_sell` on `fairy` once research `Ids.PROJ_NAVI` is redeemed ([Research](../dialogue/RESEARCH.md)) and loads pet textures; a texture that fails to load throws `IllegalStateException`. With the setting off, removes the ability. `PlayerSettings.applyCampaignSettings()` runs it from `ModPlugin.onGameLoad()` (`utils/ModPlugin.java:171`) and after a Save in the LunaLib menu in the campaign ([Settings](../core/SETTINGS.md#reading-a-setting)). On new game with pets on, `onGameLoad` also adds Lord Foog (`:173`).
-- `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:454`). `PetShopCampaignPlugin` via `registerPlugin` on every load (`ModPlugin.java:497`).
+- `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:466`).
 - `PetStatusManager.getInstance()` (`PetStatusManager.java:58`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
 - `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:214`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:200-204`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` on the "Pet storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)). `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:176-177`); `notifyBeingRemoved()` releases it (`:183`).
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).
@@ -116,8 +114,6 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|
 | Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
 | `YourMod_PetName_PetHullmod` | Checks `isModEnabled("indEvo")` (`:31`, `:48`); the mod id is `IndEvo` and `ModManager.isModEnabled` compares exactly (`obf/launcher/ModManager.java:196`), so a copy of the template never applies effects or tooltip |
-| `PetStatusListenerAPI` | Dead |
-| `PetShop.ensurePetShopCreatedOrAssigned()`, `removeStationEntityAndFleetIfNeeded()`, entity `IndEvo_PetShop`, `PetShopCampaignPlugin` | Legacy station version, deprecated, not called |
 | `PetStatusManager.dev()` | Runcode helper |
 | `graphics/pets/alt/`, `gammacore.png`, `glowjar.png`, `mycojar.png` | Not referenced by `pets.csv` (inferred unused) |
 | Changelog_todo | "Drop some pets from fleet battles (rarely)", "Pet stations: Add main menu dialogue" |

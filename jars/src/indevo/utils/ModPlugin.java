@@ -83,7 +83,6 @@ import indevo.industries.warehouses.plugin.WarehouseRemoveSubmarketOptionProvide
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
-import indevo.industries.petshop.plugins.PetShopCampaignPlugin;
 import indevo.industries.relay.industry.MilitaryRelay;
 import indevo.industries.ruinfra.listener.RuinfraOnDecivListener;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
@@ -517,7 +516,6 @@ public class ModPlugin extends BaseModPlugin {
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
         Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
-        Global.getSector().registerPlugin(new PetShopCampaignPlugin());
         Global.getSector().registerPlugin(new CorporateGovernanceCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {
