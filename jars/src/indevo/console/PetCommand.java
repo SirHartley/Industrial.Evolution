@@ -14,7 +14,7 @@ import org.lazywizard.console.Console;
 import java.util.Collections;
 
 public class PetCommand implements BaseCommand {
-    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5> or indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>.";
+    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along> or indevo_pet trait <pet> <trait> <grade>.";
 
     @Override
     public CommandResult runCommand(String args, CommandContext context) {
@@ -92,7 +92,7 @@ public class PetCommand implements BaseCommand {
                     return CommandResult.ERROR;
                 }
 
-                pet.bondDays = hearts == 0 ? 0f : PetConstants.HEART_DAYS[hearts - 1];
+                pet.setBondDays(hearts == 0 ? 0f : PetConstants.HEART_DAYS[hearts - 1]);
                 Console.showMessage(pet.name + " now has " + pet.getHearts() + " hearts.");
                 return CommandResult.SUCCESS;
             }
@@ -128,6 +128,36 @@ public class PetCommand implements BaseCommand {
                 pet.setFavourite(true);
                 manager.openWant(pet, want);
                 Console.showMessage(pet.name + " " + want.label.toLowerCase() + ", " + Math.round(pet.wantDaysLeft) + " days.");
+                return CommandResult.SUCCESS;
+            }
+            case "trait" -> {
+                String[] words = rest.split("\\s+");
+                int grade;
+
+                try {
+                    grade = words.length >= 3 ? Integer.parseInt(words[words.length - 1]) : -1;
+                } catch (NumberFormatException e) {
+                    grade = -1;
+                }
+
+                String traitId = words.length >= 3 ? words[words.length - 2] : "";
+                if (!traitId.startsWith(PetDataRepo.TRAIT_PREFIX)) traitId = PetDataRepo.TRAIT_PREFIX + traitId.toLowerCase();
+                PetDataRepo.Trait trait = PetDataRepo.getTrait(traitId);
+
+                if (grade < 0 || trait == null) {
+                    Console.showMessage(grade < 0 ? SYNTAX : "Unknown trait. Trait ids are the id column of data/campaign/pet_traits.csv, with or without " + PetDataRepo.TRAIT_PREFIX + ".");
+                    return CommandResult.BAD_SYNTAX;
+                }
+
+                String nameOrId = rest.substring(0, rest.lastIndexOf(words[words.length - 2])).trim();
+                Pet pet = find(manager, nameOrId);
+                if (pet == null) {
+                    Console.showMessage("No living pet with that name or id.");
+                    return CommandResult.ERROR;
+                }
+
+                pet.setTrait(trait.id(), grade);
+                Console.showMessage(grade == 0 ? pet.name + " no longer has " + trait.name() + "." : pet.name + " has " + trait.name() + " at grade " + grade + ", read.");
                 return CommandResult.SUCCESS;
             }
             default -> {

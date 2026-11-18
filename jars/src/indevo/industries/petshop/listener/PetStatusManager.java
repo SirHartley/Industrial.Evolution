@@ -248,7 +248,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         if (pet.isOld()) context.add(PetDataRepo.CONTEXT_OLD);
         if (Global.getSector().getPlayerFleet().isInHyperspace()) context.add(PetDataRepo.CONTEXT_HYPERSPACE);
 
-        PetDataRepo.Line line = PetDataRepo.pickLine(PetDataRepo.getLines(), event, pet.getData(), pet.getMood().id(), pet.personality, context, random);
+        PetDataRepo.Line line = PetDataRepo.pickLine(PetDataRepo.getLines(), event, pet.getData(), pet.getMood().id(), pet.sheet.disposition, context, random);
         return line != null ? line.text() : null;
     }
 
@@ -484,6 +484,10 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         else post.run();
     }
 
+    public void reportTalentShown(Pet pet, PetDataRepo.Trait trait) {
+        message("%s the " + pet.getData().species + " shows a talent: %s.", Misc.getTextColor(), pet.name, trait.name(), Misc.getHighlightColor(), Misc.getHighlightColor());
+    }
+
     public void reportPetStarving(Pet pet) {
         message("%s the " + pet.getData().species + " has started %s", Misc.getTextColor(), pet.name, "starving. Feed it or it will die.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
     }
@@ -689,6 +693,29 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 done = true;
             }
         });
+    }
+
+    // fleet talents count once per fleet: the pet with the highest value, then more hearts, then the lower id
+    public Pet getLead(CampaignFleetAPI fleet, String traitId) {
+        Pet lead = null;
+        float best = 0f;
+
+        for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
+            if (member.isMothballed()) continue;
+
+            Pet pet = getPet(member.getVariant());
+            float value = pet != null ? pet.getTalentValue(traitId) : 0f;
+            if (value <= 0f) continue;
+
+            boolean better = lead == null || value > best
+                    || value == best && (pet.getHearts() > lead.getHearts() || pet.getHearts() == lead.getHearts() && pet.id.compareTo(lead.id) < 0);
+            if (better) {
+                lead = pet;
+                best = value;
+            }
+        }
+
+        return lead;
     }
 
     public Pet getPet(ShipVariantAPI variant) {

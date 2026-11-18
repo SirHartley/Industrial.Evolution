@@ -1,17 +1,25 @@
 package indevo.tools;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.combat.MutableShipStatsAPI;
+import com.fs.starfarer.api.combat.MutableStat;
+import com.fs.starfarer.api.combat.StatBonus;
 import com.fs.starfarer.api.impl.campaign.ids.Personalities;
+import com.fs.starfarer.api.util.DynamicStatsAPI;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetMood;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.memory.PetData;
+import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.memory.PetSheet;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +45,10 @@ public final class PetChecks {
     // play time: a day is 10 s of flight, about 1.5 minutes a week with x2 and time in menus
     private static final float PLAY_MINUTES_PER_DAY = 1.5f / 7f;
     private static final Set<String> PACES = Set.of(PetData.PACE_FAST, PetData.PACE_MEDIUM, PetData.PACE_SLOW, PetData.PACE_HAMSTER);
+    private static final Set<String> KINDS = Set.of(KIND_STAT, KIND_FLEET);
+    private static final Set<String> MODES = Set.of(MODE_PERCENT, MODE_REDUCE, MODE_FLAT);
+    private static final float REDUCE_CAP = 90f;
+    private static final int SHEETS = 40000;
 
     private final List<String> problems = new ArrayList<>();
     private int checks = 0;
@@ -51,6 +63,8 @@ public final class PetChecks {
 
         PetChecks run = new PetChecks();
         Map<String, PetData> pets = run.checkPets(run.read(Path.of(CSV_PATH)));
+        Map<String, Trait> traits = run.checkTraits(run.read(Path.of(TRAITS_PATH)), pets);
+        run.checkSheets(pets, traits);
         List<Line> lines = run.checkLines(run.read(Path.of(LINES_PATH)), pets);
         run.checkCoverage(lines, pets);
         run.checkWeights(pets);
@@ -103,6 +117,110 @@ public final class PetChecks {
         }
 
         return pets;
+    }
+
+    private Map<String, Trait> checkTraits(JSONArray rows, Map<String, PetData> pets) throws JSONException {
+        Map<String, Trait> traits = parseTraits(rows);
+        MutableShipStatsAPI stats = stub(MutableShipStatsAPI.class);
+        Set<String> names = new HashSet<>();
+
+        for (Trait trait : traits.values()) {
+            String id = trait.id();
+            check(id.startsWith(TRAIT_PREFIX), id + " starts with " + TRAIT_PREFIX);
+            check(names.add(trait.name()), id + " name " + trait.name() + " is not used twice");
+            check(KINDS.contains(trait.kind()), id + " kind " + trait.kind() + " is one of " + KINDS);
+            check(MODES.contains(trait.mode()), id + " mode " + trait.mode() + " is one of " + MODES);
+            check(trait.perLevel() > 0f && trait.per() >= 1 && trait.weight() >= 0f, id + " has a value per grade, grades per step and a weight");
+            check(PetHullmod.applyStat(stats, trait.stat(), 1f, "check", "check"), id + " stat " + trait.stat() + " is a case of PetHullmod.applyStat");
+            check(!trait.effect().isBlank(), id + " has an effect label");
+            check(oneName(trait.desc()), id + " desc has one %s for the value and no other %");
+            check(oneName(trait.flavour()) && trait.flavour().endsWith("."), id + " flavour has one %s for the name and ends with a full stop");
+            check(!BODY_WORDS.matcher(trait.flavour()).find(), id + " flavour fits any body");
+
+            if (trait.mode().equals(MODE_REDUCE)) {
+                check(trait.cap() > 0f && trait.cap() <= REDUCE_CAP, id + " reduction has a cap of at most " + REDUCE_CAP);
+                float most = trait.value(1000, PetConstants.HAMSTER_MULT * PetConstants.NEST_MULT);
+                check(most <= trait.cap(), id + " stops at its cap, " + most + " at grade 1000 on a hamster with a nest");
+            }
+        }
+
+        for (PetData data : pets.values()) {
+            for (String lean : data.talentWeights.keySet()) {
+                Trait trait = traits.get(lean);
+                check(trait != null && trait.isTalent(), data.id + " talent lean " + lean + " is a talent in pet_traits.csv");
+                check(data.getTalentWeight(lean) > 0f, data.id + " talent lean " + lean + " weighs more than 0");
+            }
+        }
+
+        return traits;
+    }
+
+    // bought pets: 1 or 2 talents at grade 1 half and half, every disposition, no Pathfinder, leans count
+    private void checkSheets(Map<String, PetData> pets, Map<String, Trait> traits) {
+        Random random = new Random(3);
+        PetData plain = pets.get("doge");
+        PetData raven = pets.get("salvageraven");
+        String scavenger = TRAIT_PREFIX + "scavenger";
+        int two = 0;
+        int plainScavenger = 0;
+        int ravenScavenger = 0;
+        Set<String> dispositions = new HashSet<>();
+
+        boolean sizes = true;
+        boolean grades = true;
+        boolean unknown = true;
+        boolean pathfinder = false;
+        for (int i = 0; i < SHEETS; i++) {
+            PetSheet sheet = PetGenetics.rollSheet(plain, traits, random);
+            int n = sheet.traits.size();
+            if (n == 2) two++;
+            dispositions.add(sheet.disposition);
+            sizes &= n == 1 || n == 2;
+            grades &= sheet.traits.values().stream().allMatch(g -> g == 1);
+            unknown &= sheet.known.isEmpty();
+            pathfinder |= sheet.traits.containsKey(TRAIT_PREFIX + "pathfinder");
+            if (sheet.traits.containsKey(scavenger)) plainScavenger++;
+            if (PetGenetics.rollSheet(raven, traits, random).traits.containsKey(scavenger)) ravenScavenger++;
+        }
+
+        check(sizes, "a bought pet has 1 or 2 talents");
+        check(grades, "a bought pet's talents are grade 1");
+        check(unknown, "a bought pet's talents are unknown");
+        check(!pathfinder, "a bought pet has no Pathfinder, it gives nothing at grade 1");
+        float share = two / (float) SHEETS;
+        check(Math.abs(share - PetConstants.TWO_TALENTS_CHANCE) < 0.01f, "two talents " + share + " of the time, expected " + PetConstants.TWO_TALENTS_CHANCE);
+        check(dispositions.equals(DISPOSITIONS), "bought pets get every disposition, got " + dispositions);
+        check(ravenScavenger > 2 * plainScavenger, "a Salvage Raven is a Scavenger more often: " + ravenScavenger + " against " + plainScavenger);
+
+        PetSheet sheet = new PetSheet(Personalities.STEADY);
+        sheet.traits.put(TRAIT_PREFIX + "plating", 1);
+        sheet.traits.put(TRAIT_PREFIX + "vent", 3);
+        sheet.traits.put(TRAIT_PREFIX + "ward", 1);
+        sheet.traits.put("IndEvo_pt_gone", 5);
+        List<String> talents = PetGenetics.talents(sheet, traits);
+        check(talents.equals(List.of(TRAIT_PREFIX + "vent", TRAIT_PREFIX + "plating", TRAIT_PREFIX + "ward")), "talents best first, ties in arrival order, unknown ids left out: " + talents);
+        check(PetGenetics.activeCount(3, 0) == 0 && PetGenetics.activeCount(3, 2) == 2 && PetGenetics.activeCount(7, 4) == 4 && PetGenetics.activeCount(7, PetConstants.MAX_HEARTS) == 7,
+                "one talent per heart, all at " + PetConstants.MAX_HEARTS);
+        check(traits.get(TRAIT_PREFIX + "pathfinder").value(3, 1f) == 0f && traits.get(TRAIT_PREFIX + "pathfinder").value(8, 1f) == 2f, "Pathfinder steps every 4 grades");
+    }
+
+    private static boolean oneName(String text) {
+        return text.indexOf("%s") >= 0 && text.indexOf("%s") == text.lastIndexOf("%s") && text.replace("%s", "").indexOf('%') < 0;
+    }
+
+    // stand in ship stats that hand out real stat objects, so applyStat runs without the game
+    @SuppressWarnings("unchecked")
+    private static <T> T stub(Class<T> type) {
+        return (T) Proxy.newProxyInstance(PetChecks.class.getClassLoader(), new Class<?>[]{type}, (proxy, method, args) -> {
+            Class<?> r = method.getReturnType();
+            if (r == MutableStat.class) return new MutableStat(1f);
+            if (r == StatBonus.class) return new StatBonus();
+            if (r == DynamicStatsAPI.class) return stub(DynamicStatsAPI.class);
+            if (r == boolean.class) return false;
+            if (r == float.class) return 0f;
+            if (r == int.class) return 0;
+            return null;
+        });
     }
 
     private List<Line> checkLines(JSONArray rows, Map<String, PetData> pets) throws JSONException {
