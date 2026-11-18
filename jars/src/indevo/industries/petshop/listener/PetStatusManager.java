@@ -23,6 +23,7 @@ import indevo.abilities.splitfleet.FleetUtils;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
@@ -484,6 +485,10 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         else post.run();
     }
 
+    public void reportTitle(Pet pet, PetTitle title) {
+        message("%s the " + pet.getData().species + " earned a title: %s.", Misc.getTextColor(), pet.name, title.label, Misc.getHighlightColor(), Misc.getHighlightColor());
+    }
+
     public void reportTalentShown(Pet pet, PetDataRepo.Trait trait) {
         message("%s the " + pet.getData().species + " shows a talent: %s.", Misc.getTextColor(), pet.name, trait.name(), Misc.getHighlightColor(), Misc.getHighlightColor());
     }
@@ -578,6 +583,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         FleetMemberAPI to = fleet.isPlayerFleet() ? null : getFreeShip(fleet, lost);
         pet.place(to, null);
         pet.shellShock();
+        pet.earn(PetTitle.SURVIVOR);
 
         String start = "%s the " + pet.getData().species + " escaped the destroyed " + ship + " in an escape pod";
         if (to == null) message(start + " and waits in the %s.", Misc.getTextColor(), pet.name, "menagerie", Misc.getHighlightColor(), Misc.getHighlightColor());
@@ -600,6 +606,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
                 pet.shellShock();
                 pet.addBond(PetConstants.EVENT_BOND_DAYS);
+                pet.addFight();
                 // in battle the member sits in the battle's combined fleet, so isWithPlayer is false; its source fleet tells
                 boolean withPlayer = result.getBattle() != null && result.getBattle().getSourceFleet(member) == Global.getSector().getPlayerFleet();
                 if (withPlayer && canOpenWant() && isFree(pet)) openWant(pet, PetWant.COMFORT);
@@ -611,7 +618,12 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
         if (!fleet.isPlayerFleet() || !Setting.PETS.enabled()) return;
 
-        for (Pet pet : pets) if (pet.isAboard() && pet.isWithPlayer()) pet.addBond(PetConstants.EVENT_BOND_DAYS);
+        for (Pet pet : pets) {
+            if (!pet.isAboard() || !pet.isWithPlayer()) continue;
+
+            pet.addBond(PetConstants.EVENT_BOND_DAYS);
+            pet.addJump();
+        }
     }
 
     @Override

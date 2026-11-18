@@ -15,6 +15,7 @@ import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetMood;
+import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
@@ -216,10 +217,13 @@ public class PetCard {
         if (!line.isEmpty()) t.addPara(line, Ui.gray(), 10f);
 
         PetMood mood = pet.getMood();
-        int rows = pet.lastMealSupplies ? 3 : 2;
+        List<String> titles = new ArrayList<>();
+        for (PetTitle title : pet.getTitles()) titles.add(title.label);
+        int rows = 2 + (pet.lastMealSupplies ? 1 : 0) + (titles.isEmpty() ? 0 : 1);
         CustomPanelAPI grid = Global.getSettings().createCustom(gw, rows * UiData.GRID_ROW_H, new UiCanvas());
         float y = 0f;
         y += hoverRow(grid, y, gw, "Mood", Ui.text(), mood.label, mood.getColor(), null);
+        if (!titles.isEmpty()) y += hoverRow(grid, y, gw, "Titles", Ui.text(), String.join(", ", titles), Ui.text(), null);
         if (pet.lastMealSupplies) y += hoverRow(grid, y, gw, "Last meal", Ui.text(), "Supplies", Ui.neg(), null);
         if (!PetStatusManager.getInstance().hasFood(pet)) hoverRow(grid, y, gw, "Next meal", Ui.text(), "No food aboard", Ui.neg(), null);
         else {
@@ -542,12 +546,28 @@ public class PetCard {
         Ui.tooltip(p, Ui.panel(p, 0f, y, w, 24f), "Hearts", heartsTip(pet));
         y += 28f;
 
+        List<PetTitle> titles = pet.getTitles();
+        List<String> names = new ArrayList<>();
+        for (PetTitle title : titles) names.add(title.label);
+        float th = hoverRow(p, y, w, "Titles", Ui.text(), names.isEmpty() ? "None" : String.join(", ", names), names.isEmpty() ? Ui.gray() : Ui.text(), null);
+        Ui.tooltip(p, Ui.panel(p, 0f, y, w, th), Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> titlesTip(t, titles));
+        y += th;
+
         if (off) {
             int days = (int) Math.ceil(pet.unsettledDays);
             y += hoverRow(p, y, w, "Effects off", Ui.gray(), days + (days == 1 ? " day left" : " days left"), Ui.gray(), String.valueOf(days));
         }
 
         return y + 16f;
+    }
+
+    private static void titlesTip(TooltipMakerAPI t, List<PetTitle> titles) {
+        t.addPara("Titles", Ui.hl(), 0f);
+        if (titles.isEmpty()) t.addPara("None yet. A pet earns titles from what it lives through: battles, jumps, a long life, an escape pod, all five hearts, answered wants.", 10f);
+        for (int i = 0; i < titles.size(); i++) {
+            PetTitle title = titles.get(i);
+            t.addPara("%s: " + title.getReason(), i == 0 ? 10f : 3f, Ui.hl(), title.label);
+        }
     }
 
     // the open want as a strip over the ship strip; a want with no button shows what answers it. returns the top of the ship strip

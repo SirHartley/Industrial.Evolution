@@ -35,6 +35,10 @@ public final class PetConstants {
     public static final float EVENT_BOND_DAYS = 3f;
     public static final int SULK_LAPSES = 3;
 
+    public static final int VETERAN_FIGHTS = 10;
+    public static final int NAVIGATOR_JUMPS = 50;
+    public static final int PAMPERED_WANTS = 10;
+
     // one talent switches on per heart, best first, all at MAX_HEARTS; at READ_HEARTS every talent is read
     public static final int READ_HEARTS = 3;
     public static final float TWO_TALENTS_CHANCE = 0.5f;
