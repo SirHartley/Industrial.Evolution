@@ -88,6 +88,11 @@ public final class PetsCrossChecks {
             // SWITCHES=one: the ready brood keeps a single young, for the narrow popup
             PetBrood ready = shop.getBrood(0);
             if (sw.contains("one") && ready != null && ready.isReady()) while (ready.young.size() > 1) ready.young.remove(ready.young.size() - 1);
+            // SWITCHES=long: parent names too long for the popup title, so it is cut
+            if (sw.contains("long")) {
+                manager().get((String) c.get("Run1")).name = "Run1 the Very Long Named Space Dog of the Outer Persean Sector Fringe";
+                manager().get((String) c.get("Run2")).name = "Run2 the Equally Long Named Space Dog of the Inner Core Worlds Belt";
+            }
             // with a ready brood, a second one runs beside it for the running card
             if (sw.contains("ready")) {
                 Pet mom = manager().get((String) c.get("Mom"));
