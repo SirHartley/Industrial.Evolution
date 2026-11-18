@@ -22,13 +22,15 @@ public class PetsBattlePlugin extends BaseEveryFrameCombatPlugin {
     private static final Logger log = Global.getLogger(PetsBattlePlugin.class);
     private CombatEngineAPI engine;
     private boolean active;
+    private boolean pods;
     private int frame = 0;
 
     @Override
     public void init(CombatEngineAPI engine) {
         this.engine = engine;
         String groups = System.getProperty("ie.check", "");
-        active = Arrays.asList(groups.split(",")).contains("petsfight") && !engine.isSimulation() && engine.isInCampaign();
+        pods = Arrays.asList(groups.split(",")).contains("petspods");
+        active = (Arrays.asList(groups.split(",")).contains("petsfight") || pods) && !engine.isSimulation() && engine.isInCampaign();
         if (!active) return;
         ((CombatEngine) engine).setShowDeploymentDialog(false);
         log.info("LIVE_CHECK note: pets battle plugin active");
@@ -49,12 +51,22 @@ public class PetsBattlePlugin extends BaseEveryFrameCombatPlugin {
         if (!active) return;
         frame++;
         if (engine.isPaused()) engine.setPaused(false);
-        if (frame == 2) {
+        if (frame == 2 || (pods && frame % 10 == 2 && frame < 100)) {
             int a = deploy(0, -4000f, 90f), b = deploy(1, 4000f, 270f);
             log.info("LIVE_CHECK note: pets battle deployed " + a + " and " + b + " ships");
         }
         ShipAPI player = engine.getPlayerShip();
         if (player != null && player.getShipAI() == null) player.resetDefaultAI();
+        // petspods: the player loses every ship whose name starts with ISS Pod
+        if (pods && (frame == 120 || frame == 150)) {
+            int lost = 0;
+            for (ShipAPI ship : new ArrayList<>(engine.getShips())) {
+                if (ship.getOwner() != 0 || ship.isHulk() || ship.getFleetMember() == null || ship.getFleetMember().getShipName() == null || !ship.getFleetMember().getShipName().startsWith("ISS Pod")) continue;
+                engine.applyDamage(ship, ship.getLocation(), 1000000f, DamageType.HIGH_EXPLOSIVE, 0f, true, false, null);
+                lost++;
+            }
+            log.info("LIVE_CHECK note: pets battle destroyed " + lost + " pod ships");
+        }
         if (frame == 180) {
             PetsFightChecks.fought = true;
             for (ShipAPI ship : new ArrayList<>(engine.getShips())) {
