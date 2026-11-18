@@ -196,6 +196,7 @@ public class Pet {
         if (isStarving) return PetMood.HUNGRY;
         if (isUnsettled()) return PetMood.UNSETTLED;
         if (getBond().shellShockedDays > 0f) return PetMood.SHELL_SHOCKED;
+        if (getBond().lastMealSupplies) return PetMood.UNHAPPY_WITH_FOOD;
         if (age > lifetime * PetConstants.SLEEPY_AGE_FRACTION) return PetMood.SLEEPY;
         return PetMood.CONTENT;
     }

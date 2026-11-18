@@ -11,6 +11,7 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
@@ -111,22 +112,26 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         CargoAPI cargo = getFoodCargo(pet.assignedFleetMember);
         if (cargo == null) return false;
 
-        boolean hasFood = false;
-        String foodToEat = "";
-
         PetData data = pet.getData();
+        String foodToEat = null;
 
         for (String food : data.foodCommodities) {
+            if (Commodities.SUPPLIES.equals(food)) continue;
+
             if (cargo.getCommodityQuantity(food) >= data.foodPerMonth) {
-                hasFood = true;
                 foodToEat = food;
                 break;
             }
         }
 
-        if (!hasFood) return false;
+        boolean eatsSupplies = foodToEat == null && data.foodCommodities.contains(Commodities.SUPPLIES)
+                && cargo.getCommodityQuantity(Commodities.SUPPLIES) >= data.foodPerMonth;
+        if (eatsSupplies) foodToEat = Commodities.SUPPLIES;
+
+        if (foodToEat == null) return false;
 
         cargo.removeCommodity(foodToEat, data.foodPerMonth);
+        pet.getBond().lastMealSupplies = eatsSupplies;
 
         if (foodTakenLastMonth.containsKey(foodToEat))
             foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + data.foodPerMonth);

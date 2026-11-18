@@ -8,6 +8,7 @@ public enum PetMood {
     HUNGRY("Hungry", true),
     UNSETTLED("Unsettled", true),
     SHELL_SHOCKED("Shell shocked", true),
+    UNHAPPY_WITH_FOOD("Unhappy with its food", true),
     SLEEPY("Sleepy", false),
     CONTENT("Content", false);
 

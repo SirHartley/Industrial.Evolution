@@ -16,7 +16,7 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|
 | `industries/petshop/industry/PetShop.java` | Industry plugin. Owns `storedPets`, `petStorageCostMult`. Food demand, submarket add/remove, storage fee, AI cores. `EconomyTickListener` |
 | `industries/petshop/memory/Pet.java` | Pet state: `typeID`, `id`, `name`, `age`, `lifetime` (0.9 to 1.1 x `maxLife`), `assignedFleetMember`, `storage`, `personality`, `serveDuration`, `deathData`, `bond`. `assign()`, `moveTo()`, `store()`, `advance()`, `getMood()`, feeding, hullmod tooltip section |
-| `industries/petshop/memory/PetBond.java` | Saved on `Pet`: `unsettledDays`, `shellShockedDays` |
+| `industries/petshop/memory/PetBond.java` | Saved on `Pet`: `unsettledDays`, `shellShockedDays`, `lastMealSupplies` |
 | `industries/petshop/PetMood.java` | Display only moods with label and colour |
 | `industries/petshop/PetConstants.java` | Tuning numbers that are not per species: Unsettled and Shell shocked days, Sleepy age |
 | `industries/petshop/memory/PetData.java` | One `pets.csv` row. Tags `no_sell`, `no_drop` |
@@ -81,11 +81,11 @@ Code paths relative to `jars/src/indevo/`.
 - Effect fraction = `serveDuration / 365`, capped at 1. Pet hullmods look up their pet through `PetStatusManager.getPet(variant)`.
 - `moveTo()` (Assign and Re-Assign in the manager, `PetShopDialogPlugin.showShipPicker`) takes the pet out of storage or off its ship, assigns it and sets it Unsettled for `UNSETTLED_DAYS` (30). The first assign from a Cryochamber is no move. While Unsettled, `PetHullmod` applies no effect and its tooltip shows the days left.
 - `reportPlayerEngagement` sets every pet on a deployed or retreated player ship Shell shocked for `SHELL_SHOCKED_DAYS` (7).
-- Mood (`Pet.getMood()`, first match wins): Hungry (starving), Unsettled, Shell shocked, Sleepy (age over 80% of `lifetime`), Content. Display only, shown in the hullmod tooltip. Concept moods not built yet: Happy (petting), Sulking (wants), Irate (no trigger decided).
+- Mood (`Pet.getMood()`, first match wins): Hungry (starving), Unsettled, Shell shocked, Unhappy with its food (last meal was Supplies), Sleepy (age over 80% of `lifetime`), Content. Display only, shown in the hullmod tooltip. Concept moods not built yet: Happy (petting), Sulking (wants), Irate (no trigger decided).
 
 ### Daily and monthly
 
-- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:141`), counts down the bond timers and feeds it every 31 days. Feeding takes `foodPerMonth` of a listed food commodity from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:138`); no food -> starving -> `STARVED` death.
+- `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:141`), counts down the bond timers and feeds it every 31 days. Feeding takes `foodPerMonth` of the first listed food commodity the cargo holds enough of, Supplies only when no other listed food is there (`lastMealSupplies` then set), from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:138`); no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
 - `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:154-166`); `reportPlayerMarketTransaction` -> pet ship sold -> `SOLD` (warns when sold into a free transfer submarket); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
 - `reportPetDied()` ignores a pet that is already dead, removes the hullmod and tag, posts a message, keeps `DeathData`.

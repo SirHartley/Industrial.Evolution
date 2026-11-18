@@ -105,6 +105,24 @@ public final class PetsChecks {
         steps.add(c -> {
             Pet pet = PetStatusManager.getInstance().get((String) c.get("mover"));
             c.expect(pet.getMood() == PetMood.CONTENT, "Shell shocked wears off after 7 days (" + pet.getMood() + ")");
+
+            CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
+            cargo.removeCommodity("food", cargo.getCommodityQuantity("food"));
+            cargo.addCommodity("food", 10f);
+            cargo.addCommodity("supplies", 50f);
+
+            Pet eater = new Pet("bugdog", "Eater");
+            PetStatusManager.getInstance().register(eater);
+            eater.assign(ship());
+            float supplies = cargo.getCommodityQuantity("supplies");
+            c.expect(PetStatusManager.getInstance().feed(eater), "pet with food in the cargo eats");
+            c.near(cargo.getCommodityQuantity("supplies"), supplies, 0.01f, "pet eats its food before Supplies");
+            c.expect(eater.getMood() == PetMood.CONTENT, "pet fed its food is Content (" + eater.getMood() + ")");
+
+            cargo.removeCommodity("food", cargo.getCommodityQuantity("food"));
+            c.expect(PetStatusManager.getInstance().feed(eater), "pet without its food eats Supplies");
+            c.expect(cargo.getCommodityQuantity("supplies") < supplies, "Supplies were taken");
+            c.expect(eater.getMood() == PetMood.UNHAPPY_WITH_FOOD, "pet fed Supplies is Unhappy with its food (" + eater.getMood() + ")");
         });
         return steps;
     }
