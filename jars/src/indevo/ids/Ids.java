@@ -98,6 +98,7 @@ public class Ids {
     public static final String COND_LOG_CORE = "IndEvo_LogCoreCond";
     public static final String COND_MINERING = "IndEvo_mineFieldCondition";
     public static final String COND_WORLD_WONDER = "IndEvo_WorldWonderCondition";
+    public static final String MEMORIAL = "IndEvo_Memorial";
     public static final String COND_PLAGUE = "IndEvo_engineered_plague";
     public static final String COND_PARADE = "IndEvo_Parade";
 

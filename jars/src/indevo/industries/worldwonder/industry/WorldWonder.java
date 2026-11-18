@@ -12,7 +12,9 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.petshop.plugins.PetMemorial;
 
 import java.awt.*;
 
@@ -27,6 +29,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     public static final String TAG_SYSTEM_HAS_WONDER = "IndEvo_hasWonder";
 
     public boolean isAlternateVisual = false;
+    private transient boolean expanded = false;
 
     @Override
     public String getCurrentImage() {
@@ -129,6 +132,28 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
             tooltip.addPara("A story point has already been awarded for building a Symbol on this world.", Misc.getHighlightColor(), 10f);
 
         //if(IndustryTooltipMode.ADD_INDUSTRY.equals(mode) && isAvailableToBuild()) tooltip.addPara("Only one can exist at a time", 10f, MiscIE.getHighlightColor());
+        if (mode != IndustryTooltipMode.ADD_INDUSTRY && remembers()) PetMemorial.addSection(tooltip, market.getFaction(), expanded);
+    }
+
+    @Override
+    public void createTooltip(IndustryTooltipMode mode, TooltipMakerAPI tooltip, boolean expanded) {
+        this.expanded = expanded;
+        super.createTooltip(mode, tooltip, expanded);
+    }
+
+    @Override
+    public boolean isTooltipExpandable() {
+        return remembers();
+    }
+
+    @Override
+    public float getTooltipWidth() {
+        return remembers() ? PetMemorial.TOOLTIP_W : super.getTooltipWidth();
+    }
+
+    // the Memorial keeps the player's dead pets, by industry id so Memorials already in saves keep this plugin
+    private boolean remembers() {
+        return Ids.MEMORIAL.equals(getId()) && Setting.PETS.enabled() && market.isPlayerOwned() && isFunctional() && !PetMemorial.remembered().isEmpty();
     }
 
     @Override

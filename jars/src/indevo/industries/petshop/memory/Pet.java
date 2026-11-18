@@ -639,6 +639,7 @@ public class Pet {
                 storage != null,
                 (storage != null ? storage.getMarket().getName() : null),
                 (assignedFleetMember != null ? assignedFleetMember.getShipName() : null));
+        deathData.timestamp = Global.getSector().getClock().getTimestamp();
 
         return deathData;
     }
