@@ -28,3 +28,4 @@ IndEvo_pt_overcharge,Overcharge,signature,system,percent,10,,,1,System regen,"Sh
 IndEvo_pt_skeleton_crew,Skeleton crew,signature,min_crew,reduce,10,,100,1,Minimum crew,Minimum crew %s per grade on its ship. None needed from grade 10.,"%s is worth ten crew, the bosun says. Nobody argues."
 IndEvo_pt_spite,Spite,signature,explosion,percent,50,,,1,Death explosion,Size and damage of its ship's death explosion %s per grade.,Nobody wants to be near %s when it is angry. Or near the ship.
 IndEvo_pt_brood_deck,Brood deck,signature,fighter_bays,flat,1,4,,1,Fighter bays,Fighter bays %s per 4 grades on its ship. Fighters in a bay it takes along go back to the cargo.,The deck crew found %s asleep in a spare launch tube. Now it is a launch tube.
+IndEvo_pt_tinkerer,Tinkerer,signature,smods,flat,1,5,,1,S-mod slots,"S-mod slots %s per 5 grades on its ship. When it leaves, the cheapest s-mods over the limit go.",%s keeps taking things apart. They work better after.

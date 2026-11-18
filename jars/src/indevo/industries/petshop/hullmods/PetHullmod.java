@@ -8,7 +8,9 @@ import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -17,6 +19,7 @@ import indevo.industries.petshop.plugins.PetCard;
 import patchlib.api.PatchLib;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -102,6 +105,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
                 stats.getDynamic().getStat(Stats.EXPLOSION_DAMAGE_MULT).modifyPercent(id, value, source);
             }
             case "fighter_bays" -> stats.getNumFighterBays().modifyFlat(id, value, source);
+            case "smods" -> stats.getDynamic().getMod(Stats.MAX_PERMANENT_HULLMODS_MOD).modifyFlat(id, value, source);
             case "recovery" -> {
                 stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyFlat(id, value * 0.01f, source);
                 stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, 1f - Math.min(DMOD_CAP, value) * 0.01f, source);
@@ -118,11 +122,22 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         return true;
     }
 
-    // rebuilds a ship of a fleet now; a talent that went takes its room, fighters in lost bays go to the cargo; names what went
+    // rebuilds a ship of a fleet now; a talent that went takes its room: the cheapest s-mods it made room for (as vanilla on a skill loss), fighters in lost bays to the cargo; names what went
     public static List<String> updateShip(FleetMemberAPI member) {
+        int capBefore = sModCap(member);
         member.updateStats();
         ShipVariantAPI variant = member.getVariant();
         List<String> lost = new ArrayList<>();
+
+        int cap = sModCap(member);
+        int remove = Math.min(Misc.getCurrSpecialMods(variant) - cap, capBefore - cap);
+        List<String> sMods = new ArrayList<>(variant.getSMods());
+        sMods.sort(Comparator.comparingInt(id -> Global.getSettings().getHullModSpec(id).getCostFor(variant.getHullSize())));
+        for (int i = 0; i < remove && i < sMods.size(); i++) {
+            HullModSpecAPI spec = Global.getSettings().getHullModSpec(sMods.get(i));
+            variant.removePermaMod(spec.getId());
+            lost.add(spec.getDisplayName());
+        }
 
         CargoAPI cargo = member.getFleetData().getFleet().getCargo();
         List<String> wings = variant.getWings();
@@ -137,6 +152,10 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
 
         if (!lost.isEmpty()) member.updateStats();
         return lost;
+    }
+
+    private static int sModCap(FleetMemberAPI member) {
+        return Math.round(member.getStats().getDynamic().getMod(Stats.MAX_PERMANENT_HULLMODS_MOD).computeEffective(Misc.MAX_PERMA_MODS));
     }
 
     @Override
