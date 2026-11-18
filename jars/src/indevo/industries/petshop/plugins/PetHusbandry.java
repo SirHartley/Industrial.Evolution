@@ -7,6 +7,7 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.industry.PetShop;
@@ -37,6 +38,21 @@ public class PetHusbandry {
     static final float YOUNG_H = 56f;
     static final float YOUNG_GAP = 8f;
     static final String WILD_TYPE = "Wild type";
+    static final float CROSS_Y = 134f;
+    static final float CHIP_H = 24f;
+    static final float CHIP_PITCH = 28f;
+    static final float CHIP_BAR_X = 124f;
+    static final float CHIP_SEG_MIN = 8f;
+    static final float NODE_W = 200f;
+    static final float NODE_H = 52f;
+    static final float OUT_W = 140f;
+    static final float OUT_H = 96f;
+    // the flow chart sits on the brood line: thead, parents, lines, results
+    static final float DETAIL_H = 204f;
+    static final float DETAIL_BOTTOM = 68f;
+    static final String LOOK = "look";
+    static final String DISPOSITION = "disposition";
+    static final String MALFORMED = "malformed";
 
     static final String ALL = "All";
     static final String NO_PARTNER = "No partner";
@@ -335,6 +351,7 @@ public class PetHusbandry {
         title(p, w, pair ? a.name + " x " + b.name : "Habitat " + (habitat + 1));
         tagline(p, w, pair ? kinLine(a, b) : a != null ? "Pick a second " + a.getData().species + "." : "Pick two adults of one species.");
         dials(p, w, a, b);
+        if (pair && a.typeID.equals(b.typeID)) cross(p, w, h, a, b);
 
         float y = h - 60f;
         float fee = shop.getFee();
@@ -435,12 +452,263 @@ public class PetHusbandry {
         return colors;
     }
 
+    // one result of a cross row as drawn: the outcome, its value text and colour, where it comes from, what it does
+    record Result(String lane, String value, Color color, float chance, String origin, String effect, String effectValue) {
+    }
+
+    record CrossRow(String key, String name, String unit, boolean flaw, String lineA, String lineB, List<Result> results) {
+    }
+
+    // every trait either parent is known to have, as a toggle with a small bar of its chances; the selected one drawn large
+    private void cross(CustomPanelAPI p, float w, float h, Pet a, Pet b) {
+        List<CrossRow> rows = crossRows(a, b);
+        CrossRow selected = rows.stream().filter(r -> r.key().equals(view.crossTrait)).findFirst()
+                .orElse(rows.stream().filter(PetHusbandry::isTrait).findFirst().orElse(rows.get(0)));
+
+        boolean ua = unknownTalents(a) > 0;
+        boolean ub = unknownTalents(b) > 0;
+        String note = ua && ub ? "Both have unknown traits" : ua ? a.name + " has unknown traits" : ub ? b.name + " has unknown traits" : null;
+        Ui.thead(p, 0f, CROSS_Y, w, new String[]{"Traits", note != null ? note : ""}, new float[]{8f, 118f}, new float[]{100f, w - 126f},
+                new Alignment[]{Ui.LEFT, Ui.RIGHT});
+
+        float dy = h - DETAIL_BOTTOM - DETAIL_H;
+        float top = CROSS_Y + Ui.HEADING_H + 4f;
+        int lines = (int) Math.min(Math.ceil(rows.size() / 2f), Math.floor((dy - PetsPanel.HEAD_GAP - top + 4f) / CHIP_PITCH));
+        UiScroll.Column list = UiScroll.list(p, 0f, top, w, lines * CHIP_PITCH - 4f, view.scroll, PetsView.CROSS);
+        float cw = Math.round((list.width() - 8f) / 2f);
+        for (int i = 0; i < rows.size(); i += 2) {
+            CustomPanelAPI line = list.block(CHIP_H, i == 0 ? 0f : CHIP_PITCH - CHIP_H);
+            chip(line, 0f, cw, rows.get(i), rows.get(i) == selected);
+            if (i + 1 < rows.size()) chip(line, cw + 8f, cw, rows.get(i + 1), rows.get(i + 1) == selected);
+        }
+        list.end();
+
+        if (rows.stream().noneMatch(PetHusbandry::isTrait)) Ui.text(p, 0f, top + lines * CHIP_PITCH + 4f, w, "Talents, mutations and flaws are unknown.", Ui.gray());
+
+        detail(p, w, dy, selected, a, b);
+    }
+
+    private static boolean isTrait(CrossRow row) {
+        return !row.key().equals(LOOK) && !row.key().equals(DISPOSITION) && !row.key().equals(MALFORMED);
+    }
+
+    private void chip(CustomPanelAPI p, float x, float cw, CrossRow row, boolean selected) {
+        CustomPanelAPI chip = UiButtons.row(p, x, 0f, cw, CHIP_H, selected, true, null, () -> {
+            view.crossTrait = row.key();
+            panel.refresh();
+        });
+        Ui.textIn(chip, 9f, 0f, CHIP_BAR_X - 14f, CHIP_H, Ui.fit(row.name(), Ui.INS15, CHIP_BAR_X - 14f), Ui.INS15, row.flaw() ? Ui.neg() : Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+
+        List<Result> results = row.results();
+        float bw = cw - CHIP_BAR_X - 8f;
+        float[] widths = new float[results.size()];
+        float over = 0f;
+        float big = 0f;
+        for (int i = 0; i < widths.length; i++) {
+            widths[i] = Math.max(CHIP_SEG_MIN, results.get(i).chance() * bw);
+            over += widths[i];
+            if (widths[i] > CHIP_SEG_MIN) big += widths[i];
+        }
+        over -= bw;
+        float cx = CHIP_BAR_X;
+        for (int i = 0; i < widths.length; i++) {
+            float sw = widths[i] > CHIP_SEG_MIN && big > 0f ? widths[i] - over * widths[i] / big : widths[i];
+            float sx = Math.round(cx);
+            float ex = Math.round(cx + sw);
+            Color c = laneColor(results.get(i).lane(), row.flaw());
+            Ui.painted(chip, sx, 9f, Math.max(1f, ex - sx - 1f), 6f, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), c, a), null);
+            cx += sw;
+        }
+    }
+
+    // from the first parent, the sum, from the second, nothing; a kept flaw is red
+    private static Color laneColor(String lane, boolean flaw) {
+        Color blue = Ui.barBlue();
+        if (lane.equals(PetGenetics.NONE)) return Misc.scaleAlpha(Ui.line(), 0.8f);
+        if (flaw || lane.equals(MALFORMED)) return Ui.RED;
+        return switch (lane) {
+            case PetSheet.FROM_SUM -> Misc.interpolateColor(blue, Color.WHITE, 0.1f);
+            case PetSheet.FROM_A -> Misc.scaleColor(blue, 0.65f);
+            default -> Misc.scaleColor(blue, 0.42f);
+        };
+    }
+
+    private List<CrossRow> crossRows(Pet a, Pet b) {
+        List<CrossRow> rows = new ArrayList<>();
+        PetData data = a.getData();
+        PetSheet sa = PetGenetics.seen(a.sheet);
+        PetSheet sb = PetGenetics.seen(b.sheet);
+        float care = shop.getCare();
+        float sum = PetGenetics.sumChance(data, a.getHearts() + b.getHearts());
+        String fromA = "from " + a.name;
+        String fromB = "from " + b.name;
+
+        float malformed = PetGenetics.malformedChance(data, PetShop.getInbreeding(a, b));
+        if (malformed > 0f) {
+            rows.add(new CrossRow(MALFORMED, "Malformed", Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.MALFORMED_PER_INBREEDING) + " times the inbreeding value", true,
+                    kin(a, b), kin(b, a), List.of(
+                    new Result(MALFORMED, "One new flaw", Ui.neg(), malformed, "at level 1, any flaw", "or one more level", null),
+                    new Result(PetGenetics.NONE, "none", Ui.gray(), 1f - malformed, "born sound", "No effect", null))));
+        }
+
+        rows.add(new CrossRow(LOOK, "Look", "", false, WILD_TYPE, WILD_TYPE, List.of(
+                new Result(PetSheet.FROM_A, WILD_TYPE, Ui.text(), 0.5f, fromA, "Plain look", null),
+                new Result(PetSheet.FROM_B, WILD_TYPE, Ui.text(), 0.5f, fromB, "Plain look", null))));
+
+        String da = Misc.ucFirst(a.sheet.disposition);
+        String db = Misc.ucFirst(b.sheet.disposition);
+        rows.add(new CrossRow(DISPOSITION, "Disposition", "", false, da, db, List.of(
+                new Result(PetSheet.FROM_A, da, Academy.COLOURS_BY_PERSONALITY.get(a.sheet.disposition), 0.5f, fromA, "", null),
+                new Result(PetSheet.FROM_B, db, Academy.COLOURS_BY_PERSONALITY.get(b.sheet.disposition), 0.5f, fromB, "", null))));
+
+        Set<String> ids = new LinkedHashSet<>(sa.traits.keySet());
+        ids.addAll(sb.traits.keySet());
+        List<PetDataRepo.Trait> talents = new ArrayList<>();
+        List<PetDataRepo.Trait> bodies = new ArrayList<>();
+        for (String id : ids) {
+            PetDataRepo.Trait trait = PetDataRepo.getTrait(id);
+            if (trait == null) continue;
+            if (trait.isTalent()) talents.add(trait);
+            else bodies.add(trait);
+        }
+        talents.sort(Comparator.comparingInt((PetDataRepo.Trait t) -> -Math.max(sa.getGrade(t.id()), sb.getGrade(t.id()))));
+        bodies.sort(Comparator.comparing(PetDataRepo.Trait::isFlaw));
+        talents.addAll(bodies);
+
+        for (PetDataRepo.Trait trait : talents) {
+            int la = sa.getGrade(trait.id());
+            int lb = sb.getGrade(trait.id());
+            List<Result> results = new ArrayList<>();
+            for (PetGenetics.Outcome o : PetGenetics.outcomes(trait.isFlaw(), trait.hasLevels(), la, lb, care, sum)) results.add(result(trait, o, fromA, fromB));
+            rows.add(new CrossRow(trait.id(), trait.name(), unit(trait), trait.isFlaw(), parentLine(trait, a, la), parentLine(trait, b, lb), results));
+        }
+
+        return rows;
+    }
+
+    private static Result result(PetDataRepo.Trait trait, PetGenetics.Outcome o, String fromA, String fromB) {
+        if (o.lane().equals(PetGenetics.NONE)) {
+            return new Result(o.lane(), "none", Ui.gray(), o.chance(), trait.isFlaw() ? "dropped" : "not passed on", "No effect", null);
+        }
+
+        String value = trait.hasLevels() ? String.valueOf(o.level()) : "Yes";
+        Color color = trait.isFlaw() ? Ui.neg() : trait.hasLevels() ? Ui.hl() : Ui.text();
+        String origin = switch (o.lane()) {
+            case PetSheet.FROM_SUM -> trait.hasLevels() ? "sum of both" : "from both";
+            case PetSheet.FROM_A -> fromA;
+            default -> fromB;
+        };
+        String v = trait.format(trait.value(o.level(), 1f));
+        return new Result(o.lane(), value, color, o.chance(), origin, trait.effect(), v.isEmpty() ? null : v);
+    }
+
+    private static String unit(PetDataRepo.Trait trait) {
+        String v = trait.format(trait.value(trait.per(), 1f));
+        if (v.isEmpty()) return trait.isFlaw() ? "Flaw" : trait.isMutation() ? "Mutation" : "";
+        String per = trait.per() > 1 ? " per " + trait.per() + (trait.isTalent() ? " grades" : " levels") : trait.isTalent() ? " per grade" : " per level";
+        String text = trait.effect() + " " + v + per;
+        return trait.isFlaw() ? "Flaw, " + Misc.lcFirst(text) : trait.isMutation() ? "Mutation, " + Misc.lcFirst(text) : text;
+    }
+
+    // what the node of a parent says about the trait: its grade or level, Unknown while it may hide one, else None
+    private static String parentLine(PetDataRepo.Trait trait, Pet pet, int level) {
+        if (level > 0) return trait.hasLevels() ? (trait.isTalent() ? "Grade " : "Level ") + level : "Has it";
+        boolean hidden = trait.isFlaw() ? !pet.sheet.flawsRead : trait.isTalent() && unknownTalents(pet) > 0;
+        return hidden ? "Unknown" : "None";
+    }
+
+    private static String kin(Pet pet, Pet other) {
+        if (pet.parentA != null && Objects.equals(pet.parentA, other.parentA) && Objects.equals(pet.parentB, other.parentB)) return "Sibling of " + other.name;
+        if (other.id.equals(pet.parentA) || other.id.equals(pet.parentB)) return "Young of " + other.name;
+        if (pet.id.equals(other.parentA) || pet.id.equals(other.parentB)) return "Parent of " + other.name;
+        return "Kin of " + other.name;
+    }
+
+    // both parents, lines into every result, per result the value, chance, where it comes from and what it does
+    private void detail(CustomPanelAPI p, float w, float y, CrossRow row, Pet a, Pet b) {
+        Ui.thead(p, 0f, y, w, new String[]{row.name(), row.unit()}, new float[]{8f, 168f}, new float[]{150f, w - 176f}, new Alignment[]{Ui.LEFT, Ui.RIGHT});
+        y += 26f;
+        node(p, 0f, y, a, row.lineA());
+        node(p, w - NODE_W, y, b, row.lineB());
+
+        List<Result> results = row.results();
+        int n = results.size();
+        float[] xs = n == 1 ? new float[]{Math.round((w - OUT_W) / 2f)} : n == 2 ? new float[]{30f, w - OUT_W - 30f}
+                : new float[]{0f, Math.round((w - OUT_W) / 2f), w - OUT_W};
+        float by = y + NODE_H;
+        float cy = by + 30f;
+
+        links(p, NODE_W / 2f, by, 12f, cy, results, xs, PetSheet.FROM_A);
+        links(p, w - NODE_W / 2f, by, 20f, cy, results, xs, PetSheet.FROM_B);
+        for (int i = 0; i < n; i++) outcome(p, xs[i], cy, results.get(i), row.flaw());
+    }
+
+    // the node down by drop, across to every result it feeds, then down into them; the sum and Malformed take both parents
+    private static void links(CustomPanelAPI p, float nx, float by, float drop, float cy, List<Result> results, float[] xs, String side) {
+        List<Float> targets = new ArrayList<>();
+        for (int i = 0; i < results.size(); i++) {
+            String lane = results.get(i).lane();
+            if (lane.equals(side) || lane.equals(PetSheet.FROM_SUM) || lane.equals(MALFORMED)) targets.add(xs[i] + OUT_W / 2f);
+        }
+        if (targets.isEmpty()) return;
+
+        float lo = nx;
+        float hi = nx;
+        for (float t : targets) {
+            lo = Math.min(lo, t);
+            hi = Math.max(hi, t);
+        }
+
+        if (targets.size() == 1 && Math.abs(targets.get(0) - nx) < 1f) {
+            vline(p, nx, by, cy - by);
+            return;
+        }
+
+        vline(p, nx, by, drop);
+        hline(p, lo, by + drop, hi - lo + 1f);
+        for (float t : targets) vline(p, t, by + drop, cy - by - drop);
+    }
+
+    private static void vline(CustomPanelAPI p, float x, float y, float h) {
+        Ui.painted(p, Math.round(x), y, 1f, h, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), 1f, pos.getHeight(), Ui.base(), a), null);
+    }
+
+    private static void hline(CustomPanelAPI p, float x, float y, float w) {
+        Ui.painted(p, Math.round(x), y, Math.round(w), 1f, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), 1f, Ui.base(), a), null);
+    }
+
+    private static void node(CustomPanelAPI p, float x, float y, Pet pet, String line) {
+        Ui.card(p, x, y, NODE_W, NODE_H);
+        UiImages.img(p, x + 4f, y + 4f, 44f, 44f, pet.getData().icon);
+        if (unknownTalents(pet) > 0) UiImages.img(p, x + 29f, y + 1f, 20f, 20f, PetCard.unknownSprite());
+        float hw = PetCard.heartsWidth(9f, 2f);
+        Ui.textIn(p, x + 58f, y + 6f, NODE_W - 66f - hw - 6f, Ui.LINE_H, Ui.fit(pet.name, Ui.INS15, NODE_W - 66f - hw - 6f), Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        PetCard.hearts(p, x + NODE_W - 8f - hw, y + 12f, pet, 9f, 2f);
+
+        String number = line.replaceAll("[^0-9]", "");
+        Ui.textIn(p, x + 58f, y + 26f, NODE_W - 66f, Ui.LINE_H, Ui.fit(line, Ui.INS15, NODE_W - 66f), Ui.INS15, Ui.gray(), Ui.LEFT,
+                number.isEmpty() ? new String[0] : new String[]{number}, new Color[]{Ui.hl()});
+    }
+
+    private static void outcome(CustomPanelAPI p, float x, float y, Result r, boolean flaw) {
+        Ui.box(p, x, y, OUT_W, OUT_H, r.lane().equals(PetSheet.FROM_SUM) ? Ui.base() : Ui.line(), null);
+        Ui.textIn(p, x, y + 6f, OUT_W, 24f, Ui.fit(r.value(), Ui.ORB20, OUT_W - 8f), Ui.ORB20, r.color(), Ui.CENTER, new String[0], new Color[0]);
+        Ui.textIn(p, x, y + 31f, OUT_W, 22f, percent(r.chance()), Ui.INS21, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
+        Ui.textIn(p, x, y + 54f, OUT_W, Ui.LINE_H, Ui.fit(r.origin(), Ui.INS15, OUT_W - 8f), Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
+
+        boolean none = r.lane().equals(PetGenetics.NONE);
+        String effect = r.effectValue() != null ? r.effect() + " " + r.effectValue() : r.effect();
+        Ui.textIn(p, x, y + 72f, OUT_W, Ui.LINE_H, Ui.fit(effect, Ui.INS15, OUT_W - 8f), Ui.INS15, none ? Ui.gray() : Ui.text(), Ui.CENTER,
+                r.effectValue() != null ? new String[]{r.effectValue()} : new String[0], new Color[]{flaw ? Ui.neg() : Ui.hl()});
+    }
+
     private void runningCard(CustomPanelAPI p, float w, float h, PetBrood brood) {
         Pet a = manager.get(brood.parentA);
         Pet b = manager.get(brood.parentB);
         title(p, w, a.name + " x " + b.name);
         tagline(p, w, kinLine(a, b));
         dials(p, w, a, b);
+        cross(p, w, h, a, b);
 
         float left = shop.getDaysLeft(brood);
         String days = String.valueOf(Math.max(1, (int) Math.ceil(left)));
