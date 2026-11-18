@@ -1,14 +1,10 @@
 package indevo.utils.ui;
 
-import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
-import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
-import com.fs.starfarer.api.campaign.rules.MemoryAPI;
-import com.fs.starfarer.api.combat.EngagementResultAPI;
-import com.fs.starfarer.api.ui.*;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
-import java.util.Map;
 import java.util.function.Consumer;
 
 // the game's confirmation popup over a panel: text in the large paragraph font, confirm and Cancel
@@ -35,9 +31,11 @@ public class UiConfirm extends BaseCustomDialogDelegate {
         this.onConfirm = onConfirm;
     }
 
-    // opens its own interaction dialog, showCustomDialog can not stack a second custom dialog in one dialog
     public void show(Runnable onClose) {
-        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new Host(), null, onClose::run);
+        UiHost.over(dialog -> {
+            this.dialog = dialog;
+            dialog.showCustomDialog(WIDTH, height, this);
+        }, onClose);
     }
 
     @Override
@@ -72,43 +70,5 @@ public class UiConfirm extends BaseCustomDialogDelegate {
     @Override
     public void customDialogCancel() {
         dialog.dismiss();
-    }
-
-    private class Host implements InteractionDialogPlugin {
-
-        @Override
-        public void init(InteractionDialogAPI dialog) {
-            UiConfirm.this.dialog = dialog;
-            dialog.setPromptText("");
-            dialog.hideVisualPanel();
-            dialog.hideTextPanel();
-            dialog.showCustomDialog(WIDTH, height, UiConfirm.this);
-        }
-
-        @Override
-        public void optionSelected(String optionText, Object optionData) {
-        }
-
-        @Override
-        public void optionMousedOver(String optionText, Object optionData) {
-        }
-
-        @Override
-        public void advance(float amount) {
-        }
-
-        @Override
-        public void backFromEngagement(EngagementResultAPI battleResult) {
-        }
-
-        @Override
-        public Object getContext() {
-            return null;
-        }
-
-        @Override
-        public Map<String, MemoryAPI> getMemoryMap() {
-            return null;
-        }
     }
 }

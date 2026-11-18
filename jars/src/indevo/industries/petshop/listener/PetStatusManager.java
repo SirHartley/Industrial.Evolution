@@ -60,6 +60,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         STARVED,
         SOLD,
         UNKNOWN,
+        EUTHANIZED,
+        REHOMED,
     }
 
     private Map<String, Float> foodTakenLastMonth = new HashMap<>(); //contains a list of commodity and amount taken last month for feeding purposes
@@ -252,35 +254,39 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     public boolean feed(Pet pet) {
-        CargoAPI cargo = pet.assignedFleetMember != null ? getFoodCargo(pet.assignedFleetMember) : Global.getSector().getPlayerFleet().getCargo();
-        if (cargo == null) return false;
-
+        CargoAPI cargo = getFoodCargo(pet);
         PetData data = pet.getData();
-        String foodToEat = null;
-
-        for (String food : data.foodCommodities) {
-            if (Commodities.SUPPLIES.equals(food)) continue;
-
-            if (cargo.getCommodityQuantity(food) >= data.foodPerMonth) {
-                foodToEat = food;
-                break;
-            }
-        }
-
-        boolean eatsSupplies = foodToEat == null && data.foodCommodities.contains(Commodities.SUPPLIES)
-                && cargo.getCommodityQuantity(Commodities.SUPPLIES) >= data.foodPerMonth;
-        if (eatsSupplies) foodToEat = Commodities.SUPPLIES;
-
+        String foodToEat = getFood(data, cargo);
         if (foodToEat == null) return false;
 
         cargo.removeCommodity(foodToEat, data.foodPerMonth);
-        pet.lastMealSupplies = eatsSupplies;
+        pet.lastMealSupplies = Commodities.SUPPLIES.equals(foodToEat);
 
         if (foodTakenLastMonth.containsKey(foodToEat))
             foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + data.foodPerMonth);
         else foodTakenLastMonth.put(foodToEat, data.foodPerMonth);
 
         return true;
+    }
+
+    // what the pet eats next from that cargo: its first real food, Supplies only when none is aboard
+    private static String getFood(PetData data, CargoAPI cargo) {
+        if (cargo == null) return null;
+
+        for (String food : data.foodCommodities) {
+            if (!Commodities.SUPPLIES.equals(food) && cargo.getCommodityQuantity(food) >= data.foodPerMonth) return food;
+        }
+
+        boolean supplies = data.foodCommodities.contains(Commodities.SUPPLIES) && cargo.getCommodityQuantity(Commodities.SUPPLIES) >= data.foodPerMonth;
+        return supplies ? Commodities.SUPPLIES : null;
+    }
+
+    public boolean hasFood(Pet pet) {
+        return getFood(pet.getData(), getFoodCargo(pet)) != null;
+    }
+
+    private CargoAPI getFoodCargo(Pet pet) {
+        return pet.assignedFleetMember != null ? getFoodCargo(pet.assignedFleetMember) : Global.getSector().getPlayerFleet().getCargo();
     }
 
     private CargoAPI getFoodCargo(FleetMemberAPI member) {
@@ -353,6 +359,12 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             case UNKNOWN:
                 //if sold and not caught or magic'd away
                 Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + ", formerly of the " + petLocation + ", has %s", Misc.getTextColor(), pet.name, "died.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                break;
+            case EUTHANIZED:
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " has been %s", Misc.getTextColor(), pet.name, "euthanized.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                break;
+            case REHOMED:
+                Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " went to a new home.", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
         }
 

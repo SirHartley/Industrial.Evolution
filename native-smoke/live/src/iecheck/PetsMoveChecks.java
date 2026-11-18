@@ -14,7 +14,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import indevo.console.PetCommand;
 import indevo.ids.Ids;
 import indevo.industries.petshop.PetMood;
-import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
+import indevo.industries.petshop.plugins.PetsDialogPlugin;
+import indevo.industries.petshop.plugins.PetsView;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
@@ -284,9 +285,8 @@ public final class PetsMoveChecks {
         steps.add(c -> {
             Pet rex = manager().get((String) c.get("rexId"));
             c.expect(rex != null && !rex.isDead() && rex.isInMenagerie() && manager().getMenageriePets().contains(rex), "menagerie pet survives save and load (" + where(rex) + ")");
-            CampaignFleetAPI fleet = fleet();
             c.keepDialog(true);
-            Global.getSector().getCampaignUI().showInteractionDialog(new PetShopDialogPlugin(shop(c.market("a"))), fleet);
+            PetsDialogPlugin.show(shop(c.market("a")), new PetsView());
             log.info("LIVE_CHECK hold");
             c.frames(100000000);
         });

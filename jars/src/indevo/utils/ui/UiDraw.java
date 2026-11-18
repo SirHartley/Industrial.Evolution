@@ -162,6 +162,21 @@ public final class UiDraw {
         end();
     }
 
+    // filled polygon given in a box of box units with y down, scaled to size at x, y; a fan from cx, cy, so the shape must be star shaped around it
+    public static void fan(float x, float y, float size, float box, float[] pts, float cx, float cy, Color c, float alpha) {
+        float s = size / box;
+
+        begin(c, alpha);
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+        GL11.glVertex2f(x + cx * s, y + size - cy * s);
+        for (int i = 0; i <= pts.length / 2; i++) {
+            int n = i % (pts.length / 2);
+            GL11.glVertex2f(x + pts[2 * n] * s, y + size - pts[2 * n + 1] * s);
+        }
+        GL11.glEnd();
+        end();
+    }
+
     // contain fit inside the box, centred, at integer pixels
     public static void sprite(SpriteAPI sprite, float srcW, float srcH, float x, float y, float w, float h, Color tint, float alpha) {
         if (sprite == null || srcW <= 0f || srcH <= 0f) return;

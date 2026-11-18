@@ -16,7 +16,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.industries.petshop.PetMood;
-import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
+import indevo.industries.petshop.plugins.PetsDialogPlugin;
+import indevo.industries.petshop.plugins.PetsView;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import org.apache.log4j.Logger;
@@ -150,7 +151,7 @@ public final class PetsFightChecks {
         steps.add(c -> {
             Global.getSector().addTransientScript(new PetWatch());
             c.keepDialog(true);
-            Global.getSector().getCampaignUI().showInteractionDialog(new PetShopDialogPlugin(null), Global.getSector().getPlayerFleet());
+            PetsDialogPlugin.show(null, new PetsView());
             log.info("LIVE_CHECK hold");
             c.frames(100000000);
         });

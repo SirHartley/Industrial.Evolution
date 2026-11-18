@@ -41,9 +41,9 @@ Every IE panel follows these rules.
 | `UiScroll` | Scroll columns and the per panel scroll offsets |
 | `UiRoot` | Rebuild host |
 | `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children; `shown` holds the fraction a kit progress bar shows, for checks |
-| `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code |
+| `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code (`show`) and popups over a panel (`over`) |
 | `UiConfirm` | The game's confirmation popup over a panel, in its own interaction dialog |
-| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, dashed box, fades, mark, contain fit sprite) |
+| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, dashed box, fades, mark, polygon fan, contain fit sprite) |
 
 Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordinates and the content, and returns the created element. Panels the kit creates use `UiCanvas`, so a button anywhere below them reports to the nearest kit panel and runs its `Runnable`. No helper keeps global state; view state lives in the panel's state object.
 
@@ -107,7 +107,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `row(p, x, y, w, h, selected, enabled, strip, action)` | Selectable list row: the area is the click target, content added to the returned panel sits on top |
 | `check(p, x, y, w, label, on, enabled, action)` | Vanilla checkbox with label |
 | `stepper(p, x, y, value, enabled, minus, plus)` | `-` value `+`, 72 wide |
-| `field(p, x, y, w, h, text, maxChars)` | Vanilla text field |
+| `field(p, x, y, w, h, text, maxChars[, font])` | Vanilla text field, `INS15` unless a font is given |
 
 ### UiImages
 
@@ -208,14 +208,14 @@ public class FooPanel extends BaseCustomDialogDelegate {
 }
 ```
 
-`UiRoot.refresh()` captures the live offsets, removes the old body, builds a new one on a `UiCanvas` panel, attaches it and restores the offsets clamped to the new content height. `getCustomPanelPlugin()` can stay null: kit panels handle their own buttons. Text typed into a `field` is read in the action that uses it and kept in the view state before the refresh.
+`UiRoot.refresh()` captures the live offsets, removes the old body, builds a new one on a `UiCanvas` panel, attaches it and restores the offsets clamped to the new content height. `getCustomPanelPlugin()` can stay null: kit panels handle their own buttons. A panel with a clock (`PetsPanel`, for the petting motion) returns a plugin whose `advance(amount)` drives it. Text typed into a `field` is read in the action that uses it and kept in the view state before the refresh.
 
 ## Confirm over a panel
 
 One custom dialog can be open per interaction dialog. Two ways to confirm:
 
 - Inline: `UiButtons.confirm` turns the action button into Confirm and Cancel in place. Use it when the button area can hold two buttons.
-- Real dialog (Edict enact, Remove and Bribe): `UiConfirm(confirmText[, height], body, onConfirm).show(onClose)`, 500 x 130 by default, the body in the large paragraph font. It opens a second interaction dialog with `CampaignUIAPI.showInteractionDialogFromCargo(plugin, null, onClose)`; its plugin's `init` calls `dialog.showCustomDialog(w, h, this)` and Confirm or Cancel call `dialog.dismiss()`; `onClose` rebuilds the panel below. `showCustomDialog` can not stack a second custom dialog in one dialog.
+- Real dialog (Edict enact, Remove and Bribe, pet Euthanize and Rehome): `UiConfirm(confirmText[, height], body, onConfirm).show(onClose)`, 500 x 130 by default, the body in the large paragraph font. `showCustomDialog` can not stack a second custom dialog in one dialog, so a popup over a panel goes through `UiHost.over(opener, onClose)`: a second interaction dialog from `CampaignUIAPI.showInteractionDialogFromCargo(plugin, null, onClose)`, whose `init` runs the opener (`dialog.showCustomDialog(w, h, delegate)`); the delegate's confirm and cancel call `dialog.dismiss()`, and `onClose` rebuilds the panel below. The pet where to popup (`PetPlaceDialog`) uses the same route.
 
 ## Opening a panel
 

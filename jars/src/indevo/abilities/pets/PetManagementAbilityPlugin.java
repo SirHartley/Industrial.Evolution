@@ -8,9 +8,10 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.config.Setting;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.ids.Ids;
-import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.plugins.PetsDialogPlugin;
+import indevo.industries.petshop.plugins.PetsView;
 
 import java.io.IOException;
 
@@ -44,7 +45,7 @@ public class PetManagementAbilityPlugin extends BaseDurationAbility {
 
     @Override
     protected void activateImpl() {
-        Global.getSector().getCampaignUI().showInteractionDialog(new PetShopDialogPlugin(null), Global.getSector().getPlayerFleet());
+        PetsDialogPlugin.show(null, new PetsView());
     }
 
     @Override

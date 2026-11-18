@@ -82,6 +82,7 @@ public enum Setting {
     CONSUMABLE_DROP_FROM_FLEETS("IndEvo_consumables_addToFleets", true, BLOCK_CONSUMABLES),
     CONSUMABLE_RESEARCH("IndEvo_consumables_researchProject", true, BLOCK_CONSUMABLES),
     PET_LINE_DAYS("IndEvo_petLineDays", 14, 0, 90),
+    PET_MOTION("IndEvo_petMotion", true),
     ADMANUF("IndEvo_AdManuf", true, BLOCK_INDUSTRIES),
     ADASSEM("IndEvo_AdAssem", true, BLOCK_INDUSTRIES),
     COMFORGE("IndEvo_ComForge", true, BLOCK_INDUSTRIES),
