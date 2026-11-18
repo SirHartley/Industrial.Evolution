@@ -71,7 +71,11 @@ public class Pet {
         leave();
 
         if (toMember != null) {
-            if (homeShipId != null && !homeShipId.equals(toMember.getId())) unsettledDays = PetConstants.UNSETTLED_DAYS;
+            if (!toMember.getId().equals(homeShipId)) {
+                if (homeShipId != null) unsettledDays = PetConstants.UNSETTLED_DAYS;
+                serveDuration = 0f;
+            }
+
             homeShipId = toMember.getId();
             attach(toMember);
         } else if (toStorage != null) {
@@ -101,7 +105,6 @@ public class Pet {
 
         assignedFleetMember = toMember;
         isAssigned = true;
-        serveDuration = 0f;
         toMember.getVariant().addPermaMod(getData().hullmod);
         toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
     }
@@ -114,7 +117,6 @@ public class Pet {
 
         if (assignedFleetMember == null) return;
 
-        serveDuration = 0f;
         ShipVariantAPI variant = assignedFleetMember.getVariant();
         String hullmod = getData().hullmod;
 
@@ -136,10 +138,10 @@ public class Pet {
     public void advance(float amt) {
         if (isDead) return;
 
-        boolean notInCryo = storage != null && !Commodities.BETA_CORE.equals(storage.getAICoreId());
+        boolean ages = storage == null || !Commodities.BETA_CORE.equals(storage.getAICoreId());
         float dayAmt = Global.getSector().getClock().convertToDays(amt);
 
-        if (notInCryo || isAssigned){
+        if (ages) {
             age += dayAmt;
 
             if (age > lifetime) {
@@ -150,10 +152,10 @@ public class Pet {
         unsettledDays = Math.max(0f, unsettledDays - dayAmt);
         shellShockedDays = Math.max(0f, shellShockedDays - dayAmt);
 
-        if (!isAssigned) return; //can't be active if in storage so it doesn't double age
+        if (storage != null) return;
 
         feedInterval.advance(amt);
-        serveDuration += dayAmt;
+        if (isAssigned) serveDuration += dayAmt;
 
         if (feedInterval.intervalElapsed()) {
             PetStatusManager manager = PetStatusManager.getInstance();
@@ -177,6 +179,10 @@ public class Pet {
 
     public boolean isAssigned() {
         return isAssigned;
+    }
+
+    public boolean isInMenagerie() {
+        return !isDead && !isAssigned && storage == null;
     }
 
     public boolean isUnsettled() {
