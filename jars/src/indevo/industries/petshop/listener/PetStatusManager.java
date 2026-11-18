@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
@@ -23,6 +24,7 @@ import indevo.utils.helper.MiscIE;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -282,6 +284,23 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         for (Pet pet : new ArrayList<>(pets)) {
             if (membersLost.contains(pet.assignedFleetMember)) {
                 reportPetDied(pet, PetDeathCause.COMBAT);
+            }
+        }
+    }
+
+    @Override
+    public void reportPlayerEngagement(EngagementResultAPI result) {
+        if (!Setting.PETS.enabled()) return;
+
+        for (EngagementResultForFleetAPI side : Arrays.asList(result.getWinnerResult(), result.getLoserResult())) {
+            if (side == null || !side.isPlayer()) continue;
+
+            List<FleetMemberAPI> fought = new ArrayList<>(side.getDeployed());
+            fought.addAll(side.getRetreated());
+
+            for (FleetMemberAPI member : fought) {
+                Pet pet = getPet(member.getVariant());
+                if (pet != null) pet.shellShock();
             }
         }
     }

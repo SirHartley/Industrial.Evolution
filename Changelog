@@ -62,6 +62,8 @@ Fixed - Swarm warning path and radiation no longer linger from scattered treasur
 Fixed - A second meteor storm can no longer start alongside the tutorial storm
 
 Pets
+Added - Pet moods: Hungry, Unsettled, Shell shocked, Sleepy or Content, shown in the pet's hullmod tooltip
+Adjusted - Moving a pet to another ship makes it Unsettled for 30 days, no pet effect until then
 Fixed - Animal market now gets correctly removed if Animal Center is removed or pets disabled
 Fixed - Pet storage fees now match the tooltip
 Fixed - Animal Center AI core bonuses now apply and match the description

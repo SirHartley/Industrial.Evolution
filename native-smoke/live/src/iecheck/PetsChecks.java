@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.petshop.PetMood;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 
@@ -31,6 +32,17 @@ public final class PetsChecks {
         fleet.getFleetData().removeFleetMember(member);
         storage.getMothballedShips().addFleetMember(member);
         return pet;
+    }
+
+    private static FleetMemberAPI ship() {
+        FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, "wolf_Assault");
+        Global.getSector().getPlayerFleet().getFleetData().addFleetMember(member);
+        return member;
+    }
+
+    private static boolean hasEffect(Pet pet, FleetMemberAPI member) {
+        member.updateStats();
+        return member.getStats().getCRLossPerSecondPercent().getPercentBonus(pet.getData().hullmod) != null;
     }
 
     public static List<Step> steps() {
@@ -58,6 +70,41 @@ public final class PetsChecks {
             c.expect(!fed.isDead() && !fed.isStarving(), "fed pet alive after a second month");
             c.expect(hungry.isDead(), "unfed pet dead after a second month");
             c.expect(hungry.deathData != null && hungry.deathData.cause == PetStatusManager.PetDeathCause.STARVED, "unfed pet died of starvation (" + (hungry.deathData == null ? null : hungry.deathData.cause) + ")");
+        });
+        steps.add(c -> {
+            Global.getSector().getPlayerFleet().getCargo().addCommodity("ore", 1000f);
+            FleetMemberAPI first = ship();
+            FleetMemberAPI second = ship();
+
+            Pet pet = new Pet("slaghound", "Mover");
+            PetStatusManager.getInstance().register(pet);
+            pet.assign(first);
+            c.expect(!pet.isUnsettled() && pet.getMood() == PetMood.CONTENT, "first assign is no move (" + pet.getMood() + ")");
+            c.expect(hasEffect(pet, first), "settled pet applies its hullmod effect");
+
+            pet.moveTo(second);
+            c.expect(pet.assignedFleetMember == second && PetStatusManager.getInstance().getPet(first.getVariant()) == null, "moved pet sits on the new ship only");
+            c.expect(pet.isUnsettled() && pet.getMood() == PetMood.UNSETTLED, "moved pet is Unsettled (" + pet.getMood() + ")");
+            c.near(pet.getBond().unsettledDays, 30f, 0.01f, "Unsettled lasts 30 days");
+            c.expect(!hasEffect(pet, second), "Unsettled pet applies no hullmod effect");
+
+            c.put("mover", pet.id);
+            c.put("moverShip", second);
+            c.days(31f);
+        });
+        steps.add(c -> {
+            Pet pet = PetStatusManager.getInstance().get((String) c.get("mover"));
+            c.expect(!pet.isDead() && !pet.isUnsettled(), "pet settles after 30 days");
+            c.expect(pet.getMood() == PetMood.CONTENT, "settled fed pet is Content (" + pet.getMood() + ")");
+            c.expect(hasEffect(pet, (FleetMemberAPI) c.get("moverShip")), "settled pet applies its effect again");
+
+            pet.shellShock();
+            c.expect(pet.getMood() == PetMood.SHELL_SHOCKED, "shell shocked pet shows the mood (" + pet.getMood() + ")");
+            c.days(8f);
+        });
+        steps.add(c -> {
+            Pet pet = PetStatusManager.getInstance().get((String) c.get("mover"));
+            c.expect(pet.getMood() == PetMood.CONTENT, "Shell shocked wears off after 7 days (" + pet.getMood() + ")");
         });
         return steps;
     }

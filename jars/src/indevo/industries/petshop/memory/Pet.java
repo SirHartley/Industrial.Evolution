@@ -14,6 +14,8 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.academy.industry.Academy;
+import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetMood;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.utils.ModPlugin;
@@ -45,6 +47,7 @@ public class Pet {
     public Industry storage = null;
 
     public DeathData deathData = null;
+    private PetBond bond = new PetBond();
 
     public Pet(String typeID, String name) {
         this.id = Misc.genUID();
@@ -87,6 +90,17 @@ public class Pet {
         serveDuration = 0f;
         toMember.getVariant().addPermaMod(getData().hullmod);
         toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
+    }
+
+    public void moveTo(FleetMemberAPI toMember) {
+        removeFromStorage();
+        unassign();
+        assign(toMember);
+        getBond().unsettledDays = PetConstants.UNSETTLED_DAYS;
+    }
+
+    public void shellShock() {
+        getBond().shellShockedDays = PetConstants.SHELL_SHOCKED_DAYS;
     }
 
     public static void cycleToCustomVariant(FleetMemberAPI member) {
@@ -135,6 +149,10 @@ public class Pet {
             }
         }
 
+        PetBond bond = getBond();
+        bond.unsettledDays = Math.max(0f, bond.unsettledDays - dayAmt);
+        bond.shellShockedDays = Math.max(0f, bond.shellShockedDays - dayAmt);
+
         if (!isAssigned) return; //can't be active if in storage so it doesn't double age
 
         feedInterval.advance(amt);
@@ -162,6 +180,24 @@ public class Pet {
 
     public boolean isAssigned() {
         return isAssigned;
+    }
+
+    public PetBond getBond() {
+        // pets from saves before the bond
+        if (bond == null) bond = new PetBond();
+        return bond;
+    }
+
+    public boolean isUnsettled() {
+        return getBond().unsettledDays > 0f;
+    }
+
+    public PetMood getMood() {
+        if (isStarving) return PetMood.HUNGRY;
+        if (isUnsettled()) return PetMood.UNSETTLED;
+        if (getBond().shellShockedDays > 0f) return PetMood.SHELL_SHOCKED;
+        if (age > lifetime * PetConstants.SLEEPY_AGE_FRACTION) return PetMood.SLEEPY;
+        return PetMood.CONTENT;
     }
 
     public void setDead(PetStatusManager.PetDeathCause cause) {
@@ -212,7 +248,8 @@ public class Pet {
         textElement.addPara("Species: %s", spad, hl, getData().species);
         textElement.addPara("Disposition: %s", spad, Academy.COLOURS_BY_PERSONALITY.get(personality), personality.toLowerCase());
         textElement.addPara("Age: %s", spad, hl, getAgeString());
-        textElement.addPara("Status: %s", spad, isStarving() ? Misc.getNegativeHighlightColor() : hl, isStarving() ? "Starving" : "Well fed and happy");
+        PetMood mood = getMood();
+        textElement.addPara("Mood: %s", spad, mood.getColor(), mood.label);
         panel.addUIElement(textElement).inTL(-padding, 0f); //WHY, WHY THE PADDING ALEX??? WHY????
         panel.getPosition().setSize(tooltip.getWidthSoFar(), textElement.getHeightSoFar()); //scale to correct size
 

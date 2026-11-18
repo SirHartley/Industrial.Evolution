@@ -96,7 +96,7 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `trafficperf` | Shuttle traffic worst case in Askonia, run with `--perf`: ms per frame at traffic 0 and 80, then a fresh scene per setting (0, 80, 120) with six parked Diktat fleets at Sindria, two 16 carrier NPC battles beside the player and escape pods near their cap. Read the profile filtered to `indevo.ambience.shuttletraffic`. Not in the full set |
 | `path` | Swarm path indicator on real swarms, sampled per frame |
 | `arcmath` | Real `ArcingMovementModule` over 4000 random arcs |
-| `pets` | Stored pets eat from their storage, starve, die |
+| `pets` | Stored pets eat from their storage, starve, die; a moved pet is Unsettled for 30 days with no hullmod effect, then Content; Shell shocked wears off |
 | `ruins` | Ruin upgrades, ruined infrastructure, Fast Build timing |
 | `colony` | Governments, Supercomputer, relay comparison, ambassadors |
 | `embassy` | Hire, carry, install, dismiss through the real dialog, sold, spaced, lost, Warehouse, detachments, Courier Port, monthly gain and penalties, cores, hostile, delay, recall, relocation, sabotage, setting off |
