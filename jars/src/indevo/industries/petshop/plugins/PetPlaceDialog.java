@@ -2,8 +2,11 @@ package indevo.industries.petshop.plugins;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
+import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
+import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.SpecialItemPlugin.RightClickActionHelper;
+import com.fs.starfarer.api.combat.ShipAPI.HullSize;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TextFieldAPI;
@@ -16,6 +19,8 @@ import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 // where to popup for Move... and Assign... (a ship without a pet, or the Pet storage of the docked Animal Center)
@@ -30,6 +35,13 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     static final int ROWS_SHOWN = 4;
     static final String SHIPS = "ships";
 
+    static final String ALL = "All";
+    static final String SORT_FLEET = "Fleet";
+    static final List<UiFilter.Item> SIZES = List.of(new UiFilter.Item(ALL, 40f), new UiFilter.Item("Frigate", 72f),
+            new UiFilter.Item("Destroyer", 90f), new UiFilter.Item("Cruiser", 74f), new UiFilter.Item("Capital", 74f));
+    static final List<UiFilter.Item> KEYS = List.of(new UiFilter.Item(SORT_FLEET, 66f, "The order of your fleet."),
+            new UiFilter.Item("Name", 70f), new UiFilter.Item("Size", 62f));
+
     private final Pet pet;
     private final PetData data;
     private final RightClickActionHelper chamber;
@@ -37,6 +49,7 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     private final List<FleetMemberAPI> ships;
     private final PetShop storage;
     private final UiScroll.Offsets scroll = new UiScroll.Offsets();
+    private final UiFilter.State filter = new UiFilter.State(SORT_FLEET, ALL);
     private InteractionDialogAPI dialog;
     private UiRoot root;
     private TextFieldAPI nameField;
@@ -84,10 +97,23 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         return isChamber() ? HEAD_Y + PetCard.IDENT + PetsPanel.HEAD_GAP : HEAD_Y;
     }
 
+    // the filter bar only shows while the ship list scrolls
+    private boolean hasFilter() {
+        return ships.size() > 2 * ROWS_SHOWN;
+    }
+
     private float shipsHeight() {
         if (ships.isEmpty()) return Ui.LINE_H + 2f;
-        int rows = Math.min(ROWS_SHOWN, (ships.size() + 1) / 2);
+        if (hasFilter()) return Math.max(rowsHeight(ROWS_SHOWN), barHeight(true) + rowsHeight(ROWS_SHOWN - 1));
+        return rowsHeight(Math.min(ROWS_SHOWN, (ships.size() + 1) / 2));
+    }
+
+    private static float rowsHeight(int rows) {
         return rows * ROW_PITCH - ROW_GAP;
+    }
+
+    private static float barHeight(boolean open) {
+        return UiFilter.height(open, true, true) + UiFilter.BELOW;
     }
 
     private float height() {
@@ -102,6 +128,27 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         root.refresh();
     }
 
+    @Override
+    public CustomUIPanelPlugin getCustomPanelPlugin() {
+        return new BaseCustomUIPanelPlugin() {
+            @Override
+            public void advance(float amount) {
+                if (root != null && filter.poll()) filtered();
+            }
+        };
+    }
+
+    private void filtered() {
+        keepName();
+        scroll.reset(SHIPS);
+        root.refresh();
+    }
+
+    private void refresh() {
+        keepName();
+        root.refresh();
+    }
+
     private void build(CustomPanelAPI p, float w, float h) {
         if (isChamber()) addChamber(p, w);
         else Ui.runs(p, 0f, 0f, w, Ui.INS21, Ui.text(), Ui.LEFT, verb + " " + pet.name, new String[]{pet.name}, new Color[]{Ui.hl()});
@@ -111,7 +158,7 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         y += Ui.HEADING_H + 4f;
 
         if (ships.isEmpty()) Ui.text(p, 0f, y + 2f, w, "No ship without a pet.", Ui.gray());
-        else if (ships.size() > 2 * ROWS_SHOWN) addScrolling(p, y, w);
+        else if (hasFilter()) addFiltered(p, y, w, shown());
         else {
             float rw = Math.round((w - ROW_GAP) / 2f);
             for (int i = 0; i < ships.size(); i++) shipRow(p, (i % 2) * (rw + ROW_GAP), y + (i / 2) * ROW_PITCH, rw, i);
@@ -156,17 +203,58 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         return "About " + cycles + (cycles == 1 ? " cycle" : " cycles");
     }
 
-    private void addScrolling(CustomPanelAPI p, float y, float w) {
-        UiScroll.Column column = UiScroll.list(p, 0f, y, w, shipsHeight(), scroll, SHIPS);
+    // the popup can not grow, so the open fold takes one row of the ship list
+    private void addFiltered(CustomPanelAPI p, float y, float w, List<Integer> shown) {
+        UiFilter.bar(p, 0f, y, filter, "Ship or class", "Filters and sort order of this list.", SIZES, this::size, KEYS, this::filtered, this::refresh);
+        y += barHeight(filter.open);
+
+        if (shown.isEmpty()) {
+            Ui.text(p, 0f, y + 2f, w, "No ship matches.", Ui.gray());
+            return;
+        }
+
+        if (pick >= 0 && !shown.contains(pick)) pick = shown.get(0);
+
+        UiScroll.Column column = UiScroll.list(p, 0f, y, w, rowsHeight(filter.open ? ROWS_SHOWN - 1 : ROWS_SHOWN), scroll, SHIPS);
         float rw = Math.round((column.width() - ROW_GAP) / 2f);
 
-        for (int i = 0; i < ships.size(); i += 2) {
+        for (int i = 0; i < shown.size(); i += 2) {
             CustomPanelAPI b = column.block(ROW_H, i == 0 ? 0f : ROW_GAP);
-            shipRow(b, 0f, 0f, rw, i);
-            if (i + 1 < ships.size()) shipRow(b, rw + ROW_GAP, 0f, rw, i + 1);
+            shipRow(b, 0f, 0f, rw, shown.get(i));
+            if (i + 1 < shown.size()) shipRow(b, rw + ROW_GAP, 0f, rw, shown.get(i + 1));
         }
 
         column.end();
+    }
+
+    private void size(String label) {
+        filter.on.clear();
+        filter.on.add(label);
+    }
+
+    // indexes into ships that pass the filter, in the picked order
+    private List<Integer> shown() {
+        List<Integer> shown = new ArrayList<>();
+        HullSize size = switch (filter.on.isEmpty() ? ALL : filter.on.iterator().next()) {
+            case "Frigate" -> HullSize.FRIGATE;
+            case "Destroyer" -> HullSize.DESTROYER;
+            case "Cruiser" -> HullSize.CRUISER;
+            case "Capital" -> HullSize.CAPITAL_SHIP;
+            default -> null;
+        };
+
+        for (int i = 0; i < ships.size(); i++) {
+            FleetMemberAPI m = ships.get(i);
+            if ((size == null || m.getHullSpec().getHullSize() == size) && filter.matches(m.getShipName(), PetCard.shipClass(m))) shown.add(i);
+        }
+
+        Comparator<Integer> name = Comparator.comparing(i -> ships.get(i).getShipName(), String.CASE_INSENSITIVE_ORDER);
+        filter.sort(shown, switch (filter.sort) {
+            case "Name" -> name;
+            case "Size" -> Comparator.comparingInt((Integer i) -> -ships.get(i).getHullSpec().getHullSize().ordinal()).thenComparing(Comparator.naturalOrder());
+            default -> null;
+        });
+        return shown;
     }
 
     private void shipRow(CustomPanelAPI p, float x, float y, float rw, int index) {
@@ -178,9 +266,8 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     }
 
     private void pick(int index) {
-        keepName();
         pick = index;
-        root.refresh();
+        refresh();
     }
 
     // the field is made again on every rebuild; an empty field keeps the suggested name

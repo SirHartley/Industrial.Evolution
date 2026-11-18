@@ -15,10 +15,7 @@ import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.utils.ui.*;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PetsPanel extends BaseCustomDialogDelegate {
 
@@ -34,6 +31,15 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     static final float TILE_GAP = 6f;
     static final float HEAD_GAP = 20f;
     static final int PER_ROW = 6;
+
+    static final String SORT_SHIP = "Ship";
+    static final String MARKED = "Marked";
+    static final List<UiFilter.Item> TOGGLES = List.of(new UiFilter.Item(MARKED, 78f, "Only pets with a marker."));
+    static final List<UiFilter.Item> KEYS = List.of(
+            new UiFilter.Item(SORT_SHIP, 60f, "The order of your fleet."),
+            new UiFilter.Item("Name", 70f),
+            new UiFilter.Item("Species", 86f),
+            new UiFilter.Item("Age", 62f));
 
     private final PetShop shop;
     private final PetsView view;
@@ -75,6 +81,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             public void advance(float amount) {
                 view.clock += amount;
                 view.hearts.removeIf(h -> view.clock - h.start() > PetCard.HEART_LIFE);
+                if (open && view.filter.poll()) filtered();
             }
         };
     }
@@ -141,6 +148,11 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     private void popupClosed() {
         popupOpen = false;
+        refresh();
+    }
+
+    private void filtered() {
+        view.scroll.reset(PetsView.LIST);
         refresh();
     }
 
@@ -241,17 +253,28 @@ public class PetsPanel extends BaseCustomDialogDelegate {
                 0f, Misc.getHighlightColor(), Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.UNSETTLED_DAYS));
     }
 
+    // the selected pet keeps its card while the filter hides its tile
     private void addList(CustomPanelAPI p, float h, List<Group> groups, Pet selected) {
-        UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y, LIST_W, h, view.scroll, PetsView.LIST);
+        UiFilter.State filter = view.filter;
+        float bar = UiFilter.bar(p, 2f, BODY_Y, filter, "Name, species or trait", "Filters and sort order of this list.", TOGGLES, null, KEYS, this::filtered, this::refresh);
+        float top = bar + UiFilter.BELOW;
+
+        UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y + top, LIST_W, h - top, view.scroll, PetsView.LIST);
         float w = list.width();
         boolean first = true;
+        boolean filtering = filter.isFiltering();
 
         for (Group group : groups) {
+            List<Pet> pets = new ArrayList<>();
+            for (Pet pet : group.pets()) if (filter.matches(pet.name, pet.getData().species) && (!filter.on.contains(MARKED) || PetCard.marked(pet))) pets.add(pet);
+            if (filtering && pets.isEmpty()) continue;
+            filter.sort(pets, order(filter.sort));
+
             CustomPanelAPI head = list.heading(first ? 0f : HEAD_GAP);
-            Ui.heading(head, 0f, 0f, w, group.name(), String.valueOf(group.pets().size()));
+            String count = filtering ? pets.size() + " of " + group.pets().size() : String.valueOf(pets.size());
+            Ui.heading(head, 0f, 0f, w, group.name(), count);
             first = false;
 
-            List<Pet> pets = group.pets();
             if (pets.isEmpty()) {
                 Ui.text(list.block(Ui.LINE_H, 8f), 0f, 0f, w, group.empty(), Ui.gray());
                 continue;
@@ -266,6 +289,18 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             }
         }
 
+        if (first) Ui.text(list.block(Ui.LINE_H, 0f), 0f, 0f, w, "No pet matches.", Ui.gray());
         list.end();
+    }
+
+    // null keeps the group order: the fleet order on ships, the order they came in elsewhere
+    private static Comparator<Pet> order(String key) {
+        Comparator<Pet> name = Comparator.comparing(pet -> pet.name, String.CASE_INSENSITIVE_ORDER);
+        return switch (key) {
+            case "Name" -> name;
+            case "Species" -> Comparator.comparing((Pet pet) -> pet.getData().species, String.CASE_INSENSITIVE_ORDER).thenComparing(name);
+            case "Age" -> Comparator.comparingDouble((Pet pet) -> -pet.age).thenComparing(name);
+            default -> null;
+        };
     }
 }

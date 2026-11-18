@@ -85,6 +85,10 @@ public class PetCard {
         if (pet.assignedFleetMember != null) UiImages.ship(t, 30f, 114f, 26f, pet.assignedFleetMember, false, false);
     }
 
+    static boolean marked(Pet pet) {
+        return marker(pet) != null;
+    }
+
     // one marker per tile, the worst first
     private static Marker marker(Pet pet) {
         if (pet.isStarving()) return new Marker(sprite("pet_marker_starving"), "Starving", "Missed a meal. It does not survive a second one.");

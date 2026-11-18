@@ -1,6 +1,7 @@
 package indevo.industries.petshop.plugins;
 
 import com.fs.starfarer.api.ui.TextFieldAPI;
+import indevo.utils.ui.UiFilter;
 import indevo.utils.ui.UiScroll;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class PetsView {
 
     public String selected = null;
     public final UiScroll.Offsets scroll = new UiScroll.Offsets();
+    final UiFilter.State filter = new UiFilter.State(PetsPanel.SORT_SHIP);
 
     int clicks = 0;
     String answer = null;
