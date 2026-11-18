@@ -99,6 +99,7 @@ Added - Longevity Syringe: right-click in the cargo to give a pet 2 more cycles,
 Added - Longevity treatment at Nomios: 1 to 5 cycles for a pet, paid in Harvested Organs, Recreational Drugs and credits
 Added - Warnings a few weeks and a few days before a pet in your fleet dies of old age
 Added - Setting for the cycles one Longevity Syringe gives (default 2)
+Added - A pet on the ship you pilot shows in the combat status list, reacting to the fight
 Adjusted - Opening a Cryochamber asks for a name and a home in one popup, with a name filled in
 Adjusted - Pet hullmod tooltip shows the pet's mood, next meal and mascot effect
 Adjusted - Pets eat Supplies only when none of their other food is in the cargo

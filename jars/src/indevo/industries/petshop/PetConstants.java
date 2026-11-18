@@ -111,6 +111,14 @@ public final class PetConstants {
     public static final int NOMIOS_CREDITS = 65000;
     public static final int NOMIOS_MAX_CYCLES = 5;
 
+    // combat status line: startled after a hull hit, the least time a line stays, hull and flux steps, name width before the flux block
+    public static final float STATUS_HIT_TIME = 1f;
+    public static final float STATUS_HOLD_TIME = 2f;
+    public static final float STATUS_HULL_LOW = 0.25f;
+    public static final float STATUS_HULL_HALF = 0.5f;
+    public static final float STATUS_FLUX_HIGH = 0.9f;
+    public static final float STATUS_NAME_W = 176f;
+
     private PetConstants() {
     }
 }
