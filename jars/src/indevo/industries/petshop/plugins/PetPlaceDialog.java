@@ -22,6 +22,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 
 // where to popup for Move... and Assign... (a ship without a pet, or the Pet storage of the docked Animal Center)
 // and for a Cryochamber opened from the cargo (a name, then a ship without a pet or the menagerie)
@@ -56,6 +57,8 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     private String name;
     // index into ships, -1 for the storage or menagerie row
     private int pick;
+    // pick mode: Confirm hands the ship back and moves nothing
+    private Consumer<FleetMemberAPI> onPick;
 
     private PetPlaceDialog(Pet pet, PetData data, RightClickActionHelper chamber, String verb, List<FleetMemberAPI> ships, PetShop storage) {
         this.pet = pet;
@@ -70,6 +73,13 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
     public PetPlaceDialog(Pet pet, String verb, List<FleetMemberAPI> ships, PetShop storage) {
         this(pet, pet.getData(), null, verb, ships, storage);
+    }
+
+    // a ship for a young of the New young popup, which places it on its own Confirm
+    public static PetPlaceDialog pick(Pet young, List<FleetMemberAPI> ships, Consumer<FleetMemberAPI> onPick) {
+        PetPlaceDialog dialog = new PetPlaceDialog(young, young.getData(), null, "Ship for", ships, null);
+        dialog.onPick = onPick;
+        return dialog;
     }
 
     // the pet is made on Confirm, so Cancel leaves the Cryochamber in the cargo
@@ -296,7 +306,9 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     public void customDialogConfirm() {
         FleetMemberAPI ship = pick >= 0 ? ships.get(pick) : null;
 
-        if (isChamber()) {
+        if (onPick != null) {
+            if (ship != null) onPick.accept(ship);
+        } else if (isChamber()) {
             keepName();
             Pet born = new Pet(data.id, name);
             PetStatusManager.getInstance().register(born);

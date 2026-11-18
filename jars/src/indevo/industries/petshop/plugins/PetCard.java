@@ -124,8 +124,13 @@ public class PetCard {
         return null;
     }
 
-    private static String sprite(String id) {
+    static String sprite(String id) {
         return Global.getSettings().getSpriteName("IndEvo", id);
+    }
+
+    // the vanilla question mark, the unknown traits marker
+    static String unknownSprite() {
+        return Global.getSettings().getSpriteName("misc", "question_mark_actual");
     }
 
     // the vanilla intel (!), the quest marker

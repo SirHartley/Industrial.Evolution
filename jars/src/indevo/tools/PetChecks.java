@@ -519,6 +519,17 @@ public final class PetChecks {
         }
         check(origins, "every trait of a young says where it came from, and the level fits");
         check(PetGenetics.broodSize(medium, sheet(PetGenetics.STERILE, 1), plain, traits, random) == 0, "a Sterile parent gives no young");
+
+        int[] range = PetGenetics.broodRange(medium, plain, plain, traits);
+        check(range[0] == 1 && range[1] == PetConstants.MAX_BROOD, "a plain pair shows 1 to " + PetConstants.MAX_BROOD + " young, got " + range[0] + " to " + range[1]);
+        check(PetGenetics.broodRange(medium, sheet(PetGenetics.WEAK_BROOD, 1), plain, traits)[0] == 0, "a Weak brood parent shows 0 at the bottom");
+        check(PetGenetics.broodRange(medium, sheet(PetGenetics.STERILE, 1), plain, traits)[1] == 0, "a Sterile parent shows no young");
+
+        PetSheet hidden = sheet(PetGenetics.SLOW_GROWER, 1);
+        hidden.known.remove(PetGenetics.SLOW_GROWER);
+        PetSheet seen = PetGenetics.seen(hidden);
+        check(seen.getGrade(PetGenetics.SLOW_GROWER) == 0 && PetGenetics.broodDays(medium, seen, plain, traits) == PetGenetics.broodDays(medium, plain, plain, traits),
+                "a preview leaves out traits not read yet");
     }
 
     private void checkBody(PetData medium, PetData hamster, PetSheet plain, Map<String, Trait> traits) {

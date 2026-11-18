@@ -159,6 +159,24 @@ public final class PetGenetics {
         return born;
     }
 
+    // lowest and highest brood size; 0 at the bottom when a young can be lost at birth
+    public static int[] broodRange(PetData data, PetSheet a, PetSheet b, Map<String, Trait> traits) {
+        if (a.getGrade(STERILE) > 0 || b.getGrade(STERILE) > 0) return new int[]{0, 0};
+
+        int fecund = Math.round(value(traits, FECUND, a.getGrade(FECUND) + b.getGrade(FECUND)));
+        boolean weak = a.getGrade(WEAK_BROOD) + b.getGrade(WEAK_BROOD) > 0;
+        int hi = (data.isRare() ? 1 : PetConstants.MAX_BROOD) + fecund;
+        return new int[]{weak ? 0 : 1 + fecund, hi};
+    }
+
+    // the sheet as the player knows it, for previews: traits not read yet are left out
+    public static PetSheet seen(PetSheet sheet) {
+        PetSheet seen = new PetSheet(sheet.disposition);
+        for (Map.Entry<String, Integer> e : sheet.traits.entrySet()) if (sheet.isKnown(e.getKey())) seen.traits.put(e.getKey(), e.getValue());
+        seen.known.addAll(seen.traits.keySet());
+        return seen;
+    }
+
     // a mutation with its flaws at level 1, or a talent at grade 1; never one the young has
     private static void addNewTrait(PetSheet young, PetData data, Map<String, Trait> traits, Random random) {
         boolean mutation = random.nextFloat() < PetConstants.NEW_MUTATION_CHANCE;
