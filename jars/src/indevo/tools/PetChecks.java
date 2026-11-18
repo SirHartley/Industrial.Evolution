@@ -25,11 +25,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -467,6 +469,67 @@ public final class PetChecks {
         check(!PetGenetics.rollYoung(medium, sheet(giant, 1), plain, 0f, 0, 0f, 0f, traits, new Random(5)).traits.containsKey(TRAIT_PREFIX + "sterile"), "Sterile comes only from inbreeding");
 
         checkBody(medium, hamster, plain, traits);
+        checkBroods(fast, medium, slow, hamster, plain, traits);
+    }
+
+    private void checkBroods(PetData fast, PetData medium, PetData slow, PetData hamster, PetSheet plain, Map<String, Trait> traits) {
+        check(near(PetGenetics.broodDays(fast, plain, plain, traits), 30f) && near(PetGenetics.broodDays(medium, plain, plain, traits), 60f)
+                && near(PetGenetics.broodDays(slow, plain, plain, traits), 90f) && near(PetGenetics.broodDays(hamster, plain, plain, traits), 7f), "brood time 30, 60, 90 days by pace, the hamster 7");
+        check(near(PetGenetics.broodDays(fast, sheet(PetGenetics.SLOW_GROWER, 1), plain, traits), 60f), "Slow grower 1 doubles the brood time");
+        check(near(PetGenetics.broodDays(slow, sheet(PetGenetics.SLOW_GROWER, 1), plain, traits), PetConstants.MAX_BROOD_DAYS), "a brood never takes more than 90 days");
+        check(near(PetGenetics.broodDays(medium, sheet(PetGenetics.MAYFLY, 1), sheet(PetGenetics.MAYFLY, 1), traits), 30f), "Mayfly of both parents adds up");
+        check(near(PetGenetics.youngDays(medium, plain, traits), 30f) && near(PetGenetics.youngDays(hamster, plain, traits), 7f)
+                && near(PetGenetics.youngDays(medium, sheet(PetGenetics.MAYFLY, 2), traits), 15f), "Young for 30 days, the hamster 7, Mayfly cuts it");
+
+        Map<String, String[]> tree = new HashMap<>();
+        tree.put("a", new String[]{"p", "q"});
+        tree.put("b", new String[]{"p", "q"});
+        tree.put("c", new String[]{"p", "r"});
+        tree.put("d", new String[]{"a", "s"});
+        tree.put("e", new String[]{"b", "t"});
+        tree.put("f", new String[]{"a", "b"});
+        Function<String, String[]> parents = tree::get;
+        check(near(PetGenetics.inbreeding("x", "y", parents), 0f), "strangers are not related");
+        check(near(PetGenetics.inbreeding("a", "b", parents), 0.5f), "siblings 50%");
+        check(near(PetGenetics.inbreeding("a", "p", parents), 0.5f), "parent and child 50%");
+        check(near(PetGenetics.inbreeding("a", "c", parents), 0.25f), "half siblings 25%");
+        check(near(PetGenetics.inbreeding("d", "e", parents), 0.125f), "cousins 12.5%");
+        check(near(PetGenetics.inbreeding("f", "a", parents), 0.75f), "a young of two siblings with one of them 75%");
+
+        Random random = new Random(3);
+        PetSheet a = sheet(TRAIT_PREFIX + "plating", 3, PetGenetics.GLUTTON, 1);
+        PetSheet b = sheet(TRAIT_PREFIX + "plating", 2, TRAIT_PREFIX + "nimble", 1);
+        boolean origins = true;
+        for (int i = 0; i < 2000; i++) {
+            PetSheet young = PetGenetics.rollYoung(medium, a, b, 40f, 10, 0.5f, 0.5f, traits, random);
+            for (Map.Entry<String, Integer> e : young.traits.entrySet()) {
+                String from = young.getFrom(e.getKey());
+                int la = a.getGrade(e.getKey());
+                int lb = b.getGrade(e.getKey());
+                boolean ok = switch (from == null ? "" : from) {
+                    case PetSheet.FROM_SUM -> e.getValue() == la + lb;
+                    case PetSheet.FROM_A -> e.getValue() == la;
+                    case PetSheet.FROM_B -> e.getValue() == lb;
+                    case PetSheet.FROM_MUTATION -> traits.get(e.getKey()).isMutation() ? la == 0 && lb == 0 : e.getValue() == 1;
+                    case PetSheet.FROM_MALFORMED -> young.malformed;
+                    default -> false;
+                };
+                origins &= ok;
+            }
+        }
+        check(origins, "every trait of a young says where it came from, and the level fits");
+        check(PetGenetics.broodSize(medium, sheet(PetGenetics.STERILE, 1), plain, traits, random) == 0, "a Sterile parent gives no young");
+
+        int[] range = PetGenetics.broodRange(medium, plain, plain, traits);
+        check(range[0] == 1 && range[1] == PetConstants.MAX_BROOD, "a plain pair shows 1 to " + PetConstants.MAX_BROOD + " young, got " + range[0] + " to " + range[1]);
+        check(PetGenetics.broodRange(medium, sheet(PetGenetics.WEAK_BROOD, 1), plain, traits)[0] == 0, "a Weak brood parent shows 0 at the bottom");
+        check(PetGenetics.broodRange(medium, sheet(PetGenetics.STERILE, 1), plain, traits)[1] == 0, "a Sterile parent shows no young");
+
+        PetSheet hidden = sheet(PetGenetics.SLOW_GROWER, 1);
+        hidden.known.remove(PetGenetics.SLOW_GROWER);
+        PetSheet seen = PetGenetics.seen(hidden);
+        check(seen.getGrade(PetGenetics.SLOW_GROWER) == 0 && PetGenetics.broodDays(medium, seen, plain, traits) == PetGenetics.broodDays(medium, plain, plain, traits),
+                "a preview leaves out traits not read yet");
     }
 
     private void checkBody(PetData medium, PetData hamster, PetSheet plain, Map<String, Trait> traits) {

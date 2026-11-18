@@ -21,15 +21,21 @@ public final class UiFilter {
     static final float SHOW_COUNT_W = 124f;
     static final float SORT_W = 42f;
     static final float TEXT_INSET = 4f;
+    static final float ICON = 20f;
     static final int MAX_CHARS = 30;
 
     // the sort arrow, 8 x 5 in the top of an 8 unit box, 18 px left of the key's right edge
     static final float[] DOWN = {0f, 0f, 8f, 0f, 4f, 5f};
     static final float[] UP = {0f, 5f, 8f, 5f, 4f, 0f};
 
-    public record Item(String label, float w, String tip) {
+    // an item with an icon shows the icon and shown in place of its label, the label stays its key
+    public record Item(String label, float w, String tip, String icon, String shown) {
         public Item(String label, float w) {
-            this(label, w, null);
+            this(label, w, null, null, null);
+        }
+
+        public Item(String label, float w, String tip) {
+            this(label, w, tip, null, null);
         }
     }
 
@@ -39,6 +45,9 @@ public final class UiFilter {
         public String sort;
         public boolean reversed = false;
         public boolean open = false;
+        // keys that can not sort now, shown grey; fallback sorts while the picked key is one of them
+        public final Set<String> off = new HashSet<>();
+        public String fallback = null;
         private final String defaultSort;
         private final Set<String> defaultOn;
         private String text = "";
@@ -72,6 +81,10 @@ public final class UiFilter {
             int n = 0;
             for (String s : on) if (!defaultOn.contains(s)) n++;
             return n + (!sort.equals(defaultSort) || reversed ? 1 : 0);
+        }
+
+        public String sortKey() {
+            return fallback != null && off.contains(sort) ? fallback : sort;
         }
 
         public <T> void sort(List<T> list, Comparator<T> by) {
@@ -116,11 +129,16 @@ public final class UiFilter {
             ry += ROW_PITCH;
             float tx = x;
             for (Item t : toggles) {
-                ButtonAPI b = UiButtons.area(p, tx, ry, t.w(), H, t.label(), s.on.contains(t.label()), true, null, Ui.CENTER, () -> {
+                boolean lit = s.on.contains(t.label());
+                ButtonAPI b = UiButtons.area(p, tx, ry, t.w(), H, t.icon() != null ? null : t.label(), lit, true, null, Ui.CENTER, () -> {
                     if (onToggle != null) onToggle.accept(t.label());
                     else if (!s.on.remove(t.label())) s.on.add(t.label());
                     changed.run();
                 });
+                if (t.icon() != null) {
+                    UiImages.img(p, tx + 5f, ry + 3f, ICON, ICON, t.icon());
+                    Ui.textIn(p, tx + 8f + ICON, ry, t.w() - 12f - ICON, H, t.shown(), Ui.ORB12, Ui.hl(), Ui.CENTER, new String[0], new Color[0]);
+                }
                 if (t.tip() != null) Ui.tooltip(p, b, null, t.tip());
                 tx += t.w() + GAP;
             }
@@ -132,8 +150,8 @@ public final class UiFilter {
         Ui.textIn(p, x, ry, SORT_W - 2f, H, "Sort", Ui.ORB12, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
         float kx = x + SORT_W;
         for (Item k : keys) {
-            boolean lit = k.label().equals(s.sort);
-            ButtonAPI b = UiButtons.area(p, kx, ry, k.w(), H, k.label(), lit, true, null, Ui.LEFT, () -> {
+            boolean lit = k.label().equals(s.sortKey());
+            ButtonAPI b = UiButtons.area(p, kx, ry, k.w(), H, k.label(), lit, !s.off.contains(k.label()), null, Ui.LEFT, () -> {
                 if (k.label().equals(s.sort)) s.reversed = !s.reversed;
                 else {
                     s.sort = k.label();

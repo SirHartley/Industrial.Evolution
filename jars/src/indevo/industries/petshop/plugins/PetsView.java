@@ -14,10 +14,21 @@ public class PetsView {
 
     public static final String LIST = "list";
     public static final String TALENTS = "talents";
+    public static final String ADULTS = "adults";
+    public static final int TAB_PETS = 0;
+    public static final int TAB_HUSBANDRY = 1;
 
+    public int tab = TAB_PETS;
     public String selected = null;
     public final UiScroll.Offsets scroll = new UiScroll.Offsets();
     final UiFilter.State filter = new UiFilter.State(PetsPanel.SORT_SHIP);
+
+    // Husbandry: the selected habitat (-1 picks the first free one) and the adults picked for it
+    int habitat = -1;
+    final List<String> pair = new ArrayList<>();
+    final UiFilter.State adults = PetHusbandry.newFilter();
+    // a ready brood opens its New young popup by itself once, on the first frame of the panel
+    boolean youngChecked = false;
 
     int clicks = 0;
     String answer = null;

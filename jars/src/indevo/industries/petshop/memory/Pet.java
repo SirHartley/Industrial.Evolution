@@ -76,6 +76,9 @@ public class Pet {
     // market ids, kept only until Globetrotter is earned
     public Set<String> markets = new HashSet<>();
     public List<String> titles = new ArrayList<>();
+    // pet ids, null for a bought, found or adopted pet; the family tree and inbreeding read them
+    public String parentA = null;
+    public String parentB = null;
 
     public Pet(String typeID, String name) {
         this.id = Misc.genUID();
@@ -85,6 +88,15 @@ public class Pet {
         this.sheet = PetGenetics.rollSheet(getData(), PetDataRepo.getTraits(), Misc.random);
 
         if (Global.getSettings().isDevMode()) this.feedInterval = new IntervalUtil(10f, 10f); //10 seconds
+    }
+
+    // a young of a brood, rolled when its brood time is up
+    public Pet(String typeID, String name, PetSheet sheet, String parentA, String parentB) {
+        this(typeID, name);
+        this.sheet = sheet;
+        this.parentA = parentA;
+        this.parentB = parentB;
+        this.age = 0f;
     }
 
     public void place(FleetMemberAPI toMember, Industry toStorage) {
@@ -103,6 +115,16 @@ public class Pet {
             storage = toStorage;
             ((PetShop) toStorage).store(this);
         }
+    }
+
+    // a parent in a habitat: held by its Animal Center, outside pet storage
+    public void toHabitat(PetShop shop) {
+        leave();
+        storage = shop;
+    }
+
+    public void unsettle(float days) {
+        unsettledDays = Math.max(unsettledDays, days);
     }
 
     public void shellShock() {
@@ -421,6 +443,14 @@ public class Pet {
 
     public boolean isInMenagerie() {
         return !isDead && !isAssigned && storage == null;
+    }
+
+    public boolean isYoung() {
+        return age < getYoungDays();
+    }
+
+    public float getYoungDays() {
+        return PetGenetics.youngDays(getData(), sheet, PetDataRepo.getTraits());
     }
 
     public boolean isOld() {

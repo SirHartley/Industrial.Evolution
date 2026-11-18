@@ -30,7 +30,9 @@ import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
+import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.memory.Pet;
+import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
@@ -511,6 +513,13 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         Runnable post = () -> Global.getSector().getCampaignUI().addMessage(format, color, hl1, hl2, hlColor1, hlColor2);
         if (held != null) held.add(post);
         else post.run();
+    }
+
+    public void reportBroodReady(PetShop shop, PetBrood brood, Pet a, Pet b) {
+        String at = " at " + shop.getMarket().getName();
+        int n = brood.getYoung().size();
+        if (n == 0) message("The brood of %s and %s" + at + " brought no young.", Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
+        else message("The brood of %s and %s" + at + " is ready: " + n + " young.", Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     public void reportTitle(Pet pet, PetTitle title) {

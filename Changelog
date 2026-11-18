@@ -84,6 +84,7 @@ Added - Pet talents: every pet has 1 or 2 talents, such as flux, armor, range, s
 Added - Fleet talents (Pathfinder, Scavenger, Marine mascot) count once per fleet, from the best pet. The lead Scavenger now and then finds extra salvage, sometimes a colony item.
 Added - Signature talents: a Rare or Epic pet may come with one of Time skip, Small target, Mender, Overcharge, Skeleton crew, Spite or Captain (commands its ship when no officer does)
 Added - Pet titles: Veteran, Navigator, Old Timer, Survivor, Beloved, Pampered, Treasure Hunter, Admiral, Globetrotter and Stargazer, earned from what a pet lives through
+Added - Pet habitats: raise young from two adults of one species at an Animal Center (4 habitats at your own, 2 elsewhere for 3,000 credits a month). Young inherit talents, mutations and flaws and open like a draw.
 Adjusted - Opening a Cryochamber asks for a name and a home in one popup, with a name filled in
 Adjusted - Pet hullmod tooltip shows the pet's mood, next meal and mascot effect
 Adjusted - Pets eat Supplies only when none of their other food is in the cargo

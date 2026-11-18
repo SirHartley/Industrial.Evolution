@@ -13,6 +13,7 @@ import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
+import indevo.industries.petshop.memory.PetBrood;
 import indevo.utils.ui.*;
 
 import java.awt.Color;
@@ -51,6 +52,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     private UiRoot root;
     private boolean open = false;
     private boolean popupOpen = false;
+    private boolean youngChecked = false;
 
     record Group(String name, List<Pet> pets, String empty) {
     }
@@ -84,7 +86,9 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             public void advance(float amount) {
                 view.clock += amount;
                 view.hearts.removeIf(h -> view.clock - h.start() > PetCard.HEART_LIFE);
-                if (open && view.filter.poll()) filtered();
+                if (!open) return;
+                if ((view.tab == PetsView.TAB_HUSBANDRY ? view.adults : view.filter).poll()) filtered();
+                if (!youngChecked) openReadyBrood();
             }
         };
     }
@@ -149,13 +153,35 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         place.show(this::popupClosed);
     }
 
+    void popup(PetYoungDialog young) {
+        commitName();
+        popupOpen = true;
+        young.show(this::popupClosed);
+    }
+
+    // a ready brood here opens its New young popup by itself, once, the first time the panel opens after it is ready
+    private void openReadyBrood() {
+        youngChecked = true;
+        if (shop == null || popupOpen) return;
+
+        for (PetBrood brood : shop.getBroods()) {
+            if (!brood.isReady() || brood.shown) continue;
+
+            view.tab = PetsView.TAB_HUSBANDRY;
+            view.habitat = brood.habitat;
+            refresh();
+            popup(new PetYoungDialog(shop, brood));
+            return;
+        }
+    }
+
     private void popupClosed() {
         popupOpen = false;
         refresh();
     }
 
-    private void filtered() {
-        view.scroll.reset(PetsView.LIST);
+    void filtered() {
+        view.scroll.reset(view.tab == PetsView.TAB_HUSBANDRY ? PetsView.ADULTS : PetsView.LIST);
         refresh();
     }
 
@@ -173,9 +199,15 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     private void build(CustomPanelAPI p, float w, float h) {
         List<Group> groups = groups();
-        Pet selected = resolveSelection(groups);
-
+        if (shop == null) view.tab = PetsView.TAB_PETS;
         addHeader(p, w, groups);
+
+        if (view.tab == PetsView.TAB_HUSBANDRY) {
+            new PetHusbandry(this, view).build(p, w, h);
+            return;
+        }
+
+        Pet selected = resolveSelection(groups);
         addList(p, h - BODY_Y, groups, selected);
         Ui.vrule(p, LIST_W + 5f, BODY_Y, h - BODY_Y);
 
@@ -208,6 +240,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         if (shop != null) {
             List<Pet> stored = new ArrayList<>();
             for (Pet pet : shop.getStoredPetsPetsCopy()) if (!pet.isDead()) stored.add(pet);
+            stored.addAll(shop.getHabitatPets());
             groups.add(new Group("Pet storage", stored, "No pets in storage."));
         }
 
@@ -223,7 +256,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     // the fleet a pet's ship is out with when that is not the player fleet, else null
-    static CampaignFleetAPI awayFleet(Pet pet) {
+    public static CampaignFleetAPI awayFleet(Pet pet) {
         FleetMemberAPI member = pet.assignedFleetMember;
         if (member == null || member.getFleetData() == null) return null;
 
@@ -249,12 +282,23 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         refresh();
     }
 
+    // one width for all tabs, wide enough for the longest label (UiButtons.tab cuts at w - 12)
+    private static float tabWidth(String[] tabs) {
+        float w = TAB_W;
+        for (String tab : tabs) w = Math.max(w, (float) Math.ceil(Ui.width(tab, Ui.ORB12)) + 16f);
+        return w;
+    }
+
     private void addHeader(CustomPanelAPI p, float w, List<Group> groups) {
         UiFrame.title(p, w, "Pets", shop != null ? shop.getMarket().getName() : null, this::addHelp);
 
         int count = 0;
         for (Group group : groups) count += group.pets().size();
-        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, TAB_W, UiFrame.HEADER_H, new String[]{"Pets " + count}, 0, null, i -> refresh());
+        String[] tabs = shop != null ? new String[]{"Pets " + count, "Husbandry " + PetHusbandry.busy(shop)} : new String[]{"Pets " + count};
+        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, tabWidth(tabs), UiFrame.HEADER_H, tabs, view.tab, null, i -> {
+            view.tab = i;
+            refresh();
+        });
 
         if (shop != null) UiFrame.credits(p, w, UiFrame.HEADER_Y);
     }

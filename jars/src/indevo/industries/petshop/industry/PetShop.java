@@ -8,7 +8,9 @@ import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.submarkets.LocalResourcesSubmarketPlugin;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -18,8 +20,14 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
+import indevo.industries.petshop.memory.PetBrood;
+import indevo.industries.petshop.memory.PetData;
+import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.memory.PetSheet;
+import indevo.industries.petshop.plugins.PetsPanel;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.StringHelper;
@@ -29,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class PetShop extends BaseIndustry implements EconomyTickListener {
 
@@ -45,6 +55,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public static final String STORAGE_UPKEEP_ID = "IndEvo_petStorage";
 
     public float petStorageCostMult = 1f;
+    private List<PetBrood> broods = new ArrayList<>();
 
     public void store(Pet pet) {
         storedPets.add(pet);
@@ -56,6 +67,160 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     public List<Pet> getStoredPetsPetsCopy() {
         return new ArrayList<>(storedPets);
+    }
+
+    // a save from before habitats has none
+    public List<PetBrood> getBroods() {
+        if (broods == null) broods = new ArrayList<>();
+        return broods;
+    }
+
+    public int getHabitatCount() {
+        return market.isPlayerOwned() ? PetConstants.PLAYER_HABITATS : PetConstants.NPC_HABITATS;
+    }
+
+    public PetBrood getBrood(int habitat) {
+        for (PetBrood brood : getBroods()) if (brood.habitat == habitat) return brood;
+        return null;
+    }
+
+    public PetBrood getBrood(Pet parent) {
+        for (PetBrood brood : getBroods()) if (!brood.isReady() && brood.has(parent)) return brood;
+        return null;
+    }
+
+    // the parents of running broods, living ones only
+    public List<Pet> getHabitatPets() {
+        List<Pet> list = new ArrayList<>();
+        PetStatusManager manager = PetStatusManager.getInstance();
+        for (PetBrood brood : getBroods()) {
+            if (brood.isReady()) continue;
+            for (String id : new String[]{brood.parentA, brood.parentB}) {
+                Pet pet = manager.get(id);
+                if (pet != null && !pet.isDead()) list.add(pet);
+            }
+        }
+        return list;
+    }
+
+    public float getCare() {
+        float care = market.isPlayerOwned() ? PetConstants.PLAYER_CARE : PetConstants.NPC_CARE;
+        if (Commodities.GAMMA_CORE.equals(aiCoreId)) care += PetConstants.GAMMA_CARE;
+        if (isImproved()) care += PetConstants.IMPROVED_CARE;
+        return care;
+    }
+
+    public float getMutationRate(Pet a, Pet b) {
+        return PetGenetics.mutationRate(a.getData(), a.sheet, b.sheet, market.hasCondition(Conditions.IRRADIATED), Commodities.ALPHA_CORE.equals(aiCoreId), PetDataRepo.getTraits());
+    }
+
+    public static float getInbreeding(Pet a, Pet b) {
+        PetStatusManager manager = PetStatusManager.getInstance();
+        return PetGenetics.inbreeding(a.id, b.id, id -> {
+            Pet pet = manager.get(id);
+            return pet != null ? new String[]{pet.parentA, pet.parentB} : null;
+        });
+    }
+
+    // a month per busy habitat, only at npc centers
+    public float getFee() {
+        return market.isPlayerOwned() ? 0f : PetConstants.HABITAT_FEE;
+    }
+
+    // why a pet cannot be a parent here, null when it can
+    public String parentBlock(Pet pet) {
+        if (pet.isDead()) return "Gone.";
+        if (pet.isYoung()) return "Still Young.";
+        if (pet.getData().isNoSell()) return "This one does not brood.";
+        if (pet.sheet.getGrade(PetGenetics.STERILE) > 0 && pet.sheet.isKnown(PetGenetics.STERILE)) return "Sterile.";
+        if (pet.isUnsettled()) return "Unsettled.";
+        if (PetsPanel.awayFleet(pet) != null) return "Out with " + PetsPanel.awayFleet(pet).getName() + ".";
+        for (PetBrood brood : getBroods()) if (!brood.isReady() && brood.has(pet)) return "In a habitat here.";
+        if (pet.storage != null && pet.storage != this) return "In storage at " + pet.storage.getMarket().getName() + ".";
+        return null;
+    }
+
+    public String pairBlock(Pet a, Pet b) {
+        if (a == b) return "Pick two adults.";
+        if (!a.typeID.equals(b.typeID)) return "Two adults of one species.";
+        return null;
+    }
+
+    public void startBrood(Pet a, Pet b, int habitat) {
+        if (getBrood(habitat) != null || parentBlock(a) != null || parentBlock(b) != null || pairBlock(a, b) != null) {
+            throw new IllegalStateException("IndEvo brood of " + a.id + " and " + b.id + " in a busy habitat or with a blocked parent");
+        }
+
+        float days = PetGenetics.broodDays(a.getData(), a.sheet, b.sheet, PetDataRepo.getTraits());
+        getBroods().add(new PetBrood(habitat, a.id, b.id, Global.getSector().getClock().getTimestamp(), days));
+        a.toHabitat(this);
+        b.toHabitat(this);
+    }
+
+    public float getDaysLeft(PetBrood brood) {
+        return Math.max(0f, brood.days - Global.getSector().getClock().getElapsedDaysSince(brood.start));
+    }
+
+    // the parents go to pet storage here, Unsettled; any fee paid stays paid
+    public void cancelBrood(PetBrood brood) {
+        getBroods().remove(brood);
+        releaseParents(brood, PetConstants.UNSETTLED_DAYS);
+    }
+
+    private void releaseParents(PetBrood brood, float unsettled) {
+        PetStatusManager manager = PetStatusManager.getInstance();
+        for (String id : new String[]{brood.parentA, brood.parentB}) {
+            Pet pet = manager.get(id);
+            if (pet == null || pet.isDead()) continue;
+
+            pet.place(null, this);
+            pet.unsettle(unsettled);
+        }
+    }
+
+    // Care, cores and hearts count at the end; a young of two read parents has its talents read, flaws stay unread
+    private void roll(PetBrood brood) {
+        PetStatusManager manager = PetStatusManager.getInstance();
+        Pet a = manager.get(brood.parentA);
+        Pet b = manager.get(brood.parentB);
+        if (a == null || b == null) throw new IllegalStateException("IndEvo brood parent missing: " + brood.parentA + ", " + brood.parentB);
+
+        Map<String, PetDataRepo.Trait> traits = PetDataRepo.getTraits();
+        Random random = new Random();
+        PetData data = a.getData();
+        float inbreeding = getInbreeding(a, b);
+        float mutationRate = getMutationRate(a, b);
+        int hearts = a.getHearts() + b.getHearts();
+        boolean read = talentsRead(a) && talentsRead(b);
+
+        brood.young = new ArrayList<>();
+        int n = PetGenetics.broodSize(data, a.sheet, b.sheet, traits, random);
+        for (int i = 0; i < n; i++) {
+            PetSheet sheet = PetGenetics.rollYoung(data, a.sheet, b.sheet, getCare(), hearts, mutationRate, inbreeding, traits, random);
+            for (String id : sheet.traits.keySet()) {
+                PetDataRepo.Trait trait = traits.get(id);
+                if (trait != null && (trait.isMutation() || read && trait.isTalent())) sheet.known.add(id);
+            }
+            brood.young.add(new Pet(data.id, PetDataRepo.suggestName(data), sheet, a.id, b.id));
+        }
+
+        releaseParents(brood, 0f);
+        if (brood.young.isEmpty()) getBroods().remove(brood);
+        manager.reportBroodReady(this, brood, a, b);
+    }
+
+    private static boolean talentsRead(Pet pet) {
+        for (String id : pet.getTalents()) if (!pet.sheet.isKnown(id)) return false;
+        return true;
+    }
+
+    // registers the young and puts it on the ship, or into pet storage here; the habitat is free once every young is placed
+    public void placeYoung(PetBrood brood, Pet young, FleetMemberAPI ship) {
+        if (!brood.getYoung().remove(young)) throw new IllegalStateException("IndEvo young " + young.id + " is not in this brood");
+
+        PetStatusManager.getInstance().register(young);
+        young.place(ship, ship == null ? this : null);
+        if (brood.getYoung().isEmpty()) getBroods().remove(brood);
     }
 
     @Override
@@ -122,6 +287,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (iterIndex != lastIterInMonth) return;
 
         if (isFunctional() && !market.isPlayerOwned()) BillingHelper.charge(this, "storage", "Pet storage", getTotalStorageCost());
+        if (!market.isPlayerOwned()) BillingHelper.charge(this, "habitats", "Pet habitats", getBroods().size() * getFee());
     }
 
     @Override
@@ -145,6 +311,10 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
         if (Setting.PETS.enabled()) IndustrySubmarkets.ensure(this, Ids.PETMARKET);
         else IndustrySubmarkets.remove(market, Ids.PETMARKET);
+
+        for (PetBrood brood : new ArrayList<>(getBroods())) {
+            if (!brood.isReady() && getDaysLeft(brood) <= 0f) roll(brood);
+        }
     }
 
     @Override
@@ -217,10 +387,10 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Increases the %s to be on sale by %s.", 0f, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true)});
+            text.addPara(pre + "Increases the %s to be on sale by %s and the %s of broods here by %s.", 0f, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true), "mutation rate", StringHelper.getAbsPercentString(PetConstants.ALPHA_MUTATION_MULT - 1f, false)});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Increases the %s to be on sale by %s.", opad, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true)});
+            tooltip.addPara(pre + "Increases the %s to be on sale by %s and the %s of broods here by %s.", opad, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true), "mutation rate", StringHelper.getAbsPercentString(PetConstants.ALPHA_MUTATION_MULT - 1f, false)});
         }
     }
 
@@ -237,10 +407,10 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "%s from the animal market and stops pets from %s", 0f, Misc.getPositiveHighlightColor(), new String[]{"Removes tariffs", "ageing in storage"});
+            text.addPara(pre + "%s from the animal market and stops pets from %s", 0f, Misc.getPositiveHighlightColor(), new String[]{"Removes tariffs", "ageing in storage and habitats"});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "%s from the animal market and stops pets from %s", opad, Misc.getPositiveHighlightColor(), new String[]{"Removes tariffs", "ageing in storage"});
+            tooltip.addPara(pre + "%s from the animal market and stops pets from %s", opad, Misc.getPositiveHighlightColor(), new String[]{"Removes tariffs", "ageing in storage and habitats"});
         }
     }
 
@@ -257,11 +427,26 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Reduces %s by %s", 0f, Misc.getPositiveHighlightColor(), new String[]{"storage costs", StringHelper.getAbsPercentString(GAMMA_CORE_STORAGE_COST_RED_PERCENT, false)});
+            text.addPara(pre + "Reduces %s by %s and raises habitat %s by %s.", 0f, Misc.getPositiveHighlightColor(), new String[]{"storage costs", StringHelper.getAbsPercentString(GAMMA_CORE_STORAGE_COST_RED_PERCENT, false), "Care", String.valueOf(Math.round(PetConstants.GAMMA_CARE))});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Reduces %s by %s", opad, Misc.getPositiveHighlightColor(), new String[]{"storage costs", StringHelper.getAbsPercentString(GAMMA_CORE_STORAGE_COST_RED_PERCENT, false)});
+            tooltip.addPara(pre + "Reduces %s by %s and raises habitat %s by %s.", opad, Misc.getPositiveHighlightColor(), new String[]{"storage costs", StringHelper.getAbsPercentString(GAMMA_CORE_STORAGE_COST_RED_PERCENT, false), "Care", String.valueOf(Math.round(PetConstants.GAMMA_CARE))});
         }
+    }
+
+    @Override
+    public boolean canImprove() {
+        return true;
+    }
+
+    @Override
+    public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
+        String care = String.valueOf(Math.round(PetConstants.IMPROVED_CARE));
+        if (mode == ImprovementDescriptionMode.INDUSTRY_TOOLTIP) info.addPara("Habitat Care increased by %s.", 0f, Misc.getHighlightColor(), care);
+        else info.addPara("Increases habitat Care by %s.", 0f, Misc.getHighlightColor(), care);
+
+        info.addSpacer(10f);
+        super.addImproveDesc(info, mode);
     }
 
     @Override

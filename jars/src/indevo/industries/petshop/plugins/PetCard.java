@@ -21,6 +21,7 @@ import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
+import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.ui.*;
@@ -123,8 +124,13 @@ public class PetCard {
         return null;
     }
 
-    private static String sprite(String id) {
+    static String sprite(String id) {
         return Global.getSettings().getSpriteName("IndEvo", id);
+    }
+
+    // the vanilla question mark, the unknown traits marker
+    static String unknownSprite() {
+        return Global.getSettings().getSpriteName("misc", "question_mark_actual");
     }
 
     // the vanilla intel (!), the quest marker
@@ -374,7 +380,7 @@ public class PetCard {
         float shipY = addWant(p, addHearts(p, w, pet), w, pet, away);
         addPlace(p, shipY, w, pet, away);
         addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h, pet);
-        addBottom(p, w, h, pet, away);
+        addBottom(p, w, h, pet, heldReason(pet, away));
         Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> paintHearts(pos, a));
     }
 
@@ -474,7 +480,7 @@ public class PetCard {
     static String age(Pet pet) {
         int cycles = (int) (pet.age / 365f);
         String span = cycles >= 1 ? cycles + (cycles == 1 ? " cycle" : " cycles") : pet.getAgeString();
-        return (pet.isOld() ? "Old, " : "Adult, ") + span;
+        return (pet.isYoung() ? "Young, " : pet.isOld() ? "Old, " : "Adult, ") + span;
     }
 
     private void pet(Pet pet) {
@@ -812,6 +818,14 @@ public class PetCard {
 
         Ui.dashbox(p, 3f, y + 3f, 44f, 44f);
 
+        PetBrood brood = habitat(pet);
+        if (brood != null) {
+            Pet other = PetStatusManager.getInstance().get(brood.parentA.equals(pet.id) ? brood.parentB : brood.parentA);
+            Ui.text(p, 56f, y + 7f, w - 64f, "Habitat " + (brood.habitat + 1));
+            Ui.text(p, 56f, y + 26f, w - 64f, pet.storage.getMarket().getName() + (other != null ? ", with " + other.name : ""), Ui.gray());
+            return;
+        }
+
         if (pet.storage != null) {
             float bx = w - 6f - WIDE_W - 6f - BUTTON_W;
             Ui.text(p, 56f, y + 7f, bx - 64f, "Pet storage");
@@ -838,34 +852,44 @@ public class PetCard {
         return member.getHullSpec().getHullName() + " class " + member.getHullSpec().getDesignation().toLowerCase();
     }
 
-    private void addBottom(CustomPanelAPI p, float w, float h, Pet pet, CampaignFleetAPI away) {
+    // why the pet cannot be rehomed or euthanized from here, null when it can
+    private static String heldReason(Pet pet, CampaignFleetAPI away) {
+        if (away != null) return pet.name + " is out with " + away.getName() + ".";
+        return habitat(pet) != null ? pet.name + " is in a habitat." : null;
+    }
+
+    static PetBrood habitat(Pet pet) {
+        return pet.storage instanceof PetShop at ? at.getBrood(pet) : null;
+    }
+
+    private void addBottom(CustomPanelAPI p, float w, float h, Pet pet, String held) {
         Ui.rule(p, 0f, h - 36f, w);
         float y = h - BUTTON_H;
         Color hl = Misc.getHighlightColor();
 
         if (shop == null) {
-            euthanizeButton(p, w - WIDE_W, y, WIDE_W, pet, away);
+            euthanizeButton(p, w - WIDE_W, y, WIDE_W, pet, held);
             return;
         }
 
         String fee = Misc.getDGSCredits(PetConstants.REHOME_FEE);
         float credits = Global.getSector().getPlayerFleet().getCargo().getCredits().get();
         boolean broke = credits < PetConstants.REHOME_FEE;
-        boolean blocked = away != null || broke;
+        boolean blocked = held != null || broke;
 
         ButtonAPI rehome = UiButtons.button(p, w - 2f * BUTTON_W - 6f, y, BUTTON_W, BUTTON_H, "Rehome", blocked ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
                 blocked ? null : () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Rehome %s for a fee of %s?\n\n%s goes to a new home and does not come back.", 0f,
                         new Color[]{hl, hl, Ui.text()}, pet.name, fee, pet.name), () -> shop.rehome(pet))));
-        if (away != null) Ui.tooltip(p, rehome, "Rehome", pet.name + " is out with " + away.getName() + ".");
+        if (held != null) Ui.tooltip(p, rehome, "Rehome", held);
         else if (broke) Ui.tooltip(p, rehome, "Rehome", "Rehoming costs " + fee + ". You have " + Misc.getDGSCredits(credits) + ".");
 
-        euthanizeButton(p, w - BUTTON_W, y, BUTTON_W, pet, away);
+        euthanizeButton(p, w - BUTTON_W, y, BUTTON_W, pet, held);
     }
 
-    private void euthanizeButton(CustomPanelAPI p, float x, float y, float w, Pet pet, CampaignFleetAPI away) {
-        ButtonAPI button = UiButtons.button(p, x, y, w, BUTTON_H, "Euthanize", away != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
-                away != null ? null : () -> euthanize(pet));
-        if (away != null) Ui.tooltip(p, button, "Euthanize", pet.name + " is out with " + away.getName() + ".");
+    private void euthanizeButton(CustomPanelAPI p, float x, float y, float w, Pet pet, String held) {
+        ButtonAPI button = UiButtons.button(p, x, y, w, BUTTON_H, "Euthanize", held != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
+                held != null ? null : () -> euthanize(pet));
+        if (held != null) Ui.tooltip(p, button, "Euthanize", held);
     }
 
     private void euthanize(Pet pet) {
