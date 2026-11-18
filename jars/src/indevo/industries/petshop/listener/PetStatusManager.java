@@ -157,7 +157,11 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     private static boolean isReady(Pet pet) {
-        return pet.favourite && pet.want == null && pet.wantCooldownDays <= 0f && pet.isWithPlayer();
+        return isFree(pet) && pet.isWithPlayer();
+    }
+
+    private static boolean isFree(Pet pet) {
+        return pet.favourite && pet.want == null && pet.wantCooldownDays <= 0f;
     }
 
     public Pet getOpenWant() {
@@ -587,7 +591,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
                 pet.shellShock();
                 pet.addBond(PetConstants.EVENT_BOND_DAYS);
-                if (canOpenWant() && isReady(pet)) openWant(pet, PetWant.COMFORT);
+                // in battle the member sits in the battle's combined fleet, so isWithPlayer is false; its source fleet tells
+                boolean withPlayer = result.getBattle() != null && result.getBattle().getSourceFleet(member) == Global.getSector().getPlayerFleet();
+                if (withPlayer && canOpenWant() && isFree(pet)) openWant(pet, PetWant.COMFORT);
             }
         }
     }
