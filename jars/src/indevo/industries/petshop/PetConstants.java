@@ -54,6 +54,20 @@ public final class PetConstants {
     // a rare species may bring one signature talent besides the others
     public static final float SIGNATURE_CHANCE = 0.2f;
 
+    // husbandry by pace: fast, medium, slow; the hamster rolls as fast
+    public static final float[] SUM_CHANCE = {0.10f, 0.25f, 0.40f};
+    public static final float SUM_CHANCE_PER_HEART = 0.03f;
+    public static final float[] MUTATION_RATE = {0.08f, 0.16f, 0.24f};
+    public static final float IRRADIATED_MUTATION_MULT = 2f;
+    public static final float ALPHA_MUTATION_MULT = 1.5f;
+    // a new trait from the mutation rate: a mutation or a talent half and half, a talent one time in four a signature
+    public static final float NEW_MUTATION_CHANCE = 0.5f;
+    public static final float NEW_SIGNATURE_CHANCE = 0.25f;
+    public static final float MALFORMED_PER_INBREEDING = 1.5f;
+    public static final float MALFORMED_MIN = 0.05f;
+    public static final float HAMSTER_MALFORMED = 0.5f;
+    public static final int MAX_BROOD = 3;
+
     private PetConstants() {
     }
 }

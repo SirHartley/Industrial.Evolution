@@ -46,8 +46,9 @@ public final class PetChecks {
     // play time: a day is 10 s of flight, about 1.5 minutes a week with x2 and time in menus
     private static final float PLAY_MINUTES_PER_DAY = 1.5f / 7f;
     private static final Set<String> PACES = Set.of(PetData.PACE_FAST, PetData.PACE_MEDIUM, PetData.PACE_SLOW, PetData.PACE_HAMSTER);
-    private static final Set<String> KINDS = Set.of(KIND_STAT, KIND_FLEET, KIND_SIGNATURE);
-    private static final Set<String> MODES = Set.of(MODE_PERCENT, MODE_REDUCE, MODE_FLAT, MODE_COUNT);
+    private static final Set<String> KINDS = Set.of(KIND_STAT, KIND_FLEET, KIND_SIGNATURE, KIND_MUTATION, KIND_FLAW);
+    private static final Set<String> MODES = Set.of(MODE_PERCENT, MODE_REDUCE, MODE_FLAT, MODE_COUNT, MODE_DIVIDE, MODE_NONE);
+    private static final int YOUNG = 100000;
     private static final float REDUCE_CAP = 90f;
     // Skeleton crew needs no crew at all from grade 10
     private static final Set<String> FULL_REDUCE = Set.of("min_crew");
@@ -74,6 +75,7 @@ public final class PetChecks {
         run.checkHearts();
         run.checkWants();
         run.checkTitles();
+        run.checkGenetics(pets, traits);
 
         if (!run.problems.isEmpty()) {
             for (String problem : run.problems) System.out.println("FAIL " + problem);
@@ -135,9 +137,13 @@ public final class PetChecks {
             check(KINDS.contains(trait.kind()), id + " kind " + trait.kind() + " is one of " + KINDS);
             check(MODES.contains(trait.mode()), id + " mode " + trait.mode() + " is one of " + MODES);
             check(trait.perLevel() > 0f && trait.per() >= 1 && trait.weight() >= 0f, id + " has a value per grade, grades per step and a weight");
-            check(PetHullmod.applyStat(stats, trait.stat(), 1f, "check", "check"), id + " stat " + trait.stat() + " is a case of PetHullmod.applyStat");
+            if (trait.isTalent()) check(PetHullmod.applyStat(stats, trait.stat(), 1f, "check", "check"), id + " stat " + trait.stat() + " is a case of PetHullmod.applyStat");
             check(!trait.effect().isBlank(), id + " has an effect label");
-            check(oneName(trait.desc()), id + " desc has one %s for the value and no other %");
+            if (trait.hasLevels()) check(oneName(trait.desc()), id + " desc has one %s for the value and no other %");
+            else check(trait.isFlaw() && trait.desc().indexOf('%') < 0, id + " without levels is a flaw with no % in desc");
+            check(trait.isMutation() != trait.with().isEmpty(), id + (trait.isMutation() ? " mutation arrives with flaws" : " has no with column"));
+            for (String flaw : trait.with()) check(traits.containsKey(flaw) && traits.get(flaw).isFlaw(), id + " arrives with " + flaw + ", a flaw in pet_traits.csv");
+            check(trait.from().isEmpty() || trait.isFlaw() && trait.from().equals(FROM_INBREEDING), id + " from is blank or inbreeding on a flaw");
             check(oneName(trait.flavour()) && trait.flavour().endsWith("."), id + " flavour has one %s for the name and ends with a full stop");
             check(!BODY_WORDS.matcher(trait.flavour()).find(), id + " flavour fits any body");
 
@@ -357,6 +363,131 @@ public final class PetChecks {
     }
 
     // one favourite, every want answered the day it opens, no shared events: the slowest way to hearts 4 and 5
+    // odds over 100,000 seeded young per rule, at Care 40 (a player owned center)
+    private void checkGenetics(Map<String, PetData> pets, Map<String, Trait> traits) {
+        PetData fast = byPace(pets, PetData.PACE_FAST);
+        PetData medium = byPace(pets, PetData.PACE_MEDIUM);
+        PetData slow = byPace(pets, PetData.PACE_SLOW);
+        PetData hamster = byPace(pets, PetData.PACE_HAMSTER);
+        PetData rare = pets.get("tammy");
+        float care = 40f;
+        float better = PetGenetics.betterChance(care);
+        float drop = PetGenetics.dropChance(care);
+        String talent = TRAIT_PREFIX + "plating";
+        String flaw = TRAIT_PREFIX + "glutton";
+        String giant = TRAIT_PREFIX + "giant";
+
+        check(near(better, 140f / 240f) && near(PetGenetics.betterChance(20f), 120f / 220f) && near(drop, 40f / 240f), "Care 40 tilts to " + better + " and drops a flaw at " + drop);
+        check(near(PetGenetics.sumChance(fast, 0), 0.10f) && near(PetGenetics.sumChance(medium, 0), 0.25f) && near(PetGenetics.sumChance(slow, 10), 0.70f)
+                && near(PetGenetics.sumChance(hamster, 0), 0.10f), "sum chance 10, 25, 40% by pace, +3% a heart, the hamster as fast");
+
+        Random random = new Random(11);
+        Map<Integer, Integer> one = new LinkedHashMap<>();
+        Map<Integer, Integer> both = new LinkedHashMap<>();
+        Map<Integer, Integer> flawOne = new LinkedHashMap<>();
+        Map<Integer, Integer> flawBoth = new LinkedHashMap<>();
+        PetSheet plain = sheet();
+        PetSheet a = sheet(talent, 3, flaw, 2);
+        PetSheet b = sheet(talent, 2, flaw, 1);
+        for (int i = 0; i < YOUNG; i++) {
+            one.merge(PetGenetics.rollYoung(medium, a, plain, care, 0, 0f, 0f, traits, random).getGrade(talent), 1, Integer::sum);
+            PetSheet young = PetGenetics.rollYoung(medium, a, b, care, 0, 0f, 0f, traits, random);
+            both.merge(young.getGrade(talent), 1, Integer::sum);
+            flawBoth.merge(young.getGrade(flaw), 1, Integer::sum);
+            flawOne.merge(PetGenetics.rollYoung(medium, a, plain, care, 0, 0f, 0f, traits, random).getGrade(flaw), 1, Integer::sum);
+        }
+        float sum = PetGenetics.sumChance(medium, 0);
+        share("talent of one parent kept", one, 3, better);
+        share("talent of one parent lost", one, 0, 1f - better);
+        share("talent of both summed", both, 5, sum);
+        share("talent of both at the higher grade", both, 3, (1f - sum) * better);
+        share("talent of both at the lower grade", both, 2, (1f - sum) * (1f - better));
+        share("flaw of one parent dropped", flawOne, 0, drop);
+        share("flaw of both summed", flawBoth, 3, sum);
+        share("flaw of both at the lower level", flawBoth, 1, (1f - sum) * better);
+        check(!flawBoth.containsKey(0), "a flaw both parents have never drops");
+
+        float rate = PetGenetics.mutationRate(medium, plain, plain, false, false, traits);
+        check(near(rate, 0.16f) && near(PetGenetics.mutationRate(fast, plain, plain, true, true, traits), 0.24f)
+                && near(PetGenetics.mutationRate(slow, sheet(TRAIT_PREFIX + "unstable", 1), sheet(TRAIT_PREFIX + "unstable", 1), false, false, traits), 0.30f),
+                "mutation rate 8, 16, 24% by pace, x2 irradiated, x1.5 Alpha, +3 points an Unstable level");
+        int fresh = 0;
+        int mutations = 0;
+        int signatures = 0;
+        boolean withFlaws = true;
+        for (int i = 0; i < YOUNG; i++) {
+            PetSheet young = PetGenetics.rollYoung(medium, plain, plain, care, 0, rate, 0f, traits, random);
+            if (young.traits.isEmpty()) continue;
+            fresh++;
+            for (String id : young.traits.keySet()) {
+                Trait trait = traits.get(id);
+                if (trait.isMutation()) {
+                    mutations++;
+                    for (String with : trait.with()) withFlaws &= young.getGrade(with) == 1;
+                }
+                if (trait.isSignature()) signatures++;
+            }
+        }
+        share("young with a new trait", fresh, rate);
+        check(Math.abs(mutations / (float) fresh - PetConstants.NEW_MUTATION_CHANCE) < 0.02f, "new traits are mutations " + mutations / (float) fresh + " of the time");
+        check(Math.abs(signatures / (float) (fresh - mutations) - PetConstants.NEW_SIGNATURE_CHANCE) < 0.02f, "new talents are signatures " + signatures / (float) (fresh - mutations) + " of the time");
+        check(withFlaws, "a new mutation arrives with its flaws at level 1");
+
+        int sibling = 0;
+        int faint = 0;
+        int runts = 0;
+        for (int i = 0; i < YOUNG; i++) {
+            if (!PetGenetics.rollYoung(medium, plain, plain, care, 0, 0f, 0.5f, traits, random).traits.isEmpty()) sibling++;
+            if (!PetGenetics.rollYoung(medium, plain, plain, care, 0, 0f, 0.02f, traits, random).traits.isEmpty()) faint++;
+            if (!PetGenetics.rollYoung(hamster, plain, plain, care, 0, 0f, 0f, traits, random).traits.isEmpty()) runts++;
+        }
+        share("siblings' young malformed", sibling, 0.75f);
+        check(faint == 0, "no young malformed below 5%");
+        share("hamster young malformed", runts, PetConstants.HAMSTER_MALFORMED);
+        check(PetGenetics.malformedChance(hamster, 0.5f) > PetGenetics.malformedChance(medium, 0.5f), "the hamster chance comes on top of inbreeding");
+
+        float plainBrood = 0f;
+        float fecundBrood = 0f;
+        float weakBrood = 0f;
+        int rareMax = 0;
+        for (int i = 0; i < YOUNG; i++) {
+            plainBrood += PetGenetics.broodSize(medium, plain, plain, traits, random);
+            fecundBrood += PetGenetics.broodSize(medium, sheet(TRAIT_PREFIX + "fecund", 1), plain, traits, random);
+            weakBrood += PetGenetics.broodSize(medium, sheet(TRAIT_PREFIX + "weak_brood", 1), plain, traits, random);
+            rareMax = Math.max(rareMax, PetGenetics.broodSize(rare, plain, plain, traits, random));
+        }
+        check(Math.abs(plainBrood / YOUNG - 2f) < 0.02f, "a brood is 1 to 3 young, " + plainBrood / YOUNG + " on average");
+        check(Math.abs(fecundBrood / YOUNG - 3f) < 0.02f, "Fecund 1 adds one young, " + fecundBrood / YOUNG + " on average");
+        check(Math.abs(weakBrood / YOUNG - 1.5f) < 0.02f, "Weak brood 1 loses a quarter, " + weakBrood / YOUNG + " on average");
+        check(rare.isRare() && rareMax == 1, "a rare species has 1 young");
+
+        check(!PetGenetics.rollYoung(medium, sheet(giant, 1), plain, 0f, 0, 0f, 0f, traits, new Random(5)).traits.containsKey(TRAIT_PREFIX + "sterile"), "Sterile comes only from inbreeding");
+    }
+
+    private static PetData byPace(Map<String, PetData> pets, String pace) {
+        for (PetData data : pets.values()) if (pace.equals(data.pace) && !data.isRare()) return data;
+        throw new IllegalStateException("no plain pet with pace " + pace);
+    }
+
+    private static PetSheet sheet(Object... idsAndLevels) {
+        PetSheet sheet = new PetSheet(Personalities.STEADY);
+        for (int i = 0; i < idsAndLevels.length; i += 2) sheet.traits.put((String) idsAndLevels[i], (Integer) idsAndLevels[i + 1]);
+        return sheet;
+    }
+
+    private static boolean near(float got, float expected) {
+        return Math.abs(got - expected) < 0.001f;
+    }
+
+    private void share(String what, Map<Integer, Integer> counts, int level, float expected) {
+        share(what, counts.getOrDefault(level, 0), expected);
+    }
+
+    private void share(String what, int count, float expected) {
+        float got = count / (float) YOUNG;
+        check(Math.abs(got - expected) < 0.01f, what + " " + got + " of the time, expected " + expected);
+    }
+
     private void checkTitles() {
         Set<String> labels = new HashSet<>();
         for (PetTitle title : PetTitle.values()) {
