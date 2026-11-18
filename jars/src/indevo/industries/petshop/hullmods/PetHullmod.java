@@ -8,6 +8,7 @@ import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.characters.SkillSpecAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
+import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.combat.ShipAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -135,14 +136,16 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
     }
 
     // rebuilds a ship of a fleet now; a talent that went takes its room: the cheapest s-mods it made room for (as vanilla on a skill loss), fighters in lost bays to the cargo; names what went
-    public static List<String> updateShip(FleetMemberAPI member) {
-        int capBefore = sModCap(member);
+    // the room before comes from the pet, the member stats may already be rebuilt when this runs
+    public static List<String> updateShip(FleetMemberAPI member, Pet pet) {
         member.updateStats();
         ShipVariantAPI variant = member.getVariant();
         List<String> lost = new ArrayList<>();
 
-        int cap = sModCap(member);
-        int remove = Math.min(Misc.getCurrSpecialMods(variant) - cap, capBefore - cap);
+        MutableStat.StatMod room = member.getStats().getDynamic().getMod(Stats.MAX_PERMANENT_HULLMODS_MOD).getFlatBonus(pet.getData().hullmod);
+        int now = room != null ? Math.round(room.value) : 0;
+        int remove = Math.min(Misc.getCurrSpecialMods(variant) - sModCap(member), pet.sModRoom - now);
+        pet.sModRoom = now;
         List<String> sMods = new ArrayList<>(variant.getSMods());
         sMods.sort(Comparator.comparingInt(id -> Global.getSettings().getHullModSpec(id).getCostFor(variant.getHullSize())));
         for (int i = 0; i < remove && i < sMods.size(); i++) {

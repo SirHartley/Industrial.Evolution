@@ -52,6 +52,8 @@ public class Pet {
     public String homeShipId = null;
     // the Captain talent's person while the talent is on, in the seat whenever no one else is
     public PersonAPI captain = null;
+    // s-mod room its Tinkerer gave the ship at the last sync, read from the ship stats; a drop takes that many s-mods back
+    public int sModRoom = 0;
     // hearts are read from it, never stored
     public float bondDays = 0f;
     // 0: the nest stands once it has NEST_HEARTS
@@ -144,7 +146,7 @@ public class Pet {
         // a ship in market storage has no fleet, a lost ship's wings are gone with it
         if (member.getFleetData().getFleet() == null || !member.getFleetData().getMembersListCopy().contains(member)) return;
 
-        List<String> lost = PetHullmod.updateShip(member);
+        List<String> lost = PetHullmod.updateShip(member, this);
         if (!lost.isEmpty()) PetStatusManager.getInstance().reportRoomLost(this, member, lost);
     }
 
@@ -267,6 +269,7 @@ public class Pet {
 
         isAssigned = false;
         syncShip();
+        sModRoom = 0;
         assignedFleetMember = null;
     }
 
