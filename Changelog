@@ -70,6 +70,8 @@ Fixed - Pet management ability no longer shows active while a detachment is out
 Fixed - Pets on stored ships in storage at a colony now eat food from colony storage instead of dying
 Fixed - Pet naming dialog now properly opens from the cargo screen
 Fixed - Unknown pet boxes no longer crash (the tooltip shows an error)
+Fixed - Pet home picker now opens only once after naming a pet
+Fixed - Crash when a pet with no ship and no storage dies
 Removed - Pet food
 
 Museum

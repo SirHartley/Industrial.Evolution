@@ -165,12 +165,17 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     public void reportPetDied(Pet pet, PetDeathCause cause) {
+        if (pet.isDead()) return;
+
         WeightedRandomPicker<String> picker;
 
         ModPlugin.log("Pet died, cause: " + cause.name() + " pet: " + pet.name);
 
         // https://fractalsoftworks.com/forum/index.php?topic=18011.msg415042#msg415042
-        String petLocation = pet.assignedFleetMember == null ? pet.storage.getCurrentName() : pet.assignedFleetMember.getShipName();
+        String petLocation;
+        if (pet.assignedFleetMember != null) petLocation = pet.assignedFleetMember.getShipName();
+        else if (pet.storage != null) petLocation = pet.storage.getCurrentName();
+        else petLocation = "fleet";
         switch (cause) {
             case COMBAT:
                 picker = new WeightedRandomPicker<>();

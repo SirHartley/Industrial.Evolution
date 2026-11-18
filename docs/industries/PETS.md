@@ -84,7 +84,7 @@ Code paths relative to `jars/src/indevo/`.
 - `Pet.advance()` ages the pet (not in storage under a beta core, `Pet.java:127`) and feeds it every 31 days. Feeding takes `foodPerMonth` of a listed food commodity from the fleet cargo; for a ship in a submarket, from the storage cargo of that market (`PetStatusManager.getFoodCargo`, `PetStatusManager.java:137`); no food -> starving -> `STARVED` death.
 - Age past `lifetime` -> `NATURAL` death, message from `natural_death` or the hamster CSV.
 - `PetStatusManager`: month end food report; month end alive check kills a pet (`UNKNOWN`) whose ship has no fleet data or sits in a dead fleet, but not one in storage, whose fleet data has no fleet (`PetStatusManager.java:153-165`); `reportPlayerMarketTransaction` -> pet ship sold -> `SOLD` (warns when sold into a free transfer submarket); battle losses via `Misc.getSnapshotMembersLost` -> `COMBAT`.
-- `reportPetDied()` removes the hullmod and tag, posts a message, keeps `DeathData`.
+- `reportPetDied()` ignores a pet that is already dead, removes the hullmod and tag, posts a message, keeps `DeathData`.
 
 ### Storage
 
@@ -115,8 +115,6 @@ Code paths relative to `jars/src/indevo/`.
 | Item | State |
 |---|---|
 | Storage fee report | Changelog_todo: "Fix the -1c pet food cost in monthly report"; not explained by the storage fee code |
-| `PetPickerInteractionDialoguePlugin` | `hasShownPicker` is never set to true; `advance()` calls `showShipPicker()` every frame once named (`:122`) |
-| `reportPetDied()` | NPE when both `assignedFleetMember` and `storage` are null (`PetStatusManager.java:174`) |
 | `YourMod_PetName_PetHullmod` | Checks `isModEnabled("indEvo")` (`:31`, `:48`); the mod id is `IndEvo` and `ModManager.isModEnabled` compares exactly (`obf/launcher/ModManager.java:196`), so a copy of the template never applies effects or tooltip |
 | `PetStatusListenerAPI` | Dead |
 | `PetShop.ensurePetShopCreatedOrAssigned()`, `removeStationEntityAndFleetIfNeeded()`, entity `IndEvo_PetShop`, `PetShopCampaignPlugin` | Legacy station version, deprecated, not called |
