@@ -25,6 +25,8 @@ public final class Groups {
                 return PetsHeartsChecks.steps();
             case "petspods":
                 return PetsHeartsChecks.pods();
+            case "petssig":
+                return PetsSignatureChecks.steps();
             case "petstalents":
                 return PetsTalentsChecks.steps();
             case "petswants":

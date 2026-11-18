@@ -176,6 +176,10 @@ public final class PetsHeartsChecks {
         return steps;
     }
 
+    static void pickPublic(Ctx c, OptionId[] options) {
+        pick(c, options);
+    }
+
     private static void pick(Ctx c, OptionId[] options) {
         InteractionDialogAPI dialog = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
         if (dialog == null) {
