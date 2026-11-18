@@ -216,14 +216,26 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     public boolean sayDocking(InteractionDialogAPI dialog) {
-        int interval = Setting.PET_LINE_DAYS.intValue();
-        if (interval <= 0 || daysSinceLine < interval) return false;
+        if (!isLineDue()) return false;
 
         Pet pet = pickSpeaker();
         if (pet == null || !say(pet, PetDataRepo.EVENT_DOCKING, dialog)) return false;
 
         resetLines();
         return true;
+    }
+
+    // a jump or a fight takes the next line once the cadence allows one
+    private void sayMoment(String event, Collection<Pet> speakers) {
+        if (!isLineDue()) return;
+
+        Pet pet = pickSpeaker(speakers);
+        if (pet != null && say(pet, event, null)) resetLines();
+    }
+
+    private boolean isLineDue() {
+        int interval = Setting.PET_LINE_DAYS.intValue();
+        return interval > 0 && daysSinceLine >= interval;
     }
 
     public boolean say(Pet pet, String event, InteractionDialogAPI dialog) {
@@ -260,7 +272,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     private Pet pickSpeaker() {
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
-        WeightedRandomPicker<Pet> picker = new WeightedRandomPicker<>(Misc.random);
+        List<Pet> speakers = new ArrayList<>();
 
         for (Pet pet : pets) {
             if (pet.isDead() || pet.storage != null) continue;
@@ -268,6 +280,17 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             FleetMemberAPI member = pet.assignedFleetMember;
             if (member != null && (member.getFleetData() == null || member.getFleetData().getFleet() != fleet)) continue;
 
+            speakers.add(pet);
+        }
+
+        return pickSpeaker(speakers);
+    }
+
+    private Pet pickSpeaker(Collection<Pet> speakers) {
+        WeightedRandomPicker<Pet> picker = new WeightedRandomPicker<>(Misc.random);
+
+        for (Pet pet : speakers) {
+            FleetMemberAPI member = pet.assignedFleetMember;
             float weight = member != null && member.isFlagship() ? PetConstants.FLAGSHIP_LINE_WEIGHT : 1f;
             picker.add(pet, pet.favourite ? weight * PetConstants.FAVOURITE_LINE_WEIGHT : weight);
         }
@@ -604,6 +627,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
             List<FleetMemberAPI> fought = new ArrayList<>(side.getDeployed());
             fought.addAll(side.getRetreated());
+            List<Pet> speakers = new ArrayList<>();
 
             for (FleetMemberAPI member : fought) {
                 Pet pet = getPet(member.getVariant());
@@ -614,8 +638,13 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 pet.addFight();
                 // in battle the member sits in the battle's combined fleet, so isWithPlayer is false; its source fleet tells
                 boolean withPlayer = result.getBattle() != null && result.getBattle().getSourceFleet(member) == Global.getSector().getPlayerFleet();
-                if (withPlayer && canOpenWant() && isFree(pet)) openWant(pet, PetWant.COMFORT);
+                if (!withPlayer) continue;
+
+                speakers.add(pet);
+                if (canOpenWant() && isFree(pet)) openWant(pet, PetWant.COMFORT);
             }
+
+            sayMoment(PetDataRepo.EVENT_FIGHT, speakers);
         }
     }
 
@@ -623,12 +652,16 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportFleetJumped(CampaignFleetAPI fleet, SectorEntityToken from, JumpPointAPI.JumpDestination to) {
         if (!fleet.isPlayerFleet() || !Setting.PETS.enabled()) return;
 
+        List<Pet> speakers = new ArrayList<>();
         for (Pet pet : pets) {
             if (!pet.isAboard() || !pet.isWithPlayer()) continue;
 
             pet.addBond(PetConstants.EVENT_BOND_DAYS);
             pet.addJump();
+            speakers.add(pet);
         }
+
+        sayMoment(PetDataRepo.EVENT_JUMP, speakers);
     }
 
     @Override

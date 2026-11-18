@@ -69,7 +69,7 @@ Added - Rehome: an Animal Center finds a pet a new home for 2,000 credits
 Added - Setting to turn off the petting animation
 Added - A pet on a sold, stored or scuttled ship moves to a free ship in the fleet, flagship first, then the largest
 Added - Console command indevo_pet: list, give and age pets, set hearts and talents, open wants
-Added - Pet lines: your pets post short messages in flight and when you dock
+Added - Pet lines: your pets post short messages in flight, when you dock, jump or fight
 Added - Setting to adjust the days between pet lines (default 14, 0 turns them off)
 Added - Pet icon on its ship in the fleet and refit screens, a click opens the Pets panel
 Added - Pet icon in the ship tooltip

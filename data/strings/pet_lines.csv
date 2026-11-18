@@ -182,6 +182,24 @@ IndEvo_pl_find_wings,scavenger,b_wings,,,,%s flew back out of the wreck with som
 IndEvo_pl_find_water,scavenger,b_water,,,,%s kept circling one side of its tank until the crew checked that side of the wreck.
 IndEvo_pl_find_machine,scavenger,b_machine,,,,%s read the wreck's old cargo manifest and found a hold nobody had opened.
 IndEvo_pl_find_salvageraven,scavenger,salvageraven,,,,%s dropped a part at the quartermaster's feet and led the crew to the rest of the cache.
+IndEvo_pl_jump_1,jump,any,,,,%s was waiting by the navigator's console when the jump ended.
+IndEvo_pl_jump_2,jump,any,,,,The jump alarm sent %s to the same corner it always picks.
+IndEvo_pl_jump_hyper,jump,any,,,hyperspace,%s went very quiet when the ship broke into hyperspace.
+IndEvo_pl_jump_fourleg,jump,b_fourleg,,,,%s pressed itself flat to the deck for the whole jump.
+IndEvo_pl_jump_wings,jump,b_wings,,,,%s circled the bridge until the jump ended.
+IndEvo_pl_jump_water,jump,b_water,,,,The jump left ripples in %s's tank for an hour.
+IndEvo_pl_jump_machine,jump,b_machine,,,,%s logged the jump coordinates on its own and checked them against the navigator's.
+IndEvo_pl_jump_float,jump,b_float,,,,%s drifted up to the ceiling during the jump and stayed there.
+IndEvo_pl_jump_blob,jump,b_blob,,,,%s went flat for the jump and took an hour to round out again.
+IndEvo_pl_fight_1,fight,any,,,,The crew found %s at the damage control station once the guns went quiet.
+IndEvo_pl_fight_2,fight,any,,,,%s stayed with the crew through the whole engagement. Nobody sent it below.
+IndEvo_pl_fight_timid,fight,any,,timid,,%s spent the battle in the deepest compartment it could find and came out last.
+IndEvo_pl_fight_reckless,fight,any,,reckless,,%s was on the bridge when the battle ended. It looked as if it had given the orders.
+IndEvo_pl_fight_fourleg,fight,b_fourleg,,aggressive,,%s paced the gun deck corridor long after the guns went quiet.
+IndEvo_pl_fight_wings,fight,b_wings,,,,%s rode out the battle on top of a cargo rack and would not come down.
+IndEvo_pl_fight_water,fight,b_water,,,,The hits sloshed half of %s's tank onto the deck. The crew topped it up.
+IndEvo_pl_fight_machine,fight,b_machine,,,,%s logged every hit the ship took and filed the list with the chief engineer.
+IndEvo_pl_fight_human,fight,b_human,,,,%s helped carry the wounded to the medbay and will not talk about it.
 IndEvo_pl_play_1,play,any,,,,%s plays until the whole shift has joined in.
 IndEvo_pl_play_2,play,any,,,,%s wins the game by its own rules.
 IndEvo_pl_play_3,play,any,,,,"You play with %s until it loses interest, which takes a while."
