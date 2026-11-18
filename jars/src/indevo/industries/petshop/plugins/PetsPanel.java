@@ -256,7 +256,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     // the selected pet keeps its card while the filter hides its tile
     private void addList(CustomPanelAPI p, float h, List<Group> groups, Pet selected) {
         UiFilter.State filter = view.filter;
-        float bar = UiFilter.bar(p, 2f, BODY_Y, filter, "Name, species or trait", "Filters and sort order of this list.", TOGGLES, null, KEYS, this::filtered, this::refresh);
+        float bar = UiFilter.bar(p, 2f, BODY_Y, filter, "Name or species", "Filters and sort order of this list.", TOGGLES, null, KEYS, this::filtered, this::refresh);
         float top = bar + UiFilter.BELOW;
 
         UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y + top, LIST_W, h - top, view.scroll, PetsView.LIST);
