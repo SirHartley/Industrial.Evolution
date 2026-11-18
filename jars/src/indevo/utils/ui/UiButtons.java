@@ -224,6 +224,13 @@ public final class UiButtons {
         return field;
     }
 
+    // a black box with a 1 px outline instead of the vanilla fill; the field draws the border at alpha 127 to 255 by cursor fade
+    public static TextFieldAPI boxed(TextFieldAPI field) {
+        field.setBgColor(Color.BLACK);
+        field.setBorderColor(Ui.base());
+        return field;
+    }
+
     public static Color fg(Kind kind) {
         return switch (kind) {
             case GREEN, RED, AMBER -> Ui.text();

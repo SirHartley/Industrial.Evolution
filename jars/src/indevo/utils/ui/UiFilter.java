@@ -177,7 +177,7 @@ public final class UiFilter {
 
     // the field alone, for a search with no filters; made again on every rebuild, it takes the focus back when it had it
     public static TextFieldAPI field(CustomPanelAPI p, float x, float y, float w, State s, String hint) {
-        TextFieldAPI field = UiButtons.field(p, x, y, w, H, s.text, MAX_CHARS);
+        TextFieldAPI field = UiButtons.boxed(UiButtons.field(p, x, y, w, H, s.text, MAX_CHARS));
         s.field = field;
         if (s.text.isEmpty() && hint != null) Ui.textIn(p, x + TEXT_INSET, y, w - 2f * TEXT_INSET, H, hint, Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
         if (s.focused) field.grabFocus(false);

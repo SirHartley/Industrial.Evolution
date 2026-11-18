@@ -542,8 +542,7 @@ public class PetCard {
         TextFieldAPI field = UiButtons.field(p, x, y, w, NAME_H, name, PetConstants.NAME_MAX_CHARS, Ui.ORB20);
         field.setMidAlignment();
         field.setColor(Ui.bright());
-        field.setBorderColor(Misc.scaleAlpha(Ui.base(), 0.45f));
-        return field;
+        return UiButtons.boxed(field);
     }
 
     static String trimName(String typed) {
