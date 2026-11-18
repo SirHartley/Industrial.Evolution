@@ -18,6 +18,8 @@ import patchlib.api.PatchLib;
 public class PetHullmod extends SelfRepairingBuiltInHullmod {
     public static final float BASE_DECREASE = 5f;
     public static final float DMOD_CAP = 90f;
+    // percent of max hull a second, read each combat frame
+    public static final String MENDER = "IndEvo_pet_mender";
 
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         PetStatusManager manager = PetStatusManager.getInstance();
@@ -80,6 +82,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
             case "sensor_profile" -> stats.getSensorProfile().modifyMult(id, less, source);
             case "time_mult" -> stats.getTimeMult().modifyPercent(id, value, source);
             case "deployment" -> stats.getDynamic().getMod(Stats.DEPLOYMENT_POINTS_MOD).modifyMult(id, less, source);
+            case "hull_regen" -> stats.getDynamic().getMod(MENDER).modifyFlat(id, value, source);
             case "recovery" -> {
                 stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyFlat(id, value * 0.01f, source);
                 stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, 1f - Math.min(DMOD_CAP, value) * 0.01f, source);
@@ -94,6 +97,14 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         }
 
         return true;
+    }
+
+    @Override
+    public void advanceInCombat(ShipAPI ship, float amount) {
+        float rate = ship.getMutableStats().getDynamic().getMod(MENDER).computeEffective(0f);
+        if (rate <= 0f || !ship.isAlive() || ship.isHulk()) return;
+
+        ship.setHitpoints(Math.min(ship.getMaxHitpoints(), ship.getHitpoints() + ship.getMaxHitpoints() * rate * 0.01f * amount));
     }
 
     @Override

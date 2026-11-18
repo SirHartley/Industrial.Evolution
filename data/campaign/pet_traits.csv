@@ -23,3 +23,4 @@ IndEvo_pt_scavenger,Scavenger,fleet,salvage,percent,5,,,1,Salvage,"Salvage %s pe
 IndEvo_pt_marine_mascot,Marine mascot,fleet,ground_support,flat,50,,,1,Ground support,Ground support %s per grade.,The marines take %s along on every drop.
 IndEvo_pt_time_skip,Time skip,signature,time_mult,percent,3,,,1,Time flow,Time flow %s per grade on its ship.,Clocks run fast around %s. Nobody has worked out why.
 IndEvo_pt_small_target,Small target,signature,deployment,reduce,5,,90,1,Deployment cost,Deployment cost %s per grade for its ship.,Command never seems to count the ship %s is on.
+IndEvo_pt_mender,Mender,signature,hull_regen,percent,0.25,,,1,Hull repair a second,Hull repairs %s a second in combat per grade.,"%s fusses over every dent in the hull, and the dents go away."
