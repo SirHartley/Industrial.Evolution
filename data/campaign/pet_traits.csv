@@ -21,3 +21,4 @@ IndEvo_pt_lucky_charm,Lucky charm,stat,recovery,percent,5,,,1,Recovery chance,Re
 IndEvo_pt_pathfinder,Pathfinder,fleet,fleet_burn,flat,1,4,,1,Fleet burn,Fleet burn %s per 4 grades.,%s always seems to know the shortest way.
 IndEvo_pt_scavenger,Scavenger,fleet,salvage,percent,5,,,1,Salvage,"Salvage %s per grade, as a Salvage Gantry gives.",%s will not leave a sealed panel alone.
 IndEvo_pt_marine_mascot,Marine mascot,fleet,ground_support,flat,50,,,1,Ground support,Ground support %s per grade.,The marines take %s along on every drop.
+IndEvo_pt_time_skip,Time skip,signature,time_mult,percent,3,,,1,Time flow,Time flow %s per grade on its ship.,Clocks run fast around %s. Nobody has worked out why.

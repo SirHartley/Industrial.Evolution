@@ -76,6 +76,11 @@ public class PetData {
         return PACE_HAMSTER.equals(pace);
     }
 
+    // [Rare] and [Epic] in getRarityDesc
+    public boolean isRare() {
+        return rarity > 0f && rarity <= 0.4f;
+    }
+
     public boolean isNoSell() {
         return tags.contains(TAG_NO_SELL);
     }

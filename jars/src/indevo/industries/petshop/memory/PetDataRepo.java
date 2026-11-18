@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 
 public class PetDataRepo {
@@ -19,6 +20,7 @@ public class PetDataRepo {
     public static final String TRAIT_PREFIX = "IndEvo_pt_";
     public static final String KIND_STAT = "stat";
     public static final String KIND_FLEET = "fleet";
+    public static final String KIND_SIGNATURE = "signature";
     public static final String MODE_PERCENT = "percent";
     public static final String MODE_REDUCE = "reduce";
     public static final String MODE_FLAT = "flat";
@@ -74,7 +76,11 @@ public class PetDataRepo {
         }
 
         public boolean isTalent() {
-            return kind.equals(KIND_STAT) || kind.equals(KIND_FLEET);
+            return kind.equals(KIND_STAT) || kind.equals(KIND_FLEET) || kind.equals(KIND_SIGNATURE);
+        }
+
+        public boolean isSignature() {
+            return kind.equals(KIND_SIGNATURE);
         }
 
         public boolean isFleet() {
@@ -83,7 +89,7 @@ public class PetDataRepo {
 
         // +10%, -10% for a reduction, +1 for a flat value
         public String format(float v) {
-            String n = Math.abs(v - Math.round(v)) < 0.05f ? String.valueOf(Math.round(v)) : String.format(Locale.ROOT, "%.1f", v);
+            String n = Math.abs(v - Math.round(v)) < 0.005f ? String.valueOf(Math.round(v)) : new BigDecimal(String.format(Locale.ROOT, "%.2f", v)).stripTrailingZeros().toPlainString();
             return (mode.equals(MODE_REDUCE) ? "-" : "+") + n + (mode.equals(MODE_FLAT) ? "" : "%");
         }
     }

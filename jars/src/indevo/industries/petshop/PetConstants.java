@@ -38,6 +38,8 @@ public final class PetConstants {
     // one talent switches on per heart, best first, all at MAX_HEARTS; at READ_HEARTS every talent is read
     public static final int READ_HEARTS = 3;
     public static final float TWO_TALENTS_CHANCE = 0.5f;
+    // a rare species may bring one signature talent besides the others
+    public static final float SIGNATURE_CHANCE = 0.2f;
 
     private PetConstants() {
     }

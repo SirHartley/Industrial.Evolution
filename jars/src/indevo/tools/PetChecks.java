@@ -45,7 +45,7 @@ public final class PetChecks {
     // play time: a day is 10 s of flight, about 1.5 minutes a week with x2 and time in menus
     private static final float PLAY_MINUTES_PER_DAY = 1.5f / 7f;
     private static final Set<String> PACES = Set.of(PetData.PACE_FAST, PetData.PACE_MEDIUM, PetData.PACE_SLOW, PetData.PACE_HAMSTER);
-    private static final Set<String> KINDS = Set.of(KIND_STAT, KIND_FLEET);
+    private static final Set<String> KINDS = Set.of(KIND_STAT, KIND_FLEET, KIND_SIGNATURE);
     private static final Set<String> MODES = Set.of(MODE_PERCENT, MODE_REDUCE, MODE_FLAT);
     private static final float REDUCE_CAP = 90f;
     private static final int SHEETS = 40000;
@@ -155,11 +155,12 @@ public final class PetChecks {
         return traits;
     }
 
-    // bought pets: 1 or 2 talents at grade 1 half and half, every disposition, no Pathfinder, leans count
+    // bought pets: 1 or 2 talents at grade 1 half and half, every disposition, no Pathfinder, leans count, signatures only on rare species
     private void checkSheets(Map<String, PetData> pets, Map<String, Trait> traits) {
         Random random = new Random(3);
         PetData plain = pets.get("doge");
         PetData raven = pets.get("salvageraven");
+        PetData rare = pets.get("tammy");
         String scavenger = TRAIT_PREFIX + "scavenger";
         int two = 0;
         int plainScavenger = 0;
@@ -170,6 +171,7 @@ public final class PetChecks {
         boolean grades = true;
         boolean unknown = true;
         boolean pathfinder = false;
+        boolean plainSignature = false;
         for (int i = 0; i < SHEETS; i++) {
             PetSheet sheet = PetGenetics.rollSheet(plain, traits, random);
             int n = sheet.traits.size();
@@ -179,6 +181,7 @@ public final class PetChecks {
             grades &= sheet.traits.values().stream().allMatch(g -> g == 1);
             unknown &= sheet.known.isEmpty();
             pathfinder |= sheet.traits.containsKey(TRAIT_PREFIX + "pathfinder");
+            plainSignature |= sheet.traits.keySet().stream().anyMatch(t -> traits.get(t).isSignature());
             if (sheet.traits.containsKey(scavenger)) plainScavenger++;
             if (PetGenetics.rollSheet(raven, traits, random).traits.containsKey(scavenger)) ravenScavenger++;
         }
@@ -191,6 +194,24 @@ public final class PetChecks {
         check(Math.abs(share - PetConstants.TWO_TALENTS_CHANCE) < 0.01f, "two talents " + share + " of the time, expected " + PetConstants.TWO_TALENTS_CHANCE);
         check(dispositions.equals(DISPOSITIONS), "bought pets get every disposition, got " + dispositions);
         check(ravenScavenger > 2 * plainScavenger, "a Salvage Raven is a Scavenger more often: " + ravenScavenger + " against " + plainScavenger);
+        check(!plain.isRare() && !plainSignature, "a common pet never brings a signature talent");
+
+        int signed = 0;
+        boolean rareSizes = true;
+        boolean worthless = false;
+        for (int i = 0; i < SHEETS; i++) {
+            PetSheet sheet = PetGenetics.rollSheet(rare, traits, random);
+            long signatures = sheet.traits.keySet().stream().filter(t -> traits.get(t).isSignature()).count();
+            long others = sheet.traits.size() - signatures;
+            if (signatures > 0) signed++;
+            rareSizes &= signatures <= 1 && others >= 1 && others <= 2;
+            worthless |= sheet.traits.keySet().stream().anyMatch(t -> traits.get(t).value(1, 1f) <= 0f);
+        }
+
+        float signedShare = signed / (float) SHEETS;
+        check(rare.isRare() && Math.abs(signedShare - PetConstants.SIGNATURE_CHANCE) < 0.01f, "a rare pet brings a signature " + signedShare + " of the time, expected " + PetConstants.SIGNATURE_CHANCE);
+        check(rareSizes, "a rare pet has 1 or 2 talents and at most one signature");
+        check(!worthless, "no pet comes with a talent worth nothing at grade 1");
 
         PetSheet sheet = new PetSheet(Personalities.STEADY);
         sheet.traits.put(TRAIT_PREFIX + "plating", 1);

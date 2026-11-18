@@ -672,6 +672,7 @@ public class PetCard {
         t.addPara(trait.desc(), 10f, Ui.hl(), trait.format(trait.value(trait.per(), 1f)));
         if (trait.cap() > 0f) t.addPara("At most %s.", 0f, Ui.hl(), trait.format(trait.cap()));
         if (trait.isFleet()) t.addPara("Counts once per fleet, from the best pet.", 0f);
+        if (trait.isSignature()) t.addPara("A signature talent. Only rare species come with one.", 0f);
         if (off != null) t.addPara(off, Ui.neg(), 10f);
         if (!trait.flavour().isEmpty()) t.addPara(trait.flavour().replace("%s", pet.name), 10f);
     }
