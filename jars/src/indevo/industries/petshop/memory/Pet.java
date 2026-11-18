@@ -45,6 +45,8 @@ public class Pet {
     private boolean isStarving = false;
     private boolean isDead = false;
     public Industry storage = null;
+    // in a Cryochamber in a cargo: does not age, eat or bond, and is listed nowhere
+    public boolean inChamber = false;
 
     public DeathData deathData = null;
 
@@ -101,6 +103,7 @@ public class Pet {
 
     public void place(FleetMemberAPI toMember, Industry toStorage) {
         leave();
+        inChamber = false;
 
         if (toMember != null) {
             if (homeShipId != null && !toMember.getId().equals(homeShipId)) {
@@ -313,7 +316,7 @@ public class Pet {
 
     // in the player fleet: on one of its ships or in the menagerie; wants wait anywhere else
     public boolean isWithPlayer() {
-        if (isDead || storage != null) return false;
+        if (isDead || storage != null || inChamber) return false;
         if (assignedFleetMember == null) return true;
         return assignedFleetMember.getFleetData() != null && assignedFleetMember.getFleetData().getFleet() == Global.getSector().getPlayerFleet();
     }
@@ -384,7 +387,7 @@ public class Pet {
     }
 
     public void advance(float amt) {
-        if (isDead) return;
+        if (isDead || inChamber) return;
 
         boolean ages = storage == null || !Commodities.BETA_CORE.equals(storage.getAICoreId());
         float dayAmt = Global.getSector().getClock().convertToDays(amt);
@@ -467,7 +470,7 @@ public class Pet {
     }
 
     public boolean isInMenagerie() {
-        return !isDead && !isAssigned && storage == null;
+        return !isDead && !isAssigned && storage == null && !inChamber;
     }
 
     public boolean isYoung() {
@@ -510,6 +513,19 @@ public class Pet {
         isDead = true;
         generateDeathData(cause);
         leave();
+        inChamber = false;
+    }
+
+    public void toChamber() {
+        leave();
+        inChamber = true;
+    }
+
+    // a sold Cryochamber bought back
+    public void revive() {
+        isDead = false;
+        deathData = null;
+        inChamber = true;
     }
 
     // on a ship of a live fleet, the player's or a detachment; a ship in storage is not aboard

@@ -65,6 +65,12 @@ public final class PetConstants {
     // else a mutation or a talent half and half, a talent one time in four a signature
     public static final float NEW_LOOK_CHANCE = 1f / 3f;
     public static final float NEW_MUTATION_CHANCE = 0.5f;
+    public static final float SALE_LOOK_MULT = 2f;
+    public static final float SALE_TITLED_MULT = 1.25f;
+    public static final float SALE_FLAW_MULT = 0.9f;
+    public static final float SALE_MALFORMED_MULT = 0.1f;
+    // generations up that count for a titled ancestor
+    public static final int SALE_TITLED_GENERATIONS = 3;
     public static final float NEW_SIGNATURE_CHANCE = 0.25f;
     public static final float MALFORMED_PER_INBREEDING = 1.5f;
     public static final float MALFORMED_MIN = 0.05f;

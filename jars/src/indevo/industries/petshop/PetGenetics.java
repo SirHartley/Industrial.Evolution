@@ -37,6 +37,7 @@ public final class PetGenetics {
     public static final String MAYFLY = PetDataRepo.TRAIT_PREFIX + "mayfly";
     public static final String STERILE = PetDataRepo.TRAIT_PREFIX + "sterile";
     public static final String NONE = "none";
+    public static final String LUMINOUS = PetDataRepo.TRAIT_PREFIX + "luminous";
     // the wanted row and cross row for a malformed young
     public static final String MALFORMED = "malformed";
 
@@ -192,6 +193,26 @@ public final class PetGenetics {
         return rate + value(traits, UNSTABLE, a.getGrade(UNSTABLE) + b.getGrade(UNSTABLE)) * 0.01f;
     }
 
+    // sale value from what the buyer can see: species value, x2 with a look, x (1 + read talent grades + mutation levels),
+    // x1.25 with a titled ancestor, x0.9 a read flaw level, Luminous on top; malformed x0.1
+    public static float saleValue(PetData data, PetSheet seen, boolean titledAncestor, Map<String, Trait> traits) {
+        float points = 1f;
+        int flaws = 0;
+        for (Map.Entry<String, Integer> e : seen.traits.entrySet()) {
+            Trait trait = traits.get(e.getKey());
+            if (trait == null) continue;
+            if (trait.isFlaw()) flaws += e.getValue();
+            else points += e.getValue();
+        }
+
+        float value = data.value * points * (float) Math.pow(PetConstants.SALE_FLAW_MULT, flaws);
+        if (seen.look != null) value *= PetConstants.SALE_LOOK_MULT;
+        if (titledAncestor) value *= PetConstants.SALE_TITLED_MULT;
+        value *= 1f + value(traits, LUMINOUS, seen.getGrade(LUMINOUS)) * 0.01f;
+        if (seen.malformed) value *= PetConstants.SALE_MALFORMED_MULT;
+        return value;
+    }
+
     // 1.5 x inbreeding, nothing under 5%; every hamster young has its own chance on top
     public static float malformedChance(PetData data, float inbreeding) {
         float chance = inbreeding * PetConstants.MALFORMED_PER_INBREEDING;
@@ -227,6 +248,7 @@ public final class PetGenetics {
     public static PetSheet seen(PetSheet sheet) {
         PetSheet seen = new PetSheet(sheet.disposition);
         seen.look = sheet.look;
+        seen.malformed = sheet.malformed;
         for (Map.Entry<String, Integer> e : sheet.traits.entrySet()) if (sheet.isKnown(e.getKey())) seen.traits.put(e.getKey(), e.getValue());
         seen.known.addAll(seen.traits.keySet());
         return seen;

@@ -973,7 +973,7 @@ public class PetCard {
     }
 
     // the look before the species name, none for Wild type
-    static String species(Pet pet) {
+    public static String species(Pet pet) {
         PetDataRepo.Look look = pet.getLook();
         return look != null ? look.name() + " " + pet.getData().species : pet.getData().species;
     }

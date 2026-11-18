@@ -52,6 +52,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     private final PetBrood brood;
     private final String pair;
     private final Map<String, FleetMemberAPI> ships = new HashMap<>();
+    private final Set<String> cargo = new HashSet<>();
     private final Map<String, TextFieldAPI> fields = new HashMap<>();
     private final Map<String, Float> openedAt = new HashMap<>();
     private final UiScroll.Offsets scroll = new UiScroll.Offsets();
@@ -420,9 +421,11 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     // Storage is picked when it opens; Ship... asks for a ship without a pet that no other young here has taken
     private void addPlace(CustomPanelAPI p, Pet pet) {
         FleetMemberAPI ship = ships.get(pet.id);
-        float bw = Math.round((CARD_W - 16f - 4f) / 2f);
-        UiButtons.button(p, 8f, PLACE_Y, bw, PetCard.BUTTON_H, "Storage", ship == null ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+        boolean inCargo = cargo.contains(pet.id);
+        float bw = (float) Math.floor((CARD_W - 16f - 8f) / 3f);
+        UiButtons.button(p, 8f, PLACE_Y, bw, PetCard.BUTTON_H, "Storage", ship == null && !inCargo ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
             ships.remove(pet.id);
+            cargo.remove(pet.id);
             refresh();
         });
 
@@ -431,18 +434,28 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         String reason = pet.getLifetime() <= 0f ? "It lives only where it does not age: Pet storage with a Beta core."
                 : free.isEmpty() ? "No ship without a pet." : null;
 
-        ButtonAPI shipButton = UiButtons.button(p, CARD_W - 8f - bw, PLACE_Y, bw, PetCard.BUTTON_H, "Ship...",
+        ButtonAPI shipButton = UiButtons.button(p, 8f + bw + 4f, PLACE_Y, bw, PetCard.BUTTON_H, "Ship...",
                 reason != null ? UiButtons.Kind.OFF : ship != null ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR,
                 reason != null ? null : () -> pickShip(pet, free));
         if (reason != null) Ui.tooltip(p, shipButton, "Ship...", reason);
 
-        String where = ship != null ? ship.getShipName() + ", " + PetCard.shipClass(ship) : "Pet storage, " + shop.getMarket().getName();
+        ButtonAPI cargoButton = UiButtons.button(p, 8f + 2f * (bw + 4f), PLACE_Y, bw, PetCard.BUTTON_H, "Cargo", inCargo ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+            ships.remove(pet.id);
+            cargo.add(pet.id);
+            refresh();
+        });
+        Ui.tooltip(p, cargoButton, "Cargo", "Puts the young into a Cryochamber in your fleet's cargo. It does not age there. Open it from the cargo to give it a ship or the menagerie, or sell it.");
+
+        String where = ship != null ? ship.getShipName() + ", " + PetCard.shipClass(ship) : inCargo ? "Cryochamber, fleet cargo" : "Pet storage, " + shop.getMarket().getName();
         Ui.text(p, 8f, PLACE_Y + 30f, CARD_W - 16f, Ui.fit(where, Ui.INS15, CARD_W - 16f), Ui.gray());
     }
 
     private void pickShip(Pet pet, List<FleetMemberAPI> free) {
         keepNames();
-        PetPlaceDialog.pick(pet, free, ship -> ships.put(pet.id, ship)).show(this::refresh);
+        PetPlaceDialog.pick(pet, free, ship -> {
+            ships.put(pet.id, ship);
+            cargo.remove(pet.id);
+        }).show(this::refresh);
     }
 
     // the fields are made again on every rebuild; an empty field keeps the suggested name
@@ -474,7 +487,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     public void customDialogConfirm() {
         keepNames();
         for (Pet young : new ArrayList<>(brood.getYoung())) {
-            if (brood.opened.contains(young.id)) shop.placeYoung(brood, young, ships.get(young.id));
+            if (brood.opened.contains(young.id)) shop.placeYoung(brood, young, ships.get(young.id), cargo.contains(young.id));
         }
         dialog.dismiss();
     }

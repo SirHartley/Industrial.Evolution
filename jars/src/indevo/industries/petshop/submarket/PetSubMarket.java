@@ -12,6 +12,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.industry.PetShop;
+import indevo.industries.petshop.item.PetItemPlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
@@ -91,12 +92,12 @@ public class PetSubMarket extends BaseSubmarketPlugin {
 
     @Override
     public boolean isIllegalOnSubmarket(CargoStackAPI stack, TransferAction action) {
-        return action == TransferAction.PLAYER_SELL;
+        return action == TransferAction.PLAYER_SELL && PetItemPlugin.chamberPet(stack) == null;
     }
 
     @Override
     public String getIllegalTransferText(CargoStackAPI stack, TransferAction action) {
-        return "You can not sell anything here.";
+        return "Only a Cryochamber with a young in it sells here.";
     }
 
     @Override

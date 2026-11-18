@@ -469,6 +469,7 @@ public final class PetChecks {
         check(Math.abs(mutations / (float) newTraits - PetConstants.NEW_MUTATION_CHANCE) < 0.02f, "new traits are mutations " + mutations / (float) newTraits + " of the time");
         check(Math.abs(signatures / (float) (newTraits - mutations) - PetConstants.NEW_SIGNATURE_CHANCE) < 0.02f, "new talents are signatures " + signatures / (float) (newTraits - mutations) + " of the time");
         checkLookInheritance(pets, traits, care, random);
+        checkSaleValue(pets.get("lizzer"), traits, talent, flaw);
         check(withFlaws, "a new mutation arrives with its flaws at level 1");
 
         int sibling = 0;
@@ -504,6 +505,26 @@ public final class PetChecks {
         checkBody(medium, hamster, plain, traits);
         checkBroods(fast, medium, slow, hamster, plain, traits);
         checkPlan(medium, traits.get(talent), traits.get(flaw), care, better, drop, sum);
+    }
+
+    private void checkSaleValue(PetData lizard, Map<String, Trait> traits, String talent, String flaw) {
+        String vent = TRAIT_PREFIX + "vent";
+        check(near(PetGenetics.saleValue(lizard, sheet(), false, traits), 2200f), "a plain lizard sells for 2200");
+
+        PetSheet fancy = sheet(talent, 3, vent, 3);
+        fancy.look = "lizzer_1";
+        check(Math.round(PetGenetics.saleValue(lizard, fancy, true, traits)) == 38500, "look, titled ancestor and two grade 3 talents sell for 38500");
+
+        PetSheet flawed = sheet(flaw, 2);
+        check(Math.round(PetGenetics.saleValue(lizard, flawed, false, traits)) == 1782, "two flaw levels sell for 1782");
+        flawed.malformed = true;
+        check(Math.round(PetGenetics.saleValue(lizard, flawed, false, traits)) == 178, "malformed sells for a tenth");
+
+        PetSheet luminous = sheet(PetGenetics.LUMINOUS, 1);
+        check(Math.round(PetGenetics.saleValue(lizard, luminous, false, traits)) == 5500, "Luminous 1 counts as a level and adds 25%");
+
+        PetSheet hidden = sheet(talent, 3);
+        check(near(PetGenetics.saleValue(lizard, PetGenetics.seen(hidden), false, traits), 2200f), "an unread talent adds nothing");
     }
 
     private void checkLookInheritance(Map<String, PetData> pets, Map<String, Trait> traits, float care, Random random) {

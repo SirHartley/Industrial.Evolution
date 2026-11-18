@@ -228,11 +228,13 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     }
 
     // registers the young and puts it on the ship, or into pet storage here; the habitat is free once every young is placed
-    public void placeYoung(PetBrood brood, Pet young, FleetMemberAPI ship) {
+    public void placeYoung(PetBrood brood, Pet young, FleetMemberAPI ship, boolean toCargo) {
         if (!brood.getYoung().remove(young)) throw new IllegalStateException("IndEvo young " + young.id + " is not in this brood");
 
-        PetStatusManager.getInstance().register(young);
-        young.place(ship, ship == null ? this : null);
+        PetStatusManager manager = PetStatusManager.getInstance();
+        manager.register(young);
+        if (toCargo) manager.toChamber(young);
+        else young.place(ship, ship == null ? this : null);
         if (brood.getYoung().isEmpty()) getBroods().remove(brood);
     }
 

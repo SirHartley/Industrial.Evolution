@@ -88,6 +88,12 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         return new PetPlaceDialog(null, data, helper, "Open Cryochamber", free, null);
     }
 
+    // a young put in a Cryochamber from the New young popup
+    public static PetPlaceDialog chamber(Pet young, RightClickActionHelper helper) {
+        List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
+        return new PetPlaceDialog(young, young.getData(), helper, "Open Cryochamber", free, null);
+    }
+
     public void show(Runnable onClose) {
         UiHost.over(dialog -> {
             this.dialog = dialog;
@@ -198,11 +204,13 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         Ui.text(p, 0f, 0f, w, verb, Ui.INS21, Ui.text(), Ui.LEFT);
 
         CustomPanelAPI card = Ui.card(p, 0f, HEAD_Y, PetCard.IDENT, PetCard.IDENT);
-        UiImages.img(card, 4f, 4f, PetCard.PORTRAIT, PetCard.PORTRAIT, data.icon);
+        UiImages.img(card, 4f, 4f, PetCard.PORTRAIT, PetCard.PORTRAIT, pet != null ? pet.getIcon() : data.icon);
 
         float x = PetCard.GRID_X;
         nameField = PetCard.nameField(p, x, HEAD_Y, w - x, name);
-        UiData.grid(p, x, HEAD_Y + PetCard.NAME_H + 8f, w - x, UiData.GRID_ROW_H, List.of(
+        UiData.grid(p, x, HEAD_Y + PetCard.NAME_H + 8f, w - x, UiData.GRID_ROW_H, pet != null ? List.of(
+                GridRow.of("Species", PetCard.species(pet), Ui.text()),
+                GridRow.of("Age", PetCard.age(pet), Ui.text())) : List.of(
                 GridRow.of("Species", data.species, Ui.text()),
                 GridRow.of("Life span", lifeSpan(data), Ui.text())));
     }
@@ -308,6 +316,11 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
         if (onPick != null) {
             if (ship != null) onPick.accept(ship);
+        } else if (isChamber() && pet != null) {
+            keepName();
+            pet.name = name;
+            pet.place(ship, null);
+            chamber.removeFromClickedStackFirst(1);
         } else if (isChamber()) {
             keepName();
             Pet born = new Pet(data.id, name);
