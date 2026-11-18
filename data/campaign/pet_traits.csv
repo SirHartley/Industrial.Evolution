@@ -25,3 +25,4 @@ IndEvo_pt_time_skip,Time skip,signature,time_mult,percent,3,,,1,Time flow,Time f
 IndEvo_pt_small_target,Small target,signature,deployment,reduce,5,,90,1,Deployment cost,Deployment cost %s per grade for its ship.,Command never seems to count the ship %s is on.
 IndEvo_pt_mender,Mender,signature,hull_regen,percent,0.25,,,1,Hull repair a second,Hull repairs %s a second in combat per grade.,"%s fusses over every dent in the hull, and the dents go away."
 IndEvo_pt_overcharge,Overcharge,signature,system,percent,10,,,1,System regen,"Ship system regen %s per grade on its ship, and one more charge per 3 grades.",%s sits by the system controls. They hum louder when it does.
+IndEvo_pt_skeleton_crew,Skeleton crew,signature,min_crew,reduce,10,,100,1,Minimum crew,Minimum crew %s per grade on its ship. None needed from grade 10.,"%s is worth ten crew, the bosun says. Nobody argues."

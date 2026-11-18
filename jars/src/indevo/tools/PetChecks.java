@@ -48,6 +48,8 @@ public final class PetChecks {
     private static final Set<String> KINDS = Set.of(KIND_STAT, KIND_FLEET, KIND_SIGNATURE);
     private static final Set<String> MODES = Set.of(MODE_PERCENT, MODE_REDUCE, MODE_FLAT);
     private static final float REDUCE_CAP = 90f;
+    // Skeleton crew needs no crew at all from grade 10
+    private static final Set<String> FULL_REDUCE = Set.of("min_crew");
     private static final int SHEETS = 40000;
 
     private final List<String> problems = new ArrayList<>();
@@ -138,7 +140,8 @@ public final class PetChecks {
             check(!BODY_WORDS.matcher(trait.flavour()).find(), id + " flavour fits any body");
 
             if (trait.mode().equals(MODE_REDUCE)) {
-                check(trait.cap() > 0f && trait.cap() <= REDUCE_CAP, id + " reduction has a cap of at most " + REDUCE_CAP);
+                float cap = FULL_REDUCE.contains(trait.stat()) ? 100f : REDUCE_CAP;
+                check(trait.cap() > 0f && trait.cap() <= cap, id + " reduction has a cap of at most " + cap);
                 float most = trait.value(1000, PetConstants.HAMSTER_MULT * PetConstants.NEST_MULT);
                 check(most <= trait.cap(), id + " stops at its cap, " + most + " at grade 1000 on a hamster with a nest");
             }
