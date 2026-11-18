@@ -117,9 +117,9 @@ Every load (`:153` to `:173`):
 |---|---|---|
 | `X.register()` | `getListenerManager().addListener(new X(), true)`: transient, added on every load, not saved | `DepositMessage.register()` |
 | `X.getInstanceOrRegister()` | Returns the saved instance from `getListeners(X.class)` or adds a persistent one | `ShippingManager`, `AdminGovernTimeTracker`; `RelayNetworkBrain` is the transient variant, see below |
-| `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all five IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:493` to `:497` |
+| `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all four IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:516` to `:519` |
 | `@Patch` class | PatchLib finds it in `jars/IndEvo.jar` at startup, no registration. A hook installs when its target class loads | [Patches](#patches) |
-| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:499` |
+| `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:522` |
 | `system.addScript` guarded by a system memory key | Saved script on one star system, added at placement | `DroneNetScript.getInstanceOrRegister` ([ARTILLERY](industries/ARTILLERY.md#drone-net)) |
 | `LunaCampaignRenderer.addTransientRenderer` guarded by `hasRendererOfClass` or `getRendererOfClass` | Transient LunaLib campaign renderer, one per session, not saved | `ShuttleTrafficRenderer.register()` ([SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md)), `RogueRockDustRenderer.register()` ([METEOR](exploration/METEOR.md#rogue-asteroids)), `ArtilleryFireRenderer.getInstanceOrRegister` on the first shot ([ARTILLERY](industries/ARTILLERY.md#fire-animation)) |
 | Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
@@ -242,7 +242,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Privateer | Current changeling government; `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | Split fleet | Courier `ShippingTargetHelper` for targets | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
-| Pets | `Academy.COLOURS_BY_PERSONALITY` | `Pet.java:56` |
+| Pets | `Academy.COLOURS_BY_PERSONALITY` | `Pet.java:63` |
 | Changeling, distress | `SelfRepairingBuiltInHullmod`, `PetHullmod` from the pet shop | [PETS](industries/PETS.md) |
 | Museum | Pet shop escape interceptor | [MUSEUM](industries/MUSEUM.md) |
 | Requisitions center, salvage specials, `IndEvo_notAtWar` | Embassy ambassador | [EMBASSY](industries/EMBASSY.md) |

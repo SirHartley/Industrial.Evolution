@@ -18,7 +18,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
 
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         Pet pet = PetStatusManager.getInstance().getPet(stats.getVariant());
-        if (pet == null) return;
+        if (pet == null || pet.isUnsettled()) return;
 
         stats.getCRLossPerSecondPercent().modifyPercent(id, -BASE_DECREASE * pet.getEffectFract(), pet.name + " the " + pet.getData().species);
     }
@@ -33,7 +33,12 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         if (pet == null) return;
 
         tooltip.addSectionHeading("Effect", Alignment.MID, opad);
-        tooltip.addPara("Reduces CR decay during combat by %s", opad, hl, Misc.getRoundedValueMaxOneAfterDecimal(BASE_DECREASE * pet.getEffectFract()) + " %");
+        if (pet.isUnsettled()) {
+            int days = (int) Math.ceil(pet.unsettledDays);
+            tooltip.addPara("Unsettled after a move, no effect for %s", opad, Misc.getNegativeHighlightColor(), Misc.getStringForDays(days));
+        } else {
+            tooltip.addPara("Reduces CR decay during combat by %s", opad, hl, Misc.getRoundedValueMaxOneAfterDecimal(BASE_DECREASE * pet.getEffectFract()) + " %");
+        }
 
         pet.addHullmodDescriptionSection(tooltip);
     }

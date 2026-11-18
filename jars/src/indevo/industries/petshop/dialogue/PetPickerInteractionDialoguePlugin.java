@@ -63,6 +63,7 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
     }
 
     public void showShipPicker() {
+        hasShownPicker = true;
 
         int shipsPerRow = Setting.SHIP_PICKER_ROW_COUNT.intValue();
         int rows = membersWithoutPets.size() > shipsPerRow ? (int) Math.ceil(membersWithoutPets.size() / (float) shipsPerRow) : 1;
@@ -80,7 +81,7 @@ public class PetPickerInteractionDialoguePlugin implements InteractionDialogPlug
 
                             Pet pet = new Pet(data.id, getName());
                             PetStatusManager.getInstance().register(pet);
-                            pet.assign(newHome);
+                            pet.place(newHome, null);
 
                             Global.getSector().getCampaignUI().getMessageDisplay().addMessage("Assigned " + getName() + " to " + newHome.getShipName());//,
                             helper.removeFromClickedStackFirst(1);

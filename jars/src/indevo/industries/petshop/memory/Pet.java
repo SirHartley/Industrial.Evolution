@@ -14,6 +14,8 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.industries.academy.industry.Academy;
+import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetMood;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.utils.ModPlugin;
@@ -46,6 +48,11 @@ public class Pet {
 
     public DeathData deathData = null;
 
+    public float unsettledDays = 0f;
+    public float shellShockedDays = 0f;
+    public boolean lastMealSupplies = false;
+    public String homeShipId = null;
+
     public Pet(String typeID, String name) {
         this.id = Misc.genUID();
         this.typeID = typeID;
@@ -60,33 +67,21 @@ public class Pet {
         if (Global.getSettings().isDevMode()) this.feedInterval = new IntervalUtil(10f, 10f); //10 seconds
     }
 
-    public void store(Industry industry){
-        unassign();
-        storage = industry;
-        ((PetShop) industry).store(this);
+    public void place(FleetMemberAPI toMember, Industry toStorage) {
+        leave();
+
+        if (toMember != null) {
+            if (homeShipId != null && !homeShipId.equals(toMember.getId())) unsettledDays = PetConstants.UNSETTLED_DAYS;
+            homeShipId = toMember.getId();
+            attach(toMember);
+        } else if (toStorage != null) {
+            storage = toStorage;
+            ((PetShop) toStorage).store(this);
+        }
     }
 
-    public void removeFromStorage(){
-        if (storage != null) {
-            PetShop shop = (PetShop) storage;
-            shop.removeFromStorage(this);
-            storage = null;
-        }
-
-    }
-
-    public void assign(FleetMemberAPI toMember) {
-        ModPlugin.log("assigning " + name + " variety " + typeID + " to " + toMember.getShipName() + " with source " + toMember.getVariant().getSource().name());
-
-        if (toMember.getVariant().getSource() != VariantSource.REFIT){
-            cycleToCustomVariant(toMember);
-        }
-
-        this.assignedFleetMember = toMember;
-        isAssigned = true;
-        serveDuration = 0f;
-        toMember.getVariant().addPermaMod(getData().hullmod);
-        toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
+    public void shellShock() {
+        shellShockedDays = PetConstants.SHELL_SHOCKED_DAYS;
     }
 
     public static void cycleToCustomVariant(FleetMemberAPI member) {
@@ -99,7 +94,24 @@ public class Pet {
         member.setVariant(variant, false, true);
     }
 
-    public void unassign() {
+    private void attach(FleetMemberAPI toMember) {
+        ModPlugin.log("assigning " + name + " variety " + typeID + " to " + toMember.getShipName() + " with source " + toMember.getVariant().getSource().name());
+
+        if (toMember.getVariant().getSource() != VariantSource.REFIT) cycleToCustomVariant(toMember);
+
+        assignedFleetMember = toMember;
+        isAssigned = true;
+        serveDuration = 0f;
+        toMember.getVariant().addPermaMod(getData().hullmod);
+        toMember.getVariant().addTag(HULLMOD_DATA_PREFIX + id);
+    }
+
+    private void leave() {
+        if (storage != null) {
+            ((PetShop) storage).removeFromStorage(this);
+            storage = null;
+        }
+
         if (assignedFleetMember == null) return;
 
         serveDuration = 0f;
@@ -109,8 +121,8 @@ public class Pet {
         variant.removePermaMod(hullmod);
         variant.removeMod(hullmod);
 
-        for (String s : new ArrayList<>(assignedFleetMember.getVariant().getTags())) {
-            if (s.startsWith(HULLMOD_DATA_PREFIX)) assignedFleetMember.getVariant().getTags().remove(s);
+        for (String s : new ArrayList<>(variant.getTags())) {
+            if (s.startsWith(HULLMOD_DATA_PREFIX)) variant.getTags().remove(s);
         }
 
         assignedFleetMember = null;
@@ -134,6 +146,9 @@ public class Pet {
                 PetStatusManager.getInstance().reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
             }
         }
+
+        unsettledDays = Math.max(0f, unsettledDays - dayAmt);
+        shellShockedDays = Math.max(0f, shellShockedDays - dayAmt);
 
         if (!isAssigned) return; //can't be active if in storage so it doesn't double age
 
@@ -164,11 +179,23 @@ public class Pet {
         return isAssigned;
     }
 
+    public boolean isUnsettled() {
+        return unsettledDays > 0f;
+    }
+
+    public PetMood getMood() {
+        if (isStarving) return PetMood.HUNGRY;
+        if (isUnsettled()) return PetMood.UNSETTLED;
+        if (shellShockedDays > 0f) return PetMood.SHELL_SHOCKED;
+        if (lastMealSupplies) return PetMood.UNHAPPY_WITH_FOOD;
+        if (age > lifetime * PetConstants.SLEEPY_AGE_FRACTION) return PetMood.SLEEPY;
+        return PetMood.CONTENT;
+    }
+
     public void setDead(PetStatusManager.PetDeathCause cause) {
         isDead = true;
         generateDeathData(cause);
-        unassign();
-        removeFromStorage();
+        leave();
     }
 
     public float getEffectFract() {
@@ -212,7 +239,8 @@ public class Pet {
         textElement.addPara("Species: %s", spad, hl, getData().species);
         textElement.addPara("Disposition: %s", spad, Academy.COLOURS_BY_PERSONALITY.get(personality), personality.toLowerCase());
         textElement.addPara("Age: %s", spad, hl, getAgeString());
-        textElement.addPara("Status: %s", spad, isStarving() ? Misc.getNegativeHighlightColor() : hl, isStarving() ? "Starving" : "Well fed and happy");
+        PetMood mood = getMood();
+        textElement.addPara("Mood: %s", spad, mood.getColor(), mood.label);
         panel.addUIElement(textElement).inTL(-padding, 0f); //WHY, WHY THE PADDING ALEX??? WHY????
         panel.getPosition().setSize(tooltip.getWidthSoFar(), textElement.getHeightSoFar()); //scale to correct size
 

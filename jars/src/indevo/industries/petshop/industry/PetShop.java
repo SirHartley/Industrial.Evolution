@@ -1,7 +1,6 @@
 package indevo.industries.petshop.industry;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.SubmarketPlugin;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -32,7 +31,6 @@ import java.util.List;
 public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     private List<Pet> storedPets = new LinkedList<>();
-    private SectorEntityToken petShopStationEntity = null;
 
     private HashMap<String, Integer> petMarketInventory = new HashMap<>();
 
@@ -114,50 +112,6 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     }
 
-    @Deprecated
-    public void ensurePetShopCreatedOrAssigned() {
-        if (petShopStationEntity == null) {
-            for (SectorEntityToken entity : market.getConnectedEntities()) {
-                if (entity.hasTag(Ids.PET_SHOP_ENTITY)) {
-                    petShopStationEntity = entity;
-                    break;
-                }
-            }
-        }
-
-        if (petShopStationEntity == null) {
-            petShopStationEntity = market.getContainingLocation().addCustomEntity(
-                    null, market.getName() + " " + getCurrentName(), Ids.PET_SHOP_ENTITY, market.getFactionId());
-            SectorEntityToken primary = market.getPrimaryEntity();
-            float orbitRadius = primary.getRadius() + 70f;
-            petShopStationEntity.setCircularOrbitWithSpin(primary, (float) Math.random() * 360f, orbitRadius, orbitRadius / 25f, 5f, 10f);
-            market.getConnectedEntities().add(petShopStationEntity);
-            petShopStationEntity.setMarket(market);
-        }
-    }
-
-
-    @Deprecated
-    protected void removeStationEntityAndFleetIfNeeded() {
-        if (petShopStationEntity != null) {
-
-            if (petShopStationEntity.getContainingLocation() != null) {
-                petShopStationEntity.getContainingLocation().removeEntity(petShopStationEntity);
-                market.getConnectedEntities().remove(petShopStationEntity);
-            }
-
-            petShopStationEntity = null;
-        }
-    }
-
-    @Override
-    protected void buildingFinished() {
-        super.buildingFinished();
-
-        //if (petShopStationEntity == null) ensurePetShopCreatedOrAssigned();
-
-    }
-
     @Override
     public boolean isAvailableToBuild() {
         return super.isAvailableToBuild() && Setting.PETS.enabled();
@@ -172,7 +126,6 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public void advance(float amount) {
         super.advance(amount);
 
-        //if (petShopStationEntity == null && isFunctional() && !isBuilding()) ensurePetShopCreatedOrAssigned();
         if (Setting.PETS.enabled()) IndustrySubmarkets.ensure(this, Ids.PETMARKET);
         else IndustrySubmarkets.remove(market, Ids.PETMARKET);
     }
@@ -181,16 +134,6 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public void notifyBeingRemoved(MarketAPI.MarketInteractionMode mode, boolean forUpgrade) {
         super.notifyBeingRemoved(mode, forUpgrade);
         IndustrySubmarkets.release(this);
-
-        if (!forUpgrade) {
-            //removeStationEntityAndFleetIfNeeded();
-        }
-    }
-
-    @Override
-    public void notifyColonyRenamed() {
-        super.notifyColonyRenamed();
-        //petShopStationEntity.setName(market.getName() + " " + getCurrentName());
     }
 
     @Override

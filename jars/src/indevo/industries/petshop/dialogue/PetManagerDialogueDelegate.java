@@ -187,7 +187,7 @@ public class PetManagerDialogueDelegate extends ButtonReportingDialogueDelegate 
             ButtonAPI storeButton = anchor.addButton("Store", new ButtonAction(this) {
                 @Override
                 public void execute() {
-                    pet.store(industry);
+                    pet.place(null, industry);
                     Global.getSector().getCampaignUI().getMessageDisplay().addMessage(pet.name + " stored at " + industry.getMarket().getName());
                     recreatePanel(callback);
                 }

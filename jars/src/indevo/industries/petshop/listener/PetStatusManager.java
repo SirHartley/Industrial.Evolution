@@ -8,8 +8,10 @@ import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.listeners.FleetEventListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
+import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
@@ -23,6 +25,7 @@ import indevo.utils.helper.MiscIE;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +35,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public static void dev() {
         Pet pet = new Pet("slaghound", "Hartleys Pile o' Rocks");
         getInstance().register(pet);
-        pet.assign(Global.getSector().getPlayerFleet().getFlagship());
+        pet.place(Global.getSector().getPlayerFleet().getFlagship(), null);
 
         //runcode indevo.industries.petshop.listener.PetStatusManager.dev()
 
@@ -109,22 +112,26 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         CargoAPI cargo = getFoodCargo(pet.assignedFleetMember);
         if (cargo == null) return false;
 
-        boolean hasFood = false;
-        String foodToEat = "";
-
         PetData data = pet.getData();
+        String foodToEat = null;
 
         for (String food : data.foodCommodities) {
+            if (Commodities.SUPPLIES.equals(food)) continue;
+
             if (cargo.getCommodityQuantity(food) >= data.foodPerMonth) {
-                hasFood = true;
                 foodToEat = food;
                 break;
             }
         }
 
-        if (!hasFood) return false;
+        boolean eatsSupplies = foodToEat == null && data.foodCommodities.contains(Commodities.SUPPLIES)
+                && cargo.getCommodityQuantity(Commodities.SUPPLIES) >= data.foodPerMonth;
+        if (eatsSupplies) foodToEat = Commodities.SUPPLIES;
+
+        if (foodToEat == null) return false;
 
         cargo.removeCommodity(foodToEat, data.foodPerMonth);
+        pet.lastMealSupplies = eatsSupplies;
 
         if (foodTakenLastMonth.containsKey(foodToEat))
             foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + data.foodPerMonth);
@@ -165,12 +172,17 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     public void reportPetDied(Pet pet, PetDeathCause cause) {
+        if (pet.isDead()) return;
+
         WeightedRandomPicker<String> picker;
 
         ModPlugin.log("Pet died, cause: " + cause.name() + " pet: " + pet.name);
 
         // https://fractalsoftworks.com/forum/index.php?topic=18011.msg415042#msg415042
-        String petLocation = pet.assignedFleetMember == null ? pet.storage.getCurrentName() : pet.assignedFleetMember.getShipName();
+        String petLocation;
+        if (pet.assignedFleetMember != null) petLocation = pet.assignedFleetMember.getShipName();
+        else if (pet.storage != null) petLocation = pet.storage.getCurrentName();
+        else petLocation = "fleet";
         switch (cause) {
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
@@ -277,6 +289,23 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         for (Pet pet : new ArrayList<>(pets)) {
             if (membersLost.contains(pet.assignedFleetMember)) {
                 reportPetDied(pet, PetDeathCause.COMBAT);
+            }
+        }
+    }
+
+    @Override
+    public void reportPlayerEngagement(EngagementResultAPI result) {
+        if (!Setting.PETS.enabled()) return;
+
+        for (EngagementResultForFleetAPI side : Arrays.asList(result.getWinnerResult(), result.getLoserResult())) {
+            if (side == null || !side.isPlayer()) continue;
+
+            List<FleetMemberAPI> fought = new ArrayList<>(side.getDeployed());
+            fought.addAll(side.getRetreated());
+
+            for (FleetMemberAPI member : fought) {
+                Pet pet = getPet(member.getVariant());
+                if (pet != null) pet.shellShock();
             }
         }
     }
