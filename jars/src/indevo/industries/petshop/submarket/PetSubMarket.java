@@ -30,16 +30,13 @@ public class PetSubMarket extends BaseSubmarketPlugin {
             sinceSWUpdate = 0f;
 
             String aiCoreId = getLocalAICoreId();
-            float rarityBonus = Commodities.ALPHA_CORE.equals(aiCoreId) ? 1 + PetShop.ALPHA_CORE_RARITY_BONUS : 1f;
 
             getCargo().clear();
 
             WeightedRandomPicker<PetData> picker = new WeightedRandomPicker<>(itemGenRandom);
             for (PetData petData : PetDataRepo.getAll()){
                 if (petData.isNoSell()) continue;
-
-                float chance = petData.rarity < 0.5f ? petData.rarity * rarityBonus : petData.rarity;
-                picker.add(petData, chance);
+                picker.add(petData, PetShop.stockWeight(petData, aiCoreId));
             }
 
             if (Global.getSettings().isDevMode()) ModPlugin.log("updating petshop cargo, choices in picker: " + picker.getItems().size());

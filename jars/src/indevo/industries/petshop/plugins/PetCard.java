@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CampaignClockAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.graphics.SpriteAPI;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 
 // the tiles of the Pets list and the card of the selected pet, column coordinates
 public class PetCard {
@@ -65,6 +67,7 @@ public class PetCard {
     static final float BUTTON_W = 96f;
     static final float WIDE_W = 116f;
     static final float SCAN_W = 136f;
+    static final float ADOPT_W = 150f;
     static final float TREE_W = 104f;
     static final float BUTTON_H = 24f;
     static final float HOVER_W = 340f;
@@ -389,7 +392,7 @@ public class PetCard {
         addIdent(p, w, pet, away);
         float shipY = addWant(p, addHearts(p, w, pet), w, pet, away);
         addPlace(p, shipY, w, pet, away);
-        addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h - 44f, pet);
+        addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h - 44f, pet, true);
         addBottom(p, w, h, pet, heldReason(pet, away), away);
         Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> paintHearts(pos, a));
         if (view.reveal.on(pet)) view.reveal.border(parent, x, y, w, h);
@@ -409,7 +412,71 @@ public class PetCard {
         rows.add(GridRow.of("Young", String.valueOf(PetTree.young(pet)), Ui.hl()));
         UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, rows);
 
-        addTalents(p, IDENT_Y + IDENT + PetsPanel.HEAD_GAP, w, h, pet);
+        addTalents(p, IDENT_Y + IDENT + PetsPanel.HEAD_GAP, w, h, pet, true);
+    }
+
+    // an offer of the Adoption tab: no name field, no hearts or ship; Keeping, then talents only (an offer has no mutation or flaw)
+    void buildOffer(CustomPanelAPI parent, float x, float y, float w, float h, Pet offer) {
+        CustomPanelAPI p = Ui.panel(parent, x, y, w, h);
+        PetHusbandry.title(p, w, offer.name);
+        PetHusbandry.tagline(p, w, status(offer, view.lines.computeIfAbsent(offer.id, id -> offerLine(offer))));
+
+        Ui.card(p, 0f, IDENT_Y, IDENT, IDENT);
+        UiImages.img(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, offer.getIcon());
+        UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, List.of(
+                GridRow.of("Species", species(offer), Ui.text()),
+                GridRow.of("Disposition", Misc.ucFirst(offer.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(offer.sheet.disposition)),
+                GridRow.of("Age", age(offer), Ui.text()),
+                GridRow.of("Life left", PetPlaceDialog.about(offer.getLifetime() - offer.age), Ui.text())));
+
+        float ky = IDENT_Y + IDENT + PetsPanel.HEAD_GAP;
+        addKeeping(p, ky, w, offer);
+        addTalents(p, ky + Ui.HEADING_H + 42f + PetsPanel.HEAD_GAP, w, h - 44f, offer, false);
+
+        Ui.rule(p, 0f, h - 36f, w);
+        float by = h - BUTTON_H;
+        scanButton(p, 0f, by, shop, offer, view.reveal, null, () -> {
+            view.reveal.begin(offer, view.clock);
+            shop.geneScan(offer);
+            panel.refresh();
+        });
+        adoptButton(p, w, by, offer);
+    }
+
+    private static String offerLine(Pet offer) {
+        PetDataRepo.Line line = PetDataRepo.pickLine(PetDataRepo.getLines(), PetDataRepo.EVENT_STATUS, offer.getData(), PetMood.CONTENT.id(),
+                offer.sheet.disposition, Set.of(PetDataRepo.CONTEXT_STORAGE), Misc.random);
+        return line == null ? "" : line.text();
+    }
+
+    // what it eats as icons, the names are their tooltips
+    private static void addKeeping(CustomPanelAPI p, float y, float w, Pet pet) {
+        Ui.thead(p, 0f, y, w, new String[]{"Keeping"}, new float[]{8f}, new float[]{200f}, new Alignment[]{Ui.LEFT});
+        String amount = Misc.getRoundedValueMaxOneAfterDecimal(pet.getFoodPerMonth());
+        Ui.runs(p, 0f, y + Ui.HEADING_H + 4f, 200f, Ui.INS15, Ui.text(), Ui.LEFT, "Eats, " + amount + " per month", new String[]{amount}, new Color[]{Ui.hl()});
+
+        List<String> food = pet.getData().foodCommodities;
+        for (int i = 0; i < food.size(); i++) {
+            CommoditySpecAPI spec = Global.getSettings().getCommoditySpec(food.get(i));
+            if (spec == null) continue;
+            CustomPanelAPI icon = UiImages.img(p, w - (food.size() - i) * 24f, y + Ui.HEADING_H + 2f, 22f, 22f, spec.getIconName());
+            Ui.tooltip(p, icon, null, spec.getName());
+        }
+
+        int days = Math.round(PetGenetics.broodDays(pet.getData(), pet.sheet, pet.sheet, PetDataRepo.getTraits()));
+        UiData.grid(p, 0f, y + Ui.HEADING_H + 24f, w, 18f, List.of(GridRow.of("Brood time", days + " days", Ui.text())));
+    }
+
+    // grey with the amount in red when short
+    private void adoptButton(CustomPanelAPI p, float w, float y, Pet offer) {
+        float price = shop.getOfferPrice(offer);
+        float credits = Global.getSector().getPlayerFleet().getCargo().getCredits().get();
+        boolean afford = credits >= price;
+        String cost = Ui.credits(price);
+        ButtonAPI button = UiButtons.button(p, w - ADOPT_W, y, ADOPT_W, BUTTON_H, "Adopt", afford ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, CutStyle.TL_BR,
+                UiImages.creditsSprite(), cost, afford ? null : Ui.neg(), Ui.ORB12, afford ? () -> panel.popup(PetPlaceDialog.adopt(offer, shop)) : null);
+        if (afford) Ui.tooltip(p, button, "Adopt", "Pick a ship without a pet or Pet storage here, then pay " + cost + ".");
+        else Ui.tooltip(p, button, "Adopt", "Adopting " + offer.name + " costs " + cost + ". You have " + Ui.credits(credits) + ".");
     }
 
     static String goneLine(Pet pet) {
@@ -681,7 +748,7 @@ public class PetCard {
     }
 
     // mascot effect, then the talents best first, then mutations and flaws; only the rows scroll, unknown talents last
-    private void addTalents(CustomPanelAPI p, float y, float w, float h, Pet pet) {
+    private void addTalents(CustomPanelAPI p, float y, float w, float h, Pet pet, boolean body) {
         float ew = w - EFFECT_X - UiScroll.GUTTER;
         Ui.thead(p, 0f, y, w, new String[]{"Grade", "Talents", "Effect"}, new float[]{GRADE_X, TALENT_X, EFFECT_X},
                 new float[]{GRADE_W, TALENT_W, ew}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
@@ -724,7 +791,7 @@ public class PetCard {
             Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> talentTip(t, pet, trait, off));
         }
 
-        addBody(rows, ew, pet, reveal);
+        if (body) addBody(rows, ew, pet, reveal);
         rows.end();
     }
 

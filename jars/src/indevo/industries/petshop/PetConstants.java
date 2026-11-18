@@ -95,6 +95,12 @@ public final class PetConstants {
     // Glutton's ship, percent a level; its csv value is the food
     public static final float GLUTTON_SUPPLIES = 15f;
 
+    // adoption offers at an NPC Animal Center: market size, at least 3, at most 6; one in 5 young, adults up to 60% of their life
+    public static final int MIN_OFFERS = 3;
+    public static final int MAX_OFFERS = 6;
+    public static final float OFFER_YOUNG_CHANCE = 0.2f;
+    public static final float OFFER_MAX_AGE = 0.6f;
+
     private PetConstants() {
     }
 }

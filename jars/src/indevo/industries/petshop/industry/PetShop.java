@@ -16,6 +16,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
@@ -35,6 +36,8 @@ import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +60,8 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     public float petStorageCostMult = 1f;
     private List<PetBrood> broods = new ArrayList<>();
+    // this month's adoption offers at an NPC center, not registered until adopted; null until the next look
+    private ArrayList<Pet> offers = null;
 
     public void store(Pet pet) {
         storedPets.add(pet);
@@ -284,6 +289,57 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         return market.isPlayerOwned() ? getUpkeep().getMult() : 1f;
     }
 
+    public boolean hasAdoption() {
+        return isFunctional() && !market.isPlayerOwned();
+    }
+
+    public List<Pet> getOffers() {
+        if (offers == null) refillOffers();
+        return offers;
+    }
+
+    // weighted by rarity, rare pets x1.3 with an alpha core; one pet of each picked species
+    private void refillOffers() {
+        offers = new ArrayList<>();
+        WeightedRandomPicker<PetData> picker = new WeightedRandomPicker<>();
+        for (PetData data : PetDataRepo.getAll()) if (!data.isNoSell()) picker.add(data, stockWeight(data, aiCoreId));
+
+        int count = Math.max(PetConstants.MIN_OFFERS, Math.min(PetConstants.MAX_OFFERS, market.getSize()));
+        for (int i = 0; i < count && !picker.isEmpty(); i++) offers.add(offer(picker.pickAndRemove()));
+    }
+
+    private static Pet offer(PetData data) {
+        Pet pet = new Pet(data.id, PetDataRepo.suggestName(data));
+        float young = PetGenetics.youngDays(data, pet.sheet, PetDataRepo.getTraits());
+        float old = Math.max(young, PetConstants.OFFER_MAX_AGE * pet.getLifetime());
+        Random random = Misc.random;
+        pet.age = random.nextFloat() < PetConstants.OFFER_YOUNG_CHANCE ? 1f + random.nextFloat() * Math.max(0f, young - 1f) : young + random.nextFloat() * (old - young);
+        return pet;
+    }
+
+    public static float stockWeight(PetData data, String aiCoreId) {
+        float bonus = Commodities.ALPHA_CORE.equals(aiCoreId) ? 1f + ALPHA_CORE_RARITY_BONUS : 1f;
+        return data.rarity < 0.5f ? data.rarity * bonus : data.rarity;
+    }
+
+    public float getOfferPrice(Pet offer) {
+        return offer.getData().value;
+    }
+
+    // the offers change when the month does
+    public static int getDaysToNewOffers() {
+        GregorianCalendar cal = Global.getSector().getClock().getCal();
+        return cal.getActualMaximum(Calendar.DAY_OF_MONTH) - cal.get(Calendar.DAY_OF_MONTH) + 1;
+    }
+
+    public void adopt(Pet offer, FleetMemberAPI ship) {
+        if (offers == null || !offers.remove(offer)) throw new IllegalStateException("IndEvo pet " + offer.id + " is not on offer at " + market.getId());
+
+        Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(getOfferPrice(offer));
+        PetStatusManager.getInstance().register(offer);
+        offer.place(ship, ship == null ? this : null);
+    }
+
     public void rehome(Pet pet) {
         Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(PetConstants.REHOME_FEE);
         PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.REHOMED);
@@ -321,7 +377,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     @Override
     public void reportEconomyMonthEnd() {
-
+        if (!market.isPlayerOwned()) offers = null;
     }
 
     @Override

@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-// where to popup for Move... and Assign... (a ship without a pet, or the Pet storage of the docked Animal Center)
+// where to popup for Move..., Assign... and Adopt (a ship without a pet, or the Pet storage of the docked Animal Center)
 // and for a Cryochamber opened from the cargo (a name, then a ship without a pet or the menagerie)
 public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
@@ -59,6 +59,8 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     private int pick;
     // pick mode: Confirm hands the ship back and moves nothing
     private Consumer<FleetMemberAPI> onPick;
+    // adopt mode: Confirm pays the storage center and places the offer
+    private boolean adopting = false;
 
     private PetPlaceDialog(Pet pet, PetData data, RightClickActionHelper chamber, String verb, List<FleetMemberAPI> ships, PetShop storage) {
         this.pet = pet;
@@ -79,6 +81,14 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     public static PetPlaceDialog pick(Pet young, List<FleetMemberAPI> ships, Consumer<FleetMemberAPI> onPick) {
         PetPlaceDialog dialog = new PetPlaceDialog(young, young.getData(), null, "Ship for", ships, null);
         dialog.onPick = onPick;
+        return dialog;
+    }
+
+    // an offer of the Adoption tab; Cancel buys nothing
+    public static PetPlaceDialog adopt(Pet offer, PetShop shop) {
+        List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
+        PetPlaceDialog dialog = new PetPlaceDialog(offer, offer.getData(), null, "Adopt", free, shop);
+        dialog.adopting = true;
         return dialog;
     }
 
@@ -167,6 +177,7 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
     private void build(CustomPanelAPI p, float w, float h) {
         if (isChamber()) addChamber(p, w);
+        else if (adopting) addAdoptTitle(p, w);
         else Ui.runs(p, 0f, 0f, w, Ui.INS21, Ui.text(), Ui.LEFT, verb + " " + pet.name, new String[]{pet.name}, new Color[]{Ui.hl()});
 
         float y = shipsHead();
@@ -200,6 +211,14 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         Ui.runs(row, 56f, 26f, w - 62f, Ui.INS15, Ui.gray(), Ui.LEFT, storage.getMarket().getName() + ", " + cost + " per month", new String[]{cost}, new Color[]{Ui.hl()});
     }
 
+    // a long name is cut so the price stays on the line
+    private void addAdoptTitle(CustomPanelAPI p, float w) {
+        String price = Ui.credits(storage.getOfferPrice(pet));
+        String tail = " for " + price;
+        String shown = Ui.fit(pet.name, Ui.INS21, w - Ui.width(verb + "  " + tail, Ui.INS21) - 8f);
+        Ui.runs(p, 0f, 0f, w, Ui.INS21, Ui.text(), Ui.LEFT, verb + " " + shown + tail, new String[]{shown, price}, new Color[]{Ui.hl(), Ui.hl()});
+    }
+
     private void addChamber(CustomPanelAPI p, float w) {
         Ui.text(p, 0f, 0f, w, verb, Ui.INS21, Ui.text(), Ui.LEFT);
 
@@ -216,8 +235,12 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     }
 
     static String lifeSpan(PetData data) {
-        int cycles = Math.round(data.maxLife / 365f);
-        if (cycles < 1) return "About " + Math.round(data.maxLife) + " days";
+        return about(data.maxLife);
+    }
+
+    static String about(float days) {
+        int cycles = Math.round(days / 365f);
+        if (cycles < 1) return "About " + Math.max(1, Math.round(days)) + (Math.round(days) == 1 ? " day" : " days");
         return "About " + cycles + (cycles == 1 ? " cycle" : " cycles");
     }
 
@@ -316,7 +339,8 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
         if (onPick != null) {
             if (ship != null) onPick.accept(ship);
-        } else if (isChamber() && pet != null) {
+        } else if (adopting) storage.adopt(pet, ship);
+        else if (isChamber() && pet != null) {
             keepName();
             pet.name = name;
             pet.place(ship, null);

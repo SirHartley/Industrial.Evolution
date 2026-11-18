@@ -27,6 +27,7 @@ public class PetsView {
     public static final int TAB_HUSBANDRY = 1;
     public static final int TAB_TREE = 2;
     public static final int TAB_PLAN = 3;
+    public static final int TAB_ADOPT = 4;
 
     public int tab = TAB_PETS;
     public String selected = null;
@@ -65,6 +66,12 @@ public class PetsView {
     final UiFilter.State planCopies = PetPlanner.copyFilter();
     TextFieldAPI planField = null;
     String planNamed = null;
+
+    // Adoption: the picked offer and the column the table sorts by
+    String offer = null;
+    String offerSort = PetAdoption.PET;
+    boolean offerReversed = false;
+    final UiFilter.State offers = new UiFilter.State("");
 
     int clicks = 0;
     String answer = null;
