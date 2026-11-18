@@ -90,6 +90,10 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
                 stats.getSystemUsesBonus().modifyFlat(id, (float) Math.floor(value / OVERCHARGE_STEP), source);
             }
             case "min_crew" -> stats.getMinCrewMod().modifyMult(id, less, source);
+            case "explosion" -> {
+                stats.getDynamic().getStat(Stats.EXPLOSION_RADIUS_MULT).modifyPercent(id, value, source);
+                stats.getDynamic().getStat(Stats.EXPLOSION_DAMAGE_MULT).modifyPercent(id, value, source);
+            }
             case "recovery" -> {
                 stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyFlat(id, value * 0.01f, source);
                 stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, 1f - Math.min(DMOD_CAP, value) * 0.01f, source);
