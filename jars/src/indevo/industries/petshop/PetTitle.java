@@ -7,7 +7,8 @@ public enum PetTitle {
     OLD_TIMER("Old Timer", "Lived past the natural lifespan of its species.", 0),
     SURVIVOR("Survivor", "Escaped a lost ship in an escape pod.", 0),
     BELOVED("Beloved", "Reached all five hearts.", 0),
-    PAMPERED("Pampered", "Had %s wants answered.", PetConstants.PAMPERED_WANTS);
+    PAMPERED("Pampered", "Had %s wants answered.", PetConstants.PAMPERED_WANTS),
+    TREASURE_HUNTER("Treasure Hunter", "Found extra salvage %s times.", PetConstants.TREASURE_HUNTER_FINDS);
 
     public final String label;
     public final String reason;

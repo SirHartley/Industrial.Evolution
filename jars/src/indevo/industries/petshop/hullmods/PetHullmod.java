@@ -43,6 +43,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
     // one system charge per 3 grades of +10% regen, so the talent mult counts for charges too
     public static final float OVERCHARGE_STEP = 30f;
     public static final String CAPTAIN = PetDataRepo.TRAIT_PREFIX + "captain";
+    public static final String SCAVENGER = PetDataRepo.TRAIT_PREFIX + "scavenger";
 
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         PetStatusManager manager = PetStatusManager.getInstance();

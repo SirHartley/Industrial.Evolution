@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.Locale;
 
 public class PetCommand implements BaseCommand {
-    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>, indevo_pet trait <pet> <trait> <grade> or indevo_pet title <pet> <veteran|navigator|old_timer|survivor|beloved|pampered|clear>.";
+    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>, indevo_pet trait <pet> <trait> <grade> or indevo_pet title <pet> <veteran|navigator|old_timer|survivor|beloved|pampered|treasure_hunter|clear>.";
 
     @Override
     public CommandResult runCommand(String args, CommandContext context) {

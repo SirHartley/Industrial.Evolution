@@ -68,6 +68,7 @@ public class Pet {
     public int fights = 0;
     public int jumps = 0;
     public int answeredWants = 0;
+    public int finds = 0;
     public List<String> titles = new ArrayList<>();
 
     public Pet(String typeID, String name) {
@@ -197,6 +198,10 @@ public class Pet {
 
     public void addJump() {
         if (++jumps >= PetConstants.NAVIGATOR_JUMPS) earn(PetTitle.NAVIGATOR);
+    }
+
+    public void addFind() {
+        if (++finds >= PetConstants.TREASURE_HUNTER_FINDS) earn(PetTitle.TREASURE_HUNTER);
     }
 
     public void earn(PetTitle title) {

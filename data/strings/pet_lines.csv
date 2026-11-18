@@ -175,6 +175,13 @@ IndEvo_pl_want_shore_1,want_shore_leave,any,,,,%s has been restless since the la
 IndEvo_pl_want_shore_2,want_shore_leave,any,,,,The crew says %s needs to get off the ship for a while. It wants shore leave.
 IndEvo_pl_want_along_1,want_come_along,any,,,,%s watches every survey team leave. It wants to come along.
 IndEvo_pl_want_along_2,want_come_along,any,,,,%s got into the salvage crew's gear again. It wants to come along.
+IndEvo_pl_find_1,scavenger,any,,,,%s fussed over one sealed panel until the salvage crew cut it open. There was more behind it.
+IndEvo_pl_find_2,scavenger,any,,,,The salvage crew followed %s back into a section they had marked as cleared. It was not.
+IndEvo_pl_find_fourleg,scavenger,b_fourleg,,,,%s would not stop scratching at one bulkhead. The crew cut it open to keep the peace.
+IndEvo_pl_find_wings,scavenger,b_wings,,,,%s flew back out of the wreck with something shiny. The crew went in after the rest.
+IndEvo_pl_find_water,scavenger,b_water,,,,%s kept circling one side of its tank until the crew checked that side of the wreck.
+IndEvo_pl_find_machine,scavenger,b_machine,,,,%s read the wreck's old cargo manifest and found a hold nobody had opened.
+IndEvo_pl_find_salvageraven,scavenger,salvageraven,,,,%s dropped a part at the quartermaster's feet and led the crew to the rest of the cache.
 IndEvo_pl_play_1,play,any,,,,%s plays until the whole shift has joined in.
 IndEvo_pl_play_2,play,any,,,,%s wins the game by its own rules.
 IndEvo_pl_play_3,play,any,,,,"You play with %s until it loses interest, which takes a while."

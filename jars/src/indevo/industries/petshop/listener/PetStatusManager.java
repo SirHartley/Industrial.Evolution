@@ -15,8 +15,12 @@ import com.fs.starfarer.api.combat.EngagementResultAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Drops;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
+import com.fs.starfarer.api.impl.campaign.procgen.SalvageEntityGenDataSpec.DropData;
+import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.abilities.splitfleet.FleetUtils;
@@ -25,6 +29,7 @@ import indevo.ids.Ids;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
+import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -634,6 +639,51 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     @Override
     public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
         answer(PetWant.COME_ALONG);
+        if (Setting.PETS.enabled() && loot != null && dialog != null) scavenge(loot, dialog.getInteractionTarget());
+    }
+
+    // battle loot has a fleet as target; seeded by the wreck, so a reload finds the same
+    private void scavenge(CargoAPI loot, SectorEntityToken target) {
+        if (target == null || !target.hasTag(Tags.SALVAGEABLE)) return;
+
+        Pet pet = getLead(Global.getSector().getPlayerFleet(), PetHullmod.SCAVENGER);
+        if (pet == null) return;
+
+        Random random = Misc.getRandom(Misc.getSalvageSeed(target), 23);
+        if (random.nextFloat() >= PetConstants.SCAVENGER_FIND_CHANCE) return;
+
+        DropData find = new DropData();
+        find.group = Drops.BASIC;
+        find.value = PetConstants.SCAVENGER_FIND_VALUE;
+
+        DropData rare = new DropData();
+        rare.group = PetConstants.SCAVENGER_RARE_GROUP;
+        rare.chances = 1;
+
+        float mult = 1f + pet.getTalentValue(PetHullmod.SCAVENGER) * 0.01f;
+        CargoAPI found = SalvageEntity.generateSalvage(random, mult, 1f, 1f, 1f, List.of(find), List.of(rare));
+        if (found.isEmpty()) return;
+
+        loot.addAll(found);
+        reportFind(pet, found);
+        pet.addFind();
+    }
+
+    // the loot screen hides the dialog text and vanilla salvage closes the dialog after it, so the line goes to the message area
+    private void reportFind(Pet pet, CargoAPI found) {
+        String line = getLine(pet, PetDataRepo.EVENT_SCAVENGER, false);
+        if (line == null) return;
+
+        Color hl = Misc.getHighlightColor();
+        MessageIntel intel = new MessageIntel(line, Misc.getTextColor(), new String[]{pet.name}, hl);
+        for (CargoStackAPI stack : found.getStacksCopy()) {
+            int size = Math.round(stack.getSize());
+            String item = size > 1 ? Misc.getWithDGS(size) + " " + stack.getDisplayName() : stack.getDisplayName();
+            intel.addLine(BaseIntelPlugin.BULLET + "%s", Misc.getTextColor(), new String[]{item}, hl);
+        }
+
+        intel.setIcon(pet.getData().icon);
+        Global.getSector().getCampaignUI().addMessage(intel);
     }
 
     @Override

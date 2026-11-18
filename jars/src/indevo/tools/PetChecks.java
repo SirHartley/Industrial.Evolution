@@ -392,7 +392,7 @@ public final class PetChecks {
     }
 
     private static Set<String> events() {
-        Set<String> events = new HashSet<>(Set.of(EVENT_AMBIENT, EVENT_DOCKING, EVENT_STATUS, EVENT_PETTING, EVENT_PETTING_STARVING, EVENT_NAME, EVENT_PLAY, EVENT_TREAT));
+        Set<String> events = new HashSet<>(Set.of(EVENT_AMBIENT, EVENT_DOCKING, EVENT_STATUS, EVENT_PETTING, EVENT_PETTING_STARVING, EVENT_NAME, EVENT_PLAY, EVENT_TREAT, EVENT_SCAVENGER));
         for (PetWant want : PetWant.values()) events.add(want.event());
         return events;
     }
