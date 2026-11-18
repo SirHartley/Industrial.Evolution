@@ -271,6 +271,9 @@ public final class PetsLinesChecks {
 
             FleetMemberAPI flag = Global.getSector().getPlayerFleet().getFlagship();
             Pet boss = pet("doge", "Boss", flag);
+            // 2.2: favourites speak 3x as often, so the flagship ratio is measured with no favourites
+            List<Pet> starred = manager().getFavourites();
+            for (Pet p : starred) p.setFavourite(false);
             picks.clear();
             for (int i = 0; i < 6000; i++) {
                 Pet p = speaker();
@@ -279,6 +282,20 @@ public final class PetsLinesChecks {
             float ratio = picks.getOrDefault("Boss", 0) / (float) Math.max(1, picks.getOrDefault("Talker", 0));
             c.note("speaker picks with a flagship pet " + picks);
             c.expect(ratio > 2.5f && ratio < 3.5f, "the flagship pet speaks about 3x as often (" + ratio + ")");
+            Pet talker = manager().getPets().stream().filter(p -> "Talker".equals(p.name)).findFirst().orElse(null);
+            if (talker != null) {
+                talker.setFavourite(true);
+                picks.clear();
+                for (int i = 0; i < 6000; i++) {
+                    Pet p = speaker();
+                    picks.merge(p == null ? "none" : p.name, 1, Integer::sum);
+                }
+                float fav = picks.getOrDefault("Talker", 0) / (float) Math.max(1, picks.getOrDefault("Menagerie", 0));
+                c.note("speaker picks with Talker starred " + picks);
+                c.expect(fav > 2.5f && fav < 3.5f, "a favourite speaks about 3x as often (" + fav + ")");
+                talker.setFavourite(false);
+            }
+            for (Pet p : starred) p.setFavourite(true);
 
             set("daysSinceLine", 0.7f);
             set("lineRoll", 1.3f);
