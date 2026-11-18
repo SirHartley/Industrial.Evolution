@@ -89,9 +89,9 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
 
     // wide enough for the title next to Open all, within the screen; a longer title is cut with a tooltip
     private float width() {
-        float title = Ui.width(TITLE + pair, Ui.INS21) + 4f + OPEN_W + OPEN_GAP;
+        float title = Ui.width(TITLE + pair, Ui.INS21) + 6f + OPEN_W + OPEN_GAP;
         float max = Global.getSettings().getScreenWidth() - SCREEN_MARGIN;
-        return Math.max(Math.max(cardsWidth(), MIN_W), Math.min(Math.round(title), max));
+        return Math.max(Math.max(cardsWidth(), MIN_W), Math.min((float) Math.ceil(title), max));
     }
 
     @Override
@@ -119,10 +119,12 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         boolean closed = false;
         for (Pet young : brood.getYoung()) if (!brood.opened.contains(young.id)) closed = true;
 
+        // measured as one string like width() and Ui.runs; the two parts measured apart do not add up to it
         float tw = closed ? w - OPEN_W - OPEN_GAP : w;
-        String shown = Ui.fit(pair, Ui.INS21, tw - Ui.width(TITLE, Ui.INS21) - 4f);
-        LabelAPI title = Ui.runs(p, 0f, 2f, tw, Ui.INS21, Ui.text(), Ui.LEFT, TITLE + shown, new String[]{shown}, new Color[]{Ui.hl()});
-        if (!shown.equals(pair)) Ui.tooltip(p, title, null, pair);
+        String shown = Ui.fit(TITLE + pair, Ui.INS21, tw);
+        String shownPair = shown.length() > TITLE.length() ? shown.substring(TITLE.length()) : "";
+        LabelAPI title = Ui.runs(p, 0f, 2f, tw, Ui.INS21, Ui.text(), Ui.LEFT, shown, new String[]{shownPair}, new Color[]{Ui.hl()});
+        if (!shown.equals(TITLE + pair)) Ui.tooltip(p, title, null, pair);
         if (closed) UiButtons.button(p, w - OPEN_W, 2f, OPEN_W, PetCard.BUTTON_H, "Open all", UiButtons.Kind.STD, CutStyle.TL_BR, this::openAll);
 
         fields.clear();
