@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CampaignClockAPI;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.*;
@@ -33,6 +34,8 @@ public class PetCard {
 
     // pet art colour, not a kit colour
     static final Color HEART_RED = new Color(226, 78, 98);
+    static final Color HEART_OFF = new Color(120, 120, 120);
+    static final float HEART_EMPTY = 0.18f;
     static final float[] HEART = {7, 13, 1, 7, 1, 3, 3, 1, 5, 1, 7, 3, 9, 1, 11, 1, 13, 3, 13, 7};
     static final float HEART_LIFE = 0.8f;
     static final float PET_TIME = 0.5f;
@@ -44,12 +47,22 @@ public class PetCard {
     static final float IDENT_Y = 82f;
     static final float IDENT = 72f;
     static final float GRID_X = 84f;
-    static final float SHIP_Y = 170f;
+    static final float HEARTS_Y = 170f;
     static final float STRIP_H = 50f;
     static final float BUTTON_W = 96f;
     static final float WIDE_W = 116f;
     static final float BUTTON_H = 24f;
     static final float HOVER_W = 340f;
+    static final float LINE_H = 17f;
+    static final float HOVER_HEART = 11f;
+    static final float HOVER_HEART_GAP = 3f;
+    static final float CARD_HEART = 14f;
+    static final float CARD_HEART_GAP = 4f;
+    static final float GRADE_X = 4f;
+    static final float GRADE_W = 44f;
+    static final float TALENT_X = 58f;
+    static final float TALENT_W = 180f;
+    static final float EFFECT_X = 254f;
     static final float DIM = 0.4f;
     public static final float REFIT_ICON = 34f;
     static final float REFIT_CUT = 12f;
@@ -81,6 +94,7 @@ public class PetCard {
         }
 
         Ui.text(t, 4f, 71f, 78f, pet.name, Ui.text(), Ui.CENTER);
+        hearts(t, 17f, 91f, pet, 9f, 2f);
         Ui.rule(t, 13f, 107f, 60f);
         if (pet.assignedFleetMember != null) UiImages.ship(t, 30f, 114f, 26f, pet.assignedFleetMember, false, false);
     }
@@ -100,6 +114,28 @@ public class PetCard {
 
     private static String sprite(String id) {
         return Global.getSettings().getSpriteName("IndEvo", id);
+    }
+
+    // five hearts, the earned ones red, grey while Unsettled
+    static CustomPanelAPI hearts(CustomPanelAPI p, float x, float y, Pet pet, float size, float gap) {
+        int n = pet.getHearts();
+        Color on = pet.isUnsettled() ? HEART_OFF : HEART_RED;
+        Color empty = Misc.scaleAlpha(Ui.base(), HEART_EMPTY);
+
+        return Ui.painted(p, x, y, heartsWidth(size, gap), size, (pos, a) -> {
+            for (int i = 0; i < PetConstants.MAX_HEARTS; i++) {
+                UiDraw.fan(pos.getX() + i * (size + gap), pos.getY(), size, 14f, HEART, 7f, 7f, i < n ? on : empty, a);
+            }
+        }, null);
+    }
+
+    static float heartsWidth(float size, float gap) {
+        return PetConstants.MAX_HEARTS * size + (PetConstants.MAX_HEARTS - 1) * gap;
+    }
+
+    // the mascot effect value with its sign, as the hull mod applies it
+    static String mascotValue(Pet pet) {
+        return "-" + Misc.getRoundedValueMaxOneAfterDecimal(PetHullmod.BASE_DECREASE * pet.getMascotMult()) + "%";
     }
 
     // the pet picture on a vanilla screen, the marker hangs over its top right corner as on the tiles
@@ -143,10 +179,14 @@ public class PetCard {
 
     // the hover of the pet picture on a ship card; with heading it is the pet part of the hull mod tooltip
     public static void hover(TooltipMakerAPI t, Pet pet, boolean heading, boolean click) {
-        if (heading) t.addSectionHeading(pet.name, Alignment.MID, 10f);
-        else t.addPara(pet.name, Ui.hl(), 0f);
-        t.addPara(pet.getData().species, Ui.gray(), heading ? 10f : 2f);
         float gw = t.getWidthSoFar();
+        if (heading) {
+            t.addSectionHeading(pet.name, Alignment.MID, 10f);
+            t.addCustom(heartsLine(gw, pet.getData().species, Ui.gray(), pet), 10f);
+        } else {
+            t.addCustom(heartsLine(gw, pet.name, Ui.hl(), pet), 0f);
+            t.addPara(pet.getData().species, Ui.gray(), 2f);
+        }
 
         String line = dailyLine(pet);
         if (!line.isEmpty()) t.addPara(line, Ui.gray(), 10f);
@@ -164,6 +204,12 @@ public class PetCard {
         }
         t.addCustom(grid, 10f);
 
+        if (pet.lastMealSupplies && pet.getDaysToHeart() >= 0f) {
+            String share = Math.round(PetConstants.SUPPLIES_HEART_RATE * 100f) + "%";
+            String food = realFood(pet);
+            t.addPara("Hearts grow at %s." + (food != null ? " Wants " + food + "." : ""), 10f, Ui.neg(), Ui.hl(), share);
+        }
+
         boolean off = pet.isUnsettled();
         if (off) {
             int days = (int) Math.ceil(pet.unsettledDays);
@@ -171,12 +217,31 @@ public class PetCard {
         }
 
         CustomPanelAPI effects = Global.getSettings().createCustom(gw, UiData.GRID_ROW_H, new UiCanvas());
-        String value = "-" + Misc.getRoundedValueMaxOneAfterDecimal(PetHullmod.BASE_DECREASE * pet.getEffectFract()) + "%";
+        String value = mascotValue(pet);
         if (off) hoverRow(effects, 0f, gw, "Mascot effect", Ui.gray(), "off", Ui.gray(), null);
+        else if (pet.getHearts() < PetConstants.MASCOT_HEARTS) hoverRow(effects, 0f, gw, "Mascot effect", Ui.gray(), "at 1 heart", Ui.gray(), null);
         else hoverRow(effects, 0f, gw, "Mascot effect", Ui.text(), "Combat CR decay " + value, Ui.text(), value);
         t.addCustom(effects, 10f);
 
         if (click) t.addPara("Click to open the Pets panel.", Ui.gray(), 10f);
+    }
+
+    // one text line with the hearts at its right end
+    private static CustomPanelAPI heartsLine(float w, String text, Color color, Pet pet) {
+        CustomPanelAPI line = Global.getSettings().createCustom(w, LINE_H, new UiCanvas());
+        float hw = heartsWidth(HOVER_HEART, HOVER_HEART_GAP);
+        Ui.textIn(line, 0f, 0f, w - hw - 8f, LINE_H, text, Ui.INS15, color, Ui.LEFT, new String[0], new Color[0]);
+        hearts(line, w - hw, 3f, pet, HOVER_HEART, HOVER_HEART_GAP);
+        return line;
+    }
+
+    // the first food that is not Supplies, by its commodity name
+    private static String realFood(Pet pet) {
+        for (String food : pet.getData().foodCommodities) {
+            if (!Commodities.SUPPLIES.equals(food)) return Global.getSettings().getCommoditySpec(food).getName();
+        }
+
+        return null;
     }
 
     private static float hoverRow(CustomPanelAPI p, float y, float w, String label, Color labelColor, String value, Color color, String hl) {
@@ -254,7 +319,9 @@ public class PetCard {
         addName(p, w, pet);
         addTagline(p, w, pet);
         addIdent(p, w, pet, away);
-        addPlace(p, w, pet, away);
+        float shipY = addHearts(p, w, pet);
+        addPlace(p, shipY, w, pet, away);
+        addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, pet);
         addBottom(p, w, h, pet, away);
         Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> paintHearts(pos, a));
     }
@@ -380,9 +447,59 @@ public class PetCard {
         }
     }
 
-    private void addPlace(CustomPanelAPI p, float w, Pet pet, CampaignFleetAPI away) {
-        Ui.card(p, 0f, SHIP_Y, w, STRIP_H);
-        float by = SHIP_Y + 13f;
+    // returns the top of the ship strip
+    private float addHearts(CustomPanelAPI p, float w, Pet pet) {
+        float y = HEARTS_Y;
+        boolean off = pet.isUnsettled();
+        Ui.text(p, 0f, y, 120f, "Hearts");
+        hearts(p, w - heartsWidth(CARD_HEART, CARD_HEART_GAP), y + 2f, pet, CARD_HEART, CARD_HEART_GAP);
+        UiData.thinbar(p, 0f, y + 21f, w, pet.getHeartProgress(), off ? HEART_OFF : HEART_RED);
+        Ui.tooltip(p, Ui.panel(p, 0f, y, w, 24f), "Hearts", heartsTip(pet));
+        y += 28f;
+
+        if (off) {
+            int days = (int) Math.ceil(pet.unsettledDays);
+            y += hoverRow(p, y, w, "Effects off", Ui.gray(), days + (days == 1 ? " day left" : " days left"), Ui.gray(), String.valueOf(days));
+        }
+
+        return y + 16f;
+    }
+
+    private static String heartsTip(Pet pet) {
+        if (pet.getHearts() >= PetConstants.MAX_HEARTS) return "All five hearts.";
+        if (pet.getHearts() >= PetConstants.TIME_HEARTS) return "Hearts 4 and 5 are for favourites.";
+        if (!pet.isAboard()) return "Hearts grow only on a ship.";
+        if (pet.isUnsettled()) return "Hearts do not grow while it is Unsettled.";
+        if (pet.isStarving()) return "Hearts do not grow while it is starving.";
+
+        int days = Math.max(1, (int) Math.ceil(pet.getDaysToHeart()));
+        String next = "Next heart in " + days + (days == 1 ? " day." : " days.");
+        return pet.lastMealSupplies ? next + " It grows at " + Math.round(PetConstants.SUPPLIES_HEART_RATE * 100f) + "% on Supplies." : next;
+    }
+
+    // the mascot effect row; stat talents join this table later
+    private void addTalents(CustomPanelAPI p, float y, float w, Pet pet) {
+        Ui.thead(p, 0f, y, w, new String[]{"Grade", "Talents", "Effect"}, new float[]{GRADE_X, TALENT_X, EFFECT_X},
+                new float[]{GRADE_W, TALENT_W, w - EFFECT_X - 8f}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
+        float ty = y + Ui.HEADING_H + 4f;
+
+        String value = mascotValue(pet);
+        boolean on = pet.getMascotMult() > 0f;
+        String effect = pet.isUnsettled() ? "off" : on ? "Combat CR decay " + value : "at 1 heart";
+        Color c = on ? Ui.text() : Ui.gray();
+        Ui.textIn(p, TALENT_X, ty, TALENT_W, UiData.GRID_ROW_H, "Mascot effect", Ui.INS15, c, Ui.LEFT, new String[0], new Color[0]);
+        Ui.textIn(p, EFFECT_X, ty, w - EFFECT_X - 8f, UiData.GRID_ROW_H, effect, Ui.INS15, c, Ui.RIGHT,
+                on ? new String[]{value} : new String[0], on ? new Color[]{Ui.hl()} : new Color[0]);
+
+        String rate = Misc.getRoundedValueMaxOneAfterDecimal(PetHullmod.BASE_DECREASE);
+        String nest = Math.round((PetConstants.NEST_MULT - 1f) * 100f) + "%";
+        String tip = "Its ship loses combat readiness " + rate + "% slower in battle, from 1 heart. A nest adds " + nest + ".";
+        Ui.tooltip(p, Ui.panel(p, 0f, ty, w, UiData.GRID_ROW_H), "Mascot effect", pet.getData().isHamster() ? new String[]{tip, "A hamster counts twice."} : new String[]{tip});
+    }
+
+    private void addPlace(CustomPanelAPI p, float y, float w, Pet pet, CampaignFleetAPI away) {
+        Ui.card(p, 0f, y, w, STRIP_H);
+        float by = y + 13f;
         List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
         String noShip = free.isEmpty() ? "No ship without a pet." : null;
         FleetMemberAPI member = pet.assignedFleetMember;
@@ -390,9 +507,9 @@ public class PetCard {
         if (member != null) {
             float bx = w - 6f - BUTTON_W - 6f - BUTTON_W;
             String reason = away != null ? "Out with " + away.getName() : shop == null ? noShip : null;
-            UiImages.ship(p, 3f, SHIP_Y + 3f, 44f, member, true, false);
-            Ui.text(p, 56f, SHIP_Y + 7f, bx - 64f, member.getShipName());
-            Ui.text(p, 56f, SHIP_Y + 26f, bx - 64f, reason != null ? reason : shipClass(member), reason != null ? Ui.neg() : Ui.gray());
+            UiImages.ship(p, 3f, y + 3f, 44f, member, true, false);
+            Ui.text(p, 56f, y + 7f, bx - 64f, member.getShipName());
+            Ui.text(p, 56f, y + 26f, bx - 64f, reason != null ? reason : shipClass(member), reason != null ? Ui.neg() : Ui.gray());
 
             UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Move...", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     reason != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Move", free, shop)));
@@ -404,12 +521,12 @@ public class PetCard {
             return;
         }
 
-        Ui.dashbox(p, 3f, SHIP_Y + 3f, 44f, 44f);
+        Ui.dashbox(p, 3f, y + 3f, 44f, 44f);
 
         if (pet.storage != null) {
             float bx = w - 6f - WIDE_W - 6f - BUTTON_W;
-            Ui.text(p, 56f, SHIP_Y + 7f, bx - 64f, "Pet storage");
-            Ui.text(p, 56f, SHIP_Y + 26f, bx - 64f, noShip != null ? noShip : pet.storage.getMarket().getName(), noShip != null ? Ui.neg() : Ui.gray());
+            Ui.text(p, 56f, y + 7f, bx - 64f, "Pet storage");
+            Ui.text(p, 56f, y + 26f, bx - 64f, noShip != null ? noShip : pet.storage.getMarket().getName(), noShip != null ? Ui.neg() : Ui.gray());
 
             UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Assign...", noShip != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     noShip != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Assign", free, null)));
@@ -422,8 +539,8 @@ public class PetCard {
 
         float bx = w - 6f - BUTTON_W;
         String reason = shop == null ? noShip : null;
-        Ui.text(p, 56f, SHIP_Y + 7f, bx - 64f, "Menagerie");
-        Ui.text(p, 56f, SHIP_Y + 26f, bx - 64f, reason != null ? reason : "In the fleet, on no ship", reason != null ? Ui.neg() : Ui.gray());
+        Ui.text(p, 56f, y + 7f, bx - 64f, "Menagerie");
+        Ui.text(p, 56f, y + 26f, bx - 64f, reason != null ? reason : "In the fleet, on no ship", reason != null ? Ui.neg() : Ui.gray());
         UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Assign...", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 reason != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Assign", free, shop)));
     }

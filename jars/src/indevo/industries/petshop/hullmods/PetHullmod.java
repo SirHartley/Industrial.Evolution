@@ -17,9 +17,9 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
 
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         Pet pet = PetStatusManager.getInstance().getPet(stats.getVariant());
-        if (pet == null || pet.isUnsettled()) return;
+        if (pet == null || pet.getMascotMult() <= 0f) return;
 
-        stats.getCRLossPerSecondPercent().modifyPercent(id, -BASE_DECREASE * pet.getEffectFract(), pet.name + " the " + pet.getData().species);
+        stats.getCRLossPerSecondPercent().modifyPercent(id, -BASE_DECREASE * pet.getMascotMult(), pet.name + " the " + pet.getData().species);
     }
 
     @Override

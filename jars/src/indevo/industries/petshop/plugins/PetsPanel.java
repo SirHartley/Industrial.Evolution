@@ -15,6 +15,7 @@ import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.utils.ui.*;
 
+import java.awt.Color;
 import java.util.*;
 
 public class PetsPanel extends BaseCustomDialogDelegate {
@@ -38,6 +39,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     static final List<UiFilter.Item> KEYS = List.of(
             new UiFilter.Item(SORT_SHIP, 60f, "The order of your fleet."),
             new UiFilter.Item("Name", 70f),
+            new UiFilter.Item("Hearts", 78f, "Most hearts first."),
             new UiFilter.Item("Species", 86f),
             new UiFilter.Item("Age", 62f));
 
@@ -249,8 +251,11 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     private void addHelp(TooltipMakerAPI tooltip) {
-        tooltip.addPara("A pet that moves to another ship is Unsettled for %s days and its effects are off. A return to its last ship is no move.",
-                0f, Misc.getHighlightColor(), Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.UNSETTLED_DAYS));
+        Color hl = Misc.getHighlightColor();
+        tooltip.addPara("Every pet on a ship reaches %s hearts with time. Its mascot effect starts at %s heart.", 0f, hl,
+                String.valueOf(PetConstants.TIME_HEARTS), String.valueOf(PetConstants.MASCOT_HEARTS));
+        tooltip.addPara("A pet that moves to another ship is Unsettled for %s days, %s if it had a nest. Its effects are off. Hearts stay.", 10f, hl,
+                Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.UNSETTLED_DAYS), Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.NEST_UNSETTLED_DAYS));
     }
 
     // the selected pet keeps its card while the filter hides its tile
@@ -298,6 +303,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         Comparator<Pet> name = Comparator.comparing(pet -> pet.name, String.CASE_INSENSITIVE_ORDER);
         return switch (key) {
             case "Name" -> name;
+            case "Hearts" -> Comparator.comparingDouble((Pet pet) -> -pet.bondDays).thenComparing(name);
             case "Species" -> Comparator.comparing((Pet pet) -> pet.getData().species, String.CASE_INSENSITIVE_ORDER).thenComparing(name);
             case "Age" -> Comparator.comparingDouble((Pet pet) -> -pet.age).thenComparing(name);
             default -> null;

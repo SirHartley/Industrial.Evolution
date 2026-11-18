@@ -33,6 +33,9 @@ public final class PetChecks {
     private static final Set<String> DISPOSITIONS = Set.of(Personalities.TIMID, Personalities.CAUTIOUS, Personalities.STEADY, Personalities.AGGRESSIVE, Personalities.RECKLESS);
     private static final Pattern BODY_WORDS = Pattern.compile("\\b(legs?|paws?|hands?|fur|wings?|feathers?|beak|claws?|tails?|fins?|glass|tank|swims?|fl(y|ies|ew|ying)|sniff\\w*)\\b", Pattern.CASE_INSENSITIVE);
     private static final int PICKS = 40000;
+    // play time: a day is 10 s of flight, about 1.5 minutes a week with x2 and time in menus
+    private static final float PLAY_MINUTES_PER_DAY = 1.5f / 7f;
+    private static final Set<String> PACES = Set.of(PetData.PACE_FAST, PetData.PACE_MEDIUM, PetData.PACE_SLOW, PetData.PACE_HAMSTER);
 
     private final List<String> problems = new ArrayList<>();
     private int checks = 0;
@@ -50,6 +53,7 @@ public final class PetChecks {
         List<Line> lines = run.checkLines(run.read(Path.of(LINES_PATH)), pets);
         run.checkCoverage(lines, pets);
         run.checkWeights(pets);
+        run.checkHearts();
 
         if (!run.problems.isEmpty()) {
             for (String problem : run.problems) System.out.println("FAIL " + problem);
@@ -92,6 +96,8 @@ public final class PetChecks {
         for (PetData data : pets.values()) {
             check(data.tags.stream().anyMatch(t -> t.startsWith(PetData.TAG_SPECIES_PREFIX)), data.id + " has a class tag");
             check(BODIES.contains(data.body), data.id + " body " + data.body + " is one of " + BODIES);
+            check(PACES.contains(data.pace), data.id + " pace " + data.pace + " is one of " + PACES);
+            check(data.isHamster() == data.id.equals("hampter"), data.id + (data.isHamster() ? " is the only hamster pace" : " has no hamster pace"));
         }
 
         return pets;
@@ -184,6 +190,24 @@ public final class PetChecks {
         share(counts, "body", WEIGHT_BODY / total);
         share(counts, "class", WEIGHT_CLASS / total);
         share(counts, "any", WEIGHT_ANY / total);
+    }
+
+    private void checkHearts() {
+        float[] days = PetConstants.HEART_DAYS;
+        check(days.length == PetConstants.MAX_HEARTS, "one bond day threshold per heart");
+        for (int i = 1; i < days.length; i++) check(days[i] > days[i - 1], "heart " + (i + 1) + " needs more days than heart " + i);
+        check(PetConstants.MASCOT_HEARTS <= PetConstants.TIME_HEARTS && PetConstants.TIME_HEARTS < PetConstants.NEST_HEARTS, "time reaches the mascot effect, not the nest");
+
+        float first = days[0] * PLAY_MINUTES_PER_DAY;
+        float third = days[PetConstants.TIME_HEARTS - 1] * PLAY_MINUTES_PER_DAY;
+        float supplies = third / PetConstants.SUPPLIES_HEART_RATE;
+        check(first <= 5f, "first heart in " + first + " minutes of play, at most 5");
+        check(third <= 60f, "third heart in " + third + " minutes of play, at most 60");
+        check(supplies <= 180f, "third heart on Supplies in " + supplies + " minutes of play, at most 180");
+
+        check(PetData.paceFor(PetData.FAST_UNDER_DAYS - 1f).equals(PetData.PACE_FAST), "a short life span is fast");
+        check(PetData.paceFor(PetData.FAST_UNDER_DAYS).equals(PetData.PACE_MEDIUM), "the fast limit is medium");
+        check(PetData.paceFor(PetData.MEDIUM_UNDER_DAYS).equals(PetData.PACE_SLOW), "the medium limit is slow");
     }
 
     private void share(Map<String, Integer> counts, String id, float expected) {

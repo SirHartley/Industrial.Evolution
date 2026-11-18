@@ -2,6 +2,7 @@ package indevo.console;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -12,7 +13,7 @@ import org.lazywizard.console.Console;
 import java.util.Collections;
 
 public class PetCommand implements BaseCommand {
-    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name] or indevo_pet age <pet> <days>.";
+    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days> or indevo_pet hearts <pet> <0-5>.";
 
     @Override
     public CommandResult runCommand(String args, CommandContext context) {
@@ -29,7 +30,7 @@ public class PetCommand implements BaseCommand {
             case "list" -> {
                 for (Pet pet : manager.getPets()) {
                     if (pet.isDead()) continue;
-                    Console.showMessage(pet.name + " (" + pet.id + "), " + pet.getData().species + ", " + place(pet) + ", " + pet.getMood().label);
+                    Console.showMessage(pet.name + " (" + pet.id + "), " + pet.getData().species + ", " + place(pet) + ", " + pet.getMood().label + ", " + pet.getHearts() + " hearts");
                 }
                 return CommandResult.SUCCESS;
             }
@@ -66,6 +67,31 @@ public class PetCommand implements BaseCommand {
 
                 pet.age += days;
                 Console.showMessage(pet.name + " is now " + pet.getAgeString() + " old, life span " + Math.round(pet.lifetime) + " days.");
+                return CommandResult.SUCCESS;
+            }
+            case "hearts" -> {
+                int split = rest.lastIndexOf(' ');
+                Pet pet = split > 0 ? find(manager, rest.substring(0, split).trim()) : null;
+                int hearts;
+
+                try {
+                    hearts = Integer.parseInt(rest.substring(split + 1));
+                } catch (NumberFormatException e) {
+                    hearts = -1;
+                }
+
+                if (hearts < 0 || hearts > PetConstants.MAX_HEARTS) {
+                    Console.showMessage(SYNTAX);
+                    return CommandResult.BAD_SYNTAX;
+                }
+
+                if (pet == null) {
+                    Console.showMessage("No living pet with that name or id.");
+                    return CommandResult.ERROR;
+                }
+
+                pet.bondDays = hearts == 0 ? 0f : PetConstants.HEART_DAYS[hearts - 1];
+                Console.showMessage(pet.name + " now has " + pet.getHearts() + " hearts.");
                 return CommandResult.SUCCESS;
             }
             default -> {

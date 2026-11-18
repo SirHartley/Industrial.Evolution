@@ -21,6 +21,10 @@ public final class Groups {
                 return ArcMath.steps();
             case "pets":
                 return PetsChecks.steps();
+            case "petshearts":
+                return PetsHeartsChecks.steps();
+            case "petspods":
+                return PetsHeartsChecks.pods();
             case "petsfee":
                 return PetsFeeChecks.steps();
             case "petsui":

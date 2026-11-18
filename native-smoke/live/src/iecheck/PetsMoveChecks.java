@@ -243,8 +243,8 @@ public final class PetsMoveChecks {
             c.expect(!shopped.isDead() && !shopped.isStarving() && shopped.storage != null, "stored pet is fine after month end");
             c.near(food(storageB, shopped), (Float) c.get("shoppedStorage"), 0.01f, "stored pet took no food from its market's storage");
 
-            float f1 = ramp.getEffectFract();
-            c.expect(f1 > 0f, "effect ramp grows on its ship (" + f1 + ")");
+            float f1 = ramp.bondDays;
+            c.expect(f1 > 0f, "bond days grow on its ship (" + f1 + ")");
             c.put("rampF1", f1);
             c.put("rampShip", ramp.assignedFleetMember.getId());
             ramp.place(null, shop(c.market("b")));
@@ -253,11 +253,11 @@ public final class PetsMoveChecks {
         steps.add(c -> {
             Pet ramp = byName("Ramp");
             float f1 = (Float) c.get("rampF1");
-            c.near(ramp.getEffectFract(), f1, 0.0001f, "effect ramp does not grow in storage");
+            c.near(ramp.bondDays, f1, 0.0001f, "bond days do not grow in storage");
             FleetMemberAPI home = null;
             for (FleetMemberAPI m : fleet().getFleetData().getMembersListCopy()) if (m.getId().equals(c.get("rampShip"))) home = m;
             ramp.place(home, null);
-            c.near(ramp.getEffectFract(), f1, 0.0001f, "storage and back to the same ship keeps the effect fraction");
+            c.near(ramp.bondDays, f1, 0.0001f, "storage and back to the same ship keeps the bond days");
             c.expect(!ramp.isUnsettled(), "storage and back to the same ship is no move");
             ramp.place(null, null);
             c.expect(ramp.isInMenagerie(), "place with no ship and no storage puts the pet in the menagerie");
@@ -266,10 +266,10 @@ public final class PetsMoveChecks {
         steps.add(c -> {
             Pet ramp = byName("Ramp");
             float f1 = (Float) c.get("rampF1");
-            c.near(ramp.getEffectFract(), f1, 0.0001f, "effect ramp does not grow in the menagerie");
+            c.near(ramp.bondDays, f1, 0.0001f, "bond days do not grow in the menagerie");
             FleetMemberAPI other = ship("wolf_Assault", "ISS Ramp C");
             ramp.place(other, null);
-            c.near(ramp.getEffectFract(), 0f, 0.0001f, "arriving on another ship sets the effect fraction to 0");
+            c.near(ramp.bondDays, f1, 0.0001f, "arriving on another ship keeps the bond days");
             c.expect(ramp.isUnsettled(), "arriving on another ship is a move");
             c.put("rexId", byName("Rex").id);
 
