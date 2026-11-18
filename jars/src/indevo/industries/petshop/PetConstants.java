@@ -39,6 +39,9 @@ public final class PetConstants {
     public static final int NAVIGATOR_JUMPS = 50;
     public static final int PAMPERED_WANTS = 10;
     public static final int TREASURE_HUNTER_FINDS = 5;
+    public static final int ADMIRAL_DAYS = 365;
+    public static final int GLOBETROTTER_MARKETS = 25;
+    public static final int STARGAZER_DAYS = 120;
 
     // lead Scavenger in a salvaged wreck: a find worth SCAVENGER_FIND_VALUE credits x its value, one colony item roll
     public static final float SCAVENGER_FIND_CHANCE = 0.25f;

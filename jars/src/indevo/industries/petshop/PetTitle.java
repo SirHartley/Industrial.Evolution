@@ -8,7 +8,10 @@ public enum PetTitle {
     SURVIVOR("Survivor", "Escaped a lost ship in an escape pod.", 0),
     BELOVED("Beloved", "Reached all five hearts.", 0),
     PAMPERED("Pampered", "Had %s wants answered.", PetConstants.PAMPERED_WANTS),
-    TREASURE_HUNTER("Treasure Hunter", "Found extra salvage %s times.", PetConstants.TREASURE_HUNTER_FINDS);
+    TREASURE_HUNTER("Treasure Hunter", "Found extra salvage %s times.", PetConstants.TREASURE_HUNTER_FINDS),
+    ADMIRAL("Admiral", "Spent %s days on the flagship.", PetConstants.ADMIRAL_DAYS),
+    GLOBETROTTER("Globetrotter", "Docked at %s different markets.", PetConstants.GLOBETROTTER_MARKETS),
+    STARGAZER("Stargazer", "Spent %s days in hyperspace.", PetConstants.STARGAZER_DAYS);
 
     public final String label;
     public final String reason;

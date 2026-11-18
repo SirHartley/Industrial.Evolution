@@ -563,7 +563,7 @@ public class PetCard {
 
     private static void titlesTip(TooltipMakerAPI t, List<PetTitle> titles) {
         t.addPara("Titles", Ui.hl(), 0f);
-        if (titles.isEmpty()) t.addPara("None yet. A pet earns titles from what it lives through: battles, jumps, a long life, an escape pod, all five hearts, answered wants.", 10f);
+        if (titles.isEmpty()) t.addPara("None yet. A pet earns titles from what it lives through: battles, jumps, a long life, an escape pod, all five hearts, answered wants, finds in salvage, time on the flagship, many markets and hyperspace.", 10f);
         for (int i = 0; i < titles.size(); i++) {
             PetTitle title = titles.get(i);
             t.addPara("%s: " + title.getReason(), i == 0 ? 10f : 3f, Ui.hl(), title.label);

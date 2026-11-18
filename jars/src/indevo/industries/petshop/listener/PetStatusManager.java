@@ -666,7 +666,11 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportPlayerOpenedMarket(MarketAPI market) {
-        if (market != null && !market.isPlanetConditionMarketOnly()) answer(PetWant.SHORE_LEAVE);
+        if (market == null || market.isPlanetConditionMarketOnly()) return;
+
+        answer(PetWant.SHORE_LEAVE);
+        if (!Setting.PETS.enabled()) return;
+        for (Pet pet : pets) if (pet.isWithPlayer()) pet.addMarket(market.getId());
     }
 
     @Override

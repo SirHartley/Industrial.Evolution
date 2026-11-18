@@ -23,8 +23,10 @@ import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
@@ -69,6 +71,10 @@ public class Pet {
     public int jumps = 0;
     public int answeredWants = 0;
     public int finds = 0;
+    public float flagshipDays = 0f;
+    public float hyperspaceDays = 0f;
+    // market ids, kept only until Globetrotter is earned
+    public Set<String> markets = new HashSet<>();
     public List<String> titles = new ArrayList<>();
 
     public Pet(String typeID, String name) {
@@ -202,6 +208,15 @@ public class Pet {
 
     public void addFind() {
         if (++finds >= PetConstants.TREASURE_HUNTER_FINDS) earn(PetTitle.TREASURE_HUNTER);
+    }
+
+    public void addMarket(String marketId) {
+        if (getTitleIds().contains(PetTitle.GLOBETROTTER.name())) return;
+        if (markets == null) markets = new HashSet<>();
+        if (markets.add(marketId) && markets.size() >= PetConstants.GLOBETROTTER_MARKETS) {
+            earn(PetTitle.GLOBETROTTER);
+            markets.clear();
+        }
     }
 
     public void earn(PetTitle title) {
@@ -360,6 +375,11 @@ public class Pet {
         // no callback tells of an officer put on or taken off a ship
         if (captain != null && isAboard() && assignedFleetMember.getCaptain() != captain && isSeatFree(assignedFleetMember)) {
             assignedFleetMember.setCaptain(captain);
+        }
+
+        if (isWithPlayer()) {
+            if (isAboard() && assignedFleetMember.isFlagship() && (flagshipDays += dayAmt) >= PetConstants.ADMIRAL_DAYS) earn(PetTitle.ADMIRAL);
+            if (Global.getSector().getPlayerFleet().isInHyperspace() && (hyperspaceDays += dayAmt) >= PetConstants.STARGAZER_DAYS) earn(PetTitle.STARGAZER);
         }
 
         feedInterval.advance(amt);
