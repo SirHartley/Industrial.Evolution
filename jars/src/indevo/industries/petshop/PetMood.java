@@ -3,6 +3,7 @@ package indevo.industries.petshop;
 import com.fs.starfarer.api.util.Misc;
 
 import java.awt.*;
+import java.util.Locale;
 
 public enum PetMood {
     HUNGRY("Hungry", true),
@@ -18,6 +19,10 @@ public enum PetMood {
     PetMood(String label, boolean bad) {
         this.label = label;
         this.bad = bad;
+    }
+
+    public String id() {
+        return name().toLowerCase(Locale.ROOT);
     }
 
     public Color getColor() {

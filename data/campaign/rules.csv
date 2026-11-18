@@ -896,3 +896,6 @@ IndEvo_CPCExpress apply $cpc_ref
 Call $cpc_ref repSuccess
 Call $cpc_ref addContacts",,,
 ,,,,,,
+# Pets,,,,,,
+IndEvo_petDockingLine,PopulateOptions,"$hasMarket
+$menuState == main",IndEvo_PetDockingLine,,,"pet line when the market menu shows, cadence in PetStatusManager.sayDocking (PopulateOptions is FireAll, MarketPostOpen is FireBest)"

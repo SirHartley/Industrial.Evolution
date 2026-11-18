@@ -185,6 +185,10 @@ public class Pet {
         return !isDead && !isAssigned && storage == null;
     }
 
+    public boolean isOld() {
+        return age > lifetime * PetConstants.SLEEPY_AGE_FRACTION;
+    }
+
     public boolean isUnsettled() {
         return unsettledDays > 0f;
     }
@@ -194,7 +198,7 @@ public class Pet {
         if (isUnsettled()) return PetMood.UNSETTLED;
         if (shellShockedDays > 0f) return PetMood.SHELL_SHOCKED;
         if (lastMealSupplies) return PetMood.UNHAPPY_WITH_FOOD;
-        if (age > lifetime * PetConstants.SLEEPY_AGE_FRACTION) return PetMood.SLEEPY;
+        if (isOld()) return PetMood.SLEEPY;
         return PetMood.CONTENT;
     }
 

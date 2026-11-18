@@ -31,6 +31,9 @@ IndEvo_consumables_addToMarkets,[Consumable Items] Add to markets,Boolean,TRUE,,
 IndEvo_consumables_addToFleets,[Consumable Items] Drop from combat,Boolean,TRUE,,Drop consumable items after fleet battles. Default on.,,,Exploration & Items
 IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,TRUE,,Offer consumable research at the Galatia Academy. Default on.,,,Exploration & Items
 ,,,,,,,,
+IndEvo_header_pets,Pets,Header,Pets,,,,,Exploration & Items
+IndEvo_petLineDays,[Pets] Days Between Pet Lines,Int,14,,"Minimum days between two short lines about what your pets are up to: a message in flight, or a line in the market text when you dock. 0 turns them off. Default 14.",0,90,Exploration & Items
+,,,,,,,,
 IndEvo_header_meteor,Meteor Swarms,Header,Meteor Swarms,,,,,Meteor Swarms
 IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,"Spawn meteor showers immediately, without an advance intel warning. Default off.",,,Meteor Swarms
 IndEvo_meteor_minIntensity,[Meteor Swarms] Minimum Intensity,Double,1,,Minimum swarm intensity. Default 1.,1,5,Meteor Swarms

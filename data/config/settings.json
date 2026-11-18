@@ -42,7 +42,8 @@
   "indevo.exploration.gacha.rules",
   "indevo.dialogue.beacons.dialogue",
   "indevo.exploration.crucible.dialogue",
-  "indevo.exploration.meteor.rules"
+  "indevo.exploration.meteor.rules",
+  "indevo.industries.petshop.rules"
   ],
 
   "designTypeColors":{

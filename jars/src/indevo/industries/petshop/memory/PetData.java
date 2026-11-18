@@ -10,6 +10,7 @@ public class PetData {
     public static final String TAG_NO_SELL = "no_sell";
     public static final String TAG_NO_DROP = "no_drop";
     public static final String TAG_SPECIES_PREFIX = "c_";
+    public static final String BODY_PREFIX = "b_";
 
     public String id;
     public String species;
@@ -23,8 +24,9 @@ public class PetData {
     public List<String> foodCommodities;
     public float foodPerMonth;
     public float rarity;
+    public String body;
 
-    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity) {
+    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity, String body) {
         this.id = id;
         this.species = species;
         this.value = value;
@@ -37,6 +39,7 @@ public class PetData {
         this.foodCommodities = foodCommodities;
         this.foodPerMonth = foodPerMonth;
         this.rarity = rarity;
+        this.body = body;
     }
 
     public boolean isNoSell() {
@@ -47,12 +50,12 @@ public class PetData {
         return tags.contains(TAG_NO_DROP);
     }
 
-    public String getAnimalClass() {
+    public String getClassTag() {
         for (String tag : tags) {
-            if (tag.startsWith(TAG_SPECIES_PREFIX)) return tag.substring(TAG_SPECIES_PREFIX.length());
+            if (tag.startsWith(TAG_SPECIES_PREFIX)) return tag;
         }
 
-        return "alien";
+        return TAG_SPECIES_PREFIX + "alien";
     }
 
     public Pair<String, Color> getRarityDesc(){
