@@ -76,6 +76,13 @@ public final class PetsUiChecks {
             away.getFleetData().syncIfNeeded();
 
             if (System.getProperty("ie.switches", "").contains("nomotion")) Colony.setting(indevo.config.Setting.PET_MOTION, false);
+            if (System.getProperty("ie.switches", "").contains("nopatch")) {
+                for (Class<?> patch : List.of(indevo.industries.petshop.patches.PetFleetCardPatch.class, indevo.industries.petshop.patches.PetShipTooltipPatch.class, indevo.industries.petshop.patches.PetRefitRowPatch.class)) {
+                    patchlib.api.PatchLib.disablePatch(patch);
+                    c.expect(!patchlib.api.PatchLib.isPatchEnabled(patch), patch.getSimpleName() + " is off");
+                }
+            }
+            cargo.addSpecial(new com.fs.starfarer.api.campaign.SpecialItemData(indevo.ids.ItemIds.PET_CHAMBER, "doge"), 2f);
             if (System.getProperty("ie.switches", "").contains("poor")) cargo.getCredits().set(500f);
             else cargo.getCredits().set(50000f);
 

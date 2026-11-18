@@ -1,6 +1,7 @@
 package indevo.industries.petshop.memory;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.util.Misc;
 import indevo.utils.memory.SessionTransientMemory;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +20,7 @@ public class PetDataRepo {
     public static final String EVENT_STATUS = "status";
     public static final String EVENT_PETTING = "petting";
     public static final String EVENT_PETTING_STARVING = "petting_starving";
+    public static final String EVENT_NAME = "name";
     public static final String CONTEXT_DOCKED = "docked";
     public static final String CONTEXT_STORAGE = "storage";
     public static final String CONTEXT_OLD = "old";
@@ -33,6 +35,8 @@ public class PetDataRepo {
         public float weight(PetData data, String mood, String disposition, Set<String> context) {
             if (!fits(moods, mood) || !fits(dispositions, disposition)) return 0f;
             if (!contexts.isEmpty() && Collections.disjoint(contexts, context)) return 0f;
+            // the other status lines tell of life aboard a ship
+            if (event.equals(EVENT_STATUS) && context.contains(CONTEXT_STORAGE) && !contexts.contains(CONTEXT_STORAGE)) return 0f;
             if (match.isEmpty()) return WEIGHT_ANY;
 
             float weight = 0f;
@@ -60,6 +64,12 @@ public class PetDataRepo {
 
     public static List<Line> getLines() {
         return load(LINES_PATH, PetDataRepo::parseLines);
+    }
+
+    // a name for a pet out of a Cryochamber, name rows hold the name as text
+    public static String suggestName(PetData data) {
+        Line line = pickLine(getLines(), EVENT_NAME, data, "", "", Set.of(), Misc.random);
+        return line != null ? line.text() : data.species;
     }
 
     public static Line pickLine(List<Line> lines, String event, PetData data, String mood, String disposition, Set<String> context, Random random) {

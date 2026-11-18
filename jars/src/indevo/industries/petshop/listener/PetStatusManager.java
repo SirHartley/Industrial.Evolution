@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 public class PetStatusManager extends BaseCampaignEventListener implements EconomyTickListener, FleetEventListener, EveryFrameScript {
@@ -155,13 +156,17 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     }
 
     public String getLine(Pet pet, String event, boolean docked) {
+        return getLine(pet, event, docked, Misc.random);
+    }
+
+    public String getLine(Pet pet, String event, boolean docked, Random random) {
         Set<String> context = new HashSet<>();
         if (pet.storage != null) context.add(PetDataRepo.CONTEXT_STORAGE);
         else if (docked) context.add(PetDataRepo.CONTEXT_DOCKED);
         if (pet.isOld()) context.add(PetDataRepo.CONTEXT_OLD);
         if (Global.getSector().getPlayerFleet().isInHyperspace()) context.add(PetDataRepo.CONTEXT_HYPERSPACE);
 
-        PetDataRepo.Line line = PetDataRepo.pickLine(PetDataRepo.getLines(), event, pet.getData(), pet.getMood().id(), pet.personality, context, Misc.random);
+        PetDataRepo.Line line = PetDataRepo.pickLine(PetDataRepo.getLines(), event, pet.getData(), pet.getMood().id(), pet.personality, context, random);
         return line != null ? line.text() : null;
     }
 
@@ -228,6 +233,13 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         }
 
         return best;
+    }
+
+    // ships of that fleet a pet can move to, in fleet order
+    public List<FleetMemberAPI> getFreeShips(CampaignFleetAPI fleet) {
+        List<FleetMemberAPI> free = new ArrayList<>();
+        for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) if (isFree(m, Collections.emptySet())) free.add(m);
+        return free;
     }
 
     private boolean isFree(FleetMemberAPI m, Collection<FleetMemberAPI> except) {

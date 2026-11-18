@@ -5,13 +5,18 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.econ.Industry;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
 import indevo.dialogue.sidepanel.EscapeBlockingDialoguePluginAPI;
+import indevo.ids.Ids;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.EscapeInterceptListener;
 import indevo.industries.petshop.listener.PetStatusManager;
+import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
+import indevo.utils.helper.MiscIE;
 
 import java.util.Map;
 
@@ -30,6 +35,18 @@ public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlocking
     public static boolean show(PetShop shop, PetsView view) {
         SectorEntityToken target = shop != null ? shop.getMarket().getPrimaryEntity() : Global.getSector().getPlayerFleet();
         return Global.getSector().getCampaignUI().showInteractionDialog(new PetsDialogPlugin(shop, view), target);
+    }
+
+    // from a vanilla screen with no dialog of its own (fleet, refit), with the docked Animal Center; onClose refreshes that screen
+    public static void over(Pet pet, Runnable onClose) {
+        PetsDialogPlugin plugin = new PetsDialogPlugin(dockedShop(), new PetsView(pet.id));
+        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(plugin, null, onClose == null ? null : onClose::run);
+    }
+
+    private static PetShop dockedShop() {
+        MarketAPI market = MiscIE.getCurrentInteractionTargetMarket();
+        Industry industry = market != null ? market.getIndustry(Ids.PET_STORE) : null;
+        return industry instanceof PetShop shop && shop.isFunctional() ? shop : null;
     }
 
     @Override

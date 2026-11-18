@@ -12,8 +12,8 @@ IndEvo_pl_st_content_machine,status,b_machine,content,,,%s runs its rounds of th
 IndEvo_pl_st_content_jar,status,b_jar,content,,,%s glows a steady amber on its shelf in the officers' mess
 IndEvo_pl_st_content_coil,status,b_coil,content,,,%s lies coiled in its cage next to the capacitor bank
 IndEvo_pl_st_content_human,status,b_human,content,,,%s plays cards with the deck crew every night and loses most hands
-IndEvo_pl_st_storage,status,any,content,,storage,"%s gets fed at the Animal Center twice a day, on the hour"
-IndEvo_pl_st_storage_fourleg,status,b_fourleg,content,,storage,%s has the run of the Animal Center's back room
+IndEvo_pl_st_storage,status,any,content happy sleepy unhappy_with_food,,storage,"%s gets fed at the Animal Center twice a day, on the hour"
+IndEvo_pl_st_storage_fourleg,status,b_fourleg,content happy sleepy,,storage,%s has the run of the Animal Center's back room
 IndEvo_pl_st_docked,status,b_fourleg b_wings,,,docked,%s sits at the airlock window watching the dock crews
 IndEvo_pl_st_old,status,any,,,old,%s sleeps through most of the shift now
 IndEvo_pl_st_old_machine,status,b_machine,,,old,%s spends most of the shift on its charging dock now
@@ -102,3 +102,64 @@ IndEvo_pl_pet_any,petting,any,,,,"%s puts up with it, which the crew says is a g
 IndEvo_pl_pet_starving,petting_starving,any,,,,%s does not react to you. The feeding log ends the day the stores ran out.
 IndEvo_pl_pet_starving_fourleg,petting_starving,b_fourleg,,,,%s ignores your hand and goes back to licking the empty bowl.
 IndEvo_pl_pet_starving_water,petting_starving,b_water,,,,%s stays at the bottom of the tank and does not come up to the glass.
+IndEvo_pl_name_any_1,name,any,,,,Pebble
+IndEvo_pl_name_any_2,name,any,,,,Biscuit
+IndEvo_pl_name_any_3,name,any,,,,Rivet
+IndEvo_pl_name_any_4,name,any,,,,Sprocket
+IndEvo_pl_name_any_5,name,any,,,,Comet
+IndEvo_pl_name_any_6,name,any,,,,Nova
+IndEvo_pl_name_any_7,name,any,,,,Widget
+IndEvo_pl_name_any_8,name,any,,,,Pickle
+IndEvo_pl_name_any_9,name,any,,,,Mochi
+IndEvo_pl_name_any_10,name,any,,,,Gizmo
+IndEvo_pl_name_any_11,name,any,,,,Nugget
+IndEvo_pl_name_any_12,name,any,,,,Waffle
+IndEvo_pl_name_any_13,name,any,,,,Pip
+IndEvo_pl_name_any_14,name,any,,,,Scrap
+IndEvo_pl_name_any_15,name,any,,,,Bean
+IndEvo_pl_name_any_16,name,any,,,,Tango
+IndEvo_pl_name_any_17,name,any,,,,Socket
+IndEvo_pl_name_any_18,name,any,,,,Buttons
+IndEvo_pl_name_any_19,name,any,,,,Dumpling
+IndEvo_pl_name_any_20,name,any,,,,Ember
+IndEvo_pl_name_any_21,name,any,,,,Fuse
+IndEvo_pl_name_any_22,name,any,,,,Grommet
+IndEvo_pl_name_any_23,name,any,,,,Toast
+IndEvo_pl_name_any_24,name,any,,,,Clover
+IndEvo_pl_name_any_25,name,any,,,,Pixel
+IndEvo_pl_name_any_26,name,any,,,,Tinsel
+IndEvo_pl_name_any_27,name,any,,,,Pudding
+IndEvo_pl_name_any_28,name,any,,,,Rocket
+IndEvo_pl_name_any_29,name,any,,,,Flint
+IndEvo_pl_name_any_30,name,any,,,,Juniper
+IndEvo_pl_name_any_31,name,any,,,,Mango
+IndEvo_pl_name_any_32,name,any,,,,Kettle
+IndEvo_pl_name_any_33,name,any,,,,Ballast
+IndEvo_pl_name_any_34,name,any,,,,Ratchet
+IndEvo_pl_name_any_35,name,any,,,,Lugnut
+IndEvo_pl_name_any_36,name,any,,,,Jumper
+IndEvo_pl_name_any_37,name,any,,,,Vector
+IndEvo_pl_name_any_38,name,any,,,,Flux
+IndEvo_pl_name_any_39,name,any,,,,Burnout
+IndEvo_pl_name_any_40,name,any,,,,Doodle
+IndEvo_pl_name_water_1,name,b_water,,,,Bubbles
+IndEvo_pl_name_water_2,name,b_water,,,,Brine
+IndEvo_pl_name_wings_1,name,b_wings,,,,Flutter
+IndEvo_pl_name_wings_2,name,b_wings,,,,Gust
+IndEvo_pl_name_machine_1,name,b_machine,,,,Servo
+IndEvo_pl_name_machine_2,name,b_machine,,,,Unit Seven
+IndEvo_pl_name_blob_1,name,b_blob,,,,Jelly
+IndEvo_pl_name_blob_2,name,b_blob,,,,Gloop
+IndEvo_pl_name_jar_1,name,b_jar,,,,Lid
+IndEvo_pl_name_jar_2,name,b_jar,,,,Murk
+IndEvo_pl_name_coil_1,name,b_coil,,,,Spiral
+IndEvo_pl_name_coil_2,name,b_coil,,,,Twist
+IndEvo_pl_name_float_1,name,b_float,,,,Puff
+IndEvo_pl_name_float_2,name,b_float,,,,Drifter
+IndEvo_pl_name_fourleg_1,name,b_fourleg,,,,Patch
+IndEvo_pl_name_fourleg_2,name,b_fourleg,,,,Scout
+IndEvo_pl_name_legs_1,name,b_legs,,,,Skitter
+IndEvo_pl_name_legs_2,name,b_legs,,,,Tick
+IndEvo_pl_name_human_1,name,b_human,,,,Doris
+IndEvo_pl_name_human_2,name,b_human,,,,Hank
+IndEvo_pl_name_hampter,name,hampter,,,,Hampter
