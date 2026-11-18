@@ -220,7 +220,7 @@ public final class PetsWantsChecks {
             cid.place(Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy().stream().filter(m -> "ISS Cid Home".equals(m.getShipName())).findFirst().get(), null);
             Pet ace = get(c, "ace");
             String sw = System.getProperty("ie.switches", "");
-            cmd("want " + ace.id + " " + (sw.contains("treat") ? "treat" : sw.contains("attention") ? "attention" : "play"));
+            cmd("want " + ace.id + " " + (sw.contains("treat") ? "treat" : sw.contains("attention") ? "attention" : sw.contains("comealong") ? "come_along" : "play"));
             for (String k : new String[]{"ace", "bea", "cid", "dot"}) c.note(state(get(c, k)));
             c.keepDialog(true);
             Global.getSector().getCampaignUI().showInteractionDialog(c.market("a").getPrimaryEntity());
