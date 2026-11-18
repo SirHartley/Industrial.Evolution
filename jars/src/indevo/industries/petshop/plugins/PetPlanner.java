@@ -728,11 +728,8 @@ public class PetPlanner {
         panel.refresh();
     }
 
-    private static void wantTip(TooltipMakerAPI t, PetDataRepo.Trait trait, int v) {
-        Color c = trait.isFlaw() ? Ui.neg() : Ui.hl();
-        t.addPara(trait.name(), c, 0f);
-        if (trait.hasLevels()) t.addPara(trait.desc(), 10f, c, trait.format(trait.value(trait.per(), 1f)));
-        else t.addPara(trait.desc(), 10f);
+    // the flaws a mutation arrives with, one line each
+    static void arrivesWith(TooltipMakerAPI t, PetDataRepo.Trait trait) {
         for (String id : trait.with()) {
             PetDataRepo.Trait flaw = PetDataRepo.getTrait(id);
             if (flaw == null) continue;
@@ -740,6 +737,14 @@ public class PetPlanner {
             String what = per.isEmpty() ? Misc.lcFirst(flaw.effect()) + "." : Misc.lcFirst(flaw.effect()) + " " + per + " per level.";
             t.addPara("Arrives with the flaw %s: " + esc(what), 10f, new Color[]{Ui.neg(), Ui.neg()}, flaw.name(), per);
         }
+    }
+
+    private static void wantTip(TooltipMakerAPI t, PetDataRepo.Trait trait, int v) {
+        Color c = trait.isFlaw() ? Ui.neg() : Ui.hl();
+        t.addPara(trait.name(), c, 0f);
+        if (trait.hasLevels()) t.addPara(trait.desc(), 10f, c, trait.format(trait.value(trait.per(), 1f)));
+        else t.addPara(trait.desc(), 10f);
+        arrivesWith(t, trait);
 
         String value = trait.format(trait.value(v, 1f));
         String what = value.isEmpty() ? "" : ", " + Misc.lcFirst(trait.effect()) + " " + value;

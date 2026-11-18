@@ -7,6 +7,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.industry.PetShop;
+import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.utils.ui.*;
 
@@ -56,6 +57,7 @@ public class PetAdoption {
 
     void build(CustomPanelAPI p, float w, float h) {
         List<Pet> offers = shop.getOffers();
+        PetStatusManager.getInstance().seeOffers(offers);
         List<Pet> shown = shown(offers);
         Pet selected = selected(offers, shown);
 

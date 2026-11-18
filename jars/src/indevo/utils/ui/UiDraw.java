@@ -3,8 +3,10 @@ package indevo.utils.ui;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import java.awt.*;
+import java.nio.ByteBuffer;
 
 // gl primitives for UiCanvas painters, coordinates are virtual pixels with y up, x and y are the bottom left corner
 public final class UiDraw {
@@ -190,6 +192,47 @@ public final class UiDraw {
         sprite.setAlphaMult(alpha);
         sprite.setNormalBlend();
         sprite.render(Math.round(x + (w - dw) / 2f), Math.round(y + (h - dh) / 2f));
+    }
+
+    // own gl texture with the image in its top left srcW x srcH pixels, u and v its share of the texture; row 0 is the image top
+    public static void texture(int id, float srcW, float srcH, float u, float v, float x, float y, float w, float h, float alpha) {
+        if (id == 0 || srcW <= 0f || srcH <= 0f) return;
+
+        float scale = Math.min(w / srcW, h / srcH);
+        float dw = Math.round(srcW * scale);
+        float dh = Math.round(srcH * scale);
+        float dx = Math.round(x + (w - dw) / 2f);
+        float dy = Math.round(y + (h - dh) / 2f);
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glColor4f(1f, 1f, 1f, Math.max(0f, Math.min(1f, alpha)));
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f(0f, v);
+        GL11.glVertex2f(dx, dy);
+        GL11.glTexCoord2f(0f, 0f);
+        GL11.glVertex2f(dx, dy + dh);
+        GL11.glTexCoord2f(u, 0f);
+        GL11.glVertex2f(dx + dw, dy + dh);
+        GL11.glTexCoord2f(u, v);
+        GL11.glVertex2f(dx + dw, dy);
+        GL11.glEnd();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+    }
+
+    // rgba8 pixels, rows top first, power of two sides; linear filter, clamped
+    public static int upload(ByteBuffer pixels, int w, int h) {
+        int id = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, w, h, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        return id;
     }
 
     public static float left(PositionAPI pos) {
