@@ -282,13 +282,20 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         refresh();
     }
 
+    // one width for all tabs, wide enough for the longest label (UiButtons.tab cuts at w - 12)
+    private static float tabWidth(String[] tabs) {
+        float w = TAB_W;
+        for (String tab : tabs) w = Math.max(w, (float) Math.ceil(Ui.width(tab, Ui.ORB12)) + 16f);
+        return w;
+    }
+
     private void addHeader(CustomPanelAPI p, float w, List<Group> groups) {
         UiFrame.title(p, w, "Pets", shop != null ? shop.getMarket().getName() : null, this::addHelp);
 
         int count = 0;
         for (Group group : groups) count += group.pets().size();
         String[] tabs = shop != null ? new String[]{"Pets " + count, "Husbandry " + PetHusbandry.busy(shop)} : new String[]{"Pets " + count};
-        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, TAB_W, UiFrame.HEADER_H, tabs, view.tab, null, i -> {
+        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, tabWidth(tabs), UiFrame.HEADER_H, tabs, view.tab, null, i -> {
             view.tab = i;
             refresh();
         });

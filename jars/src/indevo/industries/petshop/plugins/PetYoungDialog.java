@@ -331,7 +331,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     private static void tableHead(CustomPanelAPI p, float y, String first, String second) {
         float w = CARD_W - 16f;
         Ui.thead(p, 8f, y, w, new String[]{first, second, "From"}, new float[]{4f, 52f, w - FROM_W - 8f},
-                new float[]{44f, 100f, FROM_W}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
+                new float[]{44f, w - 52f - Ui.width("From", Ui.ORB12) - 16f, FROM_W}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
     }
 
     private static float row(CustomPanelAPI p, float y, String grade, String name, String from, boolean on) {
@@ -341,7 +341,9 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     private static float row(CustomPanelAPI p, float y, String grade, String name, String from, boolean on, Pet pet) {
         Color c = on ? Ui.text() : Ui.gray();
         if (grade != null) Ui.textIn(p, 12f, y, 44f, ROW_H, grade, Ui.INS15, on ? Ui.hl() : c, Ui.CENTER, new String[0], new Color[0]);
-        Ui.textIn(p, 60f, y, CARD_W - 60f - FROM_W - 16f, ROW_H, name, Ui.INS15, c, Ui.LEFT, new String[0], new Color[0]);
+        // a row with no From column takes its width
+        float nameW = from != null && pet != null ? CARD_W - 60f - FROM_W - 16f : CARD_W - 60f - 16f;
+        Ui.textIn(p, 60f, y, nameW, ROW_H, name, Ui.INS15, c, Ui.LEFT, new String[0], new Color[0]);
         if (from != null && pet != null) {
             Ui.textIn(p, CARD_W - 8f - FROM_W - 8f, y, FROM_W, ROW_H, fromLabel(pet, from), Ui.INS15, fromColor(from), Ui.RIGHT, new String[0], new Color[0]);
         }
