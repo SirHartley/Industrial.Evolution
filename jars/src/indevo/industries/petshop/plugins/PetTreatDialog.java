@@ -19,6 +19,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetLongevity;
+import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.utils.ui.*;
 
@@ -113,10 +114,12 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
             return;
         }
 
+        PetStatusManager manager = PetStatusManager.getInstance();
+        manager.holdMessages(Global.getSector().getCampaignUI().getCurrentInteractionDialog());
         UiHost.over(d -> {
             dialog = d;
             d.showCustomDialog(W, height(), this);
-        }, () -> {});
+        }, manager::releaseMessages);
     }
 
     private boolean isNomios() {
@@ -410,7 +413,7 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
             picked.treat(add);
             syringe.removeFromClickedStackFirst(1);
             String gain = "+" + PetLongevity.cycles(add);
-            Global.getSector().getCampaignUI().addMessage(picked.name + ": " + gain + " of life", Misc.getTextColor(), picked.name, gain, Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
+            PetStatusManager.getInstance().message("%s: %s of life", Misc.getTextColor(), picked.name, gain, Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
             dialog.dismiss();
             return;
         }

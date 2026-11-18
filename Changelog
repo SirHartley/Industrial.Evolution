@@ -102,6 +102,7 @@ Added - Setting for the cycles one Longevity Syringe gives (default 2)
 Added - A pet on the ship you pilot shows in the combat status list, reacting to the fight
 Adjusted - Opening a Cryochamber asks for a name and a home in one popup, with a name filled in
 Adjusted - Pet hullmod tooltip shows the pet's mood, next meal and mascot effect
+Adjusted - Pet messages during a dialog (market, battle, Pets panel) now show in its text
 Adjusted - Pets eat Supplies only when none of their other food is in the cargo
 Adjusted - Moving a pet to another ship makes it Unsettled for 30 days (90 with a nest), no pet effect until then. It keeps its hearts.
 Adjusted - Pet storage costs 10% of the species value a month, at least 100 credits, x1.5 on other markets
