@@ -540,12 +540,17 @@ public class PetCard {
 
         Ui.card(p, 0f, y, w, WANT_H);
         UiImages.img(p, 10f, y + 10f, 20f, 20f, quest());
-        Ui.textIn(p, 40f, y, 130f, WANT_H, want.label, Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
-        Ui.textIn(p, 172f, y, 110f, WANT_H, daysLeft(pet.wantDaysLeft), Ui.INS15, Ui.gray(), Ui.LEFT,
-                new String[]{daysLeftNumber(pet.wantDaysLeft)}, new Color[]{Ui.hl()});
+        // columns from the measured text: the longest row (come along, 30 days) needs 445 of the 468 px card
+        float lw = Ui.width(want.label, Ui.INS15) + 4f;
+        Ui.textIn(p, 40f, y, lw, WANT_H, want.label, Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        String days = daysLeft(pet.wantDaysLeft);
+        float dx = 40f + lw + 12f;
+        float dw = Ui.width(days, Ui.INS15) + 4f;
+        Ui.textIn(p, dx, y, dw, WANT_H, days, Ui.INS15, Ui.gray(), Ui.LEFT, new String[]{daysLeftNumber(pet.wantDaysLeft)}, new Color[]{Ui.hl()});
 
         if (want.button == null) {
-            Ui.textIn(p, w - 8f - 170f, y, 170f, WANT_H, want.hint, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
+            float hx = dx + dw + 12f;
+            Ui.textIn(p, hx, y, w - 8f - hx, WANT_H, want.hint, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
             return y + WANT_H + 8f;
         }
 
