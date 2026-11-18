@@ -1,5 +1,6 @@
 package indevo.utils.ui;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
@@ -11,7 +12,6 @@ import java.util.function.Consumer;
 public class UiConfirm extends BaseCustomDialogDelegate {
 
     public static final float WIDTH = 500f;
-    public static final float HEIGHT = 130f;
 
     private final String confirmText;
     private final float height;
@@ -20,8 +20,9 @@ public class UiConfirm extends BaseCustomDialogDelegate {
 
     private InteractionDialogAPI dialog;
 
+    // as high as its text: the game puts the buttons 10 px under the panel
     public UiConfirm(String confirmText, Consumer<TooltipMakerAPI> body, Runnable onConfirm) {
-        this(confirmText, HEIGHT, body, onConfirm);
+        this(confirmText, measure(body), body, onConfirm);
     }
 
     public UiConfirm(String confirmText, float height, Consumer<TooltipMakerAPI> body, Runnable onConfirm) {
@@ -29,6 +30,13 @@ public class UiConfirm extends BaseCustomDialogDelegate {
         this.height = height;
         this.body = body;
         this.onConfirm = onConfirm;
+    }
+
+    private static float measure(Consumer<TooltipMakerAPI> body) {
+        TooltipMakerAPI probe = Global.getSettings().createCustom(WIDTH, 0f, null).createUIElement(WIDTH, 0f, false);
+        probe.setParaInsigniaLarge();
+        body.accept(probe);
+        return (float) Math.ceil(probe.getHeightSoFar());
     }
 
     public void show(Runnable onClose) {
