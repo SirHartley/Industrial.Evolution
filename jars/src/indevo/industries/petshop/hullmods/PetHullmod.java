@@ -79,6 +79,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
             case "supplies" -> stats.getSuppliesPerMonth().modifyMult(id, less, source);
             case "sensor_profile" -> stats.getSensorProfile().modifyMult(id, less, source);
             case "time_mult" -> stats.getTimeMult().modifyPercent(id, value, source);
+            case "deployment" -> stats.getDynamic().getMod(Stats.DEPLOYMENT_POINTS_MOD).modifyMult(id, less, source);
             case "recovery" -> {
                 stats.getDynamic().getMod(Stats.INDIVIDUAL_SHIP_RECOVERY_MOD).modifyFlat(id, value * 0.01f, source);
                 stats.getDynamic().getMod(Stats.DMOD_ACQUIRE_PROB_MOD).modifyMult(id, 1f - Math.min(DMOD_CAP, value) * 0.01f, source);
