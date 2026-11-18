@@ -36,8 +36,10 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     private HashMap<String, Integer> petMarketInventory = new HashMap<>();
 
-    public static final float PET_STORAGE_AMOUNT = 500f;
-    public static final float FLAT_MANAGEMENT_FEE = 2000f;
+    // monthly share of the species value, the cryochamber price, never the pet's own value
+    public static final float STORAGE_FEE_FRACT = 0.1f;
+    public static final float MIN_STORAGE_FEE = 100f;
+    public static final float NPC_STORAGE_FEE_MULT = 1.5f;
     public static final float GAMMA_CORE_STORAGE_COST_RED_PERCENT = 0.70f;
     public static final float ALPHA_CORE_RARITY_BONUS = 0.3f;
     public static final String STORAGE_UPKEEP_ID = "IndEvo_petStorage";
@@ -87,10 +89,10 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     }
 
     public float getStorageCost(Pet pet){
-        float cost = pet.getData().foodPerMonth * PET_STORAGE_AMOUNT * petStorageCostMult;
-        if (!market.isPlayerOwned()) cost += FLAT_MANAGEMENT_FEE;
+        float cost = Math.max(MIN_STORAGE_FEE, pet.getData().value * STORAGE_FEE_FRACT);
+        if (!market.isPlayerOwned()) cost *= NPC_STORAGE_FEE_MULT;
 
-        return cost;
+        return cost * petStorageCostMult;
     }
 
     // what the player pays a month for one pet here; player markets pay it as upkeep, so the upkeep mults apply

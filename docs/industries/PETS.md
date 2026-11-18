@@ -74,7 +74,7 @@ Code paths relative to `jars/src/indevo/`.
 - `IndEvo_PetDockingLine` is found through the `ruleCommandPackages` entry `indevo.industries.petshop.rules` ([Rule commands](../dialogue/RULE_COMMANDS.md)).
 - `PetCenterOptionProvider.register()` from `setListenersIfNeeded()` (`ModPlugin.java:466`).
 - `PetStatusManager.getInstance()` (`PetStatusManager.java:69`) creates the manager on first use: persistent listener, sector script, player fleet event listener. Found again later by `hasListenerOfClass`.
-- `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:172`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (food x 500 x `petStorageCostMult`, plus 2000 on NPC markets). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:161`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` on the "Pet storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)). `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:144-145`); `notifyBeingRemoved()` releases it (`:151`).
+- `PetShop.apply()` adds itself as a persistent listener if missing (`PetShop.java:174`). Storage fee: `getTotalStorageCost()` sums `getStorageCost()` over live pets (`STORAGE_FEE_FRACT` 10% of the species `value` a month, at least `MIN_STORAGE_FEE` 100, x `NPC_STORAGE_FEE_MULT` 1.5 on NPC markets, then x `petStorageCostMult`; the species value, never the pet's own, so the fee shows no unread traits). Player markets pay it as Animal Center upkeep (`IndEvo_petStorage`, `:163`), so the hazard and AI core upkeep mults apply; the tooltip total includes them. NPC markets bill it in `reportEconomyTick()` on the "Pet storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)). `advance()` keeps the pet submarket through `IndustrySubmarkets.ensure` while pets are enabled and removes it while they are off (`:146-147`); `notifyBeingRemoved()` releases it (`:153`).
 - Animal Centers are placed at game start at `jangala`, `gilead`, `fikenhild` ([Utils](../core/UTILS.md)).
 
 ## Flow
@@ -146,7 +146,7 @@ Code paths relative to `jars/src/indevo/`.
 ### Storage
 
 - Store with Move... on the card while docked at an Animal Center, To storage in the where to popup: the pet leaves the ship, `storage` = the PetShop.
-- `PetShop.reportEconomyTick()` on the last iteration of the month charges non player markets `foodPerMonth x 500` plus 2000 per live pet through `BillingHelper.charge`.
+- `PetShop.reportEconomyTick()` on the last iteration of the month charges non player markets `getTotalStorageCost()` through `BillingHelper.charge`.
 
 ### AI cores
 
@@ -154,7 +154,7 @@ Code paths relative to `jars/src/indevo/`.
 |---|---|---|
 | Alpha | rare pet weight x1.3 in restock | `PetSubMarket.java:32` |
 | Beta | pets stop aging in storage; tariff 0 | `Pet.java:146`, `PetSubMarket.java:61` |
-| Gamma | `petStorageCostMult` 0.7 | `PetShop.java:276` |
+| Gamma | `petStorageCostMult` 0.3 (storage fee 70% off) | `PetShop.java:278` |
 
 ## Checks
 
