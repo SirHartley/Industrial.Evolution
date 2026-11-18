@@ -366,8 +366,8 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         return row(p, y, null, "None", null, false);
     }
 
-    private static void lit(CustomPanelAPI p, float y) {
-        PetReveal.lit(Ui.panel(p, 8f, y, CARD_W - 16f, ROW_H), CARD_W - 16f, ROW_H);
+    private void lit(CustomPanelAPI p, float y) {
+        reveal.bar(Ui.panel(p, 8f, y, CARD_W - 16f, ROW_H), CARD_W - 16f, ROW_H);
     }
 
     private static void tableHead(CustomPanelAPI p, float y, String first, String second) {

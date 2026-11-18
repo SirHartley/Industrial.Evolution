@@ -530,7 +530,7 @@ public class PetHusbandry {
             view.crossTrait = row.key();
             panel.refresh();
         });
-        if (lit) PetReveal.lit(chip, cw, CHIP_H);
+        if (lit) view.reveal.bar(chip, cw, CHIP_H);
         Ui.textIn(chip, 9f, 0f, CHIP_BAR_X - 14f, CHIP_H, Ui.fit(row.name(), Ui.INS15, CHIP_BAR_X - 14f), Ui.INS15, row.flaw() ? Ui.neg() : Ui.text(), Ui.LEFT, new String[0], new Color[0]);
 
         List<Result> results = row.results();

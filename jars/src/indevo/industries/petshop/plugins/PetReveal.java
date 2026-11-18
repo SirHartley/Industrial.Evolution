@@ -1,5 +1,6 @@
 package indevo.industries.petshop.plugins;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
 import indevo.config.Setting;
@@ -17,9 +18,11 @@ import java.util.List;
 // the gene scan reveal: the scan reads at once, the rows it read show one by one in real seconds under a green border; never saved
 final class PetReveal {
 
-    static final float ROW_TIME = 0.25f;
-    static final float MAX_TIME = 2f;
+    // the catch.release reward panel pace: row i at (i + 1) x ROW_TIME, its bar fades in, one tick each
+    static final float ROW_TIME = 0.24f;
+    static final float FADE_TIME = 0.15f;
     static final float GLOW_TIME = 0.5f;
+    static final String ROW_SOUND = "ui_cargo_supplies";
     static final float GLOW_W = 10f;
     static final float PAD = 5f;
     // the flaw part of a pet with no flaw left to read: "Flaws: Unknown" goes, "No flaws" shows when it has none
@@ -30,7 +33,6 @@ final class PetReveal {
     private String petId = null;
     private final List<String> rows = new ArrayList<>();
     private float start;
-    private float per;
     private float now;
     private int step;
 
@@ -48,10 +50,9 @@ final class PetReveal {
             if (rows.size() == talents) rows.add(FLAWS);
         }
 
-        per = Math.min(ROW_TIME, MAX_TIME / Math.max(1, rows.size()));
         start = clock;
         now = clock;
-        step = Setting.PET_MOTION.enabled() ? 0 : rows.size();
+        step = Setting.PET_MOTION.enabled() ? -1 : rows.size();
     }
 
     // every frame; true when the panel needs a rebuild: the next row is read, or the reveal is over
@@ -64,16 +65,17 @@ final class PetReveal {
             return true;
         }
 
-        int s = Setting.PET_MOTION.enabled() ? Math.min(rows.size(), (int) ((now - start) / per)) : rows.size();
+        int s = Setting.PET_MOTION.enabled() ? Math.min(rows.size(), (int) ((now - start) / ROW_TIME) - 1) : rows.size();
         if (s == step) return false;
         step = s;
+        if (step < rows.size()) Global.getSoundPlayer().playUISound(ROW_SOUND, 1f, 1f);
         return true;
     }
 
-    // a click anywhere shows the rest at once
+    // a click anywhere shows the rest at once; a panel plugin gets input after its children, so the scan button's own click comes right after begin
     void skip() {
-        if (petId == null || step >= rows.size()) return;
-        start = now - rows.size() * per;
+        if (petId == null || step >= rows.size() || now <= start) return;
+        start = now - (rows.size() + 1) * ROW_TIME;
     }
 
     boolean on(Pet pet) {
@@ -110,7 +112,7 @@ final class PetReveal {
 
     // "2 of 5" while reading
     int count() {
-        return Math.min(step + 1, rows.size());
+        return Math.max(1, Math.min(step + 1, rows.size()));
     }
 
     int total() {
@@ -138,12 +140,14 @@ final class PetReveal {
     }
 
     // the green bar behind the row being read
-    static void lit(CustomPanelAPI row, float w, float h) {
-        Ui.painted(row, 0f, 0f, w, h, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), LIT, a * 0.55f), null);
+    void bar(CustomPanelAPI row, float w, float h) {
+        float at = start + (step + 1) * ROW_TIME;
+        Ui.painted(row, 0f, 0f, w, h, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), LIT,
+                a * 0.55f * Math.min(1f, Math.max(0f, now - at) / FADE_TIME)), null);
     }
 
     private float doneAt() {
-        return Setting.PET_MOTION.enabled() ? start + rows.size() * per : start;
+        return Setting.PET_MOTION.enabled() ? start + (rows.size() + 1) * ROW_TIME : start;
     }
 
     private void paintBorder(PositionAPI pos, float alpha) {

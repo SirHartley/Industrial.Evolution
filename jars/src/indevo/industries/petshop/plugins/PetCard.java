@@ -667,7 +667,7 @@ public class PetCard {
             String id = talents.get(i);
             PetDataRepo.Trait trait = PetDataRepo.getTrait(id);
             CustomPanelAPI row = rows.block(UiData.GRID_ROW_H, 0f);
-            if (reveal.lit(pet, id)) PetReveal.lit(row, rows.width(), UiData.GRID_ROW_H);
+            if (reveal.lit(pet, id)) reveal.bar(row, rows.width(), UiData.GRID_ROW_H);
 
             if (!reveal.known(pet, id)) {
                 talentRow(row, ew, "?", "Unknown", "", null, false);
@@ -711,7 +711,7 @@ public class PetCard {
         }
         for (PetDataRepo.Trait trait : flaws) {
             CustomPanelAPI row = rows.block(UiData.GRID_ROW_H, gap);
-            if (reveal.lit(pet, trait.id())) PetReveal.lit(row, rows.width(), UiData.GRID_ROW_H);
+            if (reveal.lit(pet, trait.id())) reveal.bar(row, rows.width(), UiData.GRID_ROW_H);
             bodyRow(row, ew, pet, trait);
             gap = 0f;
         }
@@ -719,7 +719,7 @@ public class PetCard {
         boolean read = reveal.flawsRead(pet);
         if (read && !flaws.isEmpty()) return;
         CustomPanelAPI row = rows.block(UiData.GRID_ROW_H, gap);
-        if (reveal.lit(pet, PetReveal.FLAWS)) PetReveal.lit(row, rows.width(), UiData.GRID_ROW_H);
+        if (reveal.lit(pet, PetReveal.FLAWS)) reveal.bar(row, rows.width(), UiData.GRID_ROW_H);
         if (read) {
             talentRow(row, ew, null, "No flaws", "", null, false);
             Ui.tooltip(row, row, "No flaws", "A gene scan found no flaws.");
