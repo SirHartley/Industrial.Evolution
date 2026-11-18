@@ -137,7 +137,10 @@ public final class PetChecks {
             check(KINDS.contains(trait.kind()), id + " kind " + trait.kind() + " is one of " + KINDS);
             check(MODES.contains(trait.mode()), id + " mode " + trait.mode() + " is one of " + MODES);
             check(trait.perLevel() > 0f && trait.per() >= 1 && trait.weight() >= 0f, id + " has a value per grade, grades per step and a weight");
-            if (trait.isTalent()) check(PetHullmod.applyStat(stats, trait.stat(), 1f, "check", "check"), id + " stat " + trait.stat() + " is a case of PetHullmod.applyStat");
+            if (trait.isTalent() || !trait.stat().isEmpty()) {
+                check(!trait.isMutation(), id + " mutation acts on the pet, not on a ship stat");
+                check(PetHullmod.applyStat(stats, trait.stat(), 1f, "check", "check"), id + " stat " + trait.stat() + " is a case of PetHullmod.applyStat");
+            }
             check(!trait.effect().isBlank(), id + " has an effect label");
             if (trait.hasLevels()) check(oneName(trait.desc()), id + " desc has one %s for the value and no other %");
             else check(trait.isFlaw() && trait.desc().indexOf('%') < 0, id + " without levels is a flaw with no % in desc");
@@ -462,6 +465,29 @@ public final class PetChecks {
         check(rare.isRare() && rareMax == 1, "a rare species has 1 young");
 
         check(!PetGenetics.rollYoung(medium, sheet(giant, 1), plain, 0f, 0, 0f, 0f, traits, new Random(5)).traits.containsKey(TRAIT_PREFIX + "sterile"), "Sterile comes only from inbreeding");
+
+        checkBody(medium, hamster, plain, traits);
+    }
+
+    private void checkBody(PetData medium, PetData hamster, PetSheet plain, Map<String, Trait> traits) {
+        String runt = PetGenetics.RUNT;
+        check(near(PetGenetics.lifetime(medium, plain, 300f, traits), 300f) && near(PetGenetics.bodyMult(plain, PetGenetics.GIANT, traits), 1f)
+                && near(PetGenetics.heartMult(plain, traits), 1f) && near(PetGenetics.foodMult(plain, traits), 1f), "a clean pet keeps its life, effects, heart rate and food");
+        check(near(PetGenetics.lifetime(medium, sheet(PetGenetics.SHORT_LIVED, 1), 300f, traits), 150f)
+                && near(PetGenetics.lifetime(medium, sheet(PetGenetics.SHORT_LIVED, 2), 300f, traits), 100f), "Short lived halves life at level 1, a third at level 2");
+        check(near(PetGenetics.lifetime(medium, sheet(PetGenetics.LONG_LIVED, 2), 300f, traits), 450f), "Long-lived 2 adds half the life");
+        check(near(PetGenetics.lifetime(hamster, sheet(PetGenetics.SHORT_LIVED, 1, PetGenetics.GLUTTON, 2), 31f, traits), 31f / 2f - 9f), "a hamster loses 3 days of life a flaw level, after Short lived");
+        check(PetGenetics.lifetime(hamster, sheet(PetGenetics.GLUTTON, 12), 31f, traits) < 0f, "a hamster's life has no floor");
+        check(near(PetGenetics.lifetime(medium, sheet(PetGenetics.GLUTTON, 2), 300f, traits), 300f), "flaw levels cost only a hamster life");
+        check(near(PetGenetics.bodyMult(sheet(PetGenetics.GIANT, 1), PetGenetics.GIANT, traits), 2f)
+                && near(PetGenetics.bodyMult(sheet(PetGenetics.SAVANT, 2), PetGenetics.SAVANT, traits), 1.5f), "Giant 1 doubles the mascot effect, Savant 2 adds half to talents");
+        check(near(PetGenetics.bodyMult(sheet(runt, 1), PetGenetics.SAVANT, traits), 0.5f) && near(PetGenetics.bodyMult(sheet(runt, 2, PetGenetics.GIANT, 1), PetGenetics.GIANT, traits), 2f / 3f),
+                "Runt divides by 1 + level, never to zero");
+        check(near(PetGenetics.bodyMult(sheet(PetGenetics.GIANT, 1), PetGenetics.SAVANT, traits), 1f), "Giant does not raise talents");
+        check(near(PetGenetics.heartMult(sheet(PetGenetics.SULLEN, 1), traits), 0.5f), "Sullen 1 halves the heart rate");
+        check(near(PetGenetics.foodMult(sheet(PetGenetics.GLUTTON, 1), traits), 3f), "Glutton 1 eats three times as much");
+        check(near(PetGenetics.bodyValue(sheet(PetGenetics.SPLIT_MIND, 2), PetGenetics.SPLIT_MIND, traits), 2f), "Split mind counts its level");
+        check(PetGenetics.flawLevels(sheet(PetGenetics.GLUTTON, 2, PetGenetics.GIANT, 1, runt, 1), traits) == 3, "flaw levels leave mutations out");
     }
 
     private static PetData byPace(Map<String, PetData> pets, String pace) {

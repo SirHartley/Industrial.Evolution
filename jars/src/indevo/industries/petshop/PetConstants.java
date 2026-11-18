@@ -67,6 +67,9 @@ public final class PetConstants {
     public static final float MALFORMED_MIN = 0.05f;
     public static final float HAMSTER_MALFORMED = 0.5f;
     public static final int MAX_BROOD = 3;
+    public static final float HAMSTER_FLAW_DAYS = 3f;
+    // Glutton's ship, percent a level; its csv value is the food
+    public static final float GLUTTON_SUPPLIES = 15f;
 
     private PetConstants() {
     }

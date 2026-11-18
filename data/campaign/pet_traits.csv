@@ -43,10 +43,10 @@ IndEvo_pt_short_lived,Short lived,flaw,,divide,1,,,1,Lifespan,"Lifespan %s at le
 IndEvo_pt_slow_grower,Slow grower,flaw,,percent,100,,,1,Brood time,Brood time and Young stage %s per level.,"%s takes its time with everything, growing up included.",,inbreeding
 IndEvo_pt_weak_brood,Weak brood,flaw,,percent,25,,90,1,Young lost,"Its young die at birth, %s per level.",The habitat keeper does not look forward to the broods of %s.,,inbreeding
 IndEvo_pt_glutton,Glutton,flaw,,percent,200,,,1,Food eaten,Food eaten %s per level. Its ship uses more supplies.,The quartermaster keeps a separate ledger for %s.,,
-IndEvo_pt_destructive,Destructive,flaw,,reduce,25,,90,1,CR recovery,CR recovery and repairs of its ship %s per level.,%s took apart the repair drone again.,,
-IndEvo_pt_vicious,Vicious,flaw,,percent,25,,,1,Crew losses,Crew losses on its ship %s per level.,The medbay knows %s by name.,,
-IndEvo_pt_unnerving,Unnerving,flaw,,reduce,10,,90,1,Peak time,Peak performance time of its ship %s per level.,The pilots do not like %s watching them work.,,
+IndEvo_pt_destructive,Destructive,flaw,cr_recovery_less,reduce,25,,90,1,CR recovery,CR recovery and repairs of its ship %s per level.,%s took apart the repair drone again.,,
+IndEvo_pt_vicious,Vicious,flaw,crew_loss,percent,25,,,1,Crew losses,Crew losses on its ship %s per level.,The medbay knows %s by name.,,
+IndEvo_pt_unnerving,Unnerving,flaw,peak_time_less,reduce,10,,90,1,Peak time,Peak performance time of its ship %s per level.,The pilots do not like %s watching them work.,,
 IndEvo_pt_sullen,Sullen,flaw,,percent,100,,,1,Heart time,Hearts take %s longer per level.,%s takes a long time to warm to anyone.,,inbreeding
-IndEvo_pt_loud,Loud,flaw,,percent,25,,,1,Sensor profile,Sensor profile of its ship %s per level.,%s can be heard three decks down.,,
+IndEvo_pt_loud,Loud,flaw,sensor_profile_more,percent,25,,,1,Sensor profile,Sensor profile of its ship %s per level.,%s can be heard three decks down.,,
 IndEvo_pt_runt,Runt,flaw,,divide,1,,,1,Mascot and talents,"Mascot effect and talents %s at level 1, a third at level 2.",%s is the smallest of its kind the crew has seen.,,inbreeding
-IndEvo_pt_jinx,Jinx,flaw,,reduce,25,,90,1,Recovery chance,"Recovery chance of its ship %s per level, and more d-mods.","Things break when %s is near, the engineers say.",,inbreeding
+IndEvo_pt_jinx,Jinx,flaw,recovery_less,reduce,25,,90,1,Recovery chance,"Recovery chance of its ship %s per level, and more d-mods.","Things break when %s is near, the engineers say.",,inbreeding

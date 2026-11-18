@@ -381,34 +381,34 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     public boolean feed(Pet pet) {
         CargoAPI cargo = getFoodCargo(pet);
-        PetData data = pet.getData();
-        String foodToEat = getFood(data, cargo);
+        float amount = pet.getFoodPerMonth();
+        String foodToEat = getFood(pet.getData(), amount, cargo);
         if (foodToEat == null) return false;
 
-        cargo.removeCommodity(foodToEat, data.foodPerMonth);
+        cargo.removeCommodity(foodToEat, amount);
         pet.lastMealSupplies = Commodities.SUPPLIES.equals(foodToEat);
 
         if (foodTakenLastMonth.containsKey(foodToEat))
-            foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + data.foodPerMonth);
-        else foodTakenLastMonth.put(foodToEat, data.foodPerMonth);
+            foodTakenLastMonth.put(foodToEat, foodTakenLastMonth.get(foodToEat) + amount);
+        else foodTakenLastMonth.put(foodToEat, amount);
 
         return true;
     }
 
     // what the pet eats next from that cargo: its first real food, Supplies only when none is aboard
-    private static String getFood(PetData data, CargoAPI cargo) {
+    private static String getFood(PetData data, float amount, CargoAPI cargo) {
         if (cargo == null) return null;
 
         for (String food : data.foodCommodities) {
-            if (!Commodities.SUPPLIES.equals(food) && cargo.getCommodityQuantity(food) >= data.foodPerMonth) return food;
+            if (!Commodities.SUPPLIES.equals(food) && cargo.getCommodityQuantity(food) >= amount) return food;
         }
 
-        boolean supplies = data.foodCommodities.contains(Commodities.SUPPLIES) && cargo.getCommodityQuantity(Commodities.SUPPLIES) >= data.foodPerMonth;
+        boolean supplies = data.foodCommodities.contains(Commodities.SUPPLIES) && cargo.getCommodityQuantity(Commodities.SUPPLIES) >= amount;
         return supplies ? Commodities.SUPPLIES : null;
     }
 
     public boolean hasFood(Pet pet) {
-        return getFood(pet.getData(), getFoodCargo(pet)) != null;
+        return getFood(pet.getData(), pet.getFoodPerMonth(), getFoodCargo(pet)) != null;
     }
 
     private CargoAPI getFoodCargo(Pet pet) {

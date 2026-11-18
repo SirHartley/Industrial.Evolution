@@ -21,6 +21,14 @@ public final class PetGenetics {
     public static final String FECUND = PetDataRepo.TRAIT_PREFIX + "fecund";
     public static final String WEAK_BROOD = PetDataRepo.TRAIT_PREFIX + "weak_brood";
     public static final String UNSTABLE = PetDataRepo.TRAIT_PREFIX + "unstable";
+    public static final String GIANT = PetDataRepo.TRAIT_PREFIX + "giant";
+    public static final String SAVANT = PetDataRepo.TRAIT_PREFIX + "savant";
+    public static final String SPLIT_MIND = PetDataRepo.TRAIT_PREFIX + "split_mind";
+    public static final String LONG_LIVED = PetDataRepo.TRAIT_PREFIX + "long_lived";
+    public static final String SHORT_LIVED = PetDataRepo.TRAIT_PREFIX + "short_lived";
+    public static final String GLUTTON = PetDataRepo.TRAIT_PREFIX + "glutton";
+    public static final String SULLEN = PetDataRepo.TRAIT_PREFIX + "sullen";
+    public static final String RUNT = PetDataRepo.TRAIT_PREFIX + "runt";
 
     private PetGenetics() {
     }
@@ -165,6 +173,39 @@ public final class PetGenetics {
 
         Trait pick = pool.get(random.nextInt(pool.size()));
         young.traits.merge(pick.id(), 1, (old, one) -> pick.hasLevels() ? old + one : old);
+    }
+
+    // the life a body gets: Long-lived raises it, Short lived divides it, each flaw level costs a hamster HAMSTER_FLAW_DAYS; no floor
+    public static float lifetime(PetData data, PetSheet sheet, float rolled, Map<String, Trait> traits) {
+        float life = rolled * (1f + bodyValue(sheet, LONG_LIVED, traits) * 0.01f) / (1f + bodyValue(sheet, SHORT_LIVED, traits));
+        return data.isHamster() ? life - PetConstants.HAMSTER_FLAW_DAYS * flawLevels(sheet, traits) : life;
+    }
+
+    public static int flawLevels(PetSheet sheet, Map<String, Trait> traits) {
+        int levels = 0;
+        for (Map.Entry<String, Integer> entry : sheet.traits.entrySet()) {
+            Trait trait = traits.get(entry.getKey());
+            if (trait != null && trait.isFlaw()) levels += entry.getValue();
+        }
+        return levels;
+    }
+
+    // mascot effect (boost Giant) or talents (boost Savant); Runt divides both, never to zero
+    public static float bodyMult(PetSheet sheet, String boost, Map<String, Trait> traits) {
+        return (1f + bodyValue(sheet, boost, traits) * 0.01f) / (1f + bodyValue(sheet, RUNT, traits));
+    }
+
+    public static float heartMult(PetSheet sheet, Map<String, Trait> traits) {
+        return 1f / (1f + bodyValue(sheet, SULLEN, traits) * 0.01f);
+    }
+
+    public static float foodMult(PetSheet sheet, Map<String, Trait> traits) {
+        return 1f + bodyValue(sheet, GLUTTON, traits) * 0.01f;
+    }
+
+    // a mutation or flaw at its level, never scaled by hearts, nest or the hamster
+    public static float bodyValue(PetSheet sheet, String id, Map<String, Trait> traits) {
+        return value(traits, id, sheet.getGrade(id));
     }
 
     private static float value(Map<String, Trait> traits, String id, int level) {

@@ -13,6 +13,8 @@ public class PetSheet {
     // trait id to grade or level, in the order the traits arrived
     public final Map<String, Integer> traits = new LinkedHashMap<>();
     public final Set<String> known = new HashSet<>();
+    // flaws are read only by a gene scan; mutations are always known
+    public boolean flawsRead = false;
 
     public PetSheet(String disposition) {
         this.disposition = disposition;
