@@ -96,6 +96,24 @@ public final class Rc7PayChecks {
             c.note("detachment in " + det.getContainingLocation().getName() + ", populated " + Misc.isInCivilizedSpace() + ", same system as the player " + (det.getContainingLocation() == fleet.getContainingLocation()));
             c.put("captainPay", vanilla);
             c.expect(Math.abs(pay - vanilla) < 0.5f, "detachment pay of an active officer is the vanilla pay (" + pay + " vs " + vanilla + ")");
+            // SWITCHES=empty: the detachment sits in a system without markets, so it gets the plain pay
+            if (System.getProperty("ie.switches", "").contains("empty")) {
+                com.fs.starfarer.api.campaign.StarSystemAPI empty = null;
+                for (com.fs.starfarer.api.campaign.StarSystemAPI s : Global.getSector().getStarSystems()) {
+                    if (Misc.getMarketsInLocation(s).isEmpty() && !s.hasTag(com.fs.starfarer.api.impl.campaign.ids.Tags.THEME_HIDDEN)) {
+                        empty = s;
+                        break;
+                    }
+                }
+                c.expect(empty != null, "a system without markets");
+                det.getContainingLocation().removeEntity(det);
+                empty.addEntity(det);
+                det.setLocation(empty.getCenter().getLocation().x + 3000f, empty.getCenter().getLocation().y);
+                float plain = Misc.getOfficerSalary(captain, Misc.isMercenary(captain), false, true);
+                c.note("detachment moved to " + empty.getName() + ", plain pay " + plain + ", populated pay " + vanilla);
+                c.expect(Math.abs(DetachmentPayroll.getSalary(captain, det.getContainingLocation()) - plain) < 0.5f, "detachment pay without markets is the plain pay (" + DetachmentPayroll.getSalary(captain, det.getContainingLocation()) + " vs " + plain + ")");
+                c.put("captainPay", plain);
+            }
 
             // two month ends, so the second report holds a full month
             int day = Global.getSector().getClock().getDay();
