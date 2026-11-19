@@ -92,6 +92,12 @@ public final class PetsBestiaryChecks {
             // the Adoption tab of Jangala opened
             List<Pet> offers = npc.getOffers();
             manager().seeOffers(offers);
+            // SWITCHES=allseen: every species seen on offer, for shots of every tile
+            if (System.getProperty("ie.switches", "").contains("allseen")) {
+                List<Pet> every = new ArrayList<>();
+                for (PetData d : PetDataRepo.getAll()) every.add(new Pet(d.id, "Probe"));
+                manager().seeOffers(every);
+            }
             List<String> offered = new ArrayList<>();
             for (Pet o : offers) offered.add(o.typeID);
             c.put("offered", String.join(",", offered));
@@ -108,7 +114,7 @@ public final class PetsBestiaryChecks {
                 break;
             }
             c.put("earlier", earlier);
-            PetBestiaryFile.get().see(Collections.singletonList(earlier), Collections.emptyList());
+            if (earlier != null) PetBestiaryFile.get().see(Collections.singletonList(earlier), Collections.emptyList());
             manager().seeAll();
             Set<String> file = PetBestiaryFile.get().getSpecies();
             c.note("earlier-game species " + earlier + ", common file species " + file + ", looks " + PetBestiaryFile.get().getLooks());
