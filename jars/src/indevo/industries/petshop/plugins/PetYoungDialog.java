@@ -58,22 +58,18 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     // sparks: start offset from the card's top left, as a share of its size, and the push outwards in px
     static final float[][] SPARKS = {{-0.05f, 0.08f, -18f, 0f}, {-0.04f, 0.4f, -14f, 0f}, {-0.06f, 0.8f, -20f, 0f}, {1.03f, 0.16f, 16f, 0f},
             {1.04f, 0.56f, 20f, 0f}, {1.02f, 0.88f, 14f, 0f}, {0.24f, -0.04f, 0f, -16f}, {0.72f, -0.03f, 0f, -12f}, {0.48f, 1.02f, 0f, 14f}};
-    // card back as the board card_back: lattice of 20 x 28 diamonds framed 5 px in, a black 80 x 112 diamond in the middle
-    static final float BACK_INSET = 5f;
-    static final float LATTICE_W = 20f;
-    static final float LATTICE_H = 28f;
-    static final float MID_W = 80f;
-    static final float MID_H = 112f;
-    static final int BACK_ROUND = 6;
-    static final int FRAME_ROUND = 3;
-    static final float BACK_TEX_W = 256f;
-    static final float BACK_TEX_H = 512f;
-    // board question mark is 21 px high, the font glyph 15
-    static final float QMARK_SCALE = 1.4f;
+    // the board card_back (big) and small_back: size, outline radius, frame inset and radius, lattice tile, dot, middle and inner diamond
+    static final Back BIG = new Back(250, 374, 6, 5, 3, 20, 28, 6, 8, 80, 112, 72, 102, 1.4f);
+    static final Back SMALL = new Back(72, 104, 3, 4, 0, 16, 24, 4, 6, 48, 72, 40, 60, 1.15f);
+    // small cards of the Husbandry Young row: six on a line
+    static final float SMALL_GAP = 6f;
+    static final int SMALL_LINE = 6;
+    static final float SMALL_PORTRAIT = 64f;
+    static final float SMALL_NAME_Y = 76f;
     private static final Map<String, LazyFont.DrawableString> TAG_TEXT = new HashMap<>();
     private static LazyFont.DrawableString qmark;
-    // gl texture ids by ui colour set
-    private static final Map<Integer, Integer> BACK_TEXTURES = new HashMap<>();
+    // gl texture ids by look and colours
+    private static final Map<Integer, Integer> TEXTURES = new HashMap<>();
 
     private final PetShop shop;
     private final PetBrood brood;
@@ -92,6 +88,10 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
 
     enum Tier {
         PLAIN, SUM, MUTATION, MALFORMED
+    }
+
+    record Back(float w, float h, int round, float inset, int frameRound, float tileW, float tileH, float dotW, float dotH,
+                float midW, float midH, float innerW, float innerH, float qmarkScale) {
     }
 
     public PetYoungDialog(PetShop shop, PetBrood brood) {
@@ -198,95 +198,103 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         refresh();
     }
 
-    // closed young tile of the Husbandry tab: a diamond lattice, a diamond in the middle with the question mark
-    static void back(CustomPanelAPI p, float x, float y, float w, float h) {
-        float scale = h / CARD_H;
-        float tile = Math.max(8f, 20f * scale);
-        float slope = 28f / 20f;
-        float mw = Math.round(80f * scale);
-        float mh = Math.round(112f * scale);
-        Color lattice = Misc.scaleAlpha(Ui.base(), 0.4f);
-        Color edge = Ui.line();
-
-        Ui.painted(p, x, y, w, h, (pos, a) -> {
-            float left = pos.getX() + 5f;
-            float top = pos.getY() + pos.getHeight() - 5f;
-            float iw = pos.getWidth() - 10f;
-            float ih = pos.getHeight() - 10f;
-            UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), Color.BLACK, a);
-
-            float reach = ih / slope;
-            for (float c = -reach - tile; c <= iw + reach + tile; c += tile) {
-                float t0 = Math.max(0f, -c);
-                float t1 = Math.min(iw - c, reach);
-                if (t1 > t0) UiDraw.line(left + c + t0, top - t0 * slope, left + c + t1, top - t1 * slope, 1f, lattice, 1f, 1f, 1f, a, false);
-
-                float u0 = Math.max(0f, c - iw);
-                float u1 = Math.min(c, reach);
-                if (u1 > u0) UiDraw.line(left + c - u0, top - u0 * slope, left + c - u1, top - u1 * slope, 1f, lattice, 1f, 1f, 1f, a, false);
+    // Husbandry Young row: one small card per young, the back while closed, portrait and name once opened; a click opens the brood
+    static void smallCards(CustomPanelAPI p, float y, PetBrood brood, PetReveal reveal, Runnable open) {
+        List<Pet> young = brood.getYoung();
+        for (int i = 0; i < young.size(); i++) {
+            Pet pet = young.get(i);
+            float x = 2f + (i % SMALL_LINE) * (SMALL.w + SMALL_GAP);
+            float ty = y + (i / SMALL_LINE) * (SMALL.h + SMALL_GAP);
+            CustomPanelAPI card = UiButtons.row(p, x, ty, SMALL.w, SMALL.h, false, true, null, open);
+            if (!brood.opened.contains(pet.id)) {
+                Ui.painted(card, 0f, 0f, SMALL.w, SMALL.h, (pos, a) -> paintBack(SMALL, pos, a, hover(pos) ? Ui.bright() : color(Tier.PLAIN)), null);
+                continue;
             }
 
-            UiDraw.outline(pos.getX() + 5f, pos.getY() + 5f, iw, ih, edge, a);
-            float cx = Math.round(pos.getX() + pos.getWidth() / 2f);
-            float cy = Math.round(pos.getY() + pos.getHeight() / 2f);
-            UiDraw.fan(cx - mw / 2f, cy - mh / 2f, mh, 2f, new float[]{mw / mh, 0f, 2f * mw / mh, 1f, mw / mh, 2f, 0f, 1f}, mw / mh, 1f, Color.BLACK, a);
-            diamond(cx, cy, mw, mh, Ui.base(), a);
-            diamond(cx, cy, mw - 8f, mh - 10f, edge, a);
-        }, null);
+            Tier tier = tier(pet, reveal);
+            Ui.painted(card, 0f, 0f, SMALL.w, SMALL.h, (pos, a) -> paintFace(pos, a, tier == Tier.PLAIN && hover(pos) ? Ui.bright() : color(tier)), null);
+            UiImages.img(card, 4f, 4f, SMALL_PORTRAIT, SMALL_PORTRAIT, pet.getIcon());
+            Ui.textIn(card, 4f, SMALL_NAME_Y, SMALL_PORTRAIT, Ui.LINE_H, Ui.fit(pet.name, Ui.INS15, SMALL_PORTRAIT), Ui.INS15, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
+            String kind = tag(tier);
+            Ui.tooltip(p, card, 180f, TooltipMakerAPI.TooltipLocation.RIGHT, t -> {
+                t.addPara(pet.name, Ui.hl(), 0f);
+                t.addPara(pet.getLookName(), 2f);
+                if (kind != null) t.addPara(kind, color(tier), 2f);
+            });
+        }
+    }
 
-        float q = Math.max(12f, Math.round(24f * scale));
-        UiImages.img(p, x + Math.round((w - q) / 2f), y + Math.round((h - q) / 2f), q, q, PetCard.unknownSprite());
+    private static boolean hover(PositionAPI pos) {
+        float mx = Global.getSettings().getMouseX();
+        float my = Global.getSettings().getMouseY();
+        return mx >= pos.getX() && mx < pos.getX() + pos.getWidth() && my >= pos.getY() && my < pos.getY() + pos.getHeight();
     }
 
     // back of a closed young card, then "Click to open" under the middle diamond
     private static void cardBack(CustomPanelAPI p, float x, float y) {
-        Ui.painted(p, x, y, CARD_W, CARD_H, PetYoungDialog::paintBack, null);
+        Ui.painted(p, x, y, BIG.w, BIG.h, (pos, a) -> paintBack(BIG, pos, a, color(Tier.PLAIN)), null);
 
         String text = "Click to open";
         float hw = Ui.width(text, Ui.INS15) + 20f;
-        float hx = x + Math.round((CARD_W - hw) / 2f);
-        float hy = y + Math.round(CARD_H / 2f + MID_H / 2f + 24f);
+        float hx = x + Math.round((BIG.w - hw) / 2f);
+        float hy = y + Math.round(BIG.h / 2f + BIG.midH / 2f + 24f);
         Ui.box(p, hx, hy, hw, 22f, Ui.dark(), Color.BLACK);
         Ui.textIn(p, hx, hy, hw, 22f, text, Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
     }
 
-    private static void paintBack(PositionAPI pos, float a) {
+    private static void paintBack(Back back, PositionAPI pos, float a, Color outline) {
         float x = Math.round(pos.getX());
         float y = Math.round(pos.getY());
-        UiDraw.quad(x, y, CARD_W, CARD_H, Color.BLACK, a);
-        UiDraw.texture(backTexture(), CARD_W, CARD_H, CARD_W / BACK_TEX_W, CARD_H / BACK_TEX_H, x, y, CARD_W, CARD_H, a);
+        UiDraw.quad(x, y, back.w, back.h, Color.BLACK, a);
+        texture(back, true, outline, x, y, a);
 
         LazyFont.DrawableString q = qmark();
         if (q == null) return;
 
         q.setBaseColor(Misc.scaleAlpha(Misc.scaleColorOnly(Ui.base(), 0.66f), a));
         GL11.glPushMatrix();
-        GL11.glTranslatef(x + Math.round(CARD_W / 2f), y + Math.round(CARD_H / 2f), 0f);
-        GL11.glScalef(QMARK_SCALE, QMARK_SCALE, 1f);
+        GL11.glTranslatef(x + Math.round(back.w / 2f), y + Math.round(back.h / 2f), 0f);
+        GL11.glScalef(back.qmarkScale, back.qmarkScale, 1f);
         q.draw(-Math.round(q.getWidth() / 2f), Math.round(q.getHeight() / 2f));
         GL11.glPopMatrix();
     }
 
-    // the board svg drawn once per ui colour set with java2d anti aliasing (vanilla builds font textures the same way), gl lines can not be smoothed reliably
-    private static int backTexture() {
+    private static void paintFace(PositionAPI pos, float a, Color outline) {
+        float x = Math.round(pos.getX());
+        float y = Math.round(pos.getY());
+        UiDraw.quad(x, y, SMALL.w, SMALL.h, Color.BLACK, a);
+        texture(SMALL, false, outline, x, y, a);
+    }
+
+    private static void texture(Back back, boolean lattice, Color outline, float x, float y, float a) {
+        int tw = 1;
+        int th = 1;
+        while (tw < back.w) tw <<= 1;
+        while (th < back.h) th <<= 1;
+        int key = Objects.hash(back, lattice, outline.getRGB(), Ui.base().getRGB(), Ui.dark().getRGB());
+        Integer id = TEXTURES.get(key);
+        if (id == null) {
+            id = upload(draw(back, lattice, outline), tw, th);
+            TEXTURES.put(key, id);
+        }
+        UiDraw.texture(id, back.w, back.h, back.w / tw, back.h / th, x, y, back.w, back.h, a);
+    }
+
+    // the board svg drawn with java2d anti aliasing (vanilla builds its font textures the same way), plain gl lines come out jagged
+    private static BufferedImage draw(Back back, boolean lattice, Color outline) {
         Color base = Ui.base();
         Color dark = Ui.dark();
-        Color plain = color(Tier.PLAIN);
-        int key = Objects.hash(base.getRGB(), dark.getRGB(), plain.getRGB());
-        Integer cached = BACK_TEXTURES.get(key);
-        if (cached != null) return cached;
-
-        int w = (int) CARD_W;
-        int h = (int) CARD_H;
-        double in = BACK_INSET;
+        int w = (int) back.w;
+        int h = (int) back.h;
+        double in = back.inset;
         double iw = w - 2 * in;
         double ih = h - 2 * in;
-        double ox = in + (iw % LATTICE_W) / 2;
-        double oy = in + (ih % LATTICE_H) / 2;
+        double ox = in + (iw % back.tileW) / 2;
+        double oy = in + (ih % back.tileH) / 2;
         double cx = in + iw / 2;
         double cy = in + ih / 2;
 
-        BufferedImage image = new BufferedImage((int) BACK_TEX_W, (int) BACK_TEX_H, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = image.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
@@ -294,49 +302,51 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, w, h);
 
-        Shape frame = new RoundRectangle2D.Double(in + 0.5, in + 0.5, iw - 1, ih - 1, 2 * FRAME_ROUND, 2 * FRAME_ROUND);
-        Color lattice = Misc.setAlpha(dark, 255);
-        for (double tx = ox - LATTICE_W; tx < in + iw; tx += LATTICE_W) {
-            for (double ty = oy - LATTICE_H; ty < in + ih; ty += LATTICE_H) {
-                g.setClip(frame);
-                g.clip(new Rectangle2D.Double(tx, ty, LATTICE_W, LATTICE_H));
-                g.setColor(lattice);
-                g.draw(diamondShape(tx + LATTICE_W / 2, ty + LATTICE_H / 2, LATTICE_W, LATTICE_H));
-                g.setColor(dark);
-                g.fill(diamondShape(tx + LATTICE_W / 2, ty + LATTICE_H / 2, 6, 8));
+        if (lattice) {
+            Shape frame = new RoundRectangle2D.Double(in + 0.5, in + 0.5, iw - 1, ih - 1, 2 * back.frameRound, 2 * back.frameRound);
+            Color line = Misc.setAlpha(dark, 255);
+            for (double tx = ox - back.tileW; tx < in + iw; tx += back.tileW) {
+                for (double ty = oy - back.tileH; ty < in + ih; ty += back.tileH) {
+                    g.setClip(frame);
+                    g.clip(new Rectangle2D.Double(tx, ty, back.tileW, back.tileH));
+                    g.setColor(line);
+                    g.draw(diamond(tx + back.tileW / 2, ty + back.tileH / 2, back.tileW, back.tileH));
+                    g.setColor(dark);
+                    g.fill(diamond(tx + back.tileW / 2, ty + back.tileH / 2, back.dotW, back.dotH));
+                }
             }
+            g.setClip(null);
+            g.setColor(dark);
+            g.draw(frame);
+
+            Shape mid = diamond(cx, cy, back.midW, back.midH);
+            g.setColor(Color.BLACK);
+            g.fill(mid);
+            g.setColor(base);
+            g.draw(mid);
+            g.setColor(dark);
+            g.draw(diamond(cx, cy, back.innerW, back.innerH));
         }
-        g.setClip(null);
-        g.setColor(dark);
-        g.draw(frame);
 
-        Shape mid = diamondShape(cx, cy, MID_W, MID_H);
-        g.setColor(Color.BLACK);
-        g.fill(mid);
-        g.setColor(base);
-        g.draw(mid);
-        g.setColor(dark);
-        g.draw(diamondShape(cx, cy, MID_W - 8, MID_H - 10));
-
-        g.setColor(plain);
-        g.draw(new RoundRectangle2D.Double(0.5, 0.5, w - 1, h - 1, 2 * BACK_ROUND, 2 * BACK_ROUND));
+        g.setColor(outline);
+        g.draw(new RoundRectangle2D.Double(0.5, 0.5, w - 1, h - 1, 2 * back.round, 2 * back.round));
         g.dispose();
+        return image;
+    }
 
-        int tw = (int) BACK_TEX_W;
-        ByteBuffer pixels = BufferUtils.createByteBuffer(tw * (int) BACK_TEX_H * 4);
-        for (int py = 0; py < h; py++) {
-            for (int px = 0; px < w; px++) {
+    private static int upload(BufferedImage image, int tw, int th) {
+        ByteBuffer pixels = BufferUtils.createByteBuffer(tw * th * 4);
+        for (int py = 0; py < image.getHeight(); py++) {
+            for (int px = 0; px < image.getWidth(); px++) {
                 int argb = image.getRGB(px, py);
                 int i = (py * tw + px) * 4;
                 pixels.put(i, (byte) (argb >> 16)).put(i + 1, (byte) (argb >> 8)).put(i + 2, (byte) argb).put(i + 3, (byte) (argb >>> 24));
             }
         }
-        int id = UiDraw.upload(pixels, tw, (int) BACK_TEX_H);
-        BACK_TEXTURES.put(key, id);
-        return id;
+        return UiDraw.upload(pixels, tw, th);
     }
 
-    private static Shape diamondShape(double cx, double cy, double w, double h) {
+    private static Shape diamond(double cx, double cy, double w, double h) {
         Path2D.Double d = new Path2D.Double();
         d.moveTo(cx, cy - h / 2);
         d.lineTo(cx + w / 2, cy);
@@ -356,13 +366,6 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
             Global.getLogger(PetYoungDialog.class).warn("IndEvo: no font for the young card back", e);
         }
         return qmark;
-    }
-
-    private static void diamond(float cx, float cy, float w, float h, Color c, float a) {
-        UiDraw.line(cx, cy + h / 2f, cx + w / 2f, cy, 1f, c, 1f, 1f, 1f, a, false);
-        UiDraw.line(cx + w / 2f, cy, cx, cy - h / 2f, 1f, c, 1f, 1f, 1f, a, false);
-        UiDraw.line(cx, cy - h / 2f, cx - w / 2f, cy, 1f, c, 1f, 1f, 1f, a, false);
-        UiDraw.line(cx - w / 2f, cy, cx, cy + h / 2f, 1f, c, 1f, 1f, 1f, a, false);
     }
 
     // sum and the talent tables only once its talents are read; a mutation and Malformed always show

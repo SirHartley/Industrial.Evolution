@@ -40,9 +40,6 @@ public class PetHusbandry {
     static final float START_W = 104f;
     static final float TREE_W = 96f;
     static final float PLAN_X = 244f;
-    static final float YOUNG_W = 40f;
-    static final float YOUNG_H = 56f;
-    static final float YOUNG_GAP = 8f;
     static final float CROSS_Y = 118f;
     static final float CHIP_H = 24f;
     static final float CHIP_PITCH = 28f;
@@ -833,15 +830,7 @@ public class PetHusbandry {
 
         float y = DIALS_Y;
         Ui.heading(p, 0f, y, w, "Young", String.valueOf(young.size()));
-        y += Ui.HEADING_H + 6f;
-        for (int i = 0; i < young.size(); i++) {
-            Pet pet = young.get(i);
-            float x = 2f + i * (YOUNG_W + YOUNG_GAP + 16f);
-            if (brood.opened.contains(pet.id)) {
-                Ui.card(p, x, y, YOUNG_W + 16f, YOUNG_H);
-                UiImages.img(p, x + 8f, y + 8f, YOUNG_W, YOUNG_W, pet.getIcon());
-            } else PetYoungDialog.back(p, x, y, YOUNG_W + 16f, YOUNG_H);
-        }
+        PetYoungDialog.smallCards(p, y + Ui.HEADING_H + 4f, brood, view.reveal, () -> panel.popup(new PetYoungDialog(shop, brood)));
 
         Ui.rule(p, 0f, h - 36f, w);
         treeButton(p, h, a, b);
