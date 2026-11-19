@@ -98,60 +98,6 @@ public final class UiDraw {
         quad(x + w - 1f, y + 1f, 1f, h - 2f, c, alpha);
     }
 
-    // 1 px outline with corners rounded to r, anti aliased by pixel coverage; under, when set, covers the pixels outside the corners
-    public static void roundOutline(float x, float y, float w, float h, int r, Color c, Color under, float alpha) {
-        x = Math.round(x);
-        y = Math.round(y);
-        w = Math.round(w);
-        h = Math.round(h);
-        quad(x + r, y, w - 2f * r, 1f, c, alpha);
-        quad(x + r, y + h - 1f, w - 2f * r, 1f, c, alpha);
-        quad(x, y + r, 1f, h - 2f * r, c, alpha);
-        quad(x + w - 1f, y + r, 1f, h - 2f * r, c, alpha);
-
-        for (int i = 0; i < r; i++) {
-            for (int j = 0; j < r; j++) {
-                float d = (float) Math.hypot(r - i - 0.5f, r - j - 0.5f) - (r - 0.5f);
-                float ring = Math.max(0f, 1f - Math.abs(d));
-                float out = Math.max(0f, Math.min(1f, d));
-                float[] px = {x + i, x + w - 1f - i, x + i, x + w - 1f - i};
-                float[] py = {y + j, y + j, y + h - 1f - j, y + h - 1f - j};
-                for (int k = 0; k < 4; k++) {
-                    if (under != null && out > 0f) quad(px[k], py[k], 1f, 1f, under, alpha * out);
-                    if (ring > 0f) quad(px[k], py[k], 1f, 1f, c, alpha * ring);
-                }
-            }
-        }
-    }
-
-    // 1 px gl lines, pts holds x1, y1, x2, y2 per line
-    public static void lines(float[] pts, Color c, float alpha) {
-        begin(c, alpha);
-        GL11.glBegin(GL11.GL_LINES);
-        for (int i = 0; i + 3 < pts.length; i += 4) {
-            GL11.glVertex2f(pts[i], pts[i + 1]);
-            GL11.glVertex2f(pts[i + 2], pts[i + 3]);
-        }
-        GL11.glEnd();
-        end();
-    }
-
-    // filled diamonds w wide and h high, centres holds x, y per diamond
-    public static void diamonds(float[] centres, float w, float h, Color c, float alpha) {
-        begin(c, alpha);
-        GL11.glBegin(GL11.GL_QUADS);
-        for (int i = 0; i + 1 < centres.length; i += 2) {
-            float cx = centres[i];
-            float cy = centres[i + 1];
-            GL11.glVertex2f(cx, cy + h / 2f);
-            GL11.glVertex2f(cx + w / 2f, cy);
-            GL11.glVertex2f(cx, cy - h / 2f);
-            GL11.glVertex2f(cx - w / 2f, cy);
-        }
-        GL11.glEnd();
-        end();
-    }
-
     public static void dashed(float x, float y, float w, float h, Color c, float alpha) {
         float dash = 3f;
         for (float i = 0f; i < w; i += dash * 2f) {

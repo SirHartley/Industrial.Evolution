@@ -20,9 +20,15 @@ import indevo.industries.petshop.memory.PetSheet;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 import org.lazywizard.lazylib.ui.LazyFont;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.awt.geom.Path2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.*;
 
@@ -60,10 +66,14 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     static final float MID_H = 112f;
     static final int BACK_ROUND = 6;
     static final int FRAME_ROUND = 3;
+    static final float BACK_TEX_W = 256f;
+    static final float BACK_TEX_H = 512f;
     // board question mark is 21 px high, the font glyph 15
     static final float QMARK_SCALE = 1.4f;
     private static final Map<String, LazyFont.DrawableString> TAG_TEXT = new HashMap<>();
     private static LazyFont.DrawableString qmark;
+    // gl texture ids by ui colour set
+    private static final Map<Integer, Integer> BACK_TEXTURES = new HashMap<>();
 
     private final PetShop shop;
     private final PetBrood brood;
@@ -240,70 +250,100 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         Ui.textIn(p, hx, hy, hw, 22f, text, Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
     }
 
-    // board colours: lattice the dark ui colour at full alpha, small diamonds, frame and inner diamond the dark colour, middle diamond base
     private static void paintBack(PositionAPI pos, float a) {
         float x = Math.round(pos.getX());
         float y = Math.round(pos.getY());
-        float w = pos.getWidth();
-        float h = pos.getHeight();
-        float iw = w - 2f * BACK_INSET;
-        float ih = h - 2f * BACK_INSET;
-        float left = x + BACK_INSET;
-        float top = y + h - BACK_INSET;
-        float ox = (iw % LATTICE_W) / 2f;
-        float oy = (ih % LATTICE_H) / 2f;
-        float run = LATTICE_W / LATTICE_H;
-        UiDraw.quad(x, y, w, h, Color.BLACK, a);
-
-        List<Float> lines = new ArrayList<>();
-        for (float c = ox + LATTICE_W / 2f - (float) Math.ceil(ih * run / LATTICE_W + 1f) * LATTICE_W; c <= iw + ih * run + LATTICE_W; c += LATTICE_W) {
-            for (int dir = -1; dir <= 1; dir += 2) {
-                float y0 = 0f;
-                float y1 = ih;
-                float xa = c + dir * run * (y0 - oy);
-                float xb = c + dir * run * (y1 - oy);
-                if (Math.max(xa, xb) < 0f || Math.min(xa, xb) > iw) continue;
-                if (xa < 0f || xa > iw) {
-                    xa = Math.max(0f, Math.min(iw, xa));
-                    y0 = oy + (xa - c) / (dir * run);
-                }
-                if (xb < 0f || xb > iw) {
-                    xb = Math.max(0f, Math.min(iw, xb));
-                    y1 = oy + (xb - c) / (dir * run);
-                }
-                Collections.addAll(lines, left + xa + 0.5f, top - y0 - 0.5f, left + xb + 0.5f, top - y1 - 0.5f);
-            }
-        }
-        float[] pts = new float[lines.size()];
-        for (int i = 0; i < pts.length; i++) pts[i] = lines.get(i);
-        UiDraw.lines(pts, Misc.setAlpha(Ui.dark(), 255), a);
-
-        List<Float> dots = new ArrayList<>();
-        for (float dx = ox + LATTICE_W / 2f; dx + 3f <= iw; dx += LATTICE_W) {
-            for (float dy = oy + LATTICE_H / 2f; dy + 4f <= ih; dy += LATTICE_H) Collections.addAll(dots, left + dx, top - dy);
-        }
-        float[] centres = new float[dots.size()];
-        for (int i = 0; i < centres.length; i++) centres[i] = dots.get(i);
-        UiDraw.diamonds(centres, 6f, 8f, Ui.dark(), a);
-
-        UiDraw.roundOutline(left, y + BACK_INSET, iw, ih, FRAME_ROUND, Ui.dark(), Color.BLACK, a);
-        float cx = x + Math.round(w / 2f);
-        float cy = y + Math.round(h / 2f);
-        UiDraw.diamonds(new float[]{cx, cy}, MID_W, MID_H, Color.BLACK, a);
-        diamond(cx, cy, MID_W, MID_H, Ui.base(), a);
-        diamond(cx, cy, MID_W - 8f, MID_H - 10f, Ui.dark(), a);
+        UiDraw.quad(x, y, CARD_W, CARD_H, Color.BLACK, a);
+        UiDraw.texture(backTexture(), CARD_W, CARD_H, CARD_W / BACK_TEX_W, CARD_H / BACK_TEX_H, x, y, CARD_W, CARD_H, a);
 
         LazyFont.DrawableString q = qmark();
-        if (q != null) {
-            q.setBaseColor(Misc.scaleAlpha(Misc.scaleColorOnly(Ui.base(), 0.66f), a));
-            GL11.glPushMatrix();
-            GL11.glTranslatef(cx, cy, 0f);
-            GL11.glScalef(QMARK_SCALE, QMARK_SCALE, 1f);
-            q.draw(-Math.round(q.getWidth() / 2f), Math.round(q.getHeight() / 2f));
-            GL11.glPopMatrix();
-        }
+        if (q == null) return;
 
-        UiDraw.roundOutline(x, y, w, h, BACK_ROUND, color(Tier.PLAIN), Color.BLACK, a);
+        q.setBaseColor(Misc.scaleAlpha(Misc.scaleColorOnly(Ui.base(), 0.66f), a));
+        GL11.glPushMatrix();
+        GL11.glTranslatef(x + Math.round(CARD_W / 2f), y + Math.round(CARD_H / 2f), 0f);
+        GL11.glScalef(QMARK_SCALE, QMARK_SCALE, 1f);
+        q.draw(-Math.round(q.getWidth() / 2f), Math.round(q.getHeight() / 2f));
+        GL11.glPopMatrix();
+    }
+
+    // the board svg drawn once per ui colour set with java2d anti aliasing (vanilla builds font textures the same way), gl lines can not be smoothed reliably
+    private static int backTexture() {
+        Color base = Ui.base();
+        Color dark = Ui.dark();
+        Color plain = color(Tier.PLAIN);
+        int key = Objects.hash(base.getRGB(), dark.getRGB(), plain.getRGB());
+        Integer cached = BACK_TEXTURES.get(key);
+        if (cached != null) return cached;
+
+        int w = (int) CARD_W;
+        int h = (int) CARD_H;
+        double in = BACK_INSET;
+        double iw = w - 2 * in;
+        double ih = h - 2 * in;
+        double ox = in + (iw % LATTICE_W) / 2;
+        double oy = in + (ih % LATTICE_H) / 2;
+        double cx = in + iw / 2;
+        double cy = in + ih / 2;
+
+        BufferedImage image = new BufferedImage((int) BACK_TEX_W, (int) BACK_TEX_H, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g.setStroke(new BasicStroke(1f));
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, w, h);
+
+        Shape frame = new RoundRectangle2D.Double(in + 0.5, in + 0.5, iw - 1, ih - 1, 2 * FRAME_ROUND, 2 * FRAME_ROUND);
+        Color lattice = Misc.setAlpha(dark, 255);
+        for (double tx = ox - LATTICE_W; tx < in + iw; tx += LATTICE_W) {
+            for (double ty = oy - LATTICE_H; ty < in + ih; ty += LATTICE_H) {
+                g.setClip(frame);
+                g.clip(new Rectangle2D.Double(tx, ty, LATTICE_W, LATTICE_H));
+                g.setColor(lattice);
+                g.draw(diamondShape(tx + LATTICE_W / 2, ty + LATTICE_H / 2, LATTICE_W, LATTICE_H));
+                g.setColor(dark);
+                g.fill(diamondShape(tx + LATTICE_W / 2, ty + LATTICE_H / 2, 6, 8));
+            }
+        }
+        g.setClip(null);
+        g.setColor(dark);
+        g.draw(frame);
+
+        Shape mid = diamondShape(cx, cy, MID_W, MID_H);
+        g.setColor(Color.BLACK);
+        g.fill(mid);
+        g.setColor(base);
+        g.draw(mid);
+        g.setColor(dark);
+        g.draw(diamondShape(cx, cy, MID_W - 8, MID_H - 10));
+
+        g.setColor(plain);
+        g.draw(new RoundRectangle2D.Double(0.5, 0.5, w - 1, h - 1, 2 * BACK_ROUND, 2 * BACK_ROUND));
+        g.dispose();
+
+        int tw = (int) BACK_TEX_W;
+        ByteBuffer pixels = BufferUtils.createByteBuffer(tw * (int) BACK_TEX_H * 4);
+        for (int py = 0; py < h; py++) {
+            for (int px = 0; px < w; px++) {
+                int argb = image.getRGB(px, py);
+                int i = (py * tw + px) * 4;
+                pixels.put(i, (byte) (argb >> 16)).put(i + 1, (byte) (argb >> 8)).put(i + 2, (byte) argb).put(i + 3, (byte) (argb >>> 24));
+            }
+        }
+        int id = UiDraw.upload(pixels, tw, (int) BACK_TEX_H);
+        BACK_TEXTURES.put(key, id);
+        return id;
+    }
+
+    private static Shape diamondShape(double cx, double cy, double w, double h) {
+        Path2D.Double d = new Path2D.Double();
+        d.moveTo(cx, cy - h / 2);
+        d.lineTo(cx + w / 2, cy);
+        d.lineTo(cx, cy + h / 2);
+        d.lineTo(cx - w / 2, cy);
+        d.closePath();
+        return d;
     }
 
     private static LazyFont.DrawableString qmark() {

@@ -44,7 +44,7 @@ Every IE panel follows these rules.
 | `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children; `shown` holds the fraction a kit progress bar shows, for checks |
 | `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code (`show`) and popups over a panel (`over`) |
 | `UiConfirm` | The game's confirmation popup over a panel, in its own interaction dialog |
-| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, outline with rounded anti aliased corners `roundOutline`, batched 1 px `lines` and filled `diamonds`, dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels to a new texture) |
+| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels to a new texture) |
 
 Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordinates and the content, and returns the created element. Panels the kit creates use `UiCanvas`, so a button anywhere below them reports to the nearest kit panel and runs its `Runnable`. No helper keeps global state; view state lives in the panel's state object.
 
