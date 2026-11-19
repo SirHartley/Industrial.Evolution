@@ -26,7 +26,7 @@ public final class PetMemorial {
     static final int SHOWN = 5;
     // a tooltip can not scroll
     static final int SHOWN_EXPANDED = 12;
-    static final float[] COLUMN_X = {8f, 112f, 264f, 332f};
+    static final float[] COLUMN_X = {8f, 112f, 252f, 332f};
     static final float LINE_GAP = 4f;
     static final float MORE_GAP = 6f;
 
@@ -60,15 +60,15 @@ public final class PetMemorial {
 
         CustomPanelAPI table = Global.getSettings().createCustom(w, h, new UiCanvas());
         float cw = w - COLUMN_X[3] - 8f;
-        Ui.thead(table, 0f, 0f, w, new String[]{"Name", "Species", "Age", "Cause"}, COLUMN_X, new float[]{100f, 148f, 64f, cw},
+        Ui.thead(table, 0f, 0f, w, new String[]{"Name", "Species", "Age", "Cause"}, COLUMN_X, new float[]{100f, 136f, 76f, cw},
                 new Alignment[]{Ui.LEFT, Ui.LEFT, Ui.LEFT, Ui.RIGHT});
 
         float y = Ui.HEADING_H + 4f;
         for (int i = 0; i < shown; i++) {
             Pet pet = dead.get(i);
             cell(table, COLUMN_X[0], y, 96f, pet.name, Ui.text(), Ui.LEFT);
-            cell(table, COLUMN_X[1], y, 144f, pet.getData().species, Ui.text(), Ui.LEFT);
-            cell(table, COLUMN_X[2], y, 64f, PetCard.span(pet), Ui.text(), Ui.LEFT);
+            cell(table, COLUMN_X[1], y, 136f, pet.getData().species, Ui.text(), Ui.LEFT);
+            cell(table, COLUMN_X[2], y, 76f, PetCard.span(pet), Ui.text(), Ui.LEFT);
             cell(table, COLUMN_X[3], y, cw, cause(pet.deathData.cause), Ui.text(), Ui.RIGHT);
             y += UiData.GRID_ROW_H;
             if (!expanded) continue;
