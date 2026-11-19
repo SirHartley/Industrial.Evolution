@@ -108,14 +108,14 @@ public class FogGrid {
             return (float) Math.min(1, Math.max(0, body * inner * gate));
         }
 
-        // same math as keep() in the fragment shader
+        // same math as keep() in the fragment shader without its edge wobble: star rings smooth, plain rings linear
         public float keepAt(double x, double y) {
             double mult = 1;
             float[] k = keep;
             for (int i = 0; i + KEEP_STRIDE <= k.length; i += KEEP_STRIDE) {
                 double dist = Math.hypot(x - k[i], y - k[i + 1]);
-                double full = smooth(k[i + 2], k[i + 3], dist);
-                mult *= k[i + 5] > 0 ? HAZE * smooth(k[i + 4], k[i + 5], dist) + (1 - HAZE) * full : full;
+                if (k[i + 5] > 0) mult *= HAZE * smooth(k[i + 4], k[i + 5], dist) + (1 - HAZE) * smooth(k[i + 2], k[i + 3], dist);
+                else mult *= Math.min(1, Math.max(0, (dist - k[i + 2]) / (k[i + 3] - k[i + 2])));
             }
             return (float) mult;
         }
