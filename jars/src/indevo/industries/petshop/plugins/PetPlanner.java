@@ -72,7 +72,7 @@ public class PetPlanner {
     static final String SORT_TALENTS = "Talents";
     static final String SORT_NAME = "Name";
     static final List<UiFilter.Item> PARENT_TOGGLES = List.of(new UiFilter.Item(NO_RELATIVES, 104f, "Hides the kin of the other parent."),
-            new UiFilter.Item(ABOVE_ZERO, 84f, "Hides the pets that cannot give the target."));
+            new UiFilter.Item(ABOVE_ZERO, 92f, "Hides the pets that cannot give the target."));
     static final List<UiFilter.Item> PARENT_KEYS = List.of(new UiFilter.Item(SORT_CHANCE, 78f, "Best chance first."), new UiFilter.Item(SORT_NAME, 70f),
             new UiFilter.Item("Hearts", 78f, "Most hearts first."), new UiFilter.Item("Age", 62f));
     static final List<UiFilter.Item> COPY_TOGGLES = List.of(new UiFilter.Item(LIVING, 70f, "Hides dead, sold and rehomed pets."));
@@ -690,15 +690,20 @@ public class PetPlanner {
             if (flaw == null) continue;
             String per = flaw.format(flaw.value(flaw.per(), 1f));
             String what = per.isEmpty() ? Misc.lcFirst(flaw.effect()) + "." : Misc.lcFirst(flaw.effect()) + " " + per + " per level.";
-            t.addPara("Arrives with the flaw %s: " + what, 10f, new Color[]{Ui.neg(), Ui.neg()}, flaw.name(), per);
+            t.addPara("Arrives with the flaw %s: " + esc(what), 10f, new Color[]{Ui.neg(), Ui.neg()}, flaw.name(), per);
         }
 
         String value = trait.format(trait.value(v, 1f));
         String what = value.isEmpty() ? "" : ", " + Misc.lcFirst(trait.effect()) + " " + value;
         if (trait.isFlaw() && v == 0) t.addPara("Wanted: none.", 10f);
-        else if (trait.isFlaw()) t.addPara("Wanted: level %s or less" + what + ".", 10f, new Color[]{Ui.hl(), Ui.neg()}, String.valueOf(v), value);
+        else if (trait.isFlaw()) t.addPara("Wanted: level %s or less" + esc(what) + ".", 10f, new Color[]{Ui.hl(), Ui.neg()}, String.valueOf(v), value);
         else if (!trait.hasLevels()) t.addPara("Wanted: has it.", 10f);
-        else t.addPara("Wanted: " + (trait.isTalent() ? "grade" : "level") + " %s or better" + what + ".", 10f, Ui.hl(), String.valueOf(v), value);
+        else t.addPara("Wanted: " + (trait.isTalent() ? "grade" : "level") + " %s or better" + esc(what) + ".", 10f, Ui.hl(), String.valueOf(v), value);
+    }
+
+    // addPara formats its text: effect values like "+15%" are text, not a conversion
+    private static String esc(String s) {
+        return s.replace("%", "%%");
     }
 
     // both parents stand: the selected row as the cross card draws it, the results that meet the target in gold, a click sets the grade
@@ -927,7 +932,7 @@ public class PetPlanner {
         String name = before.isEmpty() ? "Expected" : "Expected, with " + String.join(" and ", before);
         Ui.textIn(p, 0f, y, 220f, Ui.LINE_H, Ui.fit(name, Ui.INS15, 220f), Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
 
-        Expect e = calc == null || plan.wanted.isEmpty() ? null : expected(plan, new HashSet<>());
+        Expect e = calc == null ? null : expected(plan, new HashSet<>());
         if (e == null || e.broods() < 0) {
             Ui.textIn(p, w - 200f, y, 200f, Ui.LINE_H, "-", Ui.INS15, Ui.text(), Ui.RIGHT, new String[0], new Color[0]);
             return;
