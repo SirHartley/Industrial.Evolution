@@ -115,7 +115,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private transient List<Note> held = null;
     private transient int holds = 0;
     private transient InteractionDialogAPI heldFor = null;
-    // battle reports come while the encounter dialog closes, its text goes with it, so they wait for the next frame
+    // reports made while the encounter dialog closes or the loot screen shows wait for the next frame
     private transient boolean deferring = false;
     private transient List<Note> deferred = null;
 
@@ -729,6 +729,16 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         post(new Note().line(format, color, hl.toArray(new String[0]), colors.toArray(new Color[0])));
     }
 
+    private void defer(Runnable reports) {
+        boolean was = deferring;
+        deferring = true;
+        try {
+            reports.run();
+        } finally {
+            deferring = was;
+        }
+    }
+
     // reports go into the open dialog's text, a campaign message only when no dialog is open
     private void post(Note note) {
         if (deferring) {
@@ -850,8 +860,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportBattleOccurred(CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (!Setting.PETS.enabled()) return;
 
-        deferring = true;
-        try {
+        // fired right before the encounter dialog dismisses, its text goes with it
+        defer(() -> {
             for (CampaignFleetAPI fleet : battle.getSnapshotBothSides()) {
                 if (!fleet.isPlayerFleet() && !FleetUtils.isDetachmentFleet(fleet)) continue;
 
@@ -860,9 +870,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                     if (!pet.isDead() && lost.contains(pet.assignedFleetMember)) escapeOrDie(pet, fleet, lost);
                 }
             }
-        } finally {
-            deferring = false;
-        }
+        });
     }
 
     // autoresolve reports every round with the same snapshot, a survivor has left the lost ship by then
@@ -940,8 +948,11 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
-        answer(PetWant.COME_ALONG);
-        if (Setting.PETS.enabled() && loot != null && dialog != null) scavenge(loot, dialog.getInteractionTarget());
+        // the loot screen hides the dialog text and salvage closes the dialog after it
+        defer(() -> {
+            answer(PetWant.COME_ALONG);
+            if (Setting.PETS.enabled() && loot != null && dialog != null) scavenge(loot, dialog.getInteractionTarget());
+        });
     }
 
     // battle loot has a fleet as target; seeded by the wreck, so a reload finds the same
