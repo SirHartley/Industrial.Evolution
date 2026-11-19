@@ -815,7 +815,8 @@ public class PetHusbandry {
 
         Ui.rule(p, 0f, h - 36f, w);
         Color hl = Misc.getHighlightColor();
-        ButtonAPI cancel = UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Cancel pairing", UiButtons.Kind.AMBER, CutStyle.TL_BR,
+        float cw = Math.max(START_W, (float) Math.ceil(Ui.width("Cancel pairing", Ui.ORB12)) + PetCard.BUTTON_H);
+        ButtonAPI cancel = UiButtons.button(p, w - cw, h - PetCard.BUTTON_H, cw, PetCard.BUTTON_H, "Cancel pairing", UiButtons.Kind.AMBER, CutStyle.TL_BR,
                 () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Cancel the pairing of %s and %s?\n\nBoth go back to Pet storage. There will be no young.", 0f,
                         new Color[]{hl, hl}, a.name, b.name), () -> shop.cancelBrood(brood))));
         Ui.tooltip(p, cancel, "Cancel pairing", "Both parents go back to Pet storage, Unsettled for " + Math.round(PetConstants.UNSETTLED_DAYS) + " days.");
