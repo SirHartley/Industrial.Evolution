@@ -292,7 +292,7 @@ public class PetHusbandry {
 
         int unknown = unknownTalents(pet);
         if (unknown > 0) {
-            CustomPanelAPI icon = UiImages.img(t, 58f, -2f, PetCard.MARKER, PetCard.MARKER, PetCard.unknownSprite());
+            CustomPanelAPI icon = PetCard.unknownMarker(t, 61f, 1f);
             Ui.tooltip(t, icon, "Unknown traits", unknown + (unknown == 1 ? " talent of " : " talents of ") + pet.name + " not shown yet.");
         }
 
@@ -760,7 +760,7 @@ public class PetHusbandry {
         Ui.card(p, x, y, NODE_W, NODE_H);
         if (node.icon() != null) UiImages.img(p, x + 4f, y + 4f, 44f, 44f, node.icon());
         else planFace(p, x + 4f, y + 4f, 44f);
-        if (node.unknown()) UiImages.img(p, x + 29f, y + 1f, 20f, 20f, PetCard.unknownSprite());
+        if (node.unknown()) PetCard.unknownMarker(p, x + 29f, y + 1f);
         float hw = node.hearts() != null ? PetCard.heartsWidth(9f, 2f) + 6f : 0f;
         Ui.textIn(p, x + 58f, y + 6f, NODE_W - 66f - hw, Ui.LINE_H, Ui.fit(node.name(), Ui.INS15, NODE_W - 66f - hw), Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
         if (node.hearts() != null) PetCard.hearts(p, x + NODE_W - 8f - PetCard.heartsWidth(9f, 2f), y + 12f, node.hearts(), 9f, 2f);

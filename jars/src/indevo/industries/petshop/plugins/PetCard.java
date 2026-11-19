@@ -30,6 +30,8 @@ import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
+import org.lazywizard.lazylib.ui.LazyFont;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -57,6 +59,7 @@ public class PetCard {
     static final float PET_GROW = 0.2f;
     static final float PORTRAIT = 64f;
     static final float MARKER = 28f;
+    static final float UNKNOWN_BOX = 22f;
     static final float NAME_H = 26f;
     static final float TAG_Y = 34f;
     static final float IDENT_Y = 82f;
@@ -88,6 +91,7 @@ public class PetCard {
     static final float REFIT_GAP = 3f;
     // the refit button: both left corners cut by 6, in a 34 box with y down
     static final float[] CUT = {6, 0, 12, 0, 12, 34, 6, 34, 0, 28, 0, 6};
+    private static LazyFont.DrawableString qmark;
 
     private final PetsPanel panel;
     private final PetsView view;
@@ -139,6 +143,44 @@ public class PetCard {
     // the vanilla question mark, the unknown traits marker
     static String unknownSprite() {
         return Global.getSettings().getSpriteName("misc", "question_mark_actual");
+    }
+
+    // the unknown traits marker of the boards: the question mark in base colour with a 2 px black outline stamped every 30 degrees, in a 22 px box
+    static CustomPanelAPI unknownMarker(CustomPanelAPI p, float x, float y) {
+        return Ui.painted(p, x, y, UNKNOWN_BOX, UNKNOWN_BOX, null, (pos, a) -> {
+            float cx = pos.getX() + UNKNOWN_BOX / 2f;
+            float cy = pos.getY() + UNKNOWN_BOX / 2f;
+            for (int deg = 0; deg < 360; deg += 30) {
+                double r = Math.toRadians(deg);
+                paintQmark(cx + (float) (2 * Math.cos(r)), cy + (float) (2 * Math.sin(r)), 1f, Color.BLACK, a * 0.75f);
+            }
+            paintQmark(cx, cy, 1f, Ui.base(), a);
+        });
+    }
+
+    // the question mark glyph (ORBITRON_24AABOLD, 15 px high) centred on cx, cy
+    static void paintQmark(float cx, float cy, float scale, Color c, float alpha) {
+        LazyFont.DrawableString q = qmark();
+        if (q == null) return;
+
+        q.setBaseColor(Misc.scaleAlpha(c, alpha));
+        GL11.glPushMatrix();
+        GL11.glTranslatef(cx, cy, 0f);
+        GL11.glScalef(scale, scale, 1f);
+        q.draw(-Math.round(q.getWidth() / 2f), Math.round(q.getHeight() / 2f));
+        GL11.glPopMatrix();
+    }
+
+    private static LazyFont.DrawableString qmark() {
+        if (qmark != null) return qmark;
+
+        try {
+            LazyFont font = LazyFont.loadFont(Fonts.ORBITRON_24AABOLD);
+            qmark = font.createText("?", Color.WHITE, font.getBaseHeight());
+        } catch (Exception e) {
+            Global.getLogger(PetCard.class).warn("IndEvo: no font for the pet question mark", e);
+        }
+        return qmark;
     }
 
     // the vanilla intel (!), the quest marker

@@ -67,7 +67,6 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     static final float SMALL_PORTRAIT = 64f;
     static final float SMALL_NAME_Y = 76f;
     private static final Map<String, LazyFont.DrawableString> TAG_TEXT = new HashMap<>();
-    private static LazyFont.DrawableString qmark;
     // gl texture ids by look and colours
     private static final Map<Integer, Integer> TEXTURES = new HashMap<>();
 
@@ -248,15 +247,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         UiDraw.quad(x, y, back.w, back.h, Color.BLACK, a);
         texture(back, true, outline, x, y, a);
 
-        LazyFont.DrawableString q = qmark();
-        if (q == null) return;
-
-        q.setBaseColor(Misc.scaleAlpha(Misc.scaleColorOnly(Ui.base(), 0.66f), a));
-        GL11.glPushMatrix();
-        GL11.glTranslatef(x + Math.round(back.w / 2f), y + Math.round(back.h / 2f), 0f);
-        GL11.glScalef(back.qmarkScale, back.qmarkScale, 1f);
-        q.draw(-Math.round(q.getWidth() / 2f), Math.round(q.getHeight() / 2f));
-        GL11.glPopMatrix();
+        PetCard.paintQmark(x + Math.round(back.w / 2f), y + Math.round(back.h / 2f), back.qmarkScale, Misc.scaleColorOnly(Ui.base(), 0.66f), a);
     }
 
     private static void paintFace(PositionAPI pos, float a, Color outline) {
@@ -354,18 +345,6 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         d.lineTo(cx - w / 2, cy);
         d.closePath();
         return d;
-    }
-
-    private static LazyFont.DrawableString qmark() {
-        if (qmark != null) return qmark;
-
-        try {
-            LazyFont font = LazyFont.loadFont(Fonts.ORBITRON_24AABOLD);
-            qmark = font.createText("?", Color.WHITE, font.getBaseHeight());
-        } catch (Exception e) {
-            Global.getLogger(PetYoungDialog.class).warn("IndEvo: no font for the young card back", e);
-        }
-        return qmark;
     }
 
     // sum and the talent tables only once its talents are read; a mutation and Malformed always show
