@@ -59,6 +59,7 @@ public final class PetMemorial {
     static final float VANILLA_BELOW = 200f;
     static final float SCREEN_MARGIN = 20f;
     static final String ELSEWHERE = "Lost in another universe";
+    static final String LOST = "Lost";
 
     // auto scroll state, real time and never saved; a new sector starts on the first pet
     private static WeakReference<SectorAPI> sector = new WeakReference<>(null);
@@ -67,8 +68,16 @@ public final class PetMemorial {
     private static long start;
     private static long lastFrame;
 
-    // grey: a starred pet that died in another save, kept in PetMemorialFile
-    public record Gone(String id, String name, String icon, boolean grey, String about, String how, List<String> titles, int hearts, boolean star) {
+    // pet null: a starred pet that died in another save, kept in PetMemorialFile; cycle -1 when not known
+    public record Gone(String id, Pet pet, String name, String species, String icon, String age, float days, String cause, int cycle, String how,
+                       List<String> titles, int hearts, boolean star) {
+        public boolean grey() {
+            return pet == null;
+        }
+
+        String about() {
+            return species + ", " + age;
+        }
     }
 
     private PetMemorial() {
@@ -93,7 +102,7 @@ public final class PetMemorial {
         for (int i = lost.size() - 1; i >= 0; i--) {
             PetMemorialFile.Lost l = lost.get(i);
             if (ids.contains(l.id())) continue;
-            gone.add(new Gone(l.id(), l.name(), l.icon(), true, l.species() + ", " + l.age(), ELSEWHERE, l.titles(), l.hearts(), true));
+            gone.add(new Gone(l.id(), null, l.name(), l.species(), l.icon(), l.age(), l.days(), LOST, -1, ELSEWHERE, l.titles(), l.hearts(), true));
         }
         return gone;
     }
@@ -101,17 +110,31 @@ public final class PetMemorial {
     private static Gone gone(Pet pet) {
         List<String> titles = new ArrayList<>();
         for (PetTitle title : pet.getTitles()) titles.add(title.label);
-        return new Gone(pet.id, pet.name, pet.getIcon(), false, pet.getData().species + ", " + pet.getSpan(), how(pet.deathData), titles, pet.getHearts(), pet.favourite);
+        DeathData data = pet.deathData;
+        int cycle = data.timestamp != 0L ? Global.getSector().getClock().createClock(data.timestamp).getCycle() : -1;
+        return new Gone(pet.id, pet, pet.name, pet.getData().species, pet.getIcon(), pet.getSpan(), pet.age, cause(data), cycle, how(data, cycle), titles,
+                pet.getHearts(), pet.favourite);
     }
 
-    static String how(DeathData data) {
-        String cycle = data.timestamp != 0L ? " in cycle " + Global.getSector().getClock().createClock(data.timestamp).getCycle() : "";
+    // the short form on a list tile
+    static String cause(DeathData data) {
+        return switch (data.cause) {
+            case NATURAL -> "Old age";
+            case COMBAT -> "Combat";
+            case STARVED -> "Starved";
+            case EUTHANIZED -> "Put to sleep";
+            default -> LOST;
+        };
+    }
+
+    static String how(DeathData data, int c) {
+        String cycle = c >= 0 ? " in cycle " + c : "";
         return switch (data.cause) {
             case NATURAL -> "Died of old age" + cycle;
             case COMBAT -> (data.shipName != null ? "Lost with the " + data.shipName : "Lost with its ship") + cycle;
             case STARVED -> "Starved" + cycle;
             case EUTHANIZED -> "Put to sleep" + cycle;
-            default -> "Lost";
+            default -> LOST;
         };
     }
 

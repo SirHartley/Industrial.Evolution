@@ -23,7 +23,7 @@ public class PetMemorialFile extends BaseSharedJSONFile {
     private List<Lost> pets = null;
 
     // icon is the portrait of the species or look, null when the species is gone with its mod
-    public record Lost(String id, String name, String species, String icon, String age, int hearts, List<String> titles) {
+    public record Lost(String id, String name, String species, String icon, String age, float days, int hearts, List<String> titles) {
     }
 
     public static PetMemorialFile get() {
@@ -61,7 +61,8 @@ public class PetMemorialFile extends BaseSharedJSONFile {
             List<String> titles = new ArrayList<>();
             JSONArray t = o.optJSONArray("titles");
             for (int j = 0; t != null && j < t.length(); j++) titles.add(t.optString(j));
-            out.add(new Lost(o.optString("id"), o.optString("name"), data.species, look != null ? look.icon() : data.icon, o.optString("age"), o.optInt("hearts"), titles));
+            out.add(new Lost(o.optString("id"), o.optString("name"), data.species, look != null ? look.icon() : data.icon, o.optString("age"),
+                    (float) o.optDouble("days", 0d), o.optInt("hearts"), titles));
         }
         return out;
     }
@@ -71,7 +72,7 @@ public class PetMemorialFile extends BaseSharedJSONFile {
         return false;
     }
 
-    // the age as text, a pet from another game has no clock to count with
+    // the age as text, a pet from another game has no clock to count with; days only sort
     public void remember(Pet pet) {
         if (contains(pet.id)) return;
 
@@ -83,6 +84,7 @@ public class PetMemorialFile extends BaseSharedJSONFile {
             PetDataRepo.Look look = pet.getLook();
             if (look != null) o.put("look", look.id());
             o.put("age", pet.getSpan());
+            o.put("days", pet.age);
             o.put("hearts", pet.getHearts());
             JSONArray titles = new JSONArray();
             for (PetTitle title : pet.getTitles()) titles.put(title.label);
