@@ -31,6 +31,10 @@ public class PetTree {
     static final float FIND_W = 170f;
     static final float FULL_W = 84f;
     static final float SMALL_W = 96f;
+    static final float WIDE_W = 88f;
+    static final float WIDE_GAP = 6f;
+    // sector persistent data, a Boolean: no class in the save
+    static final String WIDE_KEY = "IndEvo_petTreeWide";
     static final float SPECIES_COUNT_X = 30f;
     static final float SPECIES_GAP = 4f;
     static final float TOGGLE_GAP = 12f;
@@ -135,7 +139,7 @@ public class PetTree {
         PetTreeLayout.Folded folded = PetTreeLayout.fold(items, gone(items), keep, view.unfolded, false);
         List<PetTreeLayout.Pair> pairs = new ArrayList<>(folded.pairs());
         if (!pair.isEmpty()) pairs.add(new PetTreeLayout.Pair(pair.get(0).id, pair.get(1).id, true));
-        PetTreeLayout.Result result = PetTreeLayout.layout(folded.items(), pairs, PetTreeLayout.FULL, false);
+        PetTreeLayout.Result result = PetTreeLayout.layout(folded.items(), pairs, metrics(), false);
 
         Set<String> shared = new HashSet<>();
         if (pair.isEmpty()) Ui.heading(p, 0f, PetsPanel.BODY_Y, LEFT_W, "Family of " + root.name, root.getData().species);
@@ -157,7 +161,7 @@ public class PetTree {
         else if (pair.isEmpty()) focus.add(root.id);
 
         if (result.families().isEmpty() && folded.stubs().isEmpty()) alone(p, root, focus.contains(root.id));
-        else canvas(result, PetTreeLayout.FULL, false, folded.stubs(), focus, shared).draw(p, 0f, TREE_Y, PetsPanel.LIST_W, h - TREE_Y);
+        else canvas(result, metrics(), false, folded.stubs(), focus, shared).draw(p, 0f, TREE_Y, PetsPanel.LIST_W, h - TREE_Y);
 
         Ui.vrule(p, PetsPanel.LIST_W + 5f, PetsPanel.BODY_Y, h - PetsPanel.BODY_Y);
         float cw = w - PetsPanel.CARD_X;
@@ -168,7 +172,7 @@ public class PetTree {
 
     // a pet with no parents, mates or young in the registry
     private void alone(CustomPanelAPI p, Pet pet, boolean focus) {
-        float x = Math.round((LEFT_W - PetTreeLayout.FULL.tileW()) / 2f);
+        float x = Math.round((LEFT_W - metrics().tileW()) / 2f);
         tile(p, x, TREE_Y, pet, focus, false);
         Ui.text(p, 0f, TREE_Y + TILE_H + 12f, LEFT_W, "No known family.", Ui.gray(), Ui.CENTER);
     }
@@ -182,7 +186,7 @@ public class PetTree {
         if (card != null && !card.typeID.equals(view.treeSpecies)) card = null;
         Set<String> keep = card != null ? Set.of(card.id) : Set.of();
         PetTreeLayout.Folded folded = PetTreeLayout.fold(items, gone(items), keep, view.unfolded, true);
-        PetTreeLayout.Metrics m = view.treeSmall ? PetTreeLayout.SMALL : PetTreeLayout.FULL;
+        PetTreeLayout.Metrics m = view.treeSmall ? PetTreeLayout.SMALL : metrics();
         PetTreeLayout.Result result = PetTreeLayout.layout(folded.items(), folded.pairs(), m, true);
         if (card != null && !result.nodes().containsKey(card.id)) card = null;
 
@@ -206,9 +210,9 @@ public class PetTree {
         UiFilter.field(p, 2f, y, FIND_W, view.find, "Find a pet");
         String query = view.find.query();
         float fx = 2f + FIND_W + TOGGLE_GAP;
-        if (!query.isEmpty() && match(query) == null) Ui.textIn(p, fx, y, 200f, UiFilter.H, "No pet of that name.", Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
-
         float x = w - 2f - FULL_W;
+        boolean missing = !query.isEmpty() && match(query) == null;
+
         toggle(p, x, y, FULL_W, "Full view", view.treeFull, () -> {
             view.treeFull = !view.treeFull;
             if (!view.treeFull) {
@@ -221,7 +225,11 @@ public class PetTree {
             }
             moved();
         }, "Every family of a species side by side, the pets with no family at the right.");
-        if (!view.treeFull) return;
+        if (!view.treeFull) {
+            wideToggle(p, x - TOGGLE_GAP - WIDE_W, y);
+            if (missing) noMatch(p, fx, y, x - TOGGLE_GAP - WIDE_W);
+            return;
+        }
 
         List<String> kinds = species();
         Map<String, Integer> counts = new HashMap<>();
@@ -232,7 +240,7 @@ public class PetTree {
         }
         float sw = speciesW(counts.values());
         float pitch = sw + SPECIES_GAP;
-        float room = x - TOGGLE_GAP - (fx + 200f) - SMALL_W - TOGGLE_GAP;
+        float room = x - TOGGLE_GAP - (fx + 200f) - SMALL_W - WIDE_GAP - WIDE_W - TOGGLE_GAP;
         int fit = Math.max(1, (int) Math.floor((room + SPECIES_GAP) / pitch));
         if (kinds.size() > fit) {
             kinds = new ArrayList<>(kinds.subList(0, fit));
@@ -254,8 +262,39 @@ public class PetTree {
 
         toggle(p, smallX, y, SMALL_W, "Small tiles", view.treeSmall, () -> {
             view.treeSmall = !view.treeSmall;
+            if (view.treeSmall) setWide(false);
             moved();
         }, "Portraits only. Name, hearts and traits are on the hover.");
+        wideToggle(p, smallX - WIDE_GAP - WIDE_W, y);
+        if (missing) noMatch(p, fx, y, smallX - WIDE_GAP - WIDE_W);
+    }
+
+    // up to 200 px, cut before the first toggle on its right
+    private static void noMatch(CustomPanelAPI p, float x, float y, float right) {
+        Ui.textIn(p, x, y, Math.min(200f, right - TOGGLE_GAP - x), UiFilter.H, "No pet of that name.", Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
+    }
+
+    // off by default; small tiles have no name, so the two exclude each other
+    private void wideToggle(CustomPanelAPI p, float x, float y) {
+        toggle(p, x, y, WIDE_W, "Wide tiles", wide(), () -> {
+            setWide(!wide());
+            if (wide()) view.treeSmall = false;
+            moved();
+        }, "Wider tiles, so longer names fit.");
+    }
+
+    // the tile size of the Family tree and the Planner, kept per game
+    static PetTreeLayout.Metrics metrics() {
+        return wide() ? PetTreeLayout.WIDE : PetTreeLayout.FULL;
+    }
+
+    static boolean wide() {
+        return Boolean.TRUE.equals(Global.getSector().getPersistentData().get(WIDE_KEY));
+    }
+
+    private static void setWide(boolean on) {
+        if (on) Global.getSector().getPersistentData().put(WIDE_KEY, true);
+        else Global.getSector().getPersistentData().remove(WIDE_KEY);
     }
 
     // width of a species toggle: the icon, then room for the widest count
@@ -397,13 +436,13 @@ public class PetTree {
     }
 
     CustomPanelAPI tile(CustomPanelAPI p, float x, float y, Pet pet, boolean focus, boolean small, Runnable click) {
-        float s = small ? PetTreeLayout.SMALL.tileW() : PetTreeLayout.FULL.tileW();
+        float s = small ? PetTreeLayout.SMALL.tileW() : metrics().tileW();
         float th = small ? s : TILE_H;
         CustomPanelAPI t = UiButtons.row(p, x, y, s, th, focus, true, null, click);
         float alpha = pet.isDead() ? PetCard.DIM : 1f;
         if (small) UiImages.img(t, 2f, 2f, SMALL_PORTRAIT, SMALL_PORTRAIT, pet.getData().icon, null, alpha);
         else {
-            UiImages.img(t, 8f, 5f, PORTRAIT, PORTRAIT, pet.getData().icon, null, alpha);
+            UiImages.img(t, Math.round((s - PORTRAIT) / 2f), 5f, PORTRAIT, PORTRAIT, pet.getData().icon, null, alpha);
             Ui.textIn(t, 2f, 56f, s - 4f, Ui.LINE_H - 2f, Ui.fit(pet.name, Ui.INS15, s - 4f), Ui.INS15, pet.isDead() ? Ui.gray() : Ui.text(), Ui.CENTER, new String[0], new Color[0]);
             if (pet.isDead()) Ui.textIn(t, 2f, 73f, s - 4f, Ui.LINE_H - 2f, goneTag(pet), Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
             else PetCard.hearts(t, Math.round((s - PetCard.heartsWidth(HEART, HEART_GAP)) / 2f), 78f, pet, HEART, HEART_GAP);

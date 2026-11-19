@@ -259,7 +259,7 @@ public class PetPlanner {
             for (String id : new String[]{a, b}) if (!PetPlan.isPlan(id)) pets.add(id);
         }
         for (String id : pets) items.add(new Item(id, null, null));
-        PetTreeLayout.Result result = PetTreeLayout.layout(items, List.of(), PetTreeLayout.FULL, false);
+        PetTreeLayout.Result result = PetTreeLayout.layout(items, List.of(), PetTree.metrics(), false);
 
         String focus = selected == null ? null : view.planPlace >= 0 ? place(selected, view.planPlace) : selected.id;
         Set<String> gold = selected != null && view.planPlace >= 0 ? Set.of(selected.id) : Set.of();
@@ -301,7 +301,7 @@ public class PetPlanner {
 
     // every brood of the planner leads to a planned young, so every line is dashed
     private PetTreeCanvas canvas(PetTreeLayout.Result result, String focus, Set<String> gold, PetPlan selected) {
-        return new PetTreeCanvas(result, PetTreeLayout.FULL, false, gold, selected != null ? selected.id : null, new PetTreeCanvas.Owner() {
+        return new PetTreeCanvas(result, PetTree.metrics(), false, gold, selected != null ? selected.id : null, new PetTreeCanvas.Owner() {
             @Override
             public void tile(CustomPanelAPI world, Node n, float x, float y) {
                 boolean on = n.id.equals(focus);
@@ -380,9 +380,9 @@ public class PetPlanner {
 
     // a planned young: the dashed face, its name, and its chance in place of the hearts
     private void planTile(CustomPanelAPI world, float x, float y, PetPlan plan, boolean focus) {
-        float s = PetTreeLayout.FULL.tileW();
+        float s = PetTree.metrics().tileW();
         CustomPanelAPI t = UiButtons.row(world, x, y, s, PetTree.TILE_H, focus, true, null, () -> clickPlan(plan));
-        PetHusbandry.planFace(t, 8f, 5f, PetTree.PORTRAIT);
+        PetHusbandry.planFace(t, Math.round((s - PetTree.PORTRAIT) / 2f), 5f, PetTree.PORTRAIT);
         Ui.textIn(t, 2f, 56f, s - 4f, Ui.LINE_H - 2f, Ui.fit(plan.name, Ui.INS15, s - 4f), Ui.INS15, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
 
         Calc calc = calc(plan);
@@ -395,7 +395,7 @@ public class PetPlanner {
 
     // an open parent place; a click lists the pets for it, a second click closes the list
     private void empty(CustomPanelAPI world, float x, float y, String id, boolean focus) {
-        float s = PetTreeLayout.FULL.tileW();
+        float s = PetTree.metrics().tileW();
         float th = PetTree.TILE_H;
         int place = id.charAt(OPEN.length()) - '0';
         PetPlan plan = manager.getPlan(id.substring(OPEN.length() + 2));

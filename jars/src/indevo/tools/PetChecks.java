@@ -687,7 +687,7 @@ public final class PetChecks {
         check(!PetTreeLayout.fold(items, gone, Set.of("Soot"), Set.of(), true).stubs().containsKey("stub:Ash"), "a pet in focus does not fold, nor do its parents");
         check(!PetTreeLayout.fold(items, gone, Set.of(), Set.of("stub:Ash"), true).stubs().containsKey("stub:Ash"), "an opened stub shows its pets");
 
-        for (PetTreeLayout.Metrics m : List.of(PetTreeLayout.FULL, PetTreeLayout.SMALL)) {
+        for (PetTreeLayout.Metrics m : List.of(PetTreeLayout.FULL, PetTreeLayout.WIDE, PetTreeLayout.SMALL)) {
             PetTreeLayout.Result result = PetTreeLayout.layout(folded.items(), folded.pairs(), m, true);
             check(result.families().size() == 2, "two families, got " + result.families().size());
             check(result.singles().containsAll(List.of("Grit", PetTreeLayout.SINGLES)), "pets with no family stand apart, got " + result.singles());
@@ -703,7 +703,7 @@ public final class PetChecks {
                 item("Goneone", "Gran", "Gramps"), item("Gonetwo", "Goneone", "Uncle"),
                 item("Kidone", "Mom", "Dad"), item("Kidtwo", "Mom", "Dad"), item("Kidthree", "Mom", "Dadtwo"), item("Cousin", "Aunt", "Uncle"));
         PetTreeLayout.Folded kin = PetTreeLayout.fold(mates, Set.of("Oma", "Goneone", "Gonetwo"), Set.of("Kidone"), Set.of(), false);
-        for (PetTreeLayout.Metrics m : List.of(PetTreeLayout.FULL, PetTreeLayout.SMALL)) {
+        for (PetTreeLayout.Metrics m : List.of(PetTreeLayout.FULL, PetTreeLayout.WIDE, PetTreeLayout.SMALL)) {
             Map<String, PetTreeLayout.Node> n = PetTreeLayout.layout(kin.items(), kin.pairs(), m, false).nodes();
             float mom = n.get("Mom").x;
             check((n.get("Dad").x - mom) * (n.get("Dadtwo").x - mom) < 0f, "a second mate stands on the other side of the first, got Dad " + n.get("Dad").x + ", Mom " + mom + ", Dadtwo " + n.get("Dadtwo").x);

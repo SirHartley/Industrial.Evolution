@@ -8,6 +8,7 @@ public final class PetTreeLayout {
 
     public static final Metrics FULL = new Metrics(64f, 6f, 12f, 40f, 10f);
     public static final Metrics SMALL = new Metrics(34f, 4f, 8f, 24f, 6f);
+    public static final Metrics WIDE = new Metrics(80f, 6f, 12f, 40f, 10f);
     static final int SWEEPS = 4;
     static final float BAR_SLACK = 8f;
     static final String STUB = "stub:";
