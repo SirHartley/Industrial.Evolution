@@ -23,6 +23,9 @@ import java.util.Set;
 // a laid out tree in a scroll column: the owner draws the tiles, this draws the lines, the gold marks, hover and drag
 final class PetTreeCanvas {
 
+    // hue turn per bar level, a fraction of the colour wheel
+    private static final float LEVEL_HUE = 0.125f;
+
     interface Owner {
         void tile(CustomPanelAPI world, Node n, float x, float y);
 
@@ -149,12 +152,23 @@ final class PetTreeCanvas {
     }
 
     private void paintLines(PositionAPI pos, float alpha) {
-        for (Brood brood : result.broods()) brood(pos, brood, brood.dashed ? Ui.hl() : Ui.base(), alpha, null);
+        for (Brood brood : result.broods()) brood(pos, brood, brood.dashed ? Ui.hl() : levelColor(brood.level), alpha, null);
 
         Brood fixed = lit != null ? byKid.get(lit) : null;
         if (fixed != null) brood(pos, fixed, Ui.hl(), alpha, lit);
         Brood hover = hovered != null ? byKid.get(hovered) : null;
         if (hover != null) brood(pos, hover, Ui.hl(), alpha, hovered);
+    }
+
+    // overlapping bars of one gap sit on their own level; levels past the first turn the hue +1, -1, +2, -2 steps, then again
+    private static Color levelColor(int level) {
+        Color c = Ui.base();
+        if (level <= 0) return c;
+        int k = (level - 1) % 4;
+        float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+        float hue = hsb[0] + (k % 2 == 0 ? 1 : -1) * (k / 2 + 1) * LEVEL_HUE;
+        Color shifted = Color.getHSBColor(hue - (float) Math.floor(hue), hsb[1], hsb[2]);
+        return new Color(shifted.getRed(), shifted.getGreen(), shifted.getBlue(), c.getAlpha());
     }
 
     // the parents of the clicked young and of the one under the mouse, and the marked pets, get the gold border
