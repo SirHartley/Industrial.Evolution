@@ -14,10 +14,8 @@ import indevo.utils.ui.UiDraw;
 import indevo.utils.ui.UiScroll;
 
 import java.awt.Color;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,8 +23,8 @@ import java.util.Set;
 // a laid out tree in a scroll column: the owner draws the tiles, this draws the lines, the gold marks, hover and drag
 final class PetTreeCanvas {
 
-    // hue turn per line colour, a fraction of the colour wheel
-    private static final float HUE_STEP = 0.125f;
+    // hue turn per bar level, a fraction of the colour wheel
+    private static final float LEVEL_HUE = 0.125f;
 
     interface Owner {
         void tile(CustomPanelAPI world, Node n, float x, float y);
@@ -46,23 +44,6 @@ final class PetTreeCanvas {
         // the No family label also when no family is in view
         default boolean labelAlone() {
             return false;
-        }
-    }
-
-    // one 1 px line of the world panel, y down
-    private interface Sink {
-        void seg(float x1, float y1, float x2, float y2);
-    }
-
-    // the drawn box of a 1 px line, end exclusive
-    private record Line(float x0, float y0, float x1, float y1) {
-        static Line of(float x1, float y1, float x2, float y2) {
-            return new Line(Math.min(x1, x2), Math.min(y1, y2), Math.max(x1, x2) + 1f, Math.max(y1, y2) + 1f);
-        }
-
-        // no pixel between the two boxes
-        boolean touches(Line o) {
-            return x0 <= o.x1 && o.x0 <= x1 && y0 <= o.y1 && o.y0 <= y1;
         }
     }
 
@@ -86,9 +67,6 @@ final class PetTreeCanvas {
     float viewW;
     float viewH;
     String hovered = null;
-    // per brood its lines that cross, touch or lie against another brood's lines, and their colour index; worked out on the first paint
-    Map<Brood, Set<Line>> crossing = null;
-    final Map<Brood, Integer> colours = new HashMap<>();
 
     PetTreeCanvas(PetTreeLayout.Result result, PetTreeLayout.Metrics m, boolean small, Set<String> gold, String lit, Owner owner,
                   UiScroll.Offsets scroll, String key) {
@@ -174,67 +152,21 @@ final class PetTreeCanvas {
     }
 
     private void paintLines(PositionAPI pos, float alpha) {
-        if (crossing == null) crossing = crossing();
-        for (Brood brood : result.broods()) {
-            boolean dashed = owner.dashed(brood);
-            if (brood.dashed) {
-                brood(brood, null, sink(pos, Ui.hl(), alpha, dashed));
-                continue;
-            }
-            Set<Line> lines = crossing.getOrDefault(brood, Set.of());
-            Color c = lineColor(colours.getOrDefault(brood, 0));
-            brood(brood, null, (x1, y1, x2, y2) -> seg(pos, x1, y1, x2, y2, lines.contains(Line.of(x1, y1, x2, y2)) ? c : Ui.base(), alpha, dashed));
-        }
+        for (Brood brood : result.broods()) brood(pos, brood, brood.dashed ? Ui.hl() : levelColor(brood.level), alpha, null);
 
         Brood fixed = lit != null ? byKid.get(lit) : null;
-        if (fixed != null) brood(fixed, lit, sink(pos, Ui.hl(), alpha, owner.dashed(fixed)));
+        if (fixed != null) brood(pos, fixed, Ui.hl(), alpha, lit);
         Brood hover = hovered != null ? byKid.get(hovered) : null;
-        if (hover != null) brood(hover, hovered, sink(pos, Ui.hl(), alpha, owner.dashed(hover)));
+        if (hover != null) brood(pos, hover, Ui.hl(), alpha, hovered);
     }
 
-    private Sink sink(PositionAPI pos, Color c, float alpha, boolean dashed) {
-        return (x1, y1, x2, y2) -> seg(pos, x1, y1, x2, y2, c, alpha, dashed);
-    }
-
-    // only the lines that meet another brood's lines change colour; greedy per brood, so one of two keeps the base colour
-    private Map<Brood, Set<Line>> crossing() {
-        Map<Brood, List<Line>> all = new LinkedHashMap<>();
-        for (Brood brood : result.broods()) {
-            if (brood.dashed) continue;
-            List<Line> list = new ArrayList<>();
-            brood(brood, null, (x1, y1, x2, y2) -> list.add(Line.of(x1, y1, x2, y2)));
-            all.put(brood, list);
-        }
-
-        Map<Brood, Set<Line>> out = new HashMap<>();
-        for (Map.Entry<Brood, List<Line>> e : all.entrySet()) {
-            Set<Integer> taken = new HashSet<>();
-            for (Map.Entry<Brood, List<Line>> o : all.entrySet()) {
-                if (o.getKey() == e.getKey()) continue;
-                for (Line line : e.getValue()) {
-                    boolean met = false;
-                    for (Line other : o.getValue()) met |= line.touches(other);
-                    if (!met) continue;
-                    out.computeIfAbsent(e.getKey(), k -> new HashSet<>()).add(line);
-                    Integer c = colours.get(o.getKey());
-                    if (c != null) taken.add(c);
-                }
-            }
-            if (!out.containsKey(e.getKey())) continue;
-            int c = 0;
-            while (taken.contains(c)) c++;
-            colours.put(e.getKey(), c);
-        }
-        return out;
-    }
-
-    // index 0 is the base colour; then the hue turns +1, -1, +2, -2 steps, then again
-    private static Color lineColor(int index) {
+    // overlapping bars of one gap sit on their own level; levels past the first turn the hue +1, -1, +2, -2 steps, then again
+    private static Color levelColor(int level) {
         Color c = Ui.base();
-        if (index <= 0) return c;
-        int k = (index - 1) % 4;
+        if (level <= 0) return c;
+        int k = (level - 1) % 4;
         float[] hsb = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
-        float hue = hsb[0] + (k % 2 == 0 ? 1 : -1) * (k / 2 + 1) * HUE_STEP;
+        float hue = hsb[0] + (k % 2 == 0 ? 1 : -1) * (k / 2 + 1) * LEVEL_HUE;
         Color shifted = Color.getHSBColor(hue - (float) Math.floor(hue), hsb[1], hsb[2]);
         return new Color(shifted.getRed(), shifted.getGreen(), shifted.getBlue(), c.getAlpha());
     }
@@ -259,8 +191,9 @@ final class PetTreeCanvas {
 
     // one line down from each parent to a bar, one from the bar to the bar of the young, one down to each young;
     // the older parent of a pair in two rows comes down its lane; only draws the line to that one young
-    private void brood(Brood brood, String only, Sink out) {
+    private void brood(PositionAPI pos, Brood brood, Color c, float alpha, String only) {
         Map<String, Node> nodes = result.nodes();
+        boolean dashed = owner.dashed(brood);
         Node sa = PetTreeLayout.slot(brood, brood.a, nodes);
         Node sb = brood.b != null ? PetTreeLayout.slot(brood, brood.b, nodes) : null;
         int row = Math.max(sa.row, sb != null ? sb.row : sa.row);
@@ -270,13 +203,13 @@ final class PetTreeCanvas {
         float l1 = pe + Math.round(gap * (brood.level + 1) / k);
         float l2 = pe + Math.round(gap * (brood.levels + brood.level + 1) / k);
 
-        float xa = drop(brood, brood.a, sa, sb, sb == null ? l2 : l1, out);
-        float xb = sb != null ? drop(brood, brood.b, sb, sa, l1, out) : xa;
-        if (sb != null) out.seg(xa, l1, xb, l1);
+        float xa = drop(pos, brood, brood.a, sa, sb, c, alpha, sb == null ? l2 : l1, dashed);
+        float xb = sb != null ? drop(pos, brood, brood.b, sb, sa, c, alpha, l1, dashed) : xa;
+        if (sb != null) seg(pos, xa, l1, xb, l1, c, alpha, dashed);
         if (brood.kids.isEmpty()) return;
 
         float xd = sb == null ? xa : Math.round((xa + xb) / 2f);
-        if (sb != null) out.seg(xd, l1, xd, l2);
+        if (sb != null) seg(pos, xd, l1, xd, l2, c, alpha, dashed);
         float lo = xd;
         float hi = xd;
         for (String kid : brood.kids) {
@@ -285,18 +218,18 @@ final class PetTreeCanvas {
             float kx = PetTree.MARGIN + n.x;
             lo = Math.min(lo, kx);
             hi = Math.max(hi, kx);
-            out.seg(kx, l2, kx, rowTop(n.row));
+            seg(pos, kx, l2, kx, rowTop(n.row), c, alpha, dashed);
         }
-        out.seg(lo, l2, hi, l2);
+        seg(pos, lo, l2, hi, l2, c, alpha, dashed);
     }
 
     // the line from under one parent down to y; returns its x. a pet with several mates drops beside its centre, towards the mate
-    private float drop(Brood brood, String id, Node slot, Node other, float y, Sink out) {
+    private float drop(PositionAPI pos, Brood brood, String id, Node slot, Node other, Color c, float alpha, float y, boolean dashed) {
         Node parent = result.nodes().get(id);
         if (!id.equals(brood.older)) {
             float x = PetTree.MARGIN + parent.x;
             if (broodCount.getOrDefault(id, 0) > 1 && other != null && other.x != parent.x) x += Math.signum(other.x - parent.x) * m.drop();
-            out.seg(x, rowTop(parent.row) + owner.height(parent), x, y);
+            seg(pos, x, rowTop(parent.row) + owner.height(parent), x, y, c, alpha, dashed);
             return x;
         }
 
@@ -307,13 +240,13 @@ final class PetTreeCanvas {
             float lx = PetTree.MARGIN + lane.x;
             if (lx != x) {
                 float jog = rowTop(lane.row) - PetTree.JOG;
-                out.seg(x, from, x, jog);
-                out.seg(x, jog, lx, jog);
+                seg(pos, x, from, x, jog, c, alpha, dashed);
+                seg(pos, x, jog, lx, jog, c, alpha, dashed);
                 from = jog;
                 x = lx;
             }
         }
-        out.seg(x, from, x, y);
+        seg(pos, x, from, x, y, c, alpha, dashed);
         return x;
     }
 
