@@ -7,7 +7,9 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
+import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
@@ -219,8 +221,33 @@ public class PetPlanner {
 
     private Calc calc(PetPlan plan, Parent a, Parent b) {
         float inbreeding = PetShop.getInbreeding(a.id(), b.id());
-        Map<String, Float> rows = PetGenetics.wantedChances(plan.getData(), a.sheet(), b.sheet(), a.hearts() + b.hearts(), care, inbreeding, plan.wanted, traits);
+        Map<String, Float> rows = new LinkedHashMap<>();
+        if (plan.look != null) rows.put(LOOK, PetGenetics.lookChance(lookId(plan.look), a.sheet().look, b.sheet().look));
+        rows.putAll(PetGenetics.wantedChances(plan.getData(), a.sheet(), b.sheet(), a.hearts() + b.hearts(), care, inbreeding, plan.wanted, traits));
         return new Calc(rows, PetGenetics.product(rows), inbreeding);
+    }
+
+    private static boolean wants(PetPlan plan) {
+        return plan.look != null || !plan.wanted.isEmpty();
+    }
+
+    // the wanted look as a sheet holds it: null for Wild type
+    private static String lookId(String look) {
+        return PetGenetics.NONE.equals(look) ? null : look;
+    }
+
+    private static String lookLabel(PetPlan plan, String look) {
+        if (look == null) return "Any";
+        PetDataRepo.Look l = plan.getData().getLook(lookId(look));
+        return l != null ? l.name() : PetDataRepo.WILD_TYPE;
+    }
+
+    // Any, Wild type, then the looks of the species you have seen
+    private List<String> lookOptions(PetPlan plan) {
+        List<String> options = new ArrayList<>(Arrays.asList(null, PetGenetics.NONE));
+        Set<String> seen = manager.getSeenLooks();
+        for (PetDataRepo.Look look : plan.getData().looks) if (seen.contains(look.id()) || look.id().equals(plan.look)) options.add(look.id());
+        return options;
     }
 
     static String chance(float p) {
@@ -229,11 +256,11 @@ public class PetPlanner {
         return PetTree.percent(p);
     }
 
-    // living pets of the species that can be a parent some day
+    // living pets of the species that can be a parent some day; a young in a Cryochamber does not grow
     private List<Pet> candidates(String typeId) {
         List<Pet> list = new ArrayList<>();
         for (Pet pet : manager.getPets()) {
-            if (pet.isDead() || !pet.typeID.equals(typeId) || pet.getData().isNoSell()) continue;
+            if (pet.isDead() || pet.inChamber || !pet.typeID.equals(typeId) || pet.getData().isNoSell()) continue;
             if (pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0) continue;
             list.add(pet);
         }
@@ -386,8 +413,8 @@ public class PetPlanner {
         Ui.textIn(t, 2f, 56f, s - 4f, Ui.LINE_H - 2f, Ui.fit(plan.name, Ui.INS15, s - 4f), Ui.INS15, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
 
         Calc calc = calc(plan);
-        String line = calc == null ? "?" : plan.wanted.isEmpty() ? "Any" : chance(calc.chance());
-        Color c = calc == null || plan.wanted.isEmpty() ? Ui.gray() : calc.chance() <= 0f ? Ui.neg() : Ui.hl();
+        String line = calc == null ? "?" : !wants(plan) ? "Any" : chance(calc.chance());
+        Color c = calc == null || !wants(plan) ? Ui.gray() : calc.chance() <= 0f ? Ui.neg() : Ui.hl();
         Ui.textIn(t, 2f, 73f, s - 4f, Ui.LINE_H - 2f, line, Ui.INS15, c, Ui.CENTER, new String[0], new Color[0]);
         if (fit(plan) != null) UiImages.img(t, s - 21f, 1f, 20f, 20f, PetCard.quest());
         Ui.tooltip(world, t, PetTree.SHEET_W, TooltipMakerAPI.TooltipLocation.BELOW, tt -> planSheet(tt, plan, calc));
@@ -445,7 +472,8 @@ public class PetPlanner {
         CustomPanelAPI s = Global.getSettings().createCustom(w, h, new UiCanvas());
         Ui.text(s, 0f, 4f, w, plan.name, Ui.hl());
         float y = 30f;
-        Ui.text(s, 0f, y, w, Ui.fit(plan.getData().species + ". " + of, Ui.INS15, w), Ui.text());
+        String species = plan.look != null && lookId(plan.look) != null ? lookLabel(plan, plan.look) + " " + plan.getData().species : plan.getData().species;
+        Ui.text(s, 0f, y, w, Ui.fit(species + ". " + of, Ui.INS15, w), Ui.text());
         y += row;
         y = sheetTable(s, y, w, new String[]{"Grade", "Wanted", "Chance"}, talents, false);
         y = sheetTable(s, y, w, new String[]{"Level", "Mutations, flaws", "Chance"}, bodies, true);
@@ -482,7 +510,7 @@ public class PetPlanner {
 
     // a living young of exactly these two parents with every wanted trait read; an unknown trait does not count as met
     private Pet fit(PetPlan plan) {
-        if (plan.parentA == null || plan.parentB == null || PetPlan.isPlan(plan.parentA) || PetPlan.isPlan(plan.parentB) || plan.wanted.isEmpty()) return null;
+        if (plan.parentA == null || plan.parentB == null || PetPlan.isPlan(plan.parentA) || PetPlan.isPlan(plan.parentB) || !wants(plan)) return null;
 
         Set<String> parents = new HashSet<>(List.of(plan.parentA, plan.parentB));
         for (Pet pet : manager.getPets()) {
@@ -495,6 +523,7 @@ public class PetPlanner {
     private boolean meets(Pet pet, PetPlan plan) {
         PetSheet seen = view.reveal.seen(pet);
         boolean flaws = view.reveal.flawsRead(pet);
+        if (plan.look != null && !Objects.equals(lookId(plan.look), pet.sheet.look)) return false;
         for (Map.Entry<String, Integer> e : plan.wanted.entrySet()) {
             if (e.getKey().equals(MALFORMED)) {
                 if (!flaws || pet.sheet.malformed) return false;
@@ -539,7 +568,7 @@ public class PetPlanner {
             view.scroll.reset(PetsView.PLAN_LIST);
             panel.refresh();
         });
-        Ui.tooltip(p, copy, "Copy pet", "Takes the known traits of a pet as what is wanted, in place of the rows here.");
+        Ui.tooltip(p, copy, "Copy pet", "Takes the look and known traits of a pet as what is wanted, in place of the rows here.");
 
         if (both) flow(p, w, frame, plan, a, b);
         else best(p, w, frame, h - CHANCE_UP - 10f, plan, a != null ? a : b);
@@ -629,9 +658,7 @@ public class PetPlanner {
         float ew = cx - EFFECT_X - 8f;
 
         if (key.equals(LOOK)) {
-            stepper(row, "Any", Ui.gray(), null, null);
-            Ui.textIn(row, TRAIT_X, 0f, EFFECT_X - TRAIT_X - 8f, WANT_H, "Look", Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
-            Ui.tooltip(row, row, "Look", "Any look counts.");
+            lookRow(row, rw, plan, calc);
             return;
         }
 
@@ -658,6 +685,27 @@ public class PetPlanner {
                 trait.isFlaw() ? Ui.neg() : Ui.text(), Ui.LEFT, new String[0], new Color[0]);
         Ui.textIn(row, EFFECT_X, 0f, ew, WANT_H, Ui.fit(effect(trait, v), Ui.INS15, ew), Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
         Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> wantTip(t, trait, v));
+    }
+
+    // the stepper runs Any, Wild type, then the looks you have seen
+    private void lookRow(CustomPanelAPI row, float rw, PetPlan plan, Calc calc) {
+        List<String> options = lookOptions(plan);
+        int i = options.indexOf(plan.look);
+        String value = lookLabel(plan, plan.look);
+        stepper(row, Ui.fit(value, Ui.INS15, VALUE_W), plan.look == null ? Ui.gray() : Ui.hl(), i > 0 ? () -> setLook(plan, options.get(i - 1)) : null,
+                i >= 0 && i < options.size() - 1 ? () -> setLook(plan, options.get(i + 1)) : null);
+        Ui.textIn(row, TRAIT_X, 0f, EFFECT_X - TRAIT_X - 8f, WANT_H, "Look", Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        if (calc != null && plan.look != null) {
+            float p = calc.rows().getOrDefault(LOOK, 0f);
+            float cx = rw - CHANCE_W - 8f;
+            Ui.textIn(row, cx, 0f, CHANCE_W, WANT_H, chance(p), Ui.INS15, p <= 0f ? Ui.neg() : Ui.hl(), Ui.RIGHT, new String[0], new Color[0]);
+        }
+        Ui.tooltip(row, row, "Look", plan.look == null ? "Any look counts." : "Wanted: " + value + ".", "A young has the look of one parent, or now and then a new one. Only looks you have seen are listed.");
+    }
+
+    private void setLook(PetPlan plan, String look) {
+        plan.look = look;
+        panel.refresh();
     }
 
     private static String effect(PetDataRepo.Trait trait, int v) {
@@ -701,7 +749,7 @@ public class PetPlanner {
         else t.addPara("Wanted: " + (trait.isTalent() ? "grade" : "level") + " %s or better" + esc(what) + ".", 10f, Ui.hl(), String.valueOf(v), value);
     }
 
-    // addPara formats its text: effect values like "+15%" are text, not a conversion
+    // addPara with highlights formats its text, plain addPara does not: effect values like "+15%" are text, not a conversion
     private static String esc(String s) {
         return s.replace("%", "%%");
     }
@@ -711,8 +759,13 @@ public class PetPlanner {
         String key = selectedRow(plan);
         PetData data = plan.getData();
         if (key.equals(LOOK)) {
-            CrossRow row = PetHusbandry.lookRow(a.name(), b.name());
-            PetHusbandry.flow(p, w, y, FLOW_LINK, row, node(a, row.lineA()), node(b, row.lineB()), r -> true, null);
+            CrossRow row = PetHusbandry.lookRow(a.name(), data.getLook(a.sheet().look), b.name(), data.getLook(b.sheet().look));
+            PetHusbandry.flow(p, w, y, FLOW_LINK, row, node(a, row.lineA()), node(b, row.lineB()),
+                    r -> plan.look == null || Objects.equals(lookId(plan.look), resultLook(r, a, b)), r -> {
+                        String look = resultLook(r, a, b);
+                        plan.look = look != null ? look : PetGenetics.NONE;
+                        panel.refresh();
+                    });
             return;
         }
         if (key.equals(MALFORMED)) {
@@ -742,6 +795,10 @@ public class PetPlanner {
         });
     }
 
+    private static String resultLook(Result r, Parent a, Parent b) {
+        return r.lane().equals(PetSheet.FROM_B) ? b.sheet().look : a.sheet().look;
+    }
+
     private static int level(Result r, PetDataRepo.Trait trait) {
         if (r.lane().equals(PetGenetics.NONE)) return 0;
         return trait.hasLevels() ? Integer.parseInt(r.value()) : 1;
@@ -750,7 +807,7 @@ public class PetPlanner {
     private FlowNode node(Parent parent, String line) {
         if (parent.plan() != null) return new FlowNode(parent.name(), null, false, null, line);
         Pet pet = parent.pet();
-        return new FlowNode(pet.name, pet.getData().icon, unknown(pet) > 0, pet, line);
+        return new FlowNode(pet.name, pet.getIcon(), unknown(pet) > 0, pet, line);
     }
 
     private int unknown(Pet pet) {
@@ -810,7 +867,7 @@ public class PetPlanner {
         String empty = fixed == null && pets.isEmpty() ? "You have no pets of this species."
                 : fixed == null && pets.size() < 2 ? "A pair needs two pets of this species. You have 1."
                 : pets.isEmpty() ? "You have no other pets of this species."
-                : plan.wanted.isEmpty() ? "Nothing wanted yet." : null;
+                : !wants(plan) ? "Nothing wanted yet." : null;
         if (empty != null) {
             Ui.text(p, 0f, y + 2f, w, empty, Ui.gray());
             return;
@@ -868,10 +925,10 @@ public class PetPlanner {
         });
 
         float x = 56f;
-        if (m.listed() != null) UiImages.img(row, 3f, 3f, FACE, FACE, m.listed().getData().icon);
+        if (m.listed() != null) UiImages.img(row, 3f, 3f, FACE, FACE, m.listed().getIcon());
         else {
-            UiImages.img(row, 3f, 3f, FACE, FACE, m.a().pet().getData().icon);
-            UiImages.img(row, 51f, 3f, FACE, FACE, m.b().pet().getData().icon);
+            UiImages.img(row, 3f, 3f, FACE, FACE, m.a().pet().getIcon());
+            UiImages.img(row, 51f, 3f, FACE, FACE, m.b().pet().getIcon());
             x = 104f;
         }
 
@@ -900,15 +957,24 @@ public class PetPlanner {
             lineColor = Ui.gray();
         }
 
-        float kw = m.kin() != null ? Math.min(Ui.width(m.kin(), Ui.INS15) + 2f, w - x - 120f) : 0f;
-        if (m.kin() != null) Ui.textIn(row, w - 8f - kw, 24f, kw, Ui.LINE_H, Ui.fit(m.kin(), Ui.INS15, kw), Ui.INS15, Ui.neg(), Ui.RIGHT, new String[0], new Color[0]);
-        float lw = w - x - 8f - (kw > 0f ? kw + 12f : 0f);
+        // the line first, the kin note takes what is left and keeps its full text on hover
+        float room = w - x - 8f;
+        float lw = Math.min((float) Math.ceil(Ui.width(line, Ui.INS15)) + 2f, room);
         Ui.textIn(row, x, 24f, lw, Ui.LINE_H, Ui.fit(line, Ui.INS15, lw), Ui.INS15, lineColor, Ui.LEFT, new String[0], new Color[0]);
+        if (m.kin() == null) return;
+
+        String kin = m.kin();
+        float full = (float) Math.ceil(Ui.width(kin, Ui.INS15)) + 2f;
+        float kw = Math.min(full, room - lw - 12f);
+        if (kw <= 0f) return;
+        LabelAPI label = Ui.textIn(row, w - 8f - kw, 24f, kw, Ui.LINE_H, Ui.fit(kin, Ui.INS15, kw), Ui.INS15, Ui.neg(), Ui.RIGHT, new String[0], new Color[0]);
+        if (kw < full) Ui.tooltip(row, (UIComponentAPI) label, full + 10f, TooltipMakerAPI.TooltipLocation.BELOW, t -> t.addPara(kin, 0f));
     }
 
     // a wanted row by name: Scavenger 9 for a grade, Malformed, a flaw or a mutation by name
     private String wantName(PetPlan plan, String key) {
         if (key.equals(MALFORMED)) return "Malformed";
+        if (key.equals(LOOK)) return lookLabel(plan, plan.look);
         PetDataRepo.Trait trait = traits.get(key);
         if (trait == null) return key;
         return trait.hasLevels() && !trait.isFlaw() ? trait.name() + " " + plan.wanted.get(key) : trait.name();
@@ -1084,7 +1150,7 @@ public class PetPlanner {
         if (shown.isEmpty()) Ui.text(list.block(Ui.LINE_H, 0f), 0f, 0f, lw, all.isEmpty() ? "No pets of this species." : "No pet matches.", Ui.gray());
         boolean firstRow = true;
         for (Pet pet : shown) {
-            petRow(list.block(ROW_H, firstRow ? 0f : ROW_GAP), lw, pet, false, PetHusbandry.WILD_TYPE, Ui.text(), pet.isDead() ? PetTree.goneTag(pet) : null, Ui.gray(), () -> copy(plan, pet));
+            petRow(list.block(ROW_H, firstRow ? 0f : ROW_GAP), lw, pet, false, pet.getLookName(), Ui.text(), pet.isDead() ? PetTree.goneTag(pet) : null, Ui.gray(), () -> copy(plan, pet));
             firstRow = false;
         }
         list.end();
@@ -1108,6 +1174,7 @@ public class PetPlanner {
 
         plan.wanted.clear();
         for (PetDataRepo.Trait trait : list) plan.wanted.put(trait.id(), seen.getGrade(trait.id()));
+        plan.look = pet.sheet.look != null ? pet.sheet.look : PetGenetics.NONE;
         view.planRow = null;
         view.scroll.reset(PetsView.WANTED);
         closeLists();
@@ -1150,7 +1217,7 @@ public class PetPlanner {
     private void petRow(CustomPanelAPI b, float w, Pet pet, boolean selected, String value, Color valueColor, String note, Color noteColor, Runnable click) {
         CustomPanelAPI row = UiButtons.row(b, 0f, 0f, w, ROW_H, selected, true, null, click);
         boolean gone = pet.isDead();
-        UiImages.img(row, 3f, 3f, FACE, FACE, pet.getData().icon, null, gone ? PetCard.DIM : 1f);
+        UiImages.img(row, 3f, 3f, FACE, FACE, pet.getIcon(), null, gone ? PetCard.DIM : 1f);
         Ui.text(row, 56f, 6f, HEARTS_X - 56f - 8f, pet.name, gone ? Ui.gray() : Ui.text());
         if (!gone) PetCard.hearts(row, HEARTS_X, 11f, pet, 9f, 2f);
         if (value != null) Ui.textIn(row, w - 108f, 4f, 100f, Ui.LINE_H, value, Ui.INS15, valueColor, Ui.RIGHT, new String[0], new Color[0]);

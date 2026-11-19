@@ -204,7 +204,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         person.setFaction(Factions.PLAYER);
         person.setName(new FullName(pet.name, "", FullName.Gender.ANY));
         // a person on the default portrait counts as no captain at all (Person.isDefault)
-        person.setPortraitSprite(pet.getData().icon);
+        person.setPortraitSprite(pet.getIcon());
         person.setPersonality(pet.sheet.disposition);
         person.addTag(Ids.TAG_PET_CAPTAIN);
         return person;

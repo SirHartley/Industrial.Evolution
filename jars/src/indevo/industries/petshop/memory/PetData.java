@@ -5,6 +5,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,8 @@ public class PetData {
     public String pace;
     // talent roll weight per trait id, a missing talent weighs 1
     public Map<String, Float> talentWeights;
+    // from pet_morphs.csv, filled by PetDataRepo
+    public final List<PetDataRepo.Look> looks = new ArrayList<>();
 
     public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity, String body, String pace, Map<String, Float> talentWeights) {
         this.id = id;
@@ -63,6 +66,12 @@ public class PetData {
     }
 
     // what a Treat want takes: the first food that is not Supplies, null when it eats only Supplies
+    public PetDataRepo.Look getLook(String id) {
+        if (id == null) return null;
+        for (PetDataRepo.Look look : looks) if (look.id().equals(id)) return look;
+        return null;
+    }
+
     public String getFavouriteFood() {
         for (String food : foodCommodities) if (!Commodities.SUPPLIES.equals(food)) return food;
         return null;

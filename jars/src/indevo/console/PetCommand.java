@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.Locale;
 
 public class PetCommand implements BaseCommand {
-    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>, indevo_pet trait <pet> <trait> <grade>, indevo_pet scan <pet> or indevo_pet title <pet> <veteran|navigator|old_timer|survivor|beloved|pampered|treasure_hunter|admiral|globetrotter|stargazer|clear>.";
+    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>, indevo_pet trait <pet> <trait> <grade>, indevo_pet scan <pet>, indevo_pet look <pet> <look|wild> or indevo_pet title <pet> <veteran|navigator|old_timer|survivor|beloved|pampered|treasure_hunter|admiral|globetrotter|stargazer|clear>.";
 
     @Override
     public CommandResult runCommand(String args, CommandContext context) {
@@ -171,6 +171,30 @@ public class PetCommand implements BaseCommand {
 
                 pet.scan();
                 Console.showMessage(pet.name + ": every talent, mutation and flaw is read.");
+                return CommandResult.SUCCESS;
+            }
+            case "look" -> {
+                int split = rest.lastIndexOf(' ');
+                Pet pet = split > 0 ? find(manager, rest.substring(0, split).trim()) : null;
+                String word = rest.substring(split + 1);
+                if (split <= 0) {
+                    Console.showMessage(SYNTAX);
+                    return CommandResult.BAD_SYNTAX;
+                }
+
+                if (pet == null) {
+                    Console.showMessage("No living pet with that name or id.");
+                    return CommandResult.ERROR;
+                }
+
+                PetDataRepo.Look look = pet.getData().getLook(word);
+                if (look == null && !word.equalsIgnoreCase("wild")) {
+                    Console.showMessage("Unknown look for " + pet.getData().species + ". Look ids are the id column of data/campaign/pet_morphs.csv, or wild.");
+                    return CommandResult.BAD_SYNTAX;
+                }
+
+                pet.sheet.look = look != null ? look.id() : null;
+                Console.showMessage(pet.name + " is " + pet.getLookName() + " now.");
                 return CommandResult.SUCCESS;
             }
             case "title" -> {

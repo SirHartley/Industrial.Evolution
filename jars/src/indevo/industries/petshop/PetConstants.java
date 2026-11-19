@@ -61,8 +61,16 @@ public final class PetConstants {
     public static final float[] MUTATION_RATE = {0.08f, 0.16f, 0.24f};
     public static final float IRRADIATED_MUTATION_MULT = 2f;
     public static final float ALPHA_MUTATION_MULT = 1.5f;
-    // a new trait from the mutation rate: a mutation or a talent half and half, a talent one time in four a signature
+    // a new trait from the mutation rate: a new look one time in three when the species has one the young lacks,
+    // else a mutation or a talent half and half, a talent one time in four a signature
+    public static final float NEW_LOOK_CHANCE = 1f / 3f;
     public static final float NEW_MUTATION_CHANCE = 0.5f;
+    public static final float SALE_LOOK_MULT = 2f;
+    public static final float SALE_TITLED_MULT = 1.25f;
+    public static final float SALE_FLAW_MULT = 0.9f;
+    public static final float SALE_MALFORMED_MULT = 0.1f;
+    // generations up that count for a titled ancestor
+    public static final int SALE_TITLED_GENERATIONS = 3;
     public static final float NEW_SIGNATURE_CHANCE = 0.25f;
     public static final float MALFORMED_PER_INBREEDING = 1.5f;
     public static final float MALFORMED_MIN = 0.05f;
@@ -86,6 +94,12 @@ public final class PetConstants {
     public static final int INBREEDING_GENERATIONS = 6;
     // Glutton's ship, percent a level; its csv value is the food
     public static final float GLUTTON_SUPPLIES = 15f;
+
+    // adoption offers at an NPC Animal Center: market size, at least 3, at most 6; one in 5 young, adults up to 60% of their life
+    public static final int MIN_OFFERS = 3;
+    public static final int MAX_OFFERS = 6;
+    public static final float OFFER_YOUNG_CHANCE = 0.2f;
+    public static final float OFFER_MAX_AGE = 0.6f;
 
     private PetConstants() {
     }

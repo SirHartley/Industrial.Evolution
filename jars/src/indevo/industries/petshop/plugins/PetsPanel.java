@@ -10,6 +10,7 @@ import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.ids.ItemIds;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
@@ -202,6 +203,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             case PetsView.TAB_HUSBANDRY -> view.adults;
             case PetsView.TAB_TREE -> view.find;
             case PetsView.TAB_PLAN -> view.planCopy ? view.planCopies : view.planParents;
+            case PetsView.TAB_ADOPT -> view.offers;
             default -> view.filter;
         };
     }
@@ -305,6 +307,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     private void build(CustomPanelAPI p, float w, float h) {
         List<Group> groups = groups();
         if (shop == null && view.tab == PetsView.TAB_HUSBANDRY) view.tab = PetsView.TAB_PETS;
+        if ((shop == null || !shop.hasAdoption()) && view.tab == PetsView.TAB_ADOPT) view.tab = PetsView.TAB_PETS;
         addHeader(p, w, groups);
 
         if (view.tab == PetsView.TAB_HUSBANDRY) {
@@ -317,6 +320,10 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         }
         if (view.tab == PetsView.TAB_PLAN) {
             new PetPlanner(this, view).build(p, w, h);
+            return;
+        }
+        if (view.tab == PetsView.TAB_ADOPT) {
+            new PetAdoption(this, view).build(p, w, h);
             return;
         }
 
@@ -407,10 +414,19 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         int count = 0;
         for (Group group : groups) count += group.pets().size();
-        List<Integer> ids = shop != null ? List.of(PetsView.TAB_PETS, PetsView.TAB_HUSBANDRY, PetsView.TAB_TREE, PetsView.TAB_PLAN)
-                : List.of(PetsView.TAB_PETS, PetsView.TAB_TREE, PetsView.TAB_PLAN);
-        String[] tabs = shop != null ? new String[]{"Pets " + count, "Husbandry " + PetHusbandry.busy(shop), "Family tree", "Planner"}
-                : new String[]{"Pets " + count, "Family tree", "Planner"};
+        List<Integer> ids = new ArrayList<>(List.of(PetsView.TAB_PETS));
+        List<String> labels = new ArrayList<>(List.of("Pets " + count));
+        if (shop != null) {
+            ids.add(PetsView.TAB_HUSBANDRY);
+            labels.add("Husbandry " + PetHusbandry.busy(shop));
+        }
+        if (shop != null && shop.hasAdoption()) {
+            ids.add(PetsView.TAB_ADOPT);
+            labels.add("Adoption");
+        }
+        ids.addAll(List.of(PetsView.TAB_TREE, PetsView.TAB_PLAN));
+        labels.addAll(List.of("Family tree", "Planner"));
+        String[] tabs = labels.toArray(new String[0]);
         UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, tabWidth(tabs), UiFrame.HEADER_H, tabs, ids.indexOf(view.tab), null, i -> {
             int tab = ids.get(i);
             if (tab == PetsView.TAB_TREE && view.tab != PetsView.TAB_TREE) {
@@ -426,10 +442,18 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             refresh();
         });
 
-        if (shop != null) UiFrame.credits(p, w, UiFrame.HEADER_Y);
+        if (shop == null) return;
+        float right = UiFrame.credits(p, w, UiFrame.HEADER_Y);
+        UiFrame.counter(p, right, UiFrame.HEADER_Y, "", Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getIconName(), String.valueOf(shop.getRelics()));
     }
 
     private void addHelp(TooltipMakerAPI tooltip) {
+        if (view.tab == PetsView.TAB_ADOPT) {
+            tooltip.addPara("Adoption. This Animal Center finds new homes for the pets handed in to it. New pets come at the start of each month.", 0f);
+            tooltip.addPara("Their talents stay Unknown until a heart switches them on. A gene scan reads them before you pay.", 10f);
+            tooltip.addPara("Pets on offer have no mutations or flaws.", 10f);
+            return;
+        }
         if (view.tab == PetsView.TAB_PLAN) {
             tooltip.addPara("Planner. A planned young stands in for a pet you do not have yet. Set what you want from it, then pick its parents.", 0f);
             tooltip.addPara("Chances use known traits only. A planned young counts as a parent with what is wanted from it.", 10f);
@@ -490,7 +514,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     // null keeps the group order: the fleet order on ships, the order they came in elsewhere
     // traits the player has not seen stay out of the search
     private static String[] searchText(Pet pet) {
-        List<String> text = new ArrayList<>(List.of(pet.name, pet.getData().species));
+        List<String> text = new ArrayList<>(List.of(pet.name, pet.getData().species, pet.getLookName()));
         text.addAll(pet.getKnownTraitNames());
         return text.toArray(new String[0]);
     }

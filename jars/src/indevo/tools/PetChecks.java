@@ -46,6 +46,7 @@ public final class PetChecks {
     private static final Set<String> DISPOSITIONS = Set.of(Personalities.TIMID, Personalities.CAUTIOUS, Personalities.STEADY, Personalities.AGGRESSIVE, Personalities.RECKLESS);
     private static final Pattern BODY_WORDS = Pattern.compile("\\b(legs?|paws?|hands?|fur|wings?|feathers?|beak|claws?|tails?|fins?|glass|tank|swims?|fl(y|ies|ew|ying)|sniff\\w*)\\b", Pattern.CASE_INSENSITIVE);
     private static final int PICKS = 40000;
+    private static final int NAME_RUN = 12;
     // play time: a day is 10 s of flight, about 1.5 minutes a week with x2 and time in menus
     private static final float PLAY_MINUTES_PER_DAY = 1.5f / 7f;
     private static final Set<String> PACES = Set.of(PetData.PACE_FAST, PetData.PACE_MEDIUM, PetData.PACE_SLOW, PetData.PACE_HAMSTER);
@@ -70,6 +71,7 @@ public final class PetChecks {
 
         PetChecks run = new PetChecks();
         Map<String, PetData> pets = run.checkPets(run.read(Path.of(CSV_PATH)));
+        run.checkLooks(run.read(Path.of(LOOKS_PATH)), pets);
         Map<String, Trait> traits = run.checkTraits(run.read(Path.of(TRAITS_PATH)), pets);
         run.checkSheets(pets, traits);
         List<Line> lines = run.checkLines(run.read(Path.of(LINES_PATH)), pets);
@@ -113,6 +115,25 @@ public final class PetChecks {
         }
 
         return rows;
+    }
+
+    private void checkLooks(JSONArray rows, Map<String, PetData> pets) throws JSONException {
+        for (int i = 0; i < rows.length(); i++) {
+            JSONObject row = rows.getJSONObject(i);
+            check(pets.containsKey(row.getString("species").trim()), "look " + row.getString("id") + " species " + row.getString("species") + " is a pet");
+        }
+        PetDataRepo.addLooks(pets, rows);
+
+        for (PetData data : pets.values()) {
+            Set<Integer> numbers = new HashSet<>();
+            Set<String> names = new HashSet<>();
+            for (PetDataRepo.Look look : data.looks) {
+                check(look.id().equals(data.id + "_" + look.number()) && look.number() >= 1, "look " + look.id() + " is <species>_<number>");
+                check(numbers.add(look.number()) && names.add(look.name()) && !look.name().isEmpty() && !look.name().equals(WILD_TYPE), "look " + look.id() + " has its own number and name");
+                check(look.weight() >= 0f, "look " + look.id() + " weight is not negative");
+                check(Files.isRegularFile(Path.of(look.icon())), "look " + look.id() + " portrait " + look.icon() + " exists");
+            }
+        }
     }
 
     private Map<String, PetData> checkPets(JSONArray rows) throws JSONException {
@@ -316,6 +337,10 @@ public final class PetChecks {
                     }
                 }
             }
+
+            Set<String> taken = new HashSet<>();
+            for (int i = 0; i < NAME_RUN; i++) taken.add(pickName(lines, data, taken, random));
+            check(taken.size() == NAME_RUN, data.id + " gets " + NAME_RUN + " different names in a row (a batch of offers or a brood)");
         }
     }
 
@@ -419,11 +444,18 @@ public final class PetChecks {
                 && near(PetGenetics.mutationRate(slow, sheet(TRAIT_PREFIX + "unstable", 1), sheet(TRAIT_PREFIX + "unstable", 1), false, false, traits), 0.30f),
                 "mutation rate 8, 16, 24% by pace, x2 irradiated, x1.5 Alpha, +3 points an Unstable level");
         int fresh = 0;
+        int looks = 0;
         int mutations = 0;
         int signatures = 0;
         boolean withFlaws = true;
         for (int i = 0; i < YOUNG; i++) {
             PetSheet young = PetGenetics.rollYoung(medium, plain, plain, care, 0, rate, 0f, traits, random);
+            if (young.look != null) {
+                fresh++;
+                looks++;
+                check(young.traits.isEmpty() && PetSheet.FROM_MUTATION.equals(young.getFrom(PetSheet.LOOK)) && medium.getLook(young.look) != null, "a new look comes alone");
+                continue;
+            }
             if (young.traits.isEmpty()) continue;
             fresh++;
             for (String id : young.traits.keySet()) {
@@ -436,8 +468,13 @@ public final class PetChecks {
             }
         }
         share("young with a new trait", fresh, rate);
-        check(Math.abs(mutations / (float) fresh - PetConstants.NEW_MUTATION_CHANCE) < 0.02f, "new traits are mutations " + mutations / (float) fresh + " of the time");
-        check(Math.abs(signatures / (float) (fresh - mutations) - PetConstants.NEW_SIGNATURE_CHANCE) < 0.02f, "new talents are signatures " + signatures / (float) (fresh - mutations) + " of the time");
+        float lookShare = medium.looks.isEmpty() ? 0f : PetConstants.NEW_LOOK_CHANCE;
+        check(Math.abs(looks / (float) fresh - lookShare) < 0.02f, "new traits are looks " + looks / (float) fresh + " of the time, expected " + lookShare);
+        int newTraits = fresh - looks;
+        check(Math.abs(mutations / (float) newTraits - PetConstants.NEW_MUTATION_CHANCE) < 0.02f, "new traits are mutations " + mutations / (float) newTraits + " of the time");
+        check(Math.abs(signatures / (float) (newTraits - mutations) - PetConstants.NEW_SIGNATURE_CHANCE) < 0.02f, "new talents are signatures " + signatures / (float) (newTraits - mutations) + " of the time");
+        checkLookInheritance(pets, traits, care, random);
+        checkSaleValue(pets.get("lizzer"), traits, talent, flaw);
         check(withFlaws, "a new mutation arrives with its flaws at level 1");
 
         int sibling = 0;
@@ -473,6 +510,48 @@ public final class PetChecks {
         checkBody(medium, hamster, plain, traits);
         checkBroods(fast, medium, slow, hamster, plain, traits);
         checkPlan(medium, traits.get(talent), traits.get(flaw), care, better, drop, sum);
+    }
+
+    private void checkSaleValue(PetData lizard, Map<String, Trait> traits, String talent, String flaw) {
+        String vent = TRAIT_PREFIX + "vent";
+        check(near(PetGenetics.saleValue(lizard, sheet(), false, traits), 2200f), "a plain lizard sells for 2200");
+
+        PetSheet fancy = sheet(talent, 3, vent, 3);
+        fancy.look = "lizzer_1";
+        check(Math.round(PetGenetics.saleValue(lizard, fancy, true, traits)) == 38500, "look, titled ancestor and two grade 3 talents sell for 38500");
+
+        PetSheet flawed = sheet(flaw, 2);
+        check(Math.round(PetGenetics.saleValue(lizard, flawed, false, traits)) == 1782, "two flaw levels sell for 1782");
+        flawed.malformed = true;
+        check(Math.round(PetGenetics.saleValue(lizard, flawed, false, traits)) == 178, "malformed sells for a tenth");
+
+        PetSheet luminous = sheet(PetGenetics.LUMINOUS, 1);
+        check(Math.round(PetGenetics.saleValue(lizard, luminous, false, traits)) == 5500, "Luminous 1 counts as a level and adds 25%");
+
+        PetSheet hidden = sheet(talent, 3);
+        check(near(PetGenetics.saleValue(lizard, PetGenetics.seen(hidden), false, traits), 2200f), "an unread talent adds nothing");
+    }
+
+    private void checkLookInheritance(Map<String, PetData> pets, Map<String, Trait> traits, float care, Random random) {
+        PetData data = pets.values().stream().filter(d -> d.looks.size() >= 2).findFirst().orElse(null);
+        check(data != null, "a species has two looks");
+        if (data == null) return;
+
+        PetSheet a = sheet();
+        a.look = data.looks.get(0).id();
+        PetSheet b = sheet();
+        int fromA = 0;
+        int wild = 0;
+        for (int i = 0; i < YOUNG; i++) {
+            PetSheet young = PetGenetics.rollYoung(data, a, b, care, 0, 0f, 0f, traits, random);
+            if (a.look.equals(young.look) && PetSheet.FROM_A.equals(young.getFrom(PetSheet.LOOK))) fromA++;
+            else if (young.look == null && young.getFrom(PetSheet.LOOK) == null) wild++;
+        }
+        share("look of the first parent", fromA, 0.5f);
+        share("Wild type of the second parent", wild, 0.5f);
+        check(near(PetGenetics.lookChance(a.look, a.look, null), 0.5f) && near(PetGenetics.lookChance(a.look, a.look, a.look), 1f)
+                && near(PetGenetics.lookChance(null, a.look, null), 0.5f) && near(PetGenetics.lookChance(data.looks.get(1).id(), a.look, null), 0f),
+                "a planned look is half per parent that has it, never a new one");
     }
 
     private void checkPlan(PetData medium, Trait talent, Trait flaw, float care, float better, float drop, float sum) {

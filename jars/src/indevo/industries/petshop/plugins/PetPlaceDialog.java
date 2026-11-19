@@ -24,7 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-// where to popup for Move... and Assign... (a ship without a pet, or the Pet storage of the docked Animal Center)
+// where to popup for Move..., Assign... and Adopt (a ship without a pet, or the Pet storage of the docked Animal Center)
 // and for a Cryochamber opened from the cargo (a name, then a ship without a pet or the menagerie)
 public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
@@ -59,6 +59,8 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     private int pick;
     // pick mode: Confirm hands the ship back and moves nothing
     private Consumer<FleetMemberAPI> onPick;
+    // adopt mode: Confirm pays the storage center and places the offer
+    private boolean adopting = false;
 
     private PetPlaceDialog(Pet pet, PetData data, RightClickActionHelper chamber, String verb, List<FleetMemberAPI> ships, PetShop storage) {
         this.pet = pet;
@@ -82,10 +84,24 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         return dialog;
     }
 
+    // an offer of the Adoption tab; Cancel buys nothing
+    public static PetPlaceDialog adopt(Pet offer, PetShop shop) {
+        List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
+        PetPlaceDialog dialog = new PetPlaceDialog(offer, offer.getData(), null, "Adopt", free, shop);
+        dialog.adopting = true;
+        return dialog;
+    }
+
     // the pet is made on Confirm, so Cancel leaves the Cryochamber in the cargo
     public static PetPlaceDialog chamber(PetData data, RightClickActionHelper helper) {
         List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
         return new PetPlaceDialog(null, data, helper, "Open Cryochamber", free, null);
+    }
+
+    // a young put in a Cryochamber from the New young popup
+    public static PetPlaceDialog chamber(Pet young, RightClickActionHelper helper) {
+        List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
+        return new PetPlaceDialog(young, young.getData(), helper, "Open Cryochamber", free, null);
     }
 
     public void show(Runnable onClose) {
@@ -161,6 +177,7 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
     private void build(CustomPanelAPI p, float w, float h) {
         if (isChamber()) addChamber(p, w);
+        else if (adopting) addAdoptTitle(p, w);
         else Ui.runs(p, 0f, 0f, w, Ui.INS21, Ui.text(), Ui.LEFT, verb + " " + pet.name, new String[]{pet.name}, new Color[]{Ui.hl()});
 
         float y = shipsHead();
@@ -194,22 +211,36 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
         Ui.runs(row, 56f, 26f, w - 62f, Ui.INS15, Ui.gray(), Ui.LEFT, storage.getMarket().getName() + ", " + cost + " per month", new String[]{cost}, new Color[]{Ui.hl()});
     }
 
+    // a long name is cut so the price stays on the line
+    private void addAdoptTitle(CustomPanelAPI p, float w) {
+        String price = Ui.credits(storage.getOfferPrice(pet));
+        String tail = " for " + price;
+        String shown = Ui.fit(pet.name, Ui.INS21, w - Ui.width(verb + "  " + tail, Ui.INS21) - 8f);
+        Ui.runs(p, 0f, 0f, w, Ui.INS21, Ui.text(), Ui.LEFT, verb + " " + shown + tail, new String[]{shown, price}, new Color[]{Ui.hl(), Ui.hl()});
+    }
+
     private void addChamber(CustomPanelAPI p, float w) {
         Ui.text(p, 0f, 0f, w, verb, Ui.INS21, Ui.text(), Ui.LEFT);
 
         CustomPanelAPI card = Ui.card(p, 0f, HEAD_Y, PetCard.IDENT, PetCard.IDENT);
-        UiImages.img(card, 4f, 4f, PetCard.PORTRAIT, PetCard.PORTRAIT, data.icon);
+        UiImages.img(card, 4f, 4f, PetCard.PORTRAIT, PetCard.PORTRAIT, pet != null ? pet.getIcon() : data.icon);
 
         float x = PetCard.GRID_X;
         nameField = PetCard.nameField(p, x, HEAD_Y, w - x, name);
-        UiData.grid(p, x, HEAD_Y + PetCard.NAME_H + 8f, w - x, UiData.GRID_ROW_H, List.of(
+        UiData.grid(p, x, HEAD_Y + PetCard.NAME_H + 8f, w - x, UiData.GRID_ROW_H, pet != null ? List.of(
+                GridRow.of("Species", PetCard.species(pet), Ui.text()),
+                GridRow.of("Age", PetCard.age(pet), Ui.text())) : List.of(
                 GridRow.of("Species", data.species, Ui.text()),
                 GridRow.of("Life span", lifeSpan(data), Ui.text())));
     }
 
     static String lifeSpan(PetData data) {
-        int cycles = Math.round(data.maxLife / 365f);
-        if (cycles < 1) return "About " + Math.round(data.maxLife) + " days";
+        return about(data.maxLife);
+    }
+
+    static String about(float days) {
+        int cycles = Math.round(days / 365f);
+        if (cycles < 1) return "About " + Math.max(1, Math.round(days)) + (Math.round(days) == 1 ? " day" : " days");
         return "About " + cycles + (cycles == 1 ? " cycle" : " cycles");
     }
 
@@ -308,6 +339,12 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
         if (onPick != null) {
             if (ship != null) onPick.accept(ship);
+        } else if (adopting) storage.adopt(pet, ship);
+        else if (isChamber() && pet != null) {
+            keepName();
+            pet.name = name;
+            pet.place(ship, null);
+            chamber.removeFromClickedStackFirst(1);
         } else if (isChamber()) {
             keepName();
             Pet born = new Pet(data.id, name);

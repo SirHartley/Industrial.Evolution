@@ -16,6 +16,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
@@ -35,11 +36,15 @@ import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class PetShop extends BaseIndustry implements EconomyTickListener {
 
@@ -57,6 +62,8 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     public float petStorageCostMult = 1f;
     private List<PetBrood> broods = new ArrayList<>();
+    // this month's adoption offers at an NPC center, not registered until adopted; null until the next look
+    private ArrayList<Pet> offers = null;
 
     public void store(Pet pet) {
         storedPets.add(pet);
@@ -208,13 +215,17 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
         brood.young = new ArrayList<>();
         int n = PetGenetics.broodSize(data, a.sheet, b.sheet, traits, random);
+        Set<String> taken = livingNames();
+        for (PetBrood other : getBroods()) if (other.young != null) for (Pet pet : other.young) taken.add(pet.name);
         for (int i = 0; i < n; i++) {
             PetSheet sheet = PetGenetics.rollYoung(data, a.sheet, b.sheet, getCare(), hearts, mutationRate, inbreeding, traits, random);
             for (String id : sheet.traits.keySet()) {
                 PetDataRepo.Trait trait = traits.get(id);
                 if (trait != null && (trait.isMutation() || read && trait.isTalent())) sheet.known.add(id);
             }
-            brood.young.add(new Pet(data.id, PetDataRepo.suggestName(data), sheet, a.id, b.id));
+            Pet young = new Pet(data.id, PetDataRepo.suggestName(data, taken), sheet, a.id, b.id);
+            taken.add(young.name);
+            brood.young.add(young);
         }
 
         releaseParents(brood, 0f);
@@ -228,11 +239,13 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     }
 
     // registers the young and puts it on the ship, or into pet storage here; the habitat is free once every young is placed
-    public void placeYoung(PetBrood brood, Pet young, FleetMemberAPI ship) {
+    public void placeYoung(PetBrood brood, Pet young, FleetMemberAPI ship, boolean toCargo) {
         if (!brood.getYoung().remove(young)) throw new IllegalStateException("IndEvo young " + young.id + " is not in this brood");
 
-        PetStatusManager.getInstance().register(young);
-        young.place(ship, ship == null ? this : null);
+        PetStatusManager manager = PetStatusManager.getInstance();
+        manager.register(young);
+        if (toCargo) manager.toChamber(young);
+        else young.place(ship, ship == null ? this : null);
         if (brood.getYoung().isEmpty()) getBroods().remove(brood);
     }
 
@@ -282,6 +295,68 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         return market.isPlayerOwned() ? getUpkeep().getMult() : 1f;
     }
 
+    public boolean hasAdoption() {
+        return isFunctional() && !market.isPlayerOwned();
+    }
+
+    public List<Pet> getOffers() {
+        if (offers == null) refillOffers();
+        return offers;
+    }
+
+    // weighted by rarity, rare pets x1.3 with an alpha core; one pet of each picked species
+    private void refillOffers() {
+        offers = new ArrayList<>();
+        WeightedRandomPicker<PetData> picker = new WeightedRandomPicker<>();
+        for (PetData data : PetDataRepo.getAll()) if (!data.isNoSell()) picker.add(data, stockWeight(data, aiCoreId));
+
+        int count = Math.max(PetConstants.MIN_OFFERS, Math.min(PetConstants.MAX_OFFERS, market.getSize()));
+        Set<String> taken = livingNames();
+        for (int i = 0; i < count && !picker.isEmpty(); i++) {
+            Pet pet = offer(picker.pickAndRemove(), taken);
+            taken.add(pet.name);
+            offers.add(pet);
+        }
+    }
+
+    private static Set<String> livingNames() {
+        Set<String> names = new HashSet<>();
+        for (Pet pet : PetStatusManager.getInstance().getPets()) if (!pet.isDead()) names.add(pet.name);
+        return names;
+    }
+
+    private static Pet offer(PetData data, Set<String> taken) {
+        Pet pet = new Pet(data.id, PetDataRepo.suggestName(data, taken));
+        float young = PetGenetics.youngDays(data, pet.sheet, PetDataRepo.getTraits());
+        float old = Math.max(young, PetConstants.OFFER_MAX_AGE * pet.getLifetime());
+        Random random = Misc.random;
+        pet.age = random.nextFloat() < PetConstants.OFFER_YOUNG_CHANCE ? 1f + random.nextFloat() * Math.max(0f, young - 1f) : young + random.nextFloat() * (old - young);
+        return pet;
+    }
+
+    public static float stockWeight(PetData data, String aiCoreId) {
+        float bonus = Commodities.ALPHA_CORE.equals(aiCoreId) ? 1f + ALPHA_CORE_RARITY_BONUS : 1f;
+        return data.rarity < 0.5f ? data.rarity * bonus : data.rarity;
+    }
+
+    public float getOfferPrice(Pet offer) {
+        return offer.getData().value;
+    }
+
+    // the offers change when the month does
+    public static int getDaysToNewOffers() {
+        GregorianCalendar cal = Global.getSector().getClock().getCal();
+        return cal.getActualMaximum(Calendar.DAY_OF_MONTH) - cal.get(Calendar.DAY_OF_MONTH) + 1;
+    }
+
+    public void adopt(Pet offer, FleetMemberAPI ship) {
+        if (offers == null || !offers.remove(offer)) throw new IllegalStateException("IndEvo pet " + offer.id + " is not on offer at " + market.getId());
+
+        Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(getOfferPrice(offer));
+        PetStatusManager.getInstance().register(offer);
+        offer.place(ship, ship == null ? this : null);
+    }
+
     public void rehome(Pet pet) {
         Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(PetConstants.REHOME_FEE);
         PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.REHOMED);
@@ -319,7 +394,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     @Override
     public void reportEconomyMonthEnd() {
-
+        if (!market.isPlayerOwned()) offers = null;
     }
 
     @Override

@@ -26,11 +26,14 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
 import indevo.industries.petshop.PetConstants;
+import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
+import indevo.industries.petshop.item.PetItemPlugin;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetData;
@@ -255,7 +258,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         }
 
         MessageIntel intel = new MessageIntel(line, Misc.getTextColor(), new String[]{pet.name}, hl);
-        intel.setIcon(pet.getData().icon);
+        intel.setIcon(pet.getIcon());
         Global.getSector().getCampaignUI().addMessage(intel);
         return true;
     }
@@ -401,6 +404,41 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public Set<String> getSeenTraits() {
         Set<String> seen = new HashSet<>();
         for (Pet pet : pets) if (pet.sheet != null) seen.addAll(pet.sheet.known);
+        return seen;
+    }
+
+    // what a buyer pays: read traits only, so a gene scan raises it
+    public float getSaleValue(Pet pet) {
+        return PetGenetics.saleValue(pet.getData(), PetGenetics.seen(pet.sheet), hasTitledAncestor(pet), PetDataRepo.getTraits());
+    }
+
+    private boolean hasTitledAncestor(Pet pet) {
+        Set<String> seen = new HashSet<>();
+        List<String> row = new ArrayList<>(Arrays.asList(pet.parentA, pet.parentB));
+        for (int g = 0; g < PetConstants.SALE_TITLED_GENERATIONS && !row.isEmpty(); g++) {
+            List<String> next = new ArrayList<>();
+            for (String id : row) {
+                Pet p = id != null && seen.add(id) ? get(id) : null;
+                if (p == null) continue;
+                if (!p.getTitleIds().isEmpty()) return true;
+                next.add(p.parentA);
+                next.add(p.parentB);
+            }
+            row = next;
+        }
+        return false;
+    }
+
+    // a young into a Cryochamber in the player fleet cargo
+    public void toChamber(Pet pet) {
+        pet.toChamber();
+        Global.getSector().getPlayerFleet().getCargo().addSpecial(new SpecialItemData(ItemIds.PET_CHAMBER, PetItemPlugin.chamberData(pet)), 1f);
+    }
+
+    // look ids of any pet the player has or had
+    public Set<String> getSeenLooks() {
+        Set<String> seen = new HashSet<>();
+        for (Pet pet : pets) if (pet.sheet != null && pet.sheet.look != null) seen.add(pet.sheet.look);
         return seen;
     }
 
@@ -649,6 +687,19 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         CargoAPI sold = transaction.getSold();
         if (sold == null) return;
 
+        // a Cryochamber put in storage keeps its pet
+        if (!transaction.getSubmarket().getPlugin().isFreeTransfer()) {
+            for (CargoStackAPI stack : sold.getStacksCopy()) {
+                Pet pet = PetItemPlugin.chamberPet(stack);
+                if (pet != null && !pet.isDead()) reportPetDied(pet, PetDeathCause.REHOMED);
+            }
+            CargoAPI bought = transaction.getBought();
+            if (bought != null) for (CargoStackAPI stack : bought.getStacksCopy()) {
+                Pet pet = PetItemPlugin.chamberPet(stack);
+                if (pet != null && pet.isDead()) pet.revive();
+            }
+        }
+
         List<PlayerMarketTransaction.ShipSaleInfo> soldList = transaction.getShipsSold();
         List<FleetMemberAPI> memberList = new ArrayList<>();
 
@@ -808,7 +859,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             intel.addLine(BaseIntelPlugin.BULLET + "%s", Misc.getTextColor(), new String[]{item}, hl);
         }
 
-        intel.setIcon(pet.getData().icon);
+        intel.setIcon(pet.getIcon());
         Global.getSector().getCampaignUI().addMessage(intel);
     }
 
