@@ -46,6 +46,7 @@ public final class PetChecks {
     private static final Set<String> DISPOSITIONS = Set.of(Personalities.TIMID, Personalities.CAUTIOUS, Personalities.STEADY, Personalities.AGGRESSIVE, Personalities.RECKLESS);
     private static final Pattern BODY_WORDS = Pattern.compile("\\b(legs?|paws?|hands?|fur|wings?|feathers?|beak|claws?|tails?|fins?|glass|tank|swims?|fl(y|ies|ew|ying)|sniff\\w*)\\b", Pattern.CASE_INSENSITIVE);
     private static final int PICKS = 40000;
+    private static final int NAME_RUN = 12;
     // play time: a day is 10 s of flight, about 1.5 minutes a week with x2 and time in menus
     private static final float PLAY_MINUTES_PER_DAY = 1.5f / 7f;
     private static final Set<String> PACES = Set.of(PetData.PACE_FAST, PetData.PACE_MEDIUM, PetData.PACE_SLOW, PetData.PACE_HAMSTER);
@@ -336,6 +337,10 @@ public final class PetChecks {
                     }
                 }
             }
+
+            Set<String> taken = new HashSet<>();
+            for (int i = 0; i < NAME_RUN; i++) taken.add(pickName(lines, data, taken, random));
+            check(taken.size() == NAME_RUN, data.id + " gets " + NAME_RUN + " different names in a row (a batch of offers or a brood)");
         }
     }
 

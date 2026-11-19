@@ -176,7 +176,19 @@ public class PetDataRepo {
 
     // a name for a pet out of a Cryochamber, name rows hold the name as text
     public static String suggestName(PetData data) {
-        Line line = pickLine(getLines(), EVENT_NAME, data, "", "", Set.of(), Misc.random);
+        return suggestName(data, Set.of());
+    }
+
+    public static String suggestName(PetData data, Set<String> taken) {
+        return pickName(getLines(), data, taken, Misc.random);
+    }
+
+    // a name not in taken while one is left, else any
+    public static String pickName(List<Line> lines, PetData data, Set<String> taken, Random random) {
+        List<Line> free = new ArrayList<>();
+        for (Line line : lines) if (line.event().equals(EVENT_NAME) && !taken.contains(line.text())) free.add(line);
+        Line line = pickLine(free, EVENT_NAME, data, "", "", Set.of(), random);
+        if (line == null) line = pickLine(lines, EVENT_NAME, data, "", "", Set.of(), random);
         return line != null ? line.text() : data.species;
     }
 

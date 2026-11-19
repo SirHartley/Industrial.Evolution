@@ -39,10 +39,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class PetShop extends BaseIndustry implements EconomyTickListener {
 
@@ -213,13 +215,16 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
         brood.young = new ArrayList<>();
         int n = PetGenetics.broodSize(data, a.sheet, b.sheet, traits, random);
+        Set<String> taken = livingNames();
         for (int i = 0; i < n; i++) {
             PetSheet sheet = PetGenetics.rollYoung(data, a.sheet, b.sheet, getCare(), hearts, mutationRate, inbreeding, traits, random);
             for (String id : sheet.traits.keySet()) {
                 PetDataRepo.Trait trait = traits.get(id);
                 if (trait != null && (trait.isMutation() || read && trait.isTalent())) sheet.known.add(id);
             }
-            brood.young.add(new Pet(data.id, PetDataRepo.suggestName(data), sheet, a.id, b.id));
+            Pet young = new Pet(data.id, PetDataRepo.suggestName(data, taken), sheet, a.id, b.id);
+            taken.add(young.name);
+            brood.young.add(young);
         }
 
         releaseParents(brood, 0f);
@@ -305,11 +310,22 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         for (PetData data : PetDataRepo.getAll()) if (!data.isNoSell()) picker.add(data, stockWeight(data, aiCoreId));
 
         int count = Math.max(PetConstants.MIN_OFFERS, Math.min(PetConstants.MAX_OFFERS, market.getSize()));
-        for (int i = 0; i < count && !picker.isEmpty(); i++) offers.add(offer(picker.pickAndRemove()));
+        Set<String> taken = livingNames();
+        for (int i = 0; i < count && !picker.isEmpty(); i++) {
+            Pet pet = offer(picker.pickAndRemove(), taken);
+            taken.add(pet.name);
+            offers.add(pet);
+        }
     }
 
-    private static Pet offer(PetData data) {
-        Pet pet = new Pet(data.id, PetDataRepo.suggestName(data));
+    private static Set<String> livingNames() {
+        Set<String> names = new HashSet<>();
+        for (Pet pet : PetStatusManager.getInstance().getPets()) if (!pet.isDead()) names.add(pet.name);
+        return names;
+    }
+
+    private static Pet offer(PetData data, Set<String> taken) {
+        Pet pet = new Pet(data.id, PetDataRepo.suggestName(data, taken));
         float young = PetGenetics.youngDays(data, pet.sheet, PetDataRepo.getTraits());
         float old = Math.max(young, PetConstants.OFFER_MAX_AGE * pet.getLifetime());
         Random random = Misc.random;
