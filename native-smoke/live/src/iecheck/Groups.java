@@ -27,6 +27,10 @@ public final class Groups {
                 return PetsHeartsChecks.pods();
             case "petscross":
                 return PetsCrossChecks.steps();
+            case "petsscan":
+                return PetsScanChecks.steps();
+            case "rc7pay":
+                return Rc7PayChecks.steps();
             case "petsbrood":
                 return PetsBroodChecks.steps();
             case "petsgenes":
