@@ -326,7 +326,7 @@ public class PetCard {
     }
 
     // takes the left click on its rect before the vanilla screen under it; takeMoves also hides the hover from what lies under it
-    private static class Click extends BaseCustomUIPanelPlugin {
+    static class Click extends BaseCustomUIPanelPlugin {
         private final Runnable action;
         private final boolean takeMoves;
         private PositionAPI pos;
@@ -928,6 +928,10 @@ public class PetCard {
         float y = h - BUTTON_H;
         Color hl = Misc.getHighlightColor();
         treeButton(p, y, pet, away);
+        if (view.tab == PetsView.TAB_TREE) {
+            planButton(p, TREE_W + 6f, y, pet);
+            return;
+        }
 
         if (shop != null) scanButton(p, TREE_W + 6f, y, shop, pet, view.reveal, scanHeld(pet, shop, away), () -> {
             view.reveal.begin(pet, view.clock);
@@ -966,6 +970,14 @@ public class PetCard {
         ButtonAPI button = UiButtons.button(p, 0f, y, TREE_W, BUTTON_H, "Show in Pets", listed ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
                 listed ? () -> panel.showInPets(pet) : null);
         if (reason != null) Ui.tooltip(p, button, "Show in Pets", reason);
+    }
+
+    // a planned young with this pet in the first place, on the Planner tab
+    private void planButton(CustomPanelAPI p, float x, float y, Pet pet) {
+        String block = pet.getData().isNoSell() ? "This one does not brood." : pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0 ? "Sterile." : null;
+        ButtonAPI button = UiButtons.button(p, x, y, BUTTON_W, BUTTON_H, "Plan cross", block != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
+                block != null ? null : () -> panel.newPlan(pet.typeID, pet.id, null));
+        Ui.tooltip(p, button, "Plan cross", block != null ? block : "A planned young of " + pet.name + " on the Planner tab.");
     }
 
     // gone once everything is read; grey while its reveal runs, when the pet is not here, or with too few relics (cost in red)

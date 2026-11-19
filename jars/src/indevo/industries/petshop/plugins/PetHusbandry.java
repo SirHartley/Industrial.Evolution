@@ -23,6 +23,8 @@ import indevo.utils.ui.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 // the Husbandry tab of a docked Animal Center: habitats and adults on the left, the selected habitat on the right
 public class PetHusbandry {
@@ -36,6 +38,7 @@ public class PetHusbandry {
     static final float DIALS_Y = 62f;
     static final float START_W = 104f;
     static final float TREE_W = 96f;
+    static final float PLAN_X = 244f;
     static final float YOUNG_W = 40f;
     static final float YOUNG_H = 56f;
     static final float YOUNG_GAP = 8f;
@@ -51,10 +54,11 @@ public class PetHusbandry {
     static final float OUT_H = 96f;
     // the flow chart sits on the brood line: thead, parents, lines, results
     static final float DETAIL_H = 204f;
+    static final float LINK_H = 30f;
     static final float DETAIL_BOTTOM = 68f;
     static final String LOOK = "look";
     static final String DISPOSITION = "disposition";
-    static final String MALFORMED = "malformed";
+    static final String MALFORMED = PetGenetics.MALFORMED;
 
     static final String ALL = "All";
     static final String NO_PARTNER = "No partner";
@@ -392,6 +396,9 @@ public class PetHusbandry {
             cross(p, w, h, a, b);
             treeButton(p, h, a, b);
             scanControls(p, w, h, a, b);
+            ButtonAPI plan = UiButtons.button(p, PLAN_X, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Add to plan", UiButtons.Kind.STD, CutStyle.TL_BR,
+                    () -> panel.newPlan(a.typeID, a.id, b.id));
+            Ui.tooltip(p, plan, "Add to plan", "A planned young of " + a.name + " and " + b.name + " on the Planner tab.");
         }
 
         float y = h - 60f;
@@ -582,26 +589,16 @@ public class PetHusbandry {
         PetSheet sb = view.reveal.seen(b);
         float care = shop.getCare();
         float sum = PetGenetics.sumChance(data, a.getHearts() + b.getHearts());
-        String fromA = "from " + a.name;
-        String fromB = "from " + b.name;
 
         float malformed = PetGenetics.malformedChance(data, PetShop.getInbreeding(a, b));
-        if (malformed > 0f) {
-            rows.add(new CrossRow(MALFORMED, "Malformed", Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.MALFORMED_PER_INBREEDING) + " times the inbreeding value", true,
-                    kin(a, b), kin(b, a), List.of(
-                    new Result(MALFORMED, "One new flaw", Ui.neg(), malformed, "at level 1, any flaw", "or one more level", null),
-                    new Result(PetGenetics.NONE, "none", Ui.gray(), 1f - malformed, "born sound", "No effect", null))));
-        }
-
-        rows.add(new CrossRow(LOOK, "Look", "", false, WILD_TYPE, WILD_TYPE, List.of(
-                new Result(PetSheet.FROM_A, WILD_TYPE, Ui.text(), 0.5f, fromA, "Plain look", null),
-                new Result(PetSheet.FROM_B, WILD_TYPE, Ui.text(), 0.5f, fromB, "Plain look", null))));
+        if (malformed > 0f) rows.add(malformedRow(malformed, kin(a, b), kin(b, a)));
+        rows.add(lookRow(a.name, b.name));
 
         String da = Misc.ucFirst(a.sheet.disposition);
         String db = Misc.ucFirst(b.sheet.disposition);
         rows.add(new CrossRow(DISPOSITION, "Disposition", "", false, da, db, List.of(
-                new Result(PetSheet.FROM_A, da, Academy.COLOURS_BY_PERSONALITY.get(a.sheet.disposition), 0.5f, fromA, "", null),
-                new Result(PetSheet.FROM_B, db, Academy.COLOURS_BY_PERSONALITY.get(b.sheet.disposition), 0.5f, fromB, "", null))));
+                new Result(PetSheet.FROM_A, da, Academy.COLOURS_BY_PERSONALITY.get(a.sheet.disposition), 0.5f, "from " + a.name, "", null),
+                new Result(PetSheet.FROM_B, db, Academy.COLOURS_BY_PERSONALITY.get(b.sheet.disposition), 0.5f, "from " + b.name, "", null))));
 
         Set<String> ids = new LinkedHashSet<>(sa.traits.keySet());
         ids.addAll(sb.traits.keySet());
@@ -620,12 +617,29 @@ public class PetHusbandry {
         for (PetDataRepo.Trait trait : talents) {
             int la = sa.getGrade(trait.id());
             int lb = sb.getGrade(trait.id());
-            List<Result> results = new ArrayList<>();
-            for (PetGenetics.Outcome o : PetGenetics.outcomes(trait.isFlaw(), trait.hasLevels(), la, lb, care, sum)) results.add(result(trait, o, fromA, fromB));
-            rows.add(new CrossRow(trait.id(), trait.name(), unit(trait), trait.isFlaw(), parentLine(trait, a, la), parentLine(trait, b, lb), results));
+            rows.add(traitRow(trait, la, lb, care, sum, a.name, b.name, parentLine(trait, a, la), parentLine(trait, b, lb)));
         }
 
         return rows;
+    }
+
+    static CrossRow malformedRow(float malformed, String lineA, String lineB) {
+        return new CrossRow(MALFORMED, "Malformed", Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.MALFORMED_PER_INBREEDING) + " times the inbreeding value", true,
+                lineA, lineB, List.of(
+                new Result(MALFORMED, "One new flaw", Ui.neg(), malformed, "at level 1, any flaw", "or one more level", null),
+                new Result(PetGenetics.NONE, "none", Ui.gray(), 1f - malformed, "born sound", "No effect", null)));
+    }
+
+    static CrossRow lookRow(String nameA, String nameB) {
+        return new CrossRow(LOOK, "Look", "", false, WILD_TYPE, WILD_TYPE, List.of(
+                new Result(PetSheet.FROM_A, WILD_TYPE, Ui.text(), 0.5f, "from " + nameA, "Plain look", null),
+                new Result(PetSheet.FROM_B, WILD_TYPE, Ui.text(), 0.5f, "from " + nameB, "Plain look", null)));
+    }
+
+    static CrossRow traitRow(PetDataRepo.Trait trait, int la, int lb, float care, float sum, String nameA, String nameB, String lineA, String lineB) {
+        List<Result> results = new ArrayList<>();
+        for (PetGenetics.Outcome o : PetGenetics.outcomes(trait.isFlaw(), trait.hasLevels(), la, lb, care, sum)) results.add(result(trait, o, "from " + nameA, "from " + nameB));
+        return new CrossRow(trait.id(), trait.name(), unit(trait), trait.isFlaw(), lineA, lineB, results);
     }
 
     private static Result result(PetDataRepo.Trait trait, PetGenetics.Outcome o, String fromA, String fromB) {
@@ -666,23 +680,39 @@ public class PetHusbandry {
         return "Kin of " + other.name;
     }
 
-    // both parents, lines into every result, per result the value, chance, where it comes from and what it does
     private void detail(CustomPanelAPI p, float w, float y, CrossRow row, Pet a, Pet b) {
+        flow(p, w, y, LINK_H, row, flowNode(a, row.lineA()), flowNode(b, row.lineB()), r -> false, null);
+    }
+
+    private FlowNode flowNode(Pet pet, String line) {
+        return new FlowNode(pet.name, pet.getData().icon, unknown(pet) > 0, pet, line);
+    }
+
+    // a parent in the flow chart: a pet, or a planned young with no hearts
+    record FlowNode(String name, String icon, boolean unknown, Pet hearts, String line) {
+    }
+
+    // both parents, lines into every result, per result the value, chance, where it comes from and what it does;
+    // a result that meets gets the gold border, click makes the results buttons
+    static void flow(CustomPanelAPI p, float w, float y, float link, CrossRow row, FlowNode a, FlowNode b, Predicate<Result> meets, Consumer<Result> click) {
         Ui.thead(p, 0f, y, w, new String[]{row.name(), row.unit()}, new float[]{8f, 168f}, new float[]{150f, w - 176f}, new Alignment[]{Ui.LEFT, Ui.RIGHT});
         y += 26f;
-        node(p, 0f, y, a, row.lineA());
-        node(p, w - NODE_W, y, b, row.lineB());
+        node(p, 0f, y, a);
+        node(p, w - NODE_W, y, b);
 
         List<Result> results = row.results();
         int n = results.size();
         float[] xs = n == 1 ? new float[]{Math.round((w - OUT_W) / 2f)} : n == 2 ? new float[]{30f, w - OUT_W - 30f}
                 : new float[]{0f, Math.round((w - OUT_W) / 2f), w - OUT_W};
         float by = y + NODE_H;
-        float cy = by + 30f;
+        float cy = by + link;
 
-        links(p, NODE_W / 2f, by, 12f, cy, results, xs, PetSheet.FROM_A);
-        links(p, w - NODE_W / 2f, by, 20f, cy, results, xs, PetSheet.FROM_B);
-        for (int i = 0; i < n; i++) outcome(p, xs[i], cy, results.get(i), row.flaw());
+        links(p, NODE_W / 2f, by, Math.round(link * 0.4f), cy, results, xs, PetSheet.FROM_A);
+        links(p, w - NODE_W / 2f, by, Math.round(link * 0.67f), cy, results, xs, PetSheet.FROM_B);
+        for (int i = 0; i < n; i++) {
+            Result r = results.get(i);
+            outcome(p, xs[i], cy, r, row.flaw(), meets.test(r), click != null ? () -> click.accept(r) : null);
+        }
     }
 
     // the node down by drop, across to every result it feeds, then down into them; the sum and Malformed take both parents
@@ -719,21 +749,35 @@ public class PetHusbandry {
         Ui.painted(p, Math.round(x), y, Math.round(w), 1f, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), 1f, Ui.base(), a), null);
     }
 
-    private void node(CustomPanelAPI p, float x, float y, Pet pet, String line) {
+    private static void node(CustomPanelAPI p, float x, float y, FlowNode node) {
         Ui.card(p, x, y, NODE_W, NODE_H);
-        UiImages.img(p, x + 4f, y + 4f, 44f, 44f, pet.getData().icon);
-        if (unknown(pet) > 0) UiImages.img(p, x + 29f, y + 1f, 20f, 20f, PetCard.unknownSprite());
-        float hw = PetCard.heartsWidth(9f, 2f);
-        Ui.textIn(p, x + 58f, y + 6f, NODE_W - 66f - hw - 6f, Ui.LINE_H, Ui.fit(pet.name, Ui.INS15, NODE_W - 66f - hw - 6f), Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
-        PetCard.hearts(p, x + NODE_W - 8f - hw, y + 12f, pet, 9f, 2f);
+        if (node.icon() != null) UiImages.img(p, x + 4f, y + 4f, 44f, 44f, node.icon());
+        else planFace(p, x + 4f, y + 4f, 44f);
+        if (node.unknown()) UiImages.img(p, x + 29f, y + 1f, 20f, 20f, PetCard.unknownSprite());
+        float hw = node.hearts() != null ? PetCard.heartsWidth(9f, 2f) + 6f : 0f;
+        Ui.textIn(p, x + 58f, y + 6f, NODE_W - 66f - hw, Ui.LINE_H, Ui.fit(node.name(), Ui.INS15, NODE_W - 66f - hw), Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        if (node.hearts() != null) PetCard.hearts(p, x + NODE_W - 8f - PetCard.heartsWidth(9f, 2f), y + 12f, node.hearts(), 9f, 2f);
 
+        String line = node.line();
         String number = line.replaceAll("[^0-9]", "");
         Ui.textIn(p, x + 58f, y + 26f, NODE_W - 66f, Ui.LINE_H, Ui.fit(line, Ui.INS15, NODE_W - 66f), Ui.INS15, Ui.gray(), Ui.LEFT,
                 number.isEmpty() ? new String[0] : new String[]{number}, new Color[]{Ui.hl()});
     }
 
-    private static void outcome(CustomPanelAPI p, float x, float y, Result r, boolean flaw) {
-        Ui.box(p, x, y, OUT_W, OUT_H, r.lane().equals(PetSheet.FROM_SUM) ? Ui.base() : Ui.line(), null);
+    // a planned young in place of a portrait: the dashed square with the question mark
+    static void planFace(CustomPanelAPI p, float x, float y, float s) {
+        Ui.dashbox(p, x, y, s, s);
+        float q = Math.round(s * 0.55f);
+        UiImages.img(p, x + Math.round((s - q) / 2f), y + Math.round((s - q) / 2f), q, q, PetCard.unknownSprite());
+    }
+
+    private static void outcome(CustomPanelAPI p, float x, float y, Result r, boolean flaw, boolean met, Runnable click) {
+        if (click != null) UiButtons.row(p, x, y, OUT_W, OUT_H, false, true, null, click);
+        Ui.box(p, x, y, OUT_W, OUT_H, met ? Ui.hl() : r.lane().equals(PetSheet.FROM_SUM) ? Ui.base() : Ui.line(), null);
+        if (met) Ui.painted(p, x + OUT_W - 18f, y + 6f, 12f, 9f, (pos, a) -> {
+            UiDraw.line(pos.getX(), pos.getY() + 4f, pos.getX() + 4f, pos.getY(), 2f, Ui.GREEN, 1f, 1f, 1f, a, false);
+            UiDraw.line(pos.getX() + 4f, pos.getY(), pos.getX() + 12f, pos.getY() + 9f, 2f, Ui.GREEN, 1f, 1f, 1f, a, false);
+        }, null);
         Ui.textIn(p, x, y + 6f, OUT_W, 24f, Ui.fit(r.value(), Ui.ORB20, OUT_W - 8f), Ui.ORB20, r.color(), Ui.CENTER, new String[0], new Color[0]);
         Ui.textIn(p, x, y + 31f, OUT_W, 22f, percent(r.chance()), Ui.INS21, Ui.text(), Ui.CENTER, new String[0], new Color[0]);
         Ui.textIn(p, x, y + 54f, OUT_W, Ui.LINE_H, Ui.fit(r.origin(), Ui.INS15, OUT_W - 8f), Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);

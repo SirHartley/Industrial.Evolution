@@ -20,8 +20,6 @@ import indevo.utils.helper.MiscIE;
 
 import java.util.Map;
 
-import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_ESC;
-
 // hosts the Pets panel; shop is the docked Animal Center, null in flight
 public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
@@ -89,7 +87,7 @@ public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlocking
     public void advance(float amount) {
         // a popup over the panel takes escape itself
         if (Global.getSector().getCampaignUI().isShowingDialog() && !panel.isPopupOpen())
-            Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, this, 1f);
+            EscapeInterceptListener.block(this);
     }
 
     @Override

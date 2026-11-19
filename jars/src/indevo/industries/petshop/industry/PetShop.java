@@ -116,11 +116,23 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     }
 
     public static float getInbreeding(Pet a, Pet b) {
-        PetStatusManager manager = PetStatusManager.getInstance();
-        return PetGenetics.inbreeding(a.id, b.id, id -> {
-            Pet pet = manager.get(id);
-            return pet != null ? new String[]{pet.parentA, pet.parentB} : null;
-        });
+        return getInbreeding(a.id, b.id);
+    }
+
+    // pets or planned young
+    public static float getInbreeding(String a, String b) {
+        return PetGenetics.inbreeding(a, b, PetStatusManager.getInstance()::parentsOf);
+    }
+
+    // the center a plan counts with: the one docked at, else the player's own with the most Care; null for none
+    public static PetShop planCenter(PetShop docked) {
+        if (docked != null) return docked;
+
+        PetShop best = null;
+        for (MarketAPI market : Misc.getPlayerMarkets(true)) {
+            if (market.getIndustry(Ids.PET_STORE) instanceof PetShop shop && shop.isFunctional() && (best == null || shop.getCare() > best.getCare())) best = shop;
+        }
+        return best;
     }
 
     // a month per busy habitat, only at npc centers

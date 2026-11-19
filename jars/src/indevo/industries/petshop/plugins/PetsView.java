@@ -19,9 +19,14 @@ public class PetsView {
     public static final String ADULTS = "adults";
     public static final String CROSS = "cross";
     public static final String TREE = "tree";
+    public static final String PLAN = "plan";
+    public static final String PLAN_LIST = "planList";
+    public static final String WANTED = "wanted";
+    public static final String BEST = "best";
     public static final int TAB_PETS = 0;
     public static final int TAB_HUSBANDRY = 1;
     public static final int TAB_TREE = 2;
+    public static final int TAB_PLAN = 3;
 
     public int tab = TAB_PETS;
     public String selected = null;
@@ -47,6 +52,19 @@ public class PetsView {
     // how far the tree is dragged sideways
     float treeX = 0f;
     final UiFilter.State find = new UiFilter.State("");
+
+    // Planner: the species shown, the clicked plan, the parent place open in the right column (-1 for its card), the Copy pet list,
+    // the wanted row drawn as the flow chart (null picks the first trait)
+    String planSpecies = null;
+    String planSelected = null;
+    int planPlace = -1;
+    boolean planCopy = false;
+    String planRow = null;
+    float planX = 0f;
+    final UiFilter.State planParents = PetPlanner.parentFilter();
+    final UiFilter.State planCopies = PetPlanner.copyFilter();
+    TextFieldAPI planField = null;
+    String planNamed = null;
 
     int clicks = 0;
     String answer = null;
