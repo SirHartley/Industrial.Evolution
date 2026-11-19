@@ -216,6 +216,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         brood.young = new ArrayList<>();
         int n = PetGenetics.broodSize(data, a.sheet, b.sheet, traits, random);
         Set<String> taken = livingNames();
+        for (PetBrood other : getBroods()) if (other.young != null) for (Pet pet : other.young) taken.add(pet.name);
         for (int i = 0; i < n; i++) {
             PetSheet sheet = PetGenetics.rollYoung(data, a.sheet, b.sheet, getCare(), hearts, mutationRate, inbreeding, traits, random);
             for (String id : sheet.traits.keySet()) {
