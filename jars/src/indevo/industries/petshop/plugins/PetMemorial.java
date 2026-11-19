@@ -88,7 +88,7 @@ public final class PetMemorial {
         List<Pet> dead = new ArrayList<>();
         Set<String> ids = new HashSet<>();
         for (Pet pet : PetStatusManager.getInstance().getPets()) {
-            ids.add(pet.id);
+            ids.add(pet.getMemorialId());
             if (pet.isRemembered()) dead.add(pet);
         }
         // clock timestamps are negative in early cycles, only 0 means a death saved before the field

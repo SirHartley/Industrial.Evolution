@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
@@ -35,6 +36,8 @@ public class Pet {
 
     public String typeID;
     public String id;
+    // same in every save that holds this pet; Misc.genUID ids repeat across games, so the memorial file keys on this
+    private String memorialId = UUID.randomUUID().toString();
     public String name;
     public float age = 1f;
     public float lifetime;
@@ -464,6 +467,12 @@ public class Pet {
 
     public boolean isDead() {
         return isDead;
+    }
+
+    // null for a pet saved before the field
+    public String getMemorialId() {
+        if (memorialId == null) memorialId = UUID.randomUUID().toString();
+        return memorialId;
     }
 
     // dead and kept by the Memorial: sold and rehomed pets are not dead to the player

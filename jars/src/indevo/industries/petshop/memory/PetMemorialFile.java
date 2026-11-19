@@ -16,13 +16,14 @@ public class PetMemorialFile extends BaseSharedJSONFile {
 
     public static final String FILE = "IndEvo_pet_memorial.json";
     static final String PETS = "pets";
+    static final String UID = "uid";
 
     private static final Logger log = Global.getLogger(PetMemorialFile.class);
     private static PetMemorialFile instance;
 
     private List<Lost> pets = null;
 
-    // icon is the portrait of the species or look, null when the species is gone with its mod
+    // id is Pet.getMemorialId; icon is the portrait of the species or look
     public record Lost(String id, String name, String species, String icon, String age, float days, int hearts, List<String> titles) {
     }
 
@@ -52,7 +53,7 @@ public class PetMemorialFile extends BaseSharedJSONFile {
 
         for (int i = 0; i < array.length(); i++) {
             JSONObject o = array.optJSONObject(i);
-            if (o == null) continue;
+            if (o == null || !o.has(UID)) continue;
 
             PetData data = PetDataRepo.get(o.optString("species", ""));
             if (data == null) continue;
@@ -61,7 +62,7 @@ public class PetMemorialFile extends BaseSharedJSONFile {
             List<String> titles = new ArrayList<>();
             JSONArray t = o.optJSONArray("titles");
             for (int j = 0; t != null && j < t.length(); j++) titles.add(t.optString(j));
-            out.add(new Lost(o.optString("id"), o.optString("name"), data.species, look != null ? look.icon() : data.icon, o.optString("age"),
+            out.add(new Lost(o.optString(UID), o.optString("name"), data.species, look != null ? look.icon() : data.icon, o.optString("age"),
                     (float) o.optDouble("days", 0d), o.optInt("hearts"), titles));
         }
         return out;
@@ -74,11 +75,11 @@ public class PetMemorialFile extends BaseSharedJSONFile {
 
     // the age as text, a pet from another game has no clock to count with; days only sort
     public void remember(Pet pet) {
-        if (contains(pet.id)) return;
+        if (contains(pet.getMemorialId())) return;
 
         try {
             JSONObject o = new JSONObject();
-            o.put("id", pet.id);
+            o.put(UID, pet.getMemorialId());
             o.put("name", pet.name);
             o.put("species", pet.typeID);
             PetDataRepo.Look look = pet.getLook();
