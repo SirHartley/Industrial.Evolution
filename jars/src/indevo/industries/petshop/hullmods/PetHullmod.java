@@ -260,7 +260,7 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         Status(Pet pet, float hull) {
             // the game does not shorten titles and shows them in capitals
             this.title = Ui.fit(pet.name.toUpperCase(Locale.ROOT), STATUS_FONT, PetConstants.STATUS_NAME_W);
-            this.icon = pet.getIcon();
+            this.icon = PetDataRepo.getStatusIcon(pet.getIcon());
             this.hull = hull;
         }
     }
