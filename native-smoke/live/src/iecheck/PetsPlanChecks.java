@@ -60,6 +60,34 @@ public final class PetsPlanChecks {
             c.expect(PetsDialogPlugin.show(shop, view), "the Pets panel opens on the Planner tab" + (shop == null ? " without a center" : ""));
             c.frames(60);
         });
+        // SWITCHES=savecheck: show every tab with Wide tiles on, close the panel, save and load, then check the save loaded and Wide stays on
+        if (System.getProperty("ie.switches", "").contains("savecheck")) {
+            int[] tabs = {PetsView.TAB_PETS, PetsView.TAB_HUSBANDRY, PetsView.TAB_TREE};
+            for (int tab : tabs) {
+                steps.add(c -> c.keepDialog(false));
+                steps.add(c -> {
+                    c.data().put("IndEvo_petTreeWide", true);
+                    PetsView view = new PetsView((String) c.get("Kidone"));
+                    view.tab = tab;
+                    c.keepDialog(true);
+                    c.expect(PetsDialogPlugin.show((PetShop) c.market("a").getIndustry(Ids.PET_STORE), view), "the Pets panel shows tab " + tab);
+                    c.frames(60);
+                });
+            }
+            steps.add(c -> {
+                c.keepDialog(false);
+                c.reload();
+            });
+            steps.add(c -> {
+                c.expect(manager().getPlans().size() == 3, "the save made after showing every tab loads with its three plans");
+                c.expect(Boolean.TRUE.equals(c.data().get("IndEvo_petTreeWide")), "Wide tiles stays on after a save and reload");
+                PetsView view = new PetsView((String) c.get("Kidone"));
+                view.tab = PetsView.TAB_TREE;
+                c.keepDialog(true);
+                c.expect(PetsDialogPlugin.show((PetShop) c.market("a").getIndustry(Ids.PET_STORE), view), "the Pets panel opens again on the Family tree tab");
+                c.frames(60);
+            });
+        }
         steps.add(c -> {
             log.info("LIVE_CHECK hold");
             c.frames(100000000);
