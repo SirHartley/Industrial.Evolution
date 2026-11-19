@@ -299,6 +299,8 @@ public class PetBestiary {
 
     // Wild type, then each look: raised in this game, seen on offer, known from an earlier game only (grey), never found (?)
     private static void looksTip(TooltipMakerAPI t, PetData data, boolean old, List<Pet> pets, Set<String> knownLooks) {
+        // the default 0.85 lets the page text show through the portraits, the vanilla ship tooltip uses 1 too
+        t.setBgAlpha(1f);
         float tw = t.getWidthSoFar();
         t.addPara("Looks", Ui.hl(), 0f);
 
