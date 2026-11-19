@@ -91,8 +91,11 @@ public final class Rc7PayChecks {
             CampaignFleetAPI det = DetachmentMemory.getDetachment(1);
             c.expect(det != null, "a detachment with an officer is out");
             c.put("captain", captain.getNameString());
-            c.put("captainPay", oldSalary(captain));
-            c.expect(Math.abs(DetachmentPayroll.getSalary(captain) - oldSalary(captain)) < 0.5f, "detachment pay of an active officer is the old pay (" + DetachmentPayroll.getSalary(captain) + " vs " + oldSalary(captain) + ")");
+            float vanilla = Misc.getOfficerSalary(captain, Misc.isMercenary(captain), true, true);
+            float pay = DetachmentPayroll.getSalary(captain, det.getContainingLocation());
+            c.note("detachment in " + det.getContainingLocation().getName() + ", populated " + Misc.isInCivilizedSpace() + ", same system as the player " + (det.getContainingLocation() == fleet.getContainingLocation()));
+            c.put("captainPay", vanilla);
+            c.expect(Math.abs(pay - vanilla) < 0.5f, "detachment pay of an active officer is the vanilla pay (" + pay + " vs " + vanilla + ")");
 
             // two month ends, so the second report holds a full month
             int day = Global.getSector().getClock().getDay();
@@ -115,7 +118,7 @@ public final class Rc7PayChecks {
             String line = l.stream().filter(s -> s.contains(name + " (")).findFirst().orElse("none");
             float cpay = (Float) c.get("captainPay");
             c.expect(line.contains("(Detachment") || line.contains("(" + DetachmentMemory.getDetachment(1).getName()), "the payroll has a line for the detachment officer (" + line + ")");
-            c.near(Float.parseFloat(line.substring(line.lastIndexOf(' ') + 1)), cpay, cpay * 0.05f + 1f, "the detachment officer's month pay is about the old pay");
+            c.near(Float.parseFloat(line.substring(line.lastIndexOf(' ') + 1)), cpay, cpay * 0.05f + 1f, "the detachment officer's month pay is about the vanilla pay");
             c.keepDialog(true);
             DetachmentUiChecks.open(c, new DetachmentView());
             c.frames(60);
