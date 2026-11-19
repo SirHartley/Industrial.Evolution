@@ -509,12 +509,15 @@ public class Pet {
     private void warnLifeEnding() {
         if (!isWithPlayer()) return;
 
-        float left = getLifetime() - age;
+        float lifetime = getLifetime();
+        float left = lifetime - age;
         int stage = 0;
         while (stage < PetConstants.LIFE_WARNING_DAYS.length && left <= PetConstants.LIFE_WARNING_DAYS[stage]) stage++;
         if (stage <= lifeWarnings) return;
 
         lifeWarnings = stage;
+        // a warning over half the whole life passes silently, so a hamster is not warned on its first day
+        if (lifetime < 2f * PetConstants.LIFE_WARNING_DAYS[stage - 1]) return;
         PetStatusManager.getInstance().reportLifeEnding(this, left);
     }
 
