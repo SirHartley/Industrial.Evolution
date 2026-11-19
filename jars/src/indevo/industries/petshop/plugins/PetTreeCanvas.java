@@ -37,6 +37,11 @@ final class PetTreeCanvas {
         void setX(float x);
 
         void emptyClick();
+
+        // the No family label also when no family is in view
+        default boolean labelAlone() {
+            return false;
+        }
     }
 
     final PetTreeLayout.Result result;
@@ -74,7 +79,7 @@ final class PetTreeCanvas {
         tileH = small ? m.tileW() : PetTree.TILE_H;
 
         // the No family label sits above the singles, inside the block when they stand in the first row
-        boolean label = !result.singles().isEmpty() && !result.families().isEmpty() && result.nodes().get(result.singles().get(0)).row == 0;
+        boolean label = labelled() && result.nodes().get(result.singles().get(0)).row == 0;
         top = PetTree.MARGIN + (label ? PetTree.LABEL_H : 0f);
 
         for (Brood brood : result.broods()) {
@@ -97,7 +102,7 @@ final class PetTreeCanvas {
         world = Ui.painted(block, -owner.getX(), 0f, worldW, blockH, this::paintLines, this::paintMarks);
         for (Node n : result.nodes().values()) if (!n.lane) owner.tile(world, n, left(n), rowTop(n.row));
 
-        if (!result.singles().isEmpty() && !result.families().isEmpty()) {
+        if (labelled()) {
             float lo = Float.MAX_VALUE;
             float hi = 0f;
             for (String id : result.singles()) {
@@ -112,6 +117,10 @@ final class PetTreeCanvas {
         element = column.end();
         CustomPanelAPI input = p.createCustomPanel(w - UiScroll.GUTTER, h, new Input());
         p.addComponent(input).inTL(x, y);
+    }
+
+    private boolean labelled() {
+        return !result.singles().isEmpty() && (!result.families().isEmpty() || owner.labelAlone());
     }
 
     float rowTop(int row) {

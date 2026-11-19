@@ -596,6 +596,11 @@ public class PetTree {
             }
 
             @Override
+            public boolean labelAlone() {
+                return true;
+            }
+
+            @Override
             public float getX() {
                 return view.treeX;
             }
