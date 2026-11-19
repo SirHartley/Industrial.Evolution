@@ -142,7 +142,8 @@ public class PetBestiary {
         float y = PetsPanel.BODY_Y;
         int game = 0;
         for (Entry e : all) if (e.seen() == Seen.GAME) game++;
-        Ui.heading(p, 0f, y, ROW_W, "Species", game + " / " + all.size(), String.valueOf(game));
+        if (view.beasts.isFiltering()) Ui.heading(p, 0f, y, ROW_W, "Species", shown.size() + " of " + all.size());
+        else Ui.heading(p, 0f, y, ROW_W, "Species", game + " / " + all.size(), String.valueOf(game));
         y += Ui.HEADING_H + 4f;
         y += UiFilter.bar(p, 2f, y, view.beasts, "Name or class", "Filters and sort order of this list.", TOGGLES, null, KEYS, panel::filtered, panel::refresh)
                 + UiFilter.BELOW;
