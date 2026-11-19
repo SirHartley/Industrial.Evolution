@@ -18,6 +18,7 @@ import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.memory.PetSheet;
+import indevo.utils.helper.StringHelper;
 import indevo.utils.ui.*;
 
 import java.awt.*;
@@ -672,7 +673,7 @@ public class PetHusbandry {
         if (v.isEmpty()) return trait.isFlaw() ? "Flaw" : trait.isMutation() ? "Mutation" : "";
         String per = trait.per() > 1 ? " per " + trait.per() + (trait.isTalent() ? " grades" : " levels") : trait.isTalent() ? " per grade" : " per level";
         String text = trait.effect() + " " + v + per;
-        return trait.isFlaw() ? "Flaw, " + Misc.lcFirst(text) : trait.isMutation() ? "Mutation, " + Misc.lcFirst(text) : text;
+        return trait.isFlaw() ? "Flaw, " + StringHelper.lcFirst(text) : trait.isMutation() ? "Mutation, " + StringHelper.lcFirst(text) : text;
     }
 
     // what the node of a parent says about the trait: its grade or level, Unknown while it may hide one, else None

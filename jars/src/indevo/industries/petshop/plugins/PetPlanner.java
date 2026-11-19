@@ -26,6 +26,7 @@ import indevo.industries.petshop.plugins.PetHusbandry.Result;
 import indevo.industries.petshop.plugins.PetTreeLayout.Brood;
 import indevo.industries.petshop.plugins.PetTreeLayout.Item;
 import indevo.industries.petshop.plugins.PetTreeLayout.Node;
+import indevo.utils.helper.StringHelper;
 import indevo.utils.ui.*;
 
 import java.awt.Color;
@@ -734,7 +735,7 @@ public class PetPlanner {
             PetDataRepo.Trait flaw = PetDataRepo.getTrait(id);
             if (flaw == null) continue;
             String per = flaw.format(flaw.value(flaw.per(), 1f));
-            String what = per.isEmpty() ? Misc.lcFirst(flaw.effect()) + "." : Misc.lcFirst(flaw.effect()) + " " + per + " per level.";
+            String what = per.isEmpty() ? StringHelper.lcFirst(flaw.effect()) + "." : StringHelper.lcFirst(flaw.effect()) + " " + per + " per level.";
             t.addPara("Arrives with the flaw %s: " + esc(what), 10f, new Color[]{Ui.neg(), Ui.neg()}, flaw.name(), per);
         }
     }
@@ -747,7 +748,7 @@ public class PetPlanner {
         arrivesWith(t, trait);
 
         String value = trait.format(trait.value(v, 1f));
-        String what = value.isEmpty() ? "" : ", " + Misc.lcFirst(trait.effect()) + " " + value;
+        String what = value.isEmpty() ? "" : ", " + StringHelper.lcFirst(trait.effect()) + " " + value;
         if (trait.isFlaw() && v == 0) t.addPara("Wanted: none.", 10f);
         else if (trait.isFlaw()) t.addPara("Wanted: level %s or less" + esc(what) + ".", 10f, new Color[]{Ui.hl(), Ui.neg()}, String.valueOf(v), value);
         else if (!trait.hasLevels()) t.addPara("Wanted: has it.", 10f);
