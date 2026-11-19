@@ -35,6 +35,7 @@ public class PetHusbandry {
     static final float DIAL_ROW = 18f;
     static final float DIALS_Y = 62f;
     static final float START_W = 104f;
+    static final float TREE_W = 96f;
     static final float YOUNG_W = 40f;
     static final float YOUNG_H = 56f;
     static final float YOUNG_GAP = 8f;
@@ -334,12 +335,16 @@ public class PetHusbandry {
     private void scanControls(CustomPanelAPI p, float w, float h, Pet a, Pet b) {
         PetReveal reveal = view.reveal;
         Pet target = reveal.reading(a) ? a : reveal.reading(b) ? b : unknownTalents(a) > 0 ? a : unknownTalents(b) > 0 ? b : !a.isRead() ? a : !b.isRead() ? b : null;
-        if (target != null) PetCard.scanButton(p, 0f, h - PetCard.BUTTON_H, shop, target, reveal, PetCard.scanHeld(target, shop, PetsPanel.awayFleet(target)), () -> {
+        if (target != null) PetCard.scanButton(p, TREE_W + 6f, h - PetCard.BUTTON_H, shop, target, reveal, PetCard.scanHeld(target, shop, PetsPanel.awayFleet(target)), () -> {
             reveal.begin(target, view.clock);
             shop.geneScan(target);
             panel.refresh();
         });
         if (reveal.on(a) || reveal.on(b)) reveal.border(p, 0f, 0f, w, h);
+    }
+
+    private void treeButton(CustomPanelAPI p, float h, Pet a, Pet b) {
+        UiButtons.button(p, 0f, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Family tree", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.showPair(a, b));
     }
 
     // a second adult of another species starts the pair again
@@ -362,13 +367,13 @@ public class PetHusbandry {
         else pairCard(p, w, h, habitat);
     }
 
-    private static void title(CustomPanelAPI p, float w, String title) {
+    static void title(CustomPanelAPI p, float w, String title) {
         Ui.box(p, 0f, 0f, w, PetCard.NAME_H, Misc.scaleAlpha(Ui.base(), 0.45f), null);
         Ui.textIn(p, 4f, 0f, w - 8f, PetCard.NAME_H, Ui.fit(title, Ui.ORB20, w - 8f), Ui.ORB20, Ui.bright(), Ui.CENTER, new String[0], new Color[0]);
     }
 
     // one line, so the traits get a fourth row at 1280x768
-    private static void tagline(CustomPanelAPI p, float w, String line) {
+    static void tagline(CustomPanelAPI p, float w, String line) {
         if (line == null || line.isEmpty()) return;
         String shown = Ui.fit(line, Ui.INS15, w);
         LabelAPI label = Ui.wrap(p, 0f, PetCard.TAG_Y, w, shown, Ui.INS15, Ui.gray(), Alignment.TMID, new String[0], new Color[0]);
@@ -385,6 +390,7 @@ public class PetHusbandry {
         dials(p, w, a, b);
         if (pair && a.typeID.equals(b.typeID)) {
             cross(p, w, h, a, b);
+            treeButton(p, h, a, b);
             scanControls(p, w, h, a, b);
         }
 
@@ -436,12 +442,9 @@ public class PetHusbandry {
         panel.refresh();
     }
 
-    // siblings, a parent and its young, or kin further back; nothing for unrelated adults
+    // the kin card's relation line; nothing for unrelated adults
     private static String kinLine(Pet a, Pet b) {
-        if (a.parentA != null && Objects.equals(a.parentA, b.parentA) && Objects.equals(a.parentB, b.parentB)) return a.name + " and " + b.name + " come from one brood.";
-        if (b.id.equals(a.parentA) || b.id.equals(a.parentB)) return b.name + " is a parent of " + a.name + ".";
-        if (a.id.equals(b.parentA) || a.id.equals(b.parentB)) return a.name + " is a parent of " + b.name + ".";
-        return PetShop.getInbreeding(a, b) > 0f ? a.name + " and " + b.name + " are kin." : null;
+        return PetTree.relation(a, b);
     }
 
     private void dials(CustomPanelAPI p, float w, Pet a, Pet b) {
@@ -748,6 +751,7 @@ public class PetHusbandry {
         tagline(p, w, kinLine(a, b));
         dials(p, w, a, b);
         cross(p, w, h, a, b);
+        treeButton(p, h, a, b);
         scanControls(p, w, h, a, b);
 
         float left = shop.getDaysLeft(brood);
@@ -786,6 +790,7 @@ public class PetHusbandry {
         }
 
         Ui.rule(p, 0f, h - 36f, w);
+        treeButton(p, h, a, b);
         UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Open brood", UiButtons.Kind.GREEN, CutStyle.TL_BR,
                 () -> panel.popup(new PetYoungDialog(shop, brood)));
     }

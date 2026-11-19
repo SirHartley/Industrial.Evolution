@@ -6,6 +6,7 @@ import com.fs.starfarer.api.util.Misc;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class Ui {
@@ -297,15 +298,17 @@ public final class Ui {
         return textIn(p, x + 8f, y, w - 16f, HEADING_H, title, ORB12, c, align, new String[0], new Color[0]);
     }
 
-    // left heading with a grey note at its right end, the note gets what the title leaves
-    public static LabelAPI heading(CustomPanelAPI p, float x, float y, float w, String title, String note) {
+    // left heading with a grey note at its right end, the note gets what the title leaves; hl parts of the note in the highlight colour
+    public static LabelAPI heading(CustomPanelAPI p, float x, float y, float w, String title, String note, String... hl) {
         float tw = Math.min(width(title, ORB12) + 2f, w - 16f);
         bar(p, x, y, w, dark());
         LabelAPI label = textIn(p, x + 8f, y, tw, HEADING_H, title, ORB12, base(), LEFT, new String[0], new Color[0]);
 
         float nx = x + 8f + tw + 16f;
         float nw = x + w - 8f - nx;
-        if (note != null && nw > 20f) textIn(p, nx, y, nw, HEADING_H, note, ORB12, gray(), RIGHT, new String[0], new Color[0]);
+        Color[] colors = new Color[hl.length];
+        Arrays.fill(colors, hl());
+        if (note != null && nw > 20f) textIn(p, nx, y, nw, HEADING_H, note, ORB12, gray(), RIGHT, hl, colors);
         return label;
     }
 

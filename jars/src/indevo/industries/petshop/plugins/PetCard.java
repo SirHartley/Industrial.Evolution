@@ -20,6 +20,7 @@ import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
+import indevo.industries.petshop.memory.DeathData;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -64,6 +65,7 @@ public class PetCard {
     static final float BUTTON_W = 96f;
     static final float WIDE_W = 116f;
     static final float SCAN_W = 136f;
+    static final float TREE_W = 104f;
     static final float BUTTON_H = 24f;
     static final float HOVER_W = 340f;
     static final float LINE_H = 17f;
@@ -375,6 +377,11 @@ public class PetCard {
 
     void build(CustomPanelAPI parent, float x, float y, float w, float h, Pet pet) {
         CustomPanelAPI p = Ui.panel(parent, x, y, w, h);
+        if (pet.isDead()) {
+            buildGone(p, w, h, pet);
+            return;
+        }
+
         CampaignFleetAPI away = PetsPanel.awayFleet(pet);
 
         addName(p, w, pet);
@@ -382,10 +389,44 @@ public class PetCard {
         addIdent(p, w, pet, away);
         float shipY = addWant(p, addHearts(p, w, pet), w, pet, away);
         addPlace(p, shipY, w, pet, away);
-        addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h, pet);
+        addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h - 44f, pet);
         addBottom(p, w, h, pet, heldReason(pet, away), away);
         Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> paintHearts(pos, a));
         if (view.reveal.on(pet)) view.reveal.border(parent, x, y, w, h);
+    }
+
+    // a dead, sold or rehomed pet from the Family tree: the top part with no star, want, ship or buttons; the tables stay
+    private void buildGone(CustomPanelAPI p, float w, float h, Pet pet) {
+        PetHusbandry.title(p, w, pet.name);
+        PetHusbandry.tagline(p, w, goneLine(pet));
+
+        Ui.card(p, 0f, IDENT_Y, IDENT, IDENT);
+        UiImages.img(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, pet.getData().icon, null, DIM);
+        List<GridRow> rows = new ArrayList<>();
+        rows.add(GridRow.of("Species", pet.getData().species, Ui.text()));
+        rows.add(GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition)));
+        rows.add(GridRow.of("Age", PetTree.goneAge(pet), Ui.text()));
+        rows.add(GridRow.of("Young", String.valueOf(PetTree.young(pet)), Ui.hl()));
+        UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, rows);
+
+        addTalents(p, IDENT_Y + IDENT + PetsPanel.HEAD_GAP, w, h, pet);
+    }
+
+    static String goneLine(Pet pet) {
+        DeathData data = pet.deathData;
+        if (data == null || data.cause == null) return pet.name + " is gone.";
+
+        String on = data.date != null ? " on " + data.date + "." : ".";
+        String ship = data.shipName != null ? " the " + data.shipName : " its ship";
+        return switch (data.cause) {
+            case NATURAL -> pet.name + " died of old age" + on;
+            case COMBAT -> pet.name + " was lost with" + ship + on;
+            case STARVED -> pet.name + " starved" + on;
+            case SOLD -> pet.name + " was sold with" + ship + on;
+            case EUTHANIZED -> pet.name + " was put to sleep" + on;
+            case REHOMED -> pet.name + " went to a new home" + on;
+            default -> pet.name + " was lost" + on;
+        };
     }
 
     private void addName(CustomPanelAPI p, float w, Pet pet) {
@@ -482,9 +523,13 @@ public class PetCard {
     }
 
     static String age(Pet pet) {
+        return (pet.isYoung() ? "Young, " : pet.isOld() ? "Old, " : "Adult, ") + span(pet);
+    }
+
+    // a gone pet stops ageing, so this is its age when it went
+    static String span(Pet pet) {
         int cycles = (int) (pet.age / 365f);
-        String span = cycles >= 1 ? cycles + (cycles == 1 ? " cycle" : " cycles") : pet.getAgeString();
-        return (pet.isYoung() ? "Young, " : pet.isOld() ? "Old, " : "Adult, ") + span;
+        return cycles >= 1 ? cycles + (cycles == 1 ? " cycle" : " cycles") : pet.getAgeString();
     }
 
     private void pet(Pet pet) {
@@ -641,20 +686,9 @@ public class PetCard {
         Ui.thead(p, 0f, y, w, new String[]{"Grade", "Talents", "Effect"}, new float[]{GRADE_X, TALENT_X, EFFECT_X},
                 new float[]{GRADE_W, TALENT_W, ew}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
         float ty = y + Ui.HEADING_H + 4f;
-        UiScroll.Column rows = UiScroll.list(p, 0f, ty, w, h - 44f - ty, view.scroll, PetsView.TALENTS);
-
-        String value = mascotValue(pet);
-        boolean on = pet.getMascotMult() > 0f && pet.isAboard();
-        String effect = pet.isUnsettled() ? "off" : pet.getHearts() < PetConstants.MASCOT_HEARTS ? "at 1 heart" : on ? "Combat CR decay " + value : "off";
-        CustomPanelAPI mascot = rows.block(UiData.GRID_ROW_H, 0f);
-        talentRow(mascot, ew, null, "Mascot effect", effect, on ? value : null, on);
-
-        String rate = Misc.getRoundedValueMaxOneAfterDecimal(PetHullmod.BASE_DECREASE);
-        String nest = Math.round((PetConstants.NEST_MULT - 1f) * 100f) + "%";
-        List<String> tip = new ArrayList<>(List.of("Its ship loses combat readiness " + rate + "% slower in battle, from 1 heart. A nest adds " + nest + "."));
-        if (pet.getData().isHamster()) tip.add("A hamster counts twice.");
-        if (pet.getHearts() >= PetConstants.MASCOT_HEARTS && !pet.isUnsettled() && !pet.isAboard()) tip.add(NO_SHIP);
-        Ui.tooltip(mascot, mascot, "Mascot effect", tip.toArray(new String[0]));
+        UiScroll.Column rows = UiScroll.list(p, 0f, ty, w, h - ty, view.scroll, PetsView.TALENTS);
+        boolean gone = pet.isDead();
+        if (!gone) mascotRow(rows, ew, pet);
 
         List<String> talents = pet.getTalents();
         int active = PetGenetics.activeCount(talents.size(), pet.getHearts());
@@ -676,8 +710,9 @@ public class PetCard {
             }
 
             String grade = String.valueOf(pet.sheet.getGrade(id));
-            String off = i < active ? offReason(pet, trait) : null;
-            if (i >= active) {
+            String off = i < active && !gone ? offReason(pet, trait) : null;
+            if (gone) talentRow(row, ew, grade, trait.name(), trait.effect() + " " + trait.format(trait.value(pet.sheet.getGrade(id), 1f)), null, false);
+            else if (i >= active) {
                 int at = Math.min(PetConstants.MAX_HEARTS, i + 1);
                 talentRow(row, ew, grade, trait.name(), "at " + at + (at == 1 ? " heart" : " hearts"), null, false);
             } else if (off != null) talentRow(row, ew, grade, trait.name(), "off", null, false);
@@ -691,6 +726,21 @@ public class PetCard {
 
         addBody(rows, ew, pet, reveal);
         rows.end();
+    }
+
+    private static void mascotRow(UiScroll.Column rows, float ew, Pet pet) {
+        String value = mascotValue(pet);
+        boolean on = pet.getMascotMult() > 0f && pet.isAboard();
+        String effect = pet.isUnsettled() ? "off" : pet.getHearts() < PetConstants.MASCOT_HEARTS ? "at 1 heart" : on ? "Combat CR decay " + value : "off";
+        CustomPanelAPI mascot = rows.block(UiData.GRID_ROW_H, 0f);
+        talentRow(mascot, ew, null, "Mascot effect", effect, on ? value : null, on);
+
+        String rate = Misc.getRoundedValueMaxOneAfterDecimal(PetHullmod.BASE_DECREASE);
+        String nest = Math.round((PetConstants.NEST_MULT - 1f) * 100f) + "%";
+        List<String> tip = new ArrayList<>(List.of("Its ship loses combat readiness " + rate + "% slower in battle, from 1 heart. A nest adds " + nest + "."));
+        if (pet.getData().isHamster()) tip.add("A hamster counts twice.");
+        if (pet.getHearts() >= PetConstants.MASCOT_HEARTS && !pet.isUnsettled() && !pet.isAboard()) tip.add(NO_SHIP);
+        Ui.tooltip(mascot, mascot, "Mascot effect", tip.toArray(new String[0]));
     }
 
     // mutations are always known, flaws once read; a flaw on a ship stat is off without a ship
@@ -730,11 +780,12 @@ public class PetCard {
     }
 
     private static void bodyRow(CustomPanelAPI row, float ew, Pet pet, PetDataRepo.Trait trait) {
-        boolean off = trait.isFlaw() && !trait.stat().isEmpty() && !pet.isAboard();
+        boolean off = trait.isFlaw() && !trait.stat().isEmpty() && !pet.isAboard() && !pet.isDead();
         String level = trait.hasLevels() ? String.valueOf(pet.sheet.getGrade(trait.id())) : null;
         String v = trait.format(trait.value(pet.sheet.getGrade(trait.id()), 1f));
 
         if (off) talentRow(row, ew, level, trait.name(), "off", null, false);
+        else if (pet.isDead()) talentRow(row, ew, level, trait.name(), v.isEmpty() ? trait.effect() : trait.effect() + " " + v, null, false);
         else if (v.isEmpty()) talentRow(row, ew, level, trait.name(), trait.effect(), null, true);
         else talentRow(row, ew, level, trait.name(), trait.effect() + " " + v, v, true, trait.isFlaw() ? Ui.neg() : Ui.hl());
         Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> bodyTip(t, pet, trait, off));
@@ -876,8 +927,9 @@ public class PetCard {
         Ui.rule(p, 0f, h - 36f, w);
         float y = h - BUTTON_H;
         Color hl = Misc.getHighlightColor();
+        treeButton(p, y, pet, away);
 
-        if (shop != null) scanButton(p, 0f, y, shop, pet, view.reveal, scanHeld(pet, shop, away), () -> {
+        if (shop != null) scanButton(p, TREE_W + 6f, y, shop, pet, view.reveal, scanHeld(pet, shop, away), () -> {
             view.reveal.begin(pet, view.clock);
             shop.geneScan(pet);
             panel.refresh();
@@ -900,6 +952,20 @@ public class PetCard {
         else if (broke) Ui.tooltip(p, rehome, "Rehome", "Rehoming costs " + fee + ". You have " + Misc.getDGSCredits(credits) + ".");
 
         euthanizeButton(p, w - BUTTON_W, y, BUTTON_W, pet, held);
+    }
+
+    // Family tree on the Pets tab; in the tree it reads Show in Pets, grey for a pet the Pets list here does not show
+    private void treeButton(CustomPanelAPI p, float y, Pet pet, CampaignFleetAPI away) {
+        if (view.tab != PetsView.TAB_TREE) {
+            UiButtons.button(p, 0f, y, TREE_W, BUTTON_H, "Family tree", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.showTree(pet));
+            return;
+        }
+
+        boolean listed = pet.isWithPlayer() || away != null || shop != null && pet.storage == shop;
+        String reason = listed ? null : pet.storage instanceof PetShop at ? pet.name + " is in Pet storage at " + at.getMarket().getName() + "." : pet.name + " is not with your fleet.";
+        ButtonAPI button = UiButtons.button(p, 0f, y, TREE_W, BUTTON_H, "Show in Pets", listed ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
+                listed ? () -> panel.showInPets(pet) : null);
+        if (reason != null) Ui.tooltip(p, button, "Show in Pets", reason);
     }
 
     // gone once everything is read; grey while its reveal runs, when the pet is not here, or with too few relics (cost in red)

@@ -87,7 +87,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `wrap(p, x, y, w, s, color)`, `wrap(..., font, color, align, parts, colors)` | Wrapped at `w`; `height(label)` is the measured height |
 | `wrapHeight(s, font, w)` | Height of wrapped text before placing it |
 | `heading(p, x, y, w, title[, align[, color, bg]])` | Section heading, 18 high, exactly `w` wide. Centred: the vanilla heading label. Left or right: a flat bar of the same colour with the text 8 px in |
-| `heading(p, x, y, w, title, note)` | Left heading with a grey orb12 note at the right end |
+| `heading(p, x, y, w, title, note, hl...)` | Left heading with a grey orb12 note at the right end; the `hl` parts of the note in the highlight colour |
 | `rule(p, x, y, w[, color])`, `vrule(p, x, y, h)` | 1 px line, `line()` colour |
 | `box(p, x, y, w, h, border, fill)`, `card`, `well`, `dashbox` | Framed box; card (base 0.3 frame, no fill); recessed cell behind pictures; dashed empty slot |
 | `thead(p, x, y, w, labels, xs, ws, aligns)` | Table header strip with orb12 column labels |
@@ -183,6 +183,7 @@ Every big list gets one (Philipp's rule). The bar takes no list: the caller filt
 | `State.sort(list, comparator)` | Sorts by the comparator (null keeps the list order), then reverses when `reversed` |
 | `State.off`, `State.fallback`, `State.sortKey()` | Keys in `off` draw grey and can not be picked; while the picked `sort` is one of them, `sortKey()` returns `fallback`, which is lit in its place. Sort by `sortKey()` |
 | `State.poll()` | True when the typed text changed; call it from the panel plugin's `advance`, then reset the list scroll and refresh |
+| `field(p, x, y, w, state, hint)` | The text field of the bar alone, `H` high, with the grey hint while empty; for a find field with no fold. Poll it with `State.poll()` as the bar |
 | `height(state or open, toggles, keys)` | `H` 26 closed; open adds 30 per row of toggles and of sort keys |
 | `bar(p, x, y, state, hint, showTip, toggles, onToggle, keys, changed, refresh)` | Field 150 x 26 with a grey hint while empty, then the Show filters toggle (108, 124 with the gold count of toggles and sort that differ from the default, "Hide filters" while open). Open: a row of `Item` toggles (`onToggle` null flips one, a radio group passes its own; an `Item` with an `icon` shows the 20 px icon and its `shown` text in the highlight colour in place of its label, which stays the key), then "Sort" and one left aligned key per `Item`, the key in use lit with an 8 x 5 arrow 18 px from its right edge, a second click turns the order. `changed` runs after a filter or sort change, `refresh` after the fold opens or closes. Returns the height used; the list starts `BELOW` 8 px under it |
 
