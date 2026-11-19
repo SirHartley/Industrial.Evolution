@@ -250,15 +250,16 @@ public class PetTree {
         for (String kind : kinds) {
             PetData data = PetDataRepo.get(kind);
             int count = counts.get(kind);
-            UiButtons.area(p, sx, y, sw, UiFilter.H, null, kind.equals(view.treeSpecies), true, null, Ui.CENTER, () -> {
+            ButtonAPI button = UiButtons.area(p, sx, y, sw, UiFilter.H, null, kind.equals(view.treeSpecies), true, null, Ui.CENTER, () -> {
                 view.treeSpecies = kind;
                 view.treeCard = null;
                 moved();
             });
+            String tip = data.species + ": " + count + (count == 1 ? " living pet." : " living pets.");
+            // as wide as its line: a 360 px tooltip runs past the panel edge and is clipped there
+            Ui.tooltip(p, button, (float) Math.ceil(Ui.width(tip, Ui.INS15)) + 10f, TooltipMakerAPI.TooltipLocation.BELOW, t -> t.addPara(tip, 0f));
             UiImages.img(p, sx + 5f, y + 3f, 20f, 20f, data.icon);
             Ui.textIn(p, sx + SPECIES_COUNT_X, y, countW, UiFilter.H, String.valueOf(count), Ui.ORB12, Ui.hl(), Ui.LEFT, new String[0], new Color[0]);
-            // the tooltip on a panel over icon and count, so hovering either shows it; panels let the click through
-            Ui.tooltip(p, Ui.panel(p, sx, y, sw, UiFilter.H), null, data.species + ": " + count + (count == 1 ? " living pet." : " living pets."));
             sx += pitch;
         }
 
