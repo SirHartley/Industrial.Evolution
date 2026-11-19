@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
+import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
@@ -89,6 +90,12 @@ public class PetsPanel extends BaseCustomDialogDelegate {
                 if (!open) return;
                 if ((view.tab == PetsView.TAB_HUSBANDRY ? view.adults : view.filter).poll()) filtered();
                 if (!youngChecked) openReadyBrood();
+                if (view.reveal.tick(view.clock) && !popupOpen) refresh();
+            }
+
+            @Override
+            public void processInput(List<InputEventAPI> events) {
+                for (InputEventAPI event : events) if (event.isLMBDownEvent()) view.reveal.skip();
             }
         };
     }

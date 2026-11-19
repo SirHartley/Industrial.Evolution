@@ -14,6 +14,7 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.listeners.DetachmentPayroll;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
@@ -582,7 +583,7 @@ class DetachmentColumn {
             Ui.runs(b, 40f, y + 17f, tw, Ui.INS15, Ui.gray(), Ui.LEFT, m.getHullSpec().getHullName() + " · " + personalityName,
                     new String[]{personalityName}, new Color[]{AcademyPanelDelegate.getPersonalityColor(personality)});
 
-            String salary = Misc.getDGSCredits(Misc.getOfficerSalary(officer));
+            String salary = Misc.getDGSCredits(DetachmentPayroll.getSalary(officer, (fleet != null ? fleet : player).getContainingLocation()));
             Ui.runs(b, w - SALARY_W, y + 8f, SALARY_W, Ui.INS15, Ui.gray(), Ui.RIGHT, salary + " per month", new String[]{salary}, new Color[]{Ui.hl()});
         }
     }

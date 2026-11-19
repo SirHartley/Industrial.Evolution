@@ -30,8 +30,6 @@ public class PetsView {
     // the cross row drawn large, by trait id or the look, disposition or malformed key; null picks the best talent
     String crossTrait = null;
     final UiFilter.State adults = PetHusbandry.newFilter();
-    // a ready brood opens its New young popup by itself once, on the first frame of the panel
-    boolean youngChecked = false;
 
     int clicks = 0;
     String answer = null;
@@ -40,6 +38,7 @@ public class PetsView {
     // real seconds the panel has been open, driven by its panel plugin
     float clock = 0f;
     float pettedAt = -1f;
+    final PetReveal reveal = new PetReveal();
     final List<Heart> hearts = new ArrayList<>();
 
     TextFieldAPI nameField = null;

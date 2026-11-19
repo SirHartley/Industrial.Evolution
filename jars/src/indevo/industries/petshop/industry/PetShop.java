@@ -30,6 +30,7 @@ import indevo.industries.petshop.memory.PetSheet;
 import indevo.industries.petshop.plugins.PetsPanel;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.RelicHelper;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -272,6 +273,20 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public void rehome(Pet pet) {
         Global.getSector().getPlayerFleet().getCargo().getCredits().subtract(PetConstants.REHOME_FEE);
         PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.REHOMED);
+    }
+
+    // relics from this market's storage first, then the fleet's cargo
+    public boolean canAffordScan() {
+        return RelicHelper.canAfford(market, PetConstants.GENE_SCAN_COST);
+    }
+
+    public int getRelics() {
+        return RelicHelper.getAvailable(market);
+    }
+
+    public void geneScan(Pet pet) {
+        RelicHelper.take(market, PetConstants.GENE_SCAN_COST);
+        pet.scan();
     }
 
     public float getTotalStorageCost() {

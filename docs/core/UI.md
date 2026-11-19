@@ -99,7 +99,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | Signature | Does |
 |---|---|
 | `button(p, x, y, w, h, label, kind[, cut], action)` | Kinds `STD`, `GREEN` (confirms or starts), `RED` (undoes or removes), `AMBER` (cancels a running order), `STORY` (costs a story point), `HOT` (bright on opaque dark), `OFF` (disabled). GREEN and AMBER fill with their state colour at `FILL` (60 %, `fill(state)`), RED at full; light text on all three. Cut `ALL` by default, `TL_BR` for the buttons of a bank; never `BL_TR` next to `TL_BR`, never `C2_MENU` or `NONE`. `action` null also disables |
-| `button(..., cut, icon, sub, font, action)` | Icon sprite and a highlighted sub text (cost) drawn over the face |
+| `button(..., cut, icon, sub[, subColor], font, action)` | Icon sprite and a sub text (cost) drawn over the face; the sub is highlight, grey when off, or `subColor` (red for a cost the player cannot pay) |
 | `guarded(p, x, y, w, h, label, kind, reason, action)` | `reason` null: normal button. Else grey button and the red reason wrapped below. Takes `guardHeight(w, h, reason)` (one line reserved when not blocked) |
 | `confirm(p, x, y, w, h, label, kind, state, id, action, refresh[, okLabel, cancelLabel])` | Inline confirm: the button arms `id` in a `Confirm` held by the view state; armed, Confirm and Cancel (or the given labels, so the pair never reads like a neighbouring Cancel) stand in its place |
 | `tab(p, x, y, w, h, label, on, enabled, action)` | `CutStyle.TOP` tab, selected bright on opaque dark |

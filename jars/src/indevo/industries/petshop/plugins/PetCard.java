@@ -23,7 +23,9 @@ import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.ids.ItemIds;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.helper.RelicHelper;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 
@@ -61,6 +63,7 @@ public class PetCard {
     static final float STRIP_H = 50f;
     static final float BUTTON_W = 96f;
     static final float WIDE_W = 116f;
+    static final float SCAN_W = 136f;
     static final float BUTTON_H = 24f;
     static final float HOVER_W = 340f;
     static final float LINE_H = 17f;
@@ -380,8 +383,9 @@ public class PetCard {
         float shipY = addWant(p, addHearts(p, w, pet), w, pet, away);
         addPlace(p, shipY, w, pet, away);
         addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h, pet);
-        addBottom(p, w, h, pet, heldReason(pet, away));
+        addBottom(p, w, h, pet, heldReason(pet, away), away);
         Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> paintHearts(pos, a));
+        if (view.reveal.on(pet)) view.reveal.border(parent, x, y, w, h);
     }
 
     private void addName(CustomPanelAPI p, float w, Pet pet) {
@@ -655,17 +659,19 @@ public class PetCard {
         List<String> talents = pet.getTalents();
         int active = PetGenetics.activeCount(talents.size(), pet.getHearts());
         List<Integer> order = new ArrayList<>();
-        for (int i = 0; i < talents.size(); i++) if (pet.sheet.isKnown(talents.get(i))) order.add(i);
-        for (int i = 0; i < talents.size(); i++) if (!pet.sheet.isKnown(talents.get(i))) order.add(i);
+        PetReveal reveal = view.reveal;
+        for (int i = 0; i < talents.size(); i++) if (pet.sheet.isKnown(talents.get(i)) && !reveal.scanned(pet, talents.get(i))) order.add(i);
+        for (int i = 0; i < talents.size(); i++) if (!order.contains(i)) order.add(i);
 
         for (int i : order) {
             String id = talents.get(i);
             PetDataRepo.Trait trait = PetDataRepo.getTrait(id);
             CustomPanelAPI row = rows.block(UiData.GRID_ROW_H, 0f);
+            if (reveal.lit(pet, id)) reveal.bar(row, rows.width(), UiData.GRID_ROW_H);
 
-            if (!pet.sheet.isKnown(id)) {
+            if (!reveal.known(pet, id)) {
                 talentRow(row, ew, "?", "Unknown", "", null, false);
-                Ui.tooltip(row, row, "Unknown", "A talent it has not shown yet. It shows itself once a heart switches it on.");
+                Ui.tooltip(row, row, "Unknown", "A talent it has not shown yet. It shows itself once a heart switches it on, or with a gene scan.");
                 continue;
             }
 
@@ -683,12 +689,12 @@ public class PetCard {
             Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> talentTip(t, pet, trait, off));
         }
 
-        addBody(rows, ew, pet);
+        addBody(rows, ew, pet, reveal);
         rows.end();
     }
 
     // mutations are always known, flaws once read; a flaw on a ship stat is off without a ship
-    private static void addBody(UiScroll.Column rows, float ew, Pet pet) {
+    private static void addBody(UiScroll.Column rows, float ew, Pet pet, PetReveal reveal) {
         Ui.thead(rows.heading(PetsPanel.HEAD_GAP), 0f, 0f, rows.width(), new String[]{"Level", "Mutations, flaws", "Effect"},
                 new float[]{GRADE_X, TALENT_X, EFFECT_X}, new float[]{GRADE_W, TALENT_W, ew}, new Alignment[]{Ui.CENTER, Ui.LEFT, Ui.RIGHT});
 
@@ -697,20 +703,24 @@ public class PetCard {
         for (String id : pet.sheet.traits.keySet()) {
             PetDataRepo.Trait trait = PetDataRepo.getTrait(id);
             if (trait == null) continue;
-            if (trait.isFlaw() && pet.sheet.isKnown(id)) flaws.add(trait);
+            if (trait.isFlaw() && reveal.known(pet, id)) flaws.add(trait);
             if (!trait.isMutation()) continue;
 
             bodyRow(rows.block(UiData.GRID_ROW_H, gap), ew, pet, trait);
             gap = 0f;
         }
         for (PetDataRepo.Trait trait : flaws) {
-            bodyRow(rows.block(UiData.GRID_ROW_H, gap), ew, pet, trait);
+            CustomPanelAPI row = rows.block(UiData.GRID_ROW_H, gap);
+            if (reveal.lit(pet, trait.id())) reveal.bar(row, rows.width(), UiData.GRID_ROW_H);
+            bodyRow(row, ew, pet, trait);
             gap = 0f;
         }
 
-        if (pet.sheet.flawsRead && !flaws.isEmpty()) return;
+        boolean read = reveal.flawsRead(pet);
+        if (read && !flaws.isEmpty()) return;
         CustomPanelAPI row = rows.block(UiData.GRID_ROW_H, gap);
-        if (pet.sheet.flawsRead) {
+        if (reveal.lit(pet, PetReveal.FLAWS)) reveal.bar(row, rows.width(), UiData.GRID_ROW_H);
+        if (read) {
             talentRow(row, ew, null, "No flaws", "", null, false);
             Ui.tooltip(row, row, "No flaws", "A gene scan found no flaws.");
         } else {
@@ -862,10 +872,16 @@ public class PetCard {
         return pet.storage instanceof PetShop at ? at.getBrood(pet) : null;
     }
 
-    private void addBottom(CustomPanelAPI p, float w, float h, Pet pet, String held) {
+    private void addBottom(CustomPanelAPI p, float w, float h, Pet pet, String held, CampaignFleetAPI away) {
         Ui.rule(p, 0f, h - 36f, w);
         float y = h - BUTTON_H;
         Color hl = Misc.getHighlightColor();
+
+        if (shop != null) scanButton(p, 0f, y, shop, pet, view.reveal, scanHeld(pet, shop, away), () -> {
+            view.reveal.begin(pet, view.clock);
+            shop.geneScan(pet);
+            panel.refresh();
+        });
 
         if (shop == null) {
             euthanizeButton(p, w - WIDE_W, y, WIDE_W, pet, held);
@@ -884,6 +900,31 @@ public class PetCard {
         else if (broke) Ui.tooltip(p, rehome, "Rehome", "Rehoming costs " + fee + ". You have " + Misc.getDGSCredits(credits) + ".");
 
         euthanizeButton(p, w - BUTTON_W, y, BUTTON_W, pet, held);
+    }
+
+    // gone once everything is read; grey while its reveal runs, when the pet is not here, or with too few relics (cost in red)
+    static void scanButton(CustomPanelAPI p, float x, float y, PetShop shop, Pet pet, PetReveal reveal, String held, Runnable scan) {
+        boolean reading = reveal.reading(pet);
+        if (pet.isRead() && !reading) return;
+
+        String cost = String.valueOf(PetConstants.GENE_SCAN_COST);
+        boolean afford = shop.canAffordScan();
+        boolean ready = !reading && held == null && afford;
+        Color sub = !reading && held == null && !afford ? Ui.neg() : null;
+        ButtonAPI button = UiButtons.button(p, x, y, SCAN_W, BUTTON_H, "Gene scan", ready ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, CutStyle.TL_BR,
+                Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getIconName(), cost, sub, Ui.ORB12, ready ? scan : null);
+        if (reading) return;
+
+        if (held != null) Ui.tooltip(p, button, "Gene scan", held);
+        else Ui.tooltip(p, button, "Gene scan", "Reads every talent and flaw of " + pet.name + ".",
+                "Costs " + cost + " " + RelicHelper.getName() + ", taken from storage here first. You have " + shop.getRelics() + ".");
+    }
+
+    // a scan needs the pet here: with the fleet, in storage or a habitat of this center
+    static String scanHeld(Pet pet, PetShop shop, CampaignFleetAPI away) {
+        if (away != null) return pet.name + " is out with " + away.getName() + ".";
+        if (pet.storage instanceof PetShop at && at != shop) return pet.name + " is in Pet storage at " + at.getMarket().getName() + ".";
+        return pet.isWithPlayer() || pet.storage == shop ? null : pet.name + " is not with your fleet.";
     }
 
     private void euthanizeButton(CustomPanelAPI p, float x, float y, float w, Pet pet, String held) {
