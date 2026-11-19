@@ -110,7 +110,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `check(p, x, y, w, label, on, enabled, action)` | Vanilla checkbox with label |
 | `stepper(p, x, y, value, enabled, minus, plus)` | `-` value `+`, 72 wide |
 | `field(p, x, y, w, h, text, maxChars[, font])` | Vanilla text field, `INS15` unless a font is given |
-| `boxed(field)` | Black interior with a 1 px `base()` outline instead of the vanilla fill, as the boards draw a field. The field replaces the border alpha with 127 to 255 by its cursor fade (`obf/ui/B.java` `renderImpl`), so only the RGB counts |
+| `boxed(p, x, y, w, h, field)` | Black interior with a 1 px outline (`base()` at `FIELD_EDGE` 0.9) as the boards draw a field. The field fills its whole box with the border colour at alpha 127 to 255 (cursor fade) and lays the bg at alpha 200 over it (`obf/ui/B.java` `renderImpl`), so a coloured border tints the interior: both are set black and the outline is a `Ui.box` painted over the field |
 
 ### UiImages
 

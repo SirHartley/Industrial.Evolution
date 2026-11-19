@@ -18,6 +18,7 @@ public final class UiButtons {
     public static final float TAB_GAP = 4f;
     public static final float STRIP_W = 4f;
     public static final float ICON_GAP = 5f;
+    public static final float FIELD_EDGE = 0.9f;
 
     // which inline confirm is armed, kept in the panel's view state
     public static final class Confirm {
@@ -224,10 +225,12 @@ public final class UiButtons {
         return field;
     }
 
-    // a black box with a 1 px outline instead of the vanilla fill; the field draws the border at alpha 127 to 255 by cursor fade
-    public static TextFieldAPI boxed(TextFieldAPI field) {
+    // a black box with a 1 px outline as the boards draw a field; the field fills its whole box with the border colour and lays the
+    // bg over it at alpha 200, so both go black and the outline is painted on top
+    public static TextFieldAPI boxed(CustomPanelAPI p, float x, float y, float w, float h, TextFieldAPI field) {
         field.setBgColor(Color.BLACK);
-        field.setBorderColor(Ui.base());
+        field.setBorderColor(Color.BLACK);
+        Ui.box(p, x, y, w, h, Misc.scaleAlpha(Ui.base(), FIELD_EDGE), null);
         return field;
     }
 
