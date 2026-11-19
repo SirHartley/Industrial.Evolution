@@ -54,6 +54,7 @@ public final class UiButtons {
     }
 
     // icon and sub text are drawn over an empty button face, labels never take the click; subColor null is highlight, grey when off
+    // the icon stays at full alpha when off: dark cargo icons vanish into the grey face
     public static ButtonAPI button(CustomPanelAPI p, float x, float y, float w, float h, String label, Kind kind, CutStyle cut,
                                    String icon, String sub, Color subColor, String font, Runnable action) {
         boolean off = kind == Kind.OFF || action == null;
@@ -79,7 +80,7 @@ public final class UiButtons {
         float textW = Math.min(Ui.width(line, font) + 2f, w - h / 2f - iconW);
         float left = x + Math.round((w - iconW - textW) / 2f);
 
-        if (icon != null) UiImages.img(p, left, y + Math.round((h - iconSize) / 2f), iconSize, iconSize, icon, null, off ? 0.4f : 1f);
+        if (icon != null) UiImages.img(p, left, y + Math.round((h - iconSize) / 2f), iconSize, iconSize, icon);
         Ui.textIn(p, left + iconW, y, textW, h, line, font, fg, Ui.LEFT, new String[]{sub}, new Color[]{subColor != null ? subColor : off ? Ui.gray() : Ui.hl()});
         return button;
     }
