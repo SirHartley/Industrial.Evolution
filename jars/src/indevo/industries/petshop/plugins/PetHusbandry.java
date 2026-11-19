@@ -321,14 +321,19 @@ public class PetHusbandry {
         return n;
     }
 
+    // the heading's "unknown traits": unread talents or unread flaws
+    private boolean unread(Pet pet) {
+        return unknown(pet) > 0 || !view.reveal.flawsRead(pet);
+    }
+
     private boolean lit(CrossRow row, Pet a, Pet b) {
         return view.reveal.lit(a, row.key()) || view.reveal.lit(b, row.key());
     }
 
-    // one Gene scan for the pair: the parent it reads now, else the first with anything unread; the green border while it runs
+    // one Gene scan for the pair: the parent it reads now, else the first with unread talents, else the first with anything unread; the green border while it runs
     private void scanControls(CustomPanelAPI p, float w, float h, Pet a, Pet b) {
         PetReveal reveal = view.reveal;
-        Pet target = reveal.reading(a) ? a : reveal.reading(b) ? b : !a.isRead() ? a : !b.isRead() ? b : null;
+        Pet target = reveal.reading(a) ? a : reveal.reading(b) ? b : unknownTalents(a) > 0 ? a : unknownTalents(b) > 0 ? b : !a.isRead() ? a : !b.isRead() ? b : null;
         if (target != null) PetCard.scanButton(p, 0f, h - PetCard.BUTTON_H, shop, target, reveal, PetCard.scanHeld(target, shop, PetsPanel.awayFleet(target)), () -> {
             reveal.begin(target, view.clock);
             shop.geneScan(target);
@@ -496,8 +501,8 @@ public class PetHusbandry {
                 .orElse(rows.stream().filter(PetHusbandry::isTrait).findFirst().orElse(rows.get(0)));
 
         PetReveal reveal = view.reveal;
-        boolean ua = unknown(a) > 0;
-        boolean ub = unknown(b) > 0;
+        boolean ua = unread(a);
+        boolean ub = unread(b);
         Pet reading = reveal.reading(a) ? a : reveal.reading(b) ? b : null;
         String note = reading != null ? "Reading " + reading.name + ", " + reveal.count() + " of " + reveal.total()
                 : ua && ub ? "Both have unknown traits" : ua ? a.name + " has unknown traits" : ub ? b.name + " has unknown traits" : null;
