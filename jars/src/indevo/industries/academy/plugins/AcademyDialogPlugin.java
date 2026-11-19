@@ -18,8 +18,6 @@ import indevo.industries.petshop.script.EscBlockerMemoryIterator;
 
 import java.util.Map;
 
-import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_ESC;
-
 public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
     private final InteractionDialogPlugin originalPlugin;
@@ -101,7 +99,7 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
     @Override
     public void advance(float amount) {
         if (Global.getSector().getCampaignUI().isShowingDialog())
-            Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, this, 1f);
+            EscapeInterceptListener.block(this);
 
         if (returnPending) {
             returnPending = false;

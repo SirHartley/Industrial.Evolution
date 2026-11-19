@@ -18,8 +18,6 @@ import indevo.industries.petshop.script.EscBlockerMemoryIterator;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_ESC;
-
 // hosts the Salvage Yards panel; vanilla pickers need the panel closed, it comes back in the same view after them
 public class SalvageYardsDialogPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
@@ -114,7 +112,7 @@ public class SalvageYardsDialogPlugin implements InteractionDialogPlugin, Escape
     public void advance(float amount) {
         // a vanilla picker takes escape itself
         if (Global.getSector().getCampaignUI().isShowingDialog() && !reopen)
-            Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, this, 1f);
+            EscapeInterceptListener.block(this);
 
         if (returnPending) {
             returnPending = false;

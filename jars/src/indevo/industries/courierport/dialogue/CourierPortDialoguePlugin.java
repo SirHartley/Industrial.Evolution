@@ -134,7 +134,7 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
     @Override
     public void advance(float amount) {
         if (panel.isOpen() && Global.getSector().getCampaignUI().isShowingDialog())
-            Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, this, 1f);
+            EscapeInterceptListener.block(this);
 
         if (reopenPending) {
             reopenPending = false;
