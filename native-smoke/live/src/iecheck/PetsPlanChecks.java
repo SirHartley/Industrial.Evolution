@@ -39,7 +39,13 @@ public final class PetsPlanChecks {
             PetPlan p3 = manager().newPlan("doge", (String) c.get("Mom"), null);
             p3.wanted.put("IndEvo_pt_far_sight", 2);
             c.note("plans " + p1.name + " " + p1.id + ", " + p2.name + ", " + p3.name);
-            c.expect(manager().getPlans().size() == 3, "three plans");
+            // SWITCHES=overlap: two more plans with crossing pairs, so two plan bars share a gap and overlap (5.5 line colours)
+            boolean overlap = System.getProperty("ie.switches", "").contains("overlap");
+            if (overlap) {
+                manager().newPlan("doge", (String) c.get("Kidone"), (String) c.get("Kidthree"));
+                manager().newPlan("doge", (String) c.get("Kidtwo"), (String) c.get("Cousin"));
+            }
+            c.expect(manager().getPlans().size() == (overlap ? 5 : 3), "three plans (five with overlap)");
             c.put("p1", p1.id);
             c.put("p2", p2.id);
             c.reload();
@@ -48,7 +54,7 @@ public final class PetsPlanChecks {
             List<PetPlan> plans = manager().getPlans();
             PetPlan p1 = manager().getPlan((String) c.get("p1"));
             PetPlan p2 = manager().getPlan((String) c.get("p2"));
-            c.expect(plans.size() == 3, "three plans after a save and reload (" + plans.size() + ")");
+            c.expect(plans.size() == (System.getProperty("ie.switches", "").contains("overlap") ? 5 : 3), "its plans after a save and reload (" + plans.size() + ")");
             c.expect(p1 != null && p1.wanted.get("IndEvo_pt_capacitor") == 4 && c.get("Kidone").equals(p1.parentA), "Plan 1 keeps its parents and wanted row after the reload");
             c.expect(p2 != null && p1 != null && p1.id.equals(p2.parentA) && p2.wanted.size() == 3, "Plan 2 keeps Plan 1 as a parent and three wanted rows");
             String sw = System.getProperty("ie.switches", "");
@@ -79,7 +85,7 @@ public final class PetsPlanChecks {
                 c.reload();
             });
             steps.add(c -> {
-                c.expect(manager().getPlans().size() == 3, "the save made after showing every tab loads with its three plans");
+                c.expect(manager().getPlans().size() == (System.getProperty("ie.switches", "").contains("overlap") ? 5 : 3), "the save made after showing every tab loads with its plans");
                 c.expect(Boolean.TRUE.equals(c.data().get("IndEvo_petTreeWide")), "Wide tiles stays on after a save and reload");
                 PetsView view = new PetsView((String) c.get("Kidone"));
                 view.tab = PetsView.TAB_TREE;
