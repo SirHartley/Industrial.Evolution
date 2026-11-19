@@ -203,6 +203,12 @@ public final class PetsTitlesChecks {
         });
         steps.add(c -> {
             InteractionDialogAPI d = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
+            // SWITCHES=salvagehold: hold with the wreck dialog open for a real salvage by hand
+            if (System.getProperty("ie.switches", "").contains("salvagehold")) {
+                log.info("LIVE_CHECK hold");
+                c.frames(100000000);
+                return;
+            }
             CargoAPI loot = Global.getFactory().createCargo(true);
             ListenerUtil.reportAboutToShowLootToPlayer(loot, d);
             c.expect(!loot.isEmpty(), "a lead Scavenger finds extra salvage in a wreck that rolls under 25% (" + items(loot) + ")");
@@ -213,7 +219,9 @@ public final class PetsTitlesChecks {
             c.frames(20);
         });
         steps.add(c -> {
-            Global.getSector().getCampaignUI().showInteractionDialog(Global.getSector().getEntityById((String) c.get("miss")));
+            com.fs.starfarer.api.campaign.InteractionDialogAPI open = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
+            boolean shown = Global.getSector().getCampaignUI().showInteractionDialog(Global.getSector().getEntityById((String) c.get("miss")));
+            c.note("miss dialog shown " + shown + ", open before " + (open == null ? "none" : open.getPlugin()) + ", miss entity " + Global.getSector().getEntityById((String) c.get("miss")));
             c.frames(30);
         });
         steps.add(c -> {

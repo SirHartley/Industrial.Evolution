@@ -58,6 +58,9 @@ public final class PetsStatusChecks {
             Pet rex = new Pet("doge", "Rex");
             manager.register(rex);
             rex.place(rexShip, null);
+            // Rex wears a look (Black), the long name cat is a base pet: both badges show
+            new indevo.console.PetCommand().runCommand("look " + rex.id + " doge_3", org.lazywizard.console.BaseCommand.CommandContext.CAMPAIGN_MAP);
+            c.note("Rex look " + rex.getLook() + ", icon " + rex.getIcon());
             Pet longName = new Pet("gravcat", "Bartholomew Wigglesworth the Third");
             manager.register(longName);
             longName.place(ship("ISS Long"), null);
