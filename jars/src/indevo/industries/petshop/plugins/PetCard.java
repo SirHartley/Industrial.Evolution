@@ -85,6 +85,7 @@ public class PetCard {
     static final float TALENT_W = 180f;
     static final float EFFECT_X = 254f;
     static final float DIM = 0.4f;
+    static final float TITLES_GAP = 16f;
     static final String NO_SHIP = "Effects work only on a ship.";
     public static final float REFIT_ICON = 34f;
     static final float REFIT_CUT = 12f;
@@ -120,6 +121,18 @@ public class PetCard {
         hearts(t, 17f, 91f, pet, 9f, 2f);
         Ui.rule(t, 13f, 107f, 60f);
         if (pet.assignedFleetMember != null) UiImages.ship(t, 30f, 114f, 26f, pet.assignedFleetMember, false, false);
+    }
+
+    // a pet of the Remembered list: dimmed portrait (grey from another game), grey name, the cause where the hearts are, the cycle where the ship is
+    static void goneTile(PetsPanel panel, CustomPanelAPI p, float x, float y, PetMemorial.Gone gone, boolean selected) {
+        CustomPanelAPI t = UiButtons.row(p, x, y, PetsPanel.TILE_W, PetsPanel.TILE_H, selected, true, null, () -> panel.select(gone.id()));
+        if (gone.grey()) UiImages.grey(t, 11f, 5f, PORTRAIT, PORTRAIT, gone.icon());
+        else UiImages.img(t, 11f, 5f, PORTRAIT, PORTRAIT, gone.icon(), null, DIM);
+
+        Ui.text(t, 4f, 71f, 78f, gone.name(), Ui.gray(), Ui.CENTER);
+        Ui.text(t, 4f, 88f, 78f, gone.cause(), Ui.gray(), Ui.CENTER);
+        Ui.rule(t, 13f, 107f, 60f);
+        if (gone.cycle() >= 0) Ui.text(t, 4f, 118f, 78f, "Cycle " + gone.cycle(), Ui.gray(), Ui.CENTER);
     }
 
     static boolean marked(Pet pet) {
@@ -440,7 +453,7 @@ public class PetCard {
         if (view.reveal.on(pet)) view.reveal.border(parent, x, y, w, h);
     }
 
-    // a dead, sold or rehomed pet from the Family tree: the top part with no star, want, ship or buttons; the tables stay
+    // a dead, sold or rehomed pet: the top part with no star, want or ship, its titles, the tables; Family tree only on the Remembered list
     private void buildGone(CustomPanelAPI p, float w, float h, Pet pet) {
         PetHusbandry.title(p, w, pet.name);
         PetHusbandry.tagline(p, w, goneLine(pet));
@@ -454,7 +467,34 @@ public class PetCard {
         rows.add(GridRow.of("Young", String.valueOf(PetTree.young(pet)), Ui.hl()));
         UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, rows);
 
-        addTalents(p, IDENT_Y + IDENT + PetsPanel.HEAD_GAP, w, h, pet, true);
+        float y = IDENT_Y + IDENT + TITLES_GAP;
+        List<PetTitle> titles = pet.getTitles();
+        List<String> names = new ArrayList<>();
+        for (PetTitle title : titles) names.add(title.label);
+        float th = hoverRow(p, y, w, "Titles", Ui.text(), names.isEmpty() ? "None" : String.join(", ", names), names.isEmpty() ? Ui.gray() : Ui.text(), null);
+        Ui.tooltip(p, Ui.panel(p, 0f, y, w, th), Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> titlesTip(t, titles));
+
+        boolean listed = view.tab == PetsView.TAB_PETS;
+        addTalents(p, y + th + PetsPanel.HEAD_GAP, w, listed ? h - 44f : h, pet, true);
+        if (!listed) return;
+        Ui.rule(p, 0f, h - 36f, w);
+        UiButtons.button(p, 0f, h - BUTTON_H, TREE_W, BUTTON_H, "Family tree", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.showTree(pet));
+    }
+
+    // a favourite that died in another game: what PetMemorialFile keeps of it
+    void buildLost(CustomPanelAPI parent, float x, float y, float w, float h, PetMemorial.Gone gone) {
+        CustomPanelAPI p = Ui.panel(parent, x, y, w, h);
+        PetHusbandry.title(p, w, gone.name());
+        PetHusbandry.tagline(p, w, gone.name() + " was lost in another universe.");
+
+        Ui.card(p, 0f, IDENT_Y, IDENT, IDENT);
+        UiImages.grey(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, gone.icon());
+        UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, List.of(
+                GridRow.of("Species", gone.species(), Ui.text()),
+                GridRow.of("Age", "Died at " + gone.age(), Ui.text())));
+
+        List<String> titles = gone.titles();
+        hoverRow(p, IDENT_Y + IDENT + TITLES_GAP, w, "Titles", Ui.text(), titles.isEmpty() ? "None" : String.join(", ", titles), titles.isEmpty() ? Ui.gray() : Ui.text(), null);
     }
 
     // an offer of the Adoption tab: no name field, no hearts or ship; Keeping, then talents only (an offer has no mutation or flaw)
@@ -631,13 +671,7 @@ public class PetCard {
     }
 
     static String age(Pet pet) {
-        return (pet.isYoung() ? "Young, " : pet.isOld() ? "Old, " : "Adult, ") + span(pet);
-    }
-
-    // a gone pet stops ageing, so this is its age when it went
-    static String span(Pet pet) {
-        int cycles = (int) (pet.age / 365f);
-        return cycles >= 1 ? cycles + (cycles == 1 ? " cycle" : " cycles") : pet.getAgeString();
+        return (pet.isYoung() ? "Young, " : pet.isOld() ? "Old, " : "Adult, ") + pet.getSpan();
     }
 
     private void pet(Pet pet) {

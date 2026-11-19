@@ -118,6 +118,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 |---|---|
 | `img(p, x, y, w, h, sprite[, tint, alpha])`, `tint(...)` | Sprite in a fixed box, contain fit, centred, integer pixels; dimmed is `DIM` 0.4 |
 | `grey(p, x, y, w, h, sprite)` | Same fit, without colour and darker: luma (0.299, 0.587, 0.114) x `GREY_LIGHT` 0.6, alpha kept. Made once per path from the image file (`openStream` and `ImageIO`, padded to power of two sides) as its own GL texture, kept for the session; a file that can not be read logs a warning and draws the sprite at `DIM` |
+| `paint(sprite, grey, x, y, w, h, alpha)` | `img` or `grey` drawn from a painter at GL coordinates, for a picture that changes while its panel stays |
 | `icon(p, x, y, size, sprite, name)` | Square sprite with a name tooltip |
 | `portrait(p, x, y, size, person)` | Portrait with the name as tooltip |
 | `ship(p, x, y, size, member, framed, dim)` | Hand drawn hull sprite in a well, ship name and class as tooltip |

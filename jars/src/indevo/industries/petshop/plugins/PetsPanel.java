@@ -39,14 +39,21 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     static final String SORT_SHIP = "Ship";
     static final String MARKED = "Marked";
+    static final String REMEMBERED = "Remembered";
     static final String FAVOURITES = "Favourites";
-    static final List<UiFilter.Item> TOGGLES = List.of(new UiFilter.Item(MARKED, 78f, "Only pets with a marker."));
+    static final List<UiFilter.Item> TOGGLES = List.of(new UiFilter.Item(MARKED, 78f, "Only pets with a marker."),
+            new UiFilter.Item(REMEMBERED, 112f, "The pets that died, newest first. Favourites that died in your other games come last."));
     static final List<UiFilter.Item> KEYS = List.of(
             new UiFilter.Item(SORT_SHIP, 60f, "The order of your fleet."),
             new UiFilter.Item("Name", 70f),
             new UiFilter.Item("Hearts", 78f, "Most hearts first."),
             new UiFilter.Item("Species", 86f),
             new UiFilter.Item("Age", 62f));
+    static final List<UiFilter.Item> GONE_KEYS = List.of(
+            new UiFilter.Item("Latest", 76f, "Newest first."),
+            new UiFilter.Item("Name", 70f),
+            new UiFilter.Item("Species", 86f),
+            new UiFilter.Item("Age", 62f, "Oldest first."));
 
     private final PetShop shop;
     private final PetsView view;
@@ -343,6 +350,11 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             return;
         }
 
+        if (view.filter.on.contains(REMEMBERED)) {
+            buildRemembered(p, w, h);
+            return;
+        }
+
         Pet selected = resolveSelection(groups);
         addList(p, h - BODY_Y, groups, selected);
         Ui.vrule(p, LIST_W + 5f, BODY_Y, h - BODY_Y);
@@ -414,7 +426,11 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     void select(Pet pet) {
-        view.select(pet.id);
+        select(pet.id);
+    }
+
+    void select(String id) {
+        view.select(id);
         refresh();
     }
 
@@ -497,8 +513,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     // the selected pet keeps its card while the filter hides its tile
     private void addList(CustomPanelAPI p, float h, List<Group> groups, Pet selected) {
         UiFilter.State filter = view.filter;
-        float bar = UiFilter.bar(p, 2f, BODY_Y, filter, "Name, species or trait", "Filters and sort order of this list.", TOGGLES, null, KEYS, this::filtered, this::refresh);
-        float top = bar + UiFilter.BELOW;
+        float top = bar(p, KEYS) + UiFilter.BELOW;
 
         UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y + top, LIST_W, h - top, view.scroll, PetsView.LIST);
         float w = list.width();
@@ -533,6 +548,86 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         if (first) Ui.text(list.block(Ui.LINE_H, 0f), 0f, 0f, w, "No pet matches.", Ui.gray());
         list.end();
+    }
+
+    private float bar(CustomPanelAPI p, List<UiFilter.Item> keys) {
+        return UiFilter.bar(p, 2f, BODY_Y, view.filter, "Name, species or trait", "Filters and sort order of this list.", TOGGLES, this::toggle, keys, this::filtered, this::refresh);
+    }
+
+    // Marked and Remembered exclude each other; each list has its own sort keys
+    private void toggle(String label) {
+        UiFilter.State f = view.filter;
+        if (!f.on.remove(label)) {
+            f.on.add(label);
+            f.on.remove(label.equals(REMEMBERED) ? MARKED : REMEMBERED);
+        }
+
+        List<UiFilter.Item> keys = f.on.contains(REMEMBERED) ? GONE_KEYS : KEYS;
+        if (keys.stream().noneMatch(k -> k.label().equals(f.sort))) {
+            f.sort = keys.get(0).label();
+            f.reversed = false;
+        }
+    }
+
+    // the Pets tab with Remembered on: PetMemorial.remembered in one group in place of the living, the gone card at the right
+    private void buildRemembered(CustomPanelAPI p, float w, float h) {
+        List<PetMemorial.Gone> all = PetMemorial.remembered();
+        PetMemorial.Gone selected = null;
+        for (PetMemorial.Gone g : all) if (g.id().equals(view.selected)) selected = g;
+        if (selected == null && !all.isEmpty()) {
+            selected = all.get(0);
+            view.select(selected.id());
+        }
+
+        addGoneList(p, h - BODY_Y, all, selected);
+        Ui.vrule(p, LIST_W + 5f, BODY_Y, h - BODY_Y);
+
+        PetCard card = new PetCard(this, view);
+        if (selected == null) Ui.text(p, CARD_X, BODY_Y, w - CARD_X, "No pet has died.", Ui.gray());
+        else if (selected.pet() != null) card.build(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected.pet());
+        else card.buildLost(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected);
+    }
+
+    private void addGoneList(CustomPanelAPI p, float h, List<PetMemorial.Gone> all, PetMemorial.Gone selected) {
+        UiFilter.State filter = view.filter;
+        float top = bar(p, GONE_KEYS) + UiFilter.BELOW;
+        UiScroll.Column list = UiScroll.list(p, 0f, BODY_Y + top, LIST_W, h - top, view.scroll, PetsView.LIST);
+        float w = list.width();
+
+        List<PetMemorial.Gone> gone = new ArrayList<>();
+        for (PetMemorial.Gone g : all) if (filter.matches(searchText(g))) gone.add(g);
+        filter.sort(gone, goneOrder(filter.sort));
+
+        String count = filter.query().isEmpty() ? String.valueOf(all.size()) : gone.size() + " of " + all.size();
+        Ui.heading(list.heading(0f), 0f, 0f, w, REMEMBERED, count);
+        if (gone.isEmpty()) Ui.text(list.block(Ui.LINE_H, 8f), 0f, 0f, w, all.isEmpty() ? "No pet has died." : "No pet matches.", Ui.gray());
+
+        for (int row = 0; row * PER_ROW < gone.size(); row++) {
+            CustomPanelAPI b = list.block(TILE_H, row == 0 ? 4f : TILE_GAP);
+            for (int i = row * PER_ROW; i < Math.min(gone.size(), (row + 1) * PER_ROW); i++) {
+                PetMemorial.Gone g = gone.get(i);
+                PetCard.goneTile(this, b, 2f + (i % PER_ROW) * TILE_PITCH, 0f, g, g == selected);
+            }
+        }
+        list.end();
+    }
+
+    private static String[] searchText(PetMemorial.Gone gone) {
+        if (gone.pet() != null) return searchText(gone.pet());
+        List<String> text = new ArrayList<>(List.of(gone.name(), gone.species()));
+        text.addAll(gone.titles());
+        return text.toArray(new String[0]);
+    }
+
+    // null keeps the Latest order of PetMemorial.remembered
+    private static Comparator<PetMemorial.Gone> goneOrder(String key) {
+        Comparator<PetMemorial.Gone> name = Comparator.comparing(PetMemorial.Gone::name, String.CASE_INSENSITIVE_ORDER);
+        return switch (key) {
+            case "Name" -> name;
+            case "Species" -> Comparator.comparing(PetMemorial.Gone::species, String.CASE_INSENSITIVE_ORDER).thenComparing(name);
+            case "Age" -> Comparator.comparingDouble((PetMemorial.Gone g) -> -g.days()).thenComparing(name);
+            default -> null;
+        };
     }
 
     // null keeps the group order: the fleet order on ships, the order they came in elsewhere

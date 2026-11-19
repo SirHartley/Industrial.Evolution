@@ -132,12 +132,12 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
             tooltip.addPara("A story point has already been awarded for building a Symbol on this world.", Misc.getHighlightColor(), 10f);
 
         //if(IndustryTooltipMode.ADD_INDUSTRY.equals(mode) && isAvailableToBuild()) tooltip.addPara("Only one can exist at a time", 10f, MiscIE.getHighlightColor());
-        if (mode != IndustryTooltipMode.ADD_INDUSTRY && remembers()) PetMemorial.addSection(tooltip, market.getFaction(), expanded);
     }
 
     @Override
     public void createTooltip(IndustryTooltipMode mode, TooltipMakerAPI tooltip, boolean expanded) {
         this.expanded = expanded;
+        if (remembers()) tooltip.setBgAlpha(1f);
         super.createTooltip(mode, tooltip, expanded);
     }
 
@@ -164,5 +164,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
 
             tooltip.addPara("Population growth bonus: %s", opad, h, "+" + Math.round(IMMIGRATION_BONUS));
         }
+
+        if (mode != IndustryTooltipMode.ADD_INDUSTRY && remembers()) PetMemorial.addSection(tooltip, market.getFaction(), expanded);
     }
 }

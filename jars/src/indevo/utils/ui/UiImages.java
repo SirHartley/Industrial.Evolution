@@ -88,6 +88,20 @@ public final class UiImages {
         return Ui.painted(p, x, y, w, h, null, (pos, a) -> UiDraw.texture(g.id(), g.w(), g.h(), g.u(), g.v(), pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), a));
     }
 
+    // a sprite or its grey copy into a rect from a painter, for pictures that change while the panel stays
+    public static void paint(String spriteName, boolean grey, float x, float y, float w, float h, float alpha) {
+        if (spriteName == null) return;
+        if (grey && !GREYS.containsKey(spriteName)) GREYS.put(spriteName, readGrey(spriteName));
+        Grey g = grey ? GREYS.get(spriteName) : null;
+        if (g != null) {
+            UiDraw.texture(g.id(), g.w(), g.h(), g.u(), g.v(), x, y, w, h, alpha);
+            return;
+        }
+
+        SpriteAPI sprite = Global.getSettings().getSprite(spriteName);
+        UiDraw.sprite(sprite, sprite.getWidth(), sprite.getHeight(), x, y, w, h, Color.WHITE, grey ? alpha * DIM : alpha);
+    }
+
     private static Grey readGrey(String path) {
         BufferedImage image;
         try (InputStream in = Global.getSettings().openStream(path)) {

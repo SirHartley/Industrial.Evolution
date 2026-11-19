@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class Pet {
     public static final float DEFAULT_FEED_INTERVAL = 31f;
@@ -35,6 +36,8 @@ public class Pet {
 
     public String typeID;
     public String id;
+    // same in every save that holds this pet; Misc.genUID ids repeat across games, so the memorial file keys on this
+    private String memorialId = UUID.randomUUID().toString();
     public String name;
     public float age = 1f;
     public float lifetime;
@@ -466,6 +469,17 @@ public class Pet {
         return isDead;
     }
 
+    // null for a pet saved before the field
+    public String getMemorialId() {
+        if (memorialId == null) memorialId = UUID.randomUUID().toString();
+        return memorialId;
+    }
+
+    // dead and kept by the Memorial: sold and rehomed pets are not dead to the player
+    public boolean isRemembered() {
+        return isDead && deathData != null && deathData.cause != PetStatusManager.PetDeathCause.SOLD && deathData.cause != PetStatusManager.PetDeathCause.REHOMED;
+    }
+
     public boolean isStarving() {
         return isStarving;
     }
@@ -649,6 +663,12 @@ public class Pet {
     // kept for copies of indevo.other.YourMod_PetName_PetHullmod
     public float getEffectFract() {
         return getMascotMult();
+    }
+
+    // whole cycles from one cycle on, months and weeks below; a dead pet stops ageing, so this is its age when it went
+    public String getSpan() {
+        int cycles = (int) (age / 365f);
+        return cycles >= 1 ? cycles + (cycles == 1 ? " cycle" : " cycles") : getAgeString();
     }
 
     public String getAgeString(){

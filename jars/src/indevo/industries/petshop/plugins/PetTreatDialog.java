@@ -247,7 +247,7 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
         Ui.text(row, NAME_X, 25f, nw, Ui.fit(PetCard.species(pet), Ui.INS15, nw), Ui.gray());
 
         float left = left(pet);
-        Ui.text(row, xs[1], 15f, COLUMN_W[1], PetCard.span(pet));
+        Ui.text(row, xs[1], 15f, COLUMN_W[1], pet.getSpan());
         Ui.text(row, xs[2], 15f, COLUMN_W[2], PetLongevity.lifeLeft(left), PetLongevity.isShort(left) ? Ui.neg() : Ui.text());
         Ui.text(row, xs[3], 15f, COLUMN_W[3], String.valueOf(pet.treatments), Ui.INS15, pet.treatments > 0 ? Ui.text() : Ui.gray(), Ui.RIGHT);
     }
