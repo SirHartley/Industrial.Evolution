@@ -41,7 +41,9 @@ public final class PetMemorial {
             if (!pet.isDead() || data == null || data.cause == PetDeathCause.SOLD || data.cause == PetDeathCause.REHOMED) continue;
             dead.add(pet);
         }
-        dead.sort(Comparator.comparingLong((Pet pet) -> -pet.deathData.timestamp));
+        // clock timestamps are negative in early cycles, only 0 means a death saved before the field
+        dead.sort(Comparator.comparing((Pet pet) -> pet.deathData.timestamp == 0L)
+                .thenComparing(pet -> pet.deathData.timestamp, Comparator.reverseOrder()));
         return dead;
     }
 
@@ -100,7 +102,7 @@ public final class PetMemorial {
         for (PetTitle title : pet.getTitles()) titles.add(title.label);
 
         String place = data.shipName != null ? data.shipName : data.inStorage && data.marketName != null ? "Pet storage, " + data.marketName : "Menagerie";
-        String cycle = data.timestamp > 0L ? ", cycle " + Global.getSector().getClock().createClock(data.timestamp).getCycle() : "";
+        String cycle = data.timestamp != 0L ? ", cycle " + Global.getSector().getClock().createClock(data.timestamp).getCycle() : "";
         return (titles.isEmpty() ? "" : String.join(", ", titles) + ". ") + place + cycle;
     }
 }
