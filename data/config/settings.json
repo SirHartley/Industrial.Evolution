@@ -106,6 +106,7 @@
           "pet_marker_starving":"graphics/icons/pets/marker_starving.png",
           "pet_marker_shock":"graphics/icons/pets/marker_shock.png",
           "pet_marker_want":"graphics/icons/pets/marker_want.png",
+          "pet_status":"graphics/icons/pets/status_pet.png",
           "pop_underworld":"graphics/industry/population/underworld.png",
           "pop_rural":"graphics/industry/population/rural_polities_1.png",
           "pop_hidden":"graphics/industry/population/underground_arcology.png",

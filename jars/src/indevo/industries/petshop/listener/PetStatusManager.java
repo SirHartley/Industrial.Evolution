@@ -111,8 +111,55 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private float wantGapDays = 0f;
     // species seen on offer at an Animal Center; null in saves from before the bestiary
     private Set<String> offered = new HashSet<>();
-    // the message list sits under the Pets panel, so its messages wait until it closes
-    private transient List<Runnable> held = null;
+    // pet popups hide the dialog text, so reports wait for the outermost to close and go to the dialog under it
+    private transient List<Note> held = null;
+    private transient int holds = 0;
+    private transient InteractionDialogAPI heldFor = null;
+    // reports made while the encounter dialog closes or the loot screen shows wait for the next frame
+    private transient boolean deferring = false;
+    private transient List<Note> deferred = null;
+
+    private record Line(String format, Color color, String[] hl, Color[] hlColors) {
+    }
+
+    // a report: paragraphs in a dialog's text, else a campaign message
+    private static final class Note {
+        final List<Line> lines = new ArrayList<>();
+        String icon = null;
+        boolean sound = false;
+
+        Note line(String format, Color color, String[] hl, Color... hlColors) {
+            lines.add(new Line(format, color, hl, hlColors));
+            return this;
+        }
+
+        void show(InteractionDialogAPI dialog) {
+            TextPanelAPI text = dialog != null ? dialog.getTextPanel() : null;
+            if (text != null) {
+                for (Line l : lines) {
+                    text.addPara(l.format, l.color, Misc.getHighlightColor(), l.hl);
+                    text.setHighlightColorsInLastPara(l.hlColors);
+                }
+                return;
+            }
+
+            Line first = lines.get(0);
+            if (lines.size() == 1 && icon == null && first.hl.length <= 2) {
+                String hl1 = first.hl.length > 0 ? first.hl[0] : null;
+                String hl2 = first.hl.length > 1 ? first.hl[1] : null;
+                Color c1 = first.hlColors.length > 0 ? first.hlColors[0] : null;
+                Color c2 = first.hlColors.length > 1 ? first.hlColors[1] : null;
+                Global.getSector().getCampaignUI().addMessage(first.format, first.color, hl1, hl2, c1, c2);
+                return;
+            }
+
+            MessageIntel intel = new MessageIntel(first.format, first.color, first.hl, first.hlColors);
+            for (Line l : lines.subList(1, lines.size())) intel.addLine(l.format, l.color, l.hl, l.hlColors);
+            if (icon != null) intel.setIcon(icon);
+            if (sound) intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
+            Global.getSector().getCampaignUI().addMessage(intel);
+        }
+    }
 
     // the first pet is starred for the player
     public void register(Pet pet) {
@@ -147,6 +194,12 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         if (!fleet.getEventListeners().contains(this)) fleet.addEventListener(this);
+
+        if (deferred != null) {
+            List<Note> out = deferred;
+            deferred = null;
+            out.forEach(this::post);
+        }
 
         for (Pet pet : new ArrayList<>(pets)) pet.advance(amount);
         advanceLines(amount);
@@ -511,7 +564,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         pet.place(to, null);
 
         String fromName = from != null ? from.getShipName() : "fleet";
-        Global.getSector().getCampaignUI().addMessage("%s the " + pet.getData().species + " moved from the " + fromName + " to the %s", Misc.getTextColor(), pet.name, to.getShipName(), Misc.getHighlightColor(), Misc.getHighlightColor());
+        message("%s the " + pet.getData().species + " moved from the " + fromName + " to the %s", Misc.getTextColor(), pet.name, to.getShipName(), Misc.getHighlightColor(), Misc.getHighlightColor());
         return true;
     }
 
@@ -646,20 +699,53 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         pet.setDead(cause);
     }
 
-    public void holdMessages() {
-        if (held == null) held = new ArrayList<>();
+    // under: the dialog the player sees once the popup closes, null when there is none
+    public void holdMessages(InteractionDialogAPI under) {
+        if (holds++ > 0) return;
+        held = new ArrayList<>();
+        heldFor = under;
     }
 
     public void releaseMessages() {
-        List<Runnable> out = held;
+        if (holds == 0 || --holds > 0) return;
+        List<Note> out = held;
+        InteractionDialogAPI to = heldFor;
         held = null;
-        if (out != null) out.forEach(Runnable::run);
+        heldFor = null;
+        for (Note note : out) note.show(to);
     }
 
-    private void message(String format, Color color, String hl1, String hl2, Color hlColor1, Color hlColor2) {
-        Runnable post = () -> Global.getSector().getCampaignUI().addMessage(format, color, hl1, hl2, hlColor1, hlColor2);
-        if (held != null) held.add(post);
-        else post.run();
+    public void message(String format, Color color, String hl1, String hl2, Color hlColor1, Color hlColor2) {
+        List<String> hl = new ArrayList<>();
+        List<Color> colors = new ArrayList<>();
+        if (hl1 != null) {
+            hl.add(hl1);
+            colors.add(hlColor1);
+        }
+        if (hl2 != null) {
+            hl.add(hl2);
+            colors.add(hlColor2);
+        }
+        post(new Note().line(format, color, hl.toArray(new String[0]), colors.toArray(new Color[0])));
+    }
+
+    private void defer(Runnable reports) {
+        boolean was = deferring;
+        deferring = true;
+        try {
+            reports.run();
+        } finally {
+            deferring = was;
+        }
+    }
+
+    // reports go into the open dialog's text, a campaign message only when no dialog is open
+    private void post(Note note) {
+        if (deferring) {
+            if (deferred == null) deferred = new ArrayList<>();
+            deferred.add(note);
+        } else if (held != null) held.add(note);
+        else note.show(Global.getSector().getCampaignUI().getCurrentInteractionDialog());
     }
 
     public void reportLifeEnding(Pet pet, float daysLeft) {
@@ -667,16 +753,14 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         String left = PetLongevity.lifeLeft(daysLeft).toLowerCase(Locale.ROOT);
         Color hl = Misc.getHighlightColor();
 
-        MessageIntel intel = new MessageIntel("%s the " + pet.getData().species + " " + where + " has %s left to live.", Misc.getTextColor(), new String[]{pet.name, left}, hl, Misc.getNegativeHighlightColor());
-        if (PetLongevity.hasSyringe()) intel.addLine("A %s in your cargo gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName()}, hl);
-        else if (PetLongevity.getNomios() != null) intel.addLine("A %s or a treatment at %s gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName(), PetLongevity.getNomios().getName()}, hl, hl);
-        else intel.addLine("A %s gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName()}, hl);
+        Note note = new Note().line("%s the " + pet.getData().species + " " + where + " has %s left to live.", Misc.getTextColor(), new String[]{pet.name, left}, hl, Misc.getNegativeHighlightColor());
+        if (PetLongevity.hasSyringe()) note.line("A %s in your cargo gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName()}, hl);
+        else if (PetLongevity.getNomios() != null) note.line("A %s or a treatment at %s gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName(), PetLongevity.getNomios().getName()}, hl, hl);
+        else note.line("A %s gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName()}, hl);
 
-        intel.setIcon(pet.getIcon());
-        intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
-        Runnable post = () -> Global.getSector().getCampaignUI().addMessage(intel);
-        if (held != null) held.add(post);
-        else post.run();
+        note.icon = pet.getIcon();
+        note.sound = true;
+        post(note);
     }
 
     public void reportBroodReady(PetShop shop, PetBrood brood, Pet a, Pet b) {
@@ -776,14 +860,17 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportBattleOccurred(CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (!Setting.PETS.enabled()) return;
 
-        for (CampaignFleetAPI fleet : battle.getSnapshotBothSides()) {
-            if (!fleet.isPlayerFleet() && !FleetUtils.isDetachmentFleet(fleet)) continue;
+        // fired right before the encounter dialog dismisses, its text goes with it
+        defer(() -> {
+            for (CampaignFleetAPI fleet : battle.getSnapshotBothSides()) {
+                if (!fleet.isPlayerFleet() && !FleetUtils.isDetachmentFleet(fleet)) continue;
 
-            List<FleetMemberAPI> lost = Misc.getSnapshotMembersLost(fleet);
-            for (Pet pet : new ArrayList<>(pets)) {
-                if (!pet.isDead() && lost.contains(pet.assignedFleetMember)) escapeOrDie(pet, fleet, lost);
+                List<FleetMemberAPI> lost = Misc.getSnapshotMembersLost(fleet);
+                for (Pet pet : new ArrayList<>(pets)) {
+                    if (!pet.isDead() && lost.contains(pet.assignedFleetMember)) escapeOrDie(pet, fleet, lost);
+                }
             }
-        }
+        });
     }
 
     // autoresolve reports every round with the same snapshot, a survivor has left the lost ship by then
@@ -861,8 +948,11 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     @Override
     public void reportAboutToShowLootToPlayer(CargoAPI loot, InteractionDialogAPI dialog) {
-        answer(PetWant.COME_ALONG);
-        if (Setting.PETS.enabled() && loot != null && dialog != null) scavenge(loot, dialog.getInteractionTarget());
+        // the loot screen hides the dialog text and salvage closes the dialog after it
+        defer(() -> {
+            answer(PetWant.COME_ALONG);
+            if (Setting.PETS.enabled() && loot != null && dialog != null) scavenge(loot, dialog.getInteractionTarget());
+        });
     }
 
     // battle loot has a fleet as target; seeded by the wreck, so a reload finds the same
@@ -924,65 +1014,32 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         Color c = Misc.getHighlightColor();
 
-        MessageIntel intel = new MessageIntel(
-                "Report: Food consumed by %s in the last month:",
-                Misc.getTextColor(),
-                new String[]{"your pets"},
-                c);
+        Note note = new Note().line("Report: Food consumed by %s in the last month:", Misc.getTextColor(), new String[]{"your pets"}, c);
 
         for (Map.Entry<String, Float> entry : foodTakenLastMonth.entrySet()) {
             String name = Global.getSettings().getCommoditySpec(entry.getKey()).getName();
             int amount = (int) Math.ceil(entry.getValue());
 
-            intel.addLine(BaseIntelPlugin.BULLET + name + ": %s",
-                    Misc.getTextColor(),
-                    new String[]{(amount + " units")},
-                    Misc.getHighlightColor());
+            note.line(BaseIntelPlugin.BULLET + name + ": %s", Misc.getTextColor(), new String[]{(amount + " units")}, c);
         }
 
-        intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "pets_small"));
-        intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
-        Global.getSector().getCampaignUI().addMessage(intel);
+        note.icon = Global.getSettings().getSpriteName("IndEvo", "pets_small");
+        note.sound = true;
+        post(note);
     }
 
-    private void showPetForgottenMessage(final SubmarketAPI onMarket) {
-        Global.getSector().addScript(new EveryFrameScript() {
-            boolean done = false;
+    private void showPetForgottenMessage(SubmarketAPI onMarket) {
+        Note note = new Note().line("You %s some %s on ships you stored at the %s!", Misc.getTextColor(),
+                new String[]{"forgot", "pets", onMarket.getMarket().getName() + " " + onMarket.getNameOneLine()},
+                Misc.getNegativeHighlightColor(), Misc.getHighlightColor(), onMarket.getFaction().getColor());
+        note.line("They will starve to death unless fed.", Misc.getTextColor(), new String[0]);
+        String center = Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName();
+        note.line("Store or sell them at " + Misc.getAOrAnFor(center) + " %s if you no longer want them.", Misc.getTextColor(),
+                new String[]{center}, Misc.getHighlightColor());
 
-            @Override
-            public boolean isDone() {
-                return done;
-            }
-
-            @Override
-            public boolean runWhilePaused() {
-                return false;
-            }
-
-            @Override
-            public void advance(float amount) {
-                if (!done){
-                    Color c = Misc.getHighlightColor();
-
-                    MessageIntel intel = new MessageIntel(
-                            "You %s some %s on ships you stored at the %s!",
-                            Misc.getTextColor(),
-                            new String[]{"forgot", "pets", onMarket.getMarket().getName() + " " + onMarket.getNameOneLine()},
-                            Misc.getNegativeHighlightColor(), onMarket.getFaction().getColor());
-                    intel.addLine("They will starve to death unless fed.");
-                    intel.addLine("Store or sell them at a %s if you no longer want them.",
-                            Misc.getTextColor(),
-                            new String[]{Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName()},
-                            c);
-
-                    intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "warning"));
-                    intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
-                    Global.getSector().getCampaignUI().addMessage(intel);
-                }
-
-                done = true;
-            }
-        });
+        note.icon = Global.getSettings().getSpriteName("IndEvo", "warning");
+        note.sound = true;
+        post(note);
     }
 
     // fleet talents count once per fleet: the pet with the highest value, then more hearts, then the lower id

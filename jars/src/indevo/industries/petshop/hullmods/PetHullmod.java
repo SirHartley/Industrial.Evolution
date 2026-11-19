@@ -7,6 +7,7 @@ import com.fs.starfarer.api.characters.FullName;
 import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.characters.SkillSpecAPI;
+import com.fs.starfarer.api.combat.CombatEngineAPI;
 import com.fs.starfarer.api.combat.MutableShipStatsAPI;
 import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.combat.ShipAPI;
@@ -26,12 +27,14 @@ import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.patches.PetRefitRowPatch;
 import indevo.industries.petshop.plugins.PetCard;
+import indevo.utils.ui.Ui;
 import patchlib.api.PatchLib;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -48,6 +51,15 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
     public static final String CAPTAIN = PetDataRepo.TRAIT_PREFIX + "captain";
     public static final String SCAVENGER = PetDataRepo.TRAIT_PREFIX + "scavenger";
     private static final String FLAW_ID = "_flaw";
+
+    // the pet's line in the game's status list of the piloted ship: line 2 follows the ship, the first state that fits wins
+    static final String STATUS_KEY = "IndEvo_petStatus";
+    static final String STATUS_FONT = "graphics/fonts/victor14.fnt";
+    static final String[] STATUS_LINES = {"startled", "panicking", "hiding", "holding on tight", "worried", "waiting it out", "nervous",
+            "holding still", "glad to leave", "celebrating", "cheering you on", "keeping watch"};
+    static final int STARTLED = 0;
+    // lines before this one show in the warning colour
+    static final int STATUS_WARN = 4;
 
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
         PetStatusManager manager = PetStatusManager.getInstance();
@@ -236,12 +248,79 @@ public class PetHullmod extends SelfRepairingBuiltInHullmod {
         return Math.round(member.getStats().getDynamic().getMod(Stats.MAX_PERMANENT_HULLMODS_MOD).computeEffective(Misc.MAX_PERMA_MODS));
     }
 
+    // per ship state of the status line, in the ship's custom data; timers count battle time, so they hold while paused
+    private static final class Status {
+        final String title;
+        final String icon;
+        float hull;
+        float hit = 0f;
+        int shown = -1;
+        float shownFor = 0f;
+
+        Status(Pet pet, float hull) {
+            // the game does not shorten titles and shows them in capitals
+            this.title = Ui.fit(pet.name.toUpperCase(Locale.ROOT), STATUS_FONT, PetConstants.STATUS_NAME_W);
+            this.icon = PetDataRepo.getStatusIcon(pet.getIcon());
+            this.hull = hull;
+        }
+    }
+
     @Override
     public void advanceInCombat(ShipAPI ship, float amount) {
+        updateStatus(ship, amount);
+
         float rate = ship.getMutableStats().getDynamic().getMod(MENDER).computeEffective(0f);
         if (rate <= 0f || !ship.isAlive() || ship.isHulk()) return;
 
         ship.setHitpoints(Math.min(ship.getMaxHitpoints(), ship.getHitpoints() + ship.getMaxHitpoints() * rate * 0.01f * amount));
+    }
+
+    // fighters, shuttle pods and ships with no pet have no pet hullmod, so they never get here
+    private static void updateStatus(ShipAPI ship, float amount) {
+        if (!ship.isAlive() || ship.isHulk()) return;
+
+        Status s = (Status) ship.getCustomData().get(STATUS_KEY);
+        if (s == null) {
+            Pet pet = PetStatusManager.getInstance().getPet(ship.getVariant());
+            if (pet == null) return;
+            s = new Status(pet, ship.getHitpoints());
+            ship.setCustomData(STATUS_KEY, s);
+        }
+
+        // only hull damage startles, a new hit starts the second again
+        if (ship.getHitpoints() < s.hull) s.hit = PetConstants.STATUS_HIT_TIME;
+        else s.hit = Math.max(0f, s.hit - amount);
+        s.hull = ship.getHitpoints();
+        s.shownFor += amount;
+
+        CombatEngineAPI engine = Global.getCombatEngine();
+        if (ship != engine.getPlayerShip()) return;
+
+        // a line holds STATUS_HOLD_TIME unless a higher one comes up; startled ends with its second
+        int state = statusState(ship, engine, s);
+        boolean held = s.shown != STARTLED && s.shownFor < PetConstants.STATUS_HOLD_TIME;
+        if (s.shown < 0 || state < s.shown || (state != s.shown && !held)) {
+            s.shown = state;
+            s.shownFor = 0f;
+        }
+
+        engine.maintainStatusForPlayerShip(STATUS_KEY, s.icon, s.title, STATUS_LINES[s.shown], s.shown < STATUS_WARN);
+    }
+
+    private static int statusState(ShipAPI ship, CombatEngineAPI engine, Status s) {
+        float hull = ship.getHitpoints() / Math.max(1f, ship.getMaxHitpoints());
+        if (s.hit > 0f) return STARTLED;
+        if (ship.getFluxTracker().isOverloaded()) return 1;
+        if (hull < PetConstants.STATUS_HULL_LOW) return 2;
+        if (ship.getEngineController().isFlamedOut()) return 3;
+        if (hull < PetConstants.STATUS_HULL_HALF) return 4;
+        if (ship.getFluxTracker().isVenting()) return 5;
+        if (ship.getFluxTracker().getFluxLevel() > PetConstants.STATUS_FLUX_HIGH) return 6;
+        if (ship.isPhased()) return 7;
+        if (ship.isRetreating()) return 8;
+        if (engine.isEnemyInFullRetreat() || (engine.isCombatOver() && engine.getWinningSideId() == ship.getOwner())) return 9;
+        if (ship.areAnyEnemiesInRange()) return 10;
+        return 11;
     }
 
     @Override

@@ -3,6 +3,7 @@ package indevo.industries.petshop.memory;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.memory.SessionTransientMemory;
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +19,10 @@ public class PetDataRepo {
     public static final String TRAITS_PATH = "data/campaign/pet_traits.csv";
     public static final String LOOKS_PATH = "data/campaign/pet_morphs.csv";
     public static final String LOOK_DIR = "graphics/pets/morphs/";
+    public static final String PORTRAIT_DIR = "graphics/pets/";
+    public static final String STATUS_DIR = "graphics/pets/status/";
+    private static final Set<String> STATUS_ICONS = new HashSet<>();
+    private static final Logger log = Global.getLogger(PetDataRepo.class);
     public static final String WILD_TYPE = "Wild type";
     // saves hold trait ids, never rename one after release
     public static final String TRAIT_PREFIX = "IndEvo_pt_";
@@ -157,7 +162,31 @@ public class PetDataRepo {
                 } catch (IOException e) {
                     throw new IllegalStateException("IndEvo pet " + data.id + " portrait " + icon + " failed to load", e);
                 }
+                loadStatusIcon(icon);
             }
+        }
+    }
+
+    // the combat status list draws only the alpha of its icon, so every portrait has an alpha twin under graphics/pets/status
+    public static String getStatusIcon(String icon) {
+        String status = statusPath(icon);
+        return status != null && STATUS_ICONS.contains(status) ? status : Global.getSettings().getSpriteName("IndEvo", "pet_status");
+    }
+
+    private static String statusPath(String icon) {
+        return icon != null && icon.startsWith(PORTRAIT_DIR) ? STATUS_DIR + icon.substring(PORTRAIT_DIR.length()) : null;
+    }
+
+    // pets of other mods have no twin and use the paw
+    private static void loadStatusIcon(String icon) {
+        String status = statusPath(icon);
+        if (status == null || STATUS_ICONS.contains(status)) return;
+
+        try {
+            Global.getSettings().loadTexture(status);
+            STATUS_ICONS.add(status);
+        } catch (IOException e) {
+            log.warn("IndEvo pet portrait " + icon + " has no status icon " + status + ", using the paw");
         }
     }
 

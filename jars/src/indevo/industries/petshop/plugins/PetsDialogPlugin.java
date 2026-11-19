@@ -24,10 +24,13 @@ import java.util.Map;
 public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
     private final PetsPanel panel;
+    // the dialog under this one, it takes the panel's reports when it closes
+    private final InteractionDialogAPI under;
     private InteractionDialogAPI dialog;
 
     public PetsDialogPlugin(PetShop shop, PetsView view) {
         this.panel = new PetsPanel(shop, view, this::leave);
+        this.under = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
     }
 
     public static boolean show(PetShop shop, PetsView view) {
@@ -64,7 +67,7 @@ public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlocking
 
         if (!hasScript) Global.getSector().addTransientScript(new EscBlockerMemoryIterator());
 
-        PetStatusManager.getInstance().holdMessages();
+        PetStatusManager.getInstance().holdMessages(under);
         dialog.setPromptText("");
         dialog.getOptionPanel().clearOptions();
         dialog.hideVisualPanel();
