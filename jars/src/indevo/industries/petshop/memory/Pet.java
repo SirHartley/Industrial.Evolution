@@ -466,6 +466,11 @@ public class Pet {
         return isDead;
     }
 
+    // dead and kept by the Memorial: sold and rehomed pets are not dead to the player
+    public boolean isRemembered() {
+        return isDead && deathData != null && deathData.cause != PetStatusManager.PetDeathCause.SOLD && deathData.cause != PetStatusManager.PetDeathCause.REHOMED;
+    }
+
     public boolean isStarving() {
         return isStarving;
     }
@@ -649,6 +654,12 @@ public class Pet {
     // kept for copies of indevo.other.YourMod_PetName_PetHullmod
     public float getEffectFract() {
         return getMascotMult();
+    }
+
+    // whole cycles from one cycle on, months and weeks below; a dead pet stops ageing, so this is its age when it went
+    public String getSpan() {
+        int cycles = (int) (age / 365f);
+        return cycles >= 1 ? cycles + (cycles == 1 ? " cycle" : " cycles") : getAgeString();
     }
 
     public String getAgeString(){

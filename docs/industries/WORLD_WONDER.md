@@ -66,7 +66,7 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 
 ### Memorial
 
-- `IndEvo_Memorial` (`Ids.MEMORIAL`) has no plugin of its own: `WorldWonder.remembers()` checks the id, so Memorials already in saves get it. While it is functional and player owned, `IndEvo_pets` is on and a pet has died, the tooltip is 420 wide (`PetMemorial.TOOLTIP_W`), expandable with F1, and `addRightAfterDescriptionSection` adds the Remembered section (`PetMemorial.addSection`, [Pets](PETS.md#memorial)). `createTooltip` keeps the F1 state in a transient field (Museum pattern).
+- `IndEvo_Memorial` (`Ids.MEMORIAL`) has no plugin of its own: `WorldWonder.remembers()` checks the id, so Memorials already in saves get it. While it is functional and player owned, `IndEvo_pets` is on and a pet has died, the tooltip is 420 wide (`PetMemorial.TOOLTIP_W`), expandable with F1, with a solid background (`setBgAlpha(1f)` in `createTooltip`), and `addPostDemandSection` adds the Remembered section after the Population growth bonus line (`PetMemorial.addSection`, [Pets](PETS.md#memorial)). `createTooltip` keeps the F1 state in a transient field (Museum pattern).
 
 ### Cloud Painter
 

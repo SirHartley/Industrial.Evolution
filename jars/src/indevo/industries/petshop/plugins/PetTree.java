@@ -565,7 +565,7 @@ public class PetTree {
 
     static String goneAge(Pet pet) {
         String tag = goneTag(pet);
-        return (tag.equals("Dead") ? "Died" : tag) + " at " + PetCard.span(pet);
+        return (tag.equals("Dead") ? "Died" : tag) + " at " + pet.getSpan();
     }
 
     // tiles on a world panel that scrolls up and down and drags sideways, lines painted below them

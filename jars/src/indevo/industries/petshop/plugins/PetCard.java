@@ -631,13 +631,7 @@ public class PetCard {
     }
 
     static String age(Pet pet) {
-        return (pet.isYoung() ? "Young, " : pet.isOld() ? "Old, " : "Adult, ") + span(pet);
-    }
-
-    // a gone pet stops ageing, so this is its age when it went
-    static String span(Pet pet) {
-        int cycles = (int) (pet.age / 365f);
-        return cycles >= 1 ? cycles + (cycles == 1 ? " cycle" : " cycles") : pet.getAgeString();
+        return (pet.isYoung() ? "Young, " : pet.isOld() ? "Old, " : "Adult, ") + pet.getSpan();
     }
 
     private void pet(Pet pet) {

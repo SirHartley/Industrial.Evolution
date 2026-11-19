@@ -40,6 +40,7 @@ import indevo.industries.petshop.memory.PetBestiaryFile;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.memory.PetMemorialFile;
 import indevo.industries.petshop.memory.PetPlan;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
@@ -697,6 +698,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         }
 
         pet.setDead(cause);
+        if (pet.favourite && pet.isRemembered()) PetMemorialFile.get().remember(pet);
     }
 
     // under: the dialog the player sees once the popup closes, null when there is none

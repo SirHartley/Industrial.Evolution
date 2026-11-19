@@ -2,115 +2,283 @@ package indevo.industries.petshop.plugins;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
+import com.fs.starfarer.api.campaign.SectorAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.LabelAPI;
+import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
+import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
+import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.listener.PetStatusManager;
-import indevo.industries.petshop.listener.PetStatusManager.PetDeathCause;
 import indevo.industries.petshop.memory.DeathData;
 import indevo.industries.petshop.memory.Pet;
+import indevo.industries.petshop.memory.PetMemorialFile;
 import indevo.utils.ui.Ui;
 import indevo.utils.ui.UiCanvas;
 import indevo.utils.ui.UiData;
+import indevo.utils.ui.UiDraw;
+import indevo.utils.ui.UiImages;
 
 import java.awt.Color;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-// section Remembered of the Memorial tooltip: the dead pets, newest first; F1 lists more, each with a grey line
+// section Remembered of the Memorial tooltip: one pet at a time over a wall of faces, stepping every PERIOD real seconds
 public final class PetMemorial {
 
     public static final float TOOLTIP_W = 420f;
-    static final int SHOWN = 5;
-    // a tooltip can not scroll, so F1 shows what fits the screen up to this
-    static final int SHOWN_EXPANDED = 12;
-    // vanilla's lines under the section: upkeep, items, the F1 line
-    static final float VANILLA_BELOW = 260f;
-    static final float SECTION_H = 30f;
-    static final float[] COLUMN_X = {8f, 112f, 252f, 332f};
-    static final float LINE_GAP = 4f;
-    static final float MORE_GAP = 6f;
+    static final float CARD = 72f;
+    static final float PORTRAIT = 64f;
+    static final float TEXT_X = 84f;
+    static final float NAME_W = 257f;
+    static final float STAR = 14f;
+    static final float STAR_GAP = 6f;
+    static final float LINE_W = 336f;
+    static final float HEART = 11f;
+    static final float HEART_GAP = 3f;
+    static final float HEARTS_X = 353f;
+    static final float HEARTS_Y = 3f;
+    static final float WALL_Y = 80f;
+    static final float FACE = 44f;
+    static final float FACE_PITCH = 47f;
+    static final int PER_LINE = 9;
+    static final int MAX_LINES = 5;
+    static final float PERIOD = 3.5f;
+    static final float FADE = 0.15f;
+    // no frame for this long means the tooltip closed; a shorter gap is the F1 rebuild, which keeps the pet and phase
+    static final float REOPEN = 0.25f;
+    // estimate of vanilla's lines under the section: items, improvements, the footnote, the F1 strip
+    static final float VANILLA_BELOW = 200f;
+    static final float SCREEN_MARGIN = 20f;
+    static final String ELSEWHERE = "Lost in another universe";
+
+    // auto scroll state, real time and never saved; a new sector starts on the first pet
+    private static WeakReference<SectorAPI> sector = new WeakReference<>(null);
+    private static int shown = -1;
+    private static int first;
+    private static long start;
+    private static long lastFrame;
+
+    // grey: a starred pet that died in another save, kept in PetMemorialFile
+    public record Gone(String id, String name, String icon, boolean grey, String about, String how, List<String> titles, int hearts, boolean star) {
+    }
 
     private PetMemorial() {
     }
 
-    // sold and rehomed pets are not dead
-    public static List<Pet> remembered() {
+    // this save's dead newest first, then pets from other saves newest first; sold and rehomed pets are not dead
+    public static List<Gone> remembered() {
         List<Pet> dead = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
         for (Pet pet : PetStatusManager.getInstance().getPets()) {
-            DeathData data = pet.deathData;
-            if (!pet.isDead() || data == null || data.cause == PetDeathCause.SOLD || data.cause == PetDeathCause.REHOMED) continue;
-            dead.add(pet);
+            ids.add(pet.id);
+            if (pet.isRemembered()) dead.add(pet);
         }
         // clock timestamps are negative in early cycles, only 0 means a death saved before the field
         dead.sort(Comparator.comparing((Pet pet) -> pet.deathData.timestamp == 0L)
                 .thenComparing(pet -> pet.deathData.timestamp, Comparator.reverseOrder()));
-        return dead;
-    }
 
-    public static void addSection(TooltipMakerAPI tooltip, FactionAPI faction, boolean expanded) {
-        List<Pet> dead = remembered();
-        if (dead.isEmpty()) return;
+        List<Gone> gone = new ArrayList<>();
+        for (Pet pet : dead) gone.add(gone(pet));
 
-        tooltip.addSectionHeading("Remembered", faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, 10f);
-        float w = tooltip.getWidthSoFar();
-        float rowH = UiData.GRID_ROW_H + (expanded ? UiData.GRID_ROW_H + LINE_GAP : 0f);
-        int shown = Math.min(dead.size(), expanded ? fitting(tooltip, rowH) : SHOWN);
-        int more = dead.size() - shown;
-        float h = Ui.HEADING_H + 4f + shown * rowH + (more > 0 ? MORE_GAP + Ui.LINE_H : 0f);
-
-        CustomPanelAPI table = Global.getSettings().createCustom(w, h, new UiCanvas());
-        float cw = w - COLUMN_X[3] - 8f;
-        Ui.thead(table, 0f, 0f, w, new String[]{"Name", "Species", "Age", "Cause"}, COLUMN_X, new float[]{100f, 136f, 76f, cw},
-                new Alignment[]{Ui.LEFT, Ui.LEFT, Ui.LEFT, Ui.RIGHT});
-
-        float y = Ui.HEADING_H + 4f;
-        for (int i = 0; i < shown; i++) {
-            Pet pet = dead.get(i);
-            cell(table, COLUMN_X[0], y, 96f, pet.name, Ui.text(), Ui.LEFT);
-            cell(table, COLUMN_X[1], y, 136f, pet.getData().species, Ui.text(), Ui.LEFT);
-            cell(table, COLUMN_X[2], y, 76f, PetCard.span(pet), Ui.text(), Ui.LEFT);
-            cell(table, COLUMN_X[3], y, cw, cause(pet.deathData.cause), Ui.text(), Ui.RIGHT);
-            y += UiData.GRID_ROW_H;
-            if (!expanded) continue;
-
-            cell(table, COLUMN_X[0], y, w - COLUMN_X[0] - 8f, line(pet), Ui.gray(), Ui.LEFT);
-            y += UiData.GRID_ROW_H + LINE_GAP;
+        List<PetMemorialFile.Lost> lost = PetMemorialFile.get().getPets();
+        for (int i = lost.size() - 1; i >= 0; i--) {
+            PetMemorialFile.Lost l = lost.get(i);
+            if (ids.contains(l.id())) continue;
+            gone.add(new Gone(l.id(), l.name(), l.icon(), true, l.species() + ", " + l.age(), ELSEWHERE, l.titles(), l.hearts(), true));
         }
-        if (more > 0) Ui.text(table, 0f, y + MORE_GAP, w, "and " + more + " more", Ui.gray());
-
-        tooltip.addCustom(table, 4f);
+        return gone;
     }
 
-    private static int fitting(TooltipMakerAPI tooltip, float rowH) {
-        float room = Global.getSettings().getScreenHeight() - tooltip.getHeightSoFar() - VANILLA_BELOW - SECTION_H - Ui.HEADING_H - 4f - MORE_GAP - Ui.LINE_H;
-        return Math.max(SHOWN, Math.min(SHOWN_EXPANDED, (int) (room / rowH)));
+    private static Gone gone(Pet pet) {
+        List<String> titles = new ArrayList<>();
+        for (PetTitle title : pet.getTitles()) titles.add(title.label);
+        return new Gone(pet.id, pet.name, pet.getIcon(), false, pet.getData().species + ", " + pet.getSpan(), how(pet.deathData), titles, pet.getHearts(), pet.favourite);
     }
 
-    private static void cell(CustomPanelAPI p, float x, float y, float w, String s, Color c, Alignment align) {
-        Ui.textIn(p, x, y, w, UiData.GRID_ROW_H, Ui.fit(s, Ui.INS15, w), Ui.INS15, c, align, new String[0], new Color[0]);
-    }
-
-    static String cause(PetDeathCause cause) {
-        return switch (cause) {
-            case NATURAL -> "Old age";
-            case COMBAT -> "Combat";
-            case STARVED -> "Starved";
-            case EUTHANIZED -> "Put to sleep";
-            default -> "Unknown";
+    static String how(DeathData data) {
+        String cycle = data.timestamp != 0L ? " in cycle " + Global.getSector().getClock().createClock(data.timestamp).getCycle() : "";
+        return switch (data.cause) {
+            case NATURAL -> "Died of old age" + cycle;
+            case COMBAT -> (data.shipName != null ? "Lost with the " + data.shipName : "Lost with its ship") + cycle;
+            case STARVED -> "Starved" + cycle;
+            case EUTHANIZED -> "Put to sleep" + cycle;
+            default -> "Lost";
         };
     }
 
-    // titles, the last ship or place, the cycle it died in; deaths from before the timestamp have no cycle
-    private static String line(Pet pet) {
-        DeathData data = pet.deathData;
-        List<String> titles = new ArrayList<>();
-        for (PetTitle title : pet.getTitles()) titles.add(title.label);
+    public static void addSection(TooltipMakerAPI tooltip, FactionAPI faction, boolean expanded) {
+        List<Gone> gone = remembered();
+        if (gone.isEmpty()) return;
 
-        String place = data.shipName != null ? data.shipName : data.inStorage && data.marketName != null ? "Pet storage, " + data.marketName : "Menagerie";
-        String cycle = data.timestamp != 0L ? ", cycle " + Global.getSector().getClock().createClock(data.timestamp).getCycle() : "";
-        return (titles.isEmpty() ? "" : String.join(", ", titles) + ". ") + place + cycle;
+        int n = gone.size();
+        open(n);
+        tooltip.addSectionHeading("Remembered", faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, 10f);
+
+        int needed = (n + PER_LINE - 1) / PER_LINE;
+        int lines = n == 1 ? 0 : expanded ? Math.max(1, Math.min(Math.min(MAX_LINES, needed), fitting(tooltip))) : 1;
+        int cells = Math.min(n, lines * PER_LINE);
+        int faces = n > cells ? cells - 1 : cells;
+        float h = lines == 0 ? CARD : WALL_Y + lines * FACE_PITCH - 3f;
+
+        Featured featured = new Featured(gone, faces, Setting.PET_MOTION.enabled());
+        CustomPanelAPI panel = Global.getSettings().createCustom(TOOLTIP_W, h, new UiCanvas((pos, a) -> featured.frame(), featured::paint));
+        featured.build(panel, cells);
+        tooltip.addCustom(panel, 4f);
+    }
+
+    // the tooltip plus the F1 strip keep SCREEN_MARGIN to the screen edges
+    private static int fitting(TooltipMakerAPI tooltip) {
+        float room = Global.getSettings().getScreenHeight() - 2f * SCREEN_MARGIN - tooltip.getHeightSoFar() - 4f - VANILLA_BELOW - WALL_Y + 3f;
+        return (int) Math.floor(room / FACE_PITCH);
+    }
+
+    // each opening starts on the pet after the one shown last
+    private static void open(int n) {
+        long now = System.nanoTime();
+        SectorAPI current = Global.getSector();
+        if (sector.get() != current) {
+            sector = new WeakReference<>(current);
+            shown = -1;
+            lastFrame = 0L;
+        }
+
+        boolean rebuild = lastFrame != 0L && (now - lastFrame) / 1e9f < REOPEN;
+        if (rebuild && first < n) return;
+        first = (shown + 1) % n;
+        start = now;
+    }
+
+    // as many titles as fit, then " +N"; at least one, cut when even that does not fit
+    static String titles(List<String> titles, float w) {
+        if (titles.isEmpty()) return "";
+        String all = String.join(", ", titles);
+        if (Ui.width(all, Ui.INS15) + 2f <= w) return all;
+
+        for (int k = titles.size() - 1; k >= 1; k--) {
+            String s = String.join(", ", titles.subList(0, k)) + " +" + (titles.size() - k);
+            if (Ui.width(s, Ui.INS15) + 2f <= w) return s;
+        }
+        String rest = " +" + (titles.size() - 1);
+        return Ui.fit(titles.get(0), Ui.INS15, w - Ui.width(rest, Ui.INS15)) + rest;
+    }
+
+    private static final class Featured {
+        final List<Gone> gone;
+        final int faces;
+        final boolean motion;
+        LabelAPI name;
+        LabelAPI about;
+        LabelAPI how;
+        LabelAPI titles;
+        int index = -1;
+        float fade = 1f;
+        float starX;
+
+        Featured(List<Gone> gone, int faces, boolean motion) {
+            this.gone = gone;
+            this.faces = faces;
+            this.motion = motion;
+        }
+
+        void build(CustomPanelAPI p, int cells) {
+            Ui.card(p, 0f, 0f, CARD, CARD);
+            name = line(p, 0f, Ui.hl());
+            about = line(p, UiData.GRID_ROW_H, Ui.text());
+            how = line(p, 2f * UiData.GRID_ROW_H, Ui.gray());
+            titles = line(p, 3f * UiData.GRID_ROW_H, Ui.gray());
+
+            for (int i = 0; i < cells; i++) {
+                float x = (i % PER_LINE) * FACE_PITCH;
+                float y = WALL_Y + (i / PER_LINE) * FACE_PITCH;
+                if (i == faces) {
+                    Ui.card(p, x, y, FACE, FACE);
+                    Ui.textIn(p, x, y, FACE, FACE, "+" + (gone.size() - faces), Ui.INS15, Ui.base(), Ui.CENTER, new String[0], new Color[0]);
+                    continue;
+                }
+
+                Gone g = gone.get(i);
+                if (g.grey()) UiImages.grey(p, x, y, FACE, FACE, g.icon());
+                else UiImages.img(p, x, y, FACE, FACE, g.icon());
+                Ui.card(p, x, y, FACE, FACE);
+            }
+            frame();
+        }
+
+        private static LabelAPI line(CustomPanelAPI p, float y, Color c) {
+            LabelAPI label = Global.getSettings().createLabel("", Ui.INS15);
+            label.setColor(c);
+            label.setAlignment(Ui.LEFT);
+            p.addComponent((UIComponentAPI) label).setSize(LINE_W, label.computeTextHeight("Ag")).inTL(TEXT_X, y);
+            return label;
+        }
+
+        // runs before the children draw, so the labels show this frame's pet
+        void frame() {
+            long now = System.nanoTime();
+            lastFrame = now;
+            int n = gone.size();
+            int next = first;
+            fade = 1f;
+            if (n > 1 && motion) {
+                float s = (now - start) / 1e9f + FADE;
+                int k = (int) (s / PERIOD);
+                float phase = s - k * PERIOD;
+                next = (first + k) % n;
+                fade = phase < FADE ? phase / FADE : phase > PERIOD - FADE ? (PERIOD - phase) / FADE : 1f;
+            }
+            shown = next;
+            if (next != index) show(next);
+
+            name.setOpacity(fade);
+            about.setOpacity(fade);
+            how.setOpacity(fade);
+            titles.setOpacity(fade);
+        }
+
+        private void show(int i) {
+            index = i;
+            Gone g = gone.get(i);
+            String shownName = Ui.fit(g.name(), Ui.INS15, g.star() ? NAME_W - STAR - STAR_GAP : NAME_W);
+            name.setText(shownName);
+            starX = TEXT_X + Ui.width(shownName, Ui.INS15) + STAR_GAP;
+            about.setText(Ui.fit(g.about(), Ui.INS15, LINE_W));
+            how.setText(Ui.fit(g.how(), Ui.INS15, LINE_W));
+            titles.setText(PetMemorial.titles(g.titles(), LINE_W));
+        }
+
+        // portrait, star and hearts fade with the lines; the gold frame steps with the pet
+        void paint(PositionAPI pos, float alpha) {
+            if (index < 0) return;
+            Gone g = gone.get(index);
+            float left = pos.getX();
+            float top = pos.getY() + pos.getHeight();
+            float a = alpha * fade;
+
+            float inset = (CARD - PORTRAIT) / 2f;
+            UiImages.paint(g.icon(), g.grey(), left + inset, top - inset - PORTRAIT, PORTRAIT, PORTRAIT, a);
+            if (g.star()) UiDraw.fan(Math.round(left + starX), top - 1f - STAR, STAR, 20f, PetCard.STAR, 10f, 10f, Ui.hl(), a);
+
+            Color empty = Misc.scaleAlpha(Ui.base(), PetCard.HEART_EMPTY);
+            for (int i = 0; i < PetConstants.MAX_HEARTS; i++) {
+                UiDraw.fan(left + HEARTS_X + i * (HEART + HEART_GAP), top - HEARTS_Y - HEART, HEART, 14f, PetCard.HEART, 7f, 7f,
+                        i < g.hearts() ? PetCard.HEART_RED : empty, a);
+            }
+
+            if (gone.size() == 1) return;
+            int cell = index < faces ? index : faces < gone.size() ? faces : -1;
+            if (cell < 0) return;
+            float x = (cell % PER_LINE) * FACE_PITCH;
+            float y = WALL_Y + (cell / PER_LINE) * FACE_PITCH;
+            UiDraw.outline(left + x, top - y - FACE, FACE, FACE, Ui.hl(), alpha);
+        }
     }
 }
