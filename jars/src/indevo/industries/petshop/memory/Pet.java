@@ -10,6 +10,7 @@ import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.PetMood;
@@ -81,6 +82,10 @@ public class Pet {
     // pet ids, null for a bought, found or adopted pet; the family tree and inbreeding read them
     public String parentA = null;
     public String parentB = null;
+    // longevity: days added by treatments, never scaled by mutations; warnings shown since the last one, by LIFE_WARNING_DAYS index
+    public int treatments = 0;
+    public float treatedDays = 0f;
+    public int lifeWarnings = 0;
 
     public Pet(String typeID, String name) {
         this.id = Misc.genUID();
@@ -400,7 +405,7 @@ public class Pet {
 
             if (age > getLifetime()) {
                 PetStatusManager.getInstance().reportPetDied(this, PetStatusManager.PetDeathCause.NATURAL);
-            }
+            } else warnLifeEnding();
         }
 
         unsettledDays = Math.max(0f, unsettledDays - dayAmt);
@@ -485,9 +490,35 @@ public class Pet {
         return age > getLifetime() * PetConstants.SLEEPY_AGE_FRACTION;
     }
 
-    // the rolled lifetime with its mutations and flaws; at or under 0 it lives only where it does not age
+    // the rolled lifetime with its mutations and flaws, plus treatments; at or under 0 it lives only where it does not age
     public float getLifetime() {
-        return PetGenetics.lifetime(getData(), sheet, lifetime, PetDataRepo.getTraits());
+        return PetGenetics.lifetime(getData(), sheet, lifetime, PetDataRepo.getTraits()) + treatedDays;
+    }
+
+    public int getSyringeCycles() {
+        return getData().isHamster() ? PetConstants.HAMSTER_TREATMENT_CYCLES : Setting.PET_LONGEVITY_CYCLES.intValue();
+    }
+
+    public void treat(int cycles) {
+        treatedDays += cycles * 365f;
+        treatments++;
+        lifeWarnings = 0;
+    }
+
+    // a pet away from the player is warned when it comes back, with the latest warning it passed
+    private void warnLifeEnding() {
+        if (!isWithPlayer()) return;
+
+        float lifetime = getLifetime();
+        float left = lifetime - age;
+        int stage = 0;
+        while (stage < PetConstants.LIFE_WARNING_DAYS.length && left <= PetConstants.LIFE_WARNING_DAYS[stage]) stage++;
+        if (stage <= lifeWarnings) return;
+
+        lifeWarnings = stage;
+        // a warning over half the whole life passes silently, so a hamster is not warned on its first day
+        if (lifetime < 2f * PetConstants.LIFE_WARNING_DAYS[stage - 1]) return;
+        PetStatusManager.getInstance().reportLifeEnding(this, left);
     }
 
     public float getFoodPerMonth() {
@@ -639,6 +670,7 @@ public class Pet {
                 storage != null,
                 (storage != null ? storage.getMarket().getName() : null),
                 (assignedFleetMember != null ? assignedFleetMember.getShipName() : null));
+        deathData.timestamp = Global.getSector().getClock().getTimestamp();
 
         return deathData;
     }

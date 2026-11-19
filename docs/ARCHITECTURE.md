@@ -109,7 +109,7 @@ New game, once (`:288` to `:304`):
 
 Every load (`:153` to `:173`):
 
-`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> IndustrySubmarkets.removeOrphans -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> PlayerSettings.applyCampaignSettings -> [newGame, IndEvo_pets] addLordFoogRep`
+`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> IndustrySubmarkets.removeOrphans -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> PlayerSettings.applyCampaignSettings -> [newGame, IndEvo_pets] addLordFoogRep -> [IndEvo_pets] PetLongevity.placeSyringes`
 
 ### Registration patterns
 

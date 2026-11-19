@@ -221,7 +221,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         return pet == null && stack.getCargo() != null;
     }
 
-    public boolean isFleetCargo() {
+    public static boolean isFleetCargo() {
         boolean isOpen = CoreUITabId.CARGO.equals(Global.getSector().getCampaignUI().getCurrentCoreTab());
         boolean noInteraction = Global.getSector().getCampaignUI().getCurrentInteractionDialog() == null;
 

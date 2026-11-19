@@ -80,6 +80,7 @@ import indevo.industries.museum.plugins.MuseumManageParadeOptionProvider;
 import indevo.industries.orbitalworks.plugins.OrbitalWorksSlotOptionProvider;
 import indevo.industries.orbitalworks.scripts.OrbitalWorksSlotManager;
 import indevo.industries.warehouses.plugin.WarehouseRemoveSubmarketOptionProvider;
+import indevo.industries.petshop.PetLongevity;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
@@ -181,6 +182,7 @@ public class ModPlugin extends BaseModPlugin {
 
         PlayerSettings.applyCampaignSettings();
         if (newGame && Setting.PETS.enabled()) addLordFoogRep();
+        if (Setting.PETS.enabled()) PetLongevity.placeSyringes();
     }
 
     public void devActions(boolean active){

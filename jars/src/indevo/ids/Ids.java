@@ -98,6 +98,7 @@ public class Ids {
     public static final String COND_LOG_CORE = "IndEvo_LogCoreCond";
     public static final String COND_MINERING = "IndEvo_mineFieldCondition";
     public static final String COND_WORLD_WONDER = "IndEvo_WorldWonderCondition";
+    public static final String MEMORIAL = "IndEvo_Memorial";
     public static final String COND_PLAGUE = "IndEvo_engineered_plague";
     public static final String COND_PARADE = "IndEvo_Parade";
 
@@ -179,6 +180,7 @@ public class Ids {
     public static final String PROJ_MORGANA = "indevo_proj_morgana";
     public static final String PROJ_MJOLNIR = "indevo_proj_mjolnir";
     public static final String PROJ_REFORGE = "indevo_proj_reforge";
+    public static final String PROJ_LONGEVITY = "indevo_proj_longevity";
 
     //id
     //IndEvo_cryoartillery

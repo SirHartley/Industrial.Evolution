@@ -78,6 +78,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_OpenEdictPanel` | `indevo.industries.senate.rules` | 1 | `IndEvo_openEdictPanel:714` | [Senate](../industries/SENATE.md) |
 | `IndEvo_systemHasSenate` | `indevo.industries.senate.rules` | 4 | `IndEvo_SenateMenuPoint:698` | [Senate](../industries/SENATE.md) |
 | `IndEvo_PetDockingLine` | `indevo.industries.petshop.rules` | 1 | `IndEvo_petDockingLine:900` | [Pets](../industries/PETS.md#lines) |
+| `IndEvo_PetTreatment` | `indevo.industries.petshop.rules` | 2 | `IndEvo_nomiosLongevityOption:902` | [Pets](../industries/PETS.md#longevity) |
 | `IndEvo_ShowAcademyPanel` | `indevo.industries.academy.rules` | 2 | `IndEvo_IntitiateAcademyMenu:726` | [Academy](../industries/ACADEMY.md) |
 | `IndEvo_InitPersonalityTransferMenu` | `indevo.industries.academy.rules.WIP` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Academy](../industries/ACADEMY.md) |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere` | `indevo.other` | 0 | not in packages, unresolvable from rules | [Misc](../core/MISC.md) |
