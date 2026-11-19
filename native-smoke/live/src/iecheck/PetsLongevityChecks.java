@@ -64,9 +64,10 @@ public final class PetsLongevityChecks {
         return manager().get((String) c.get(name));
     }
 
-    private static List<String> names(List<Pet> pets) {
+    // this save's dead only: pets carried in from other saves (IndEvo_pet_memorial.json, shared by the slot) are left out
+    private static List<String> names(List<PetMemorial.Gone> gone) {
         List<String> list = new ArrayList<>();
-        for (Pet p : pets) list.add(p.name);
+        for (PetMemorial.Gone g : gone) if (!g.grey()) list.add(g.name());
         return list;
     }
 
@@ -195,7 +196,9 @@ public final class PetsLongevityChecks {
             c.expect(tom >= 0 && tom < squeak && squeak < grandpa, "newest first");
             boolean stamped = true;
             List<String> stamps = new ArrayList<>();
-            for (Pet p : PetMemorial.remembered()) {
+            for (PetMemorial.Gone g : PetMemorial.remembered()) {
+                if (g.grey()) continue;
+                Pet p = g.pet();
                 stamped &= p.deathData.timestamp != 0L;
                 stamps.add(p.name + " " + p.deathData.timestamp + " " + p.deathData.date);
             }
