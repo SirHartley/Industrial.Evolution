@@ -481,7 +481,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         if (view.tab == PetsView.TAB_PLAN) {
             tooltip.addPara("Planner. A planned young stands in for a pet you do not have yet. Set what you want from it, then pick its parents.", 0f);
             tooltip.addPara("Chances use known traits only. A planned young counts as a parent with what is wanted from it.", 10f);
-            tooltip.addPara("A plan starts nothing. Open the cross at an Animal Center to start the brood.", 10f);
+            tooltip.addPara("A plan starts nothing. Open the pairing at an Animal Center to pair them.", 10f);
             return;
         }
 

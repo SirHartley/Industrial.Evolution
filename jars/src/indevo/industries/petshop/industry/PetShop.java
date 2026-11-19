@@ -151,7 +151,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     public String parentBlock(Pet pet) {
         if (pet.isDead()) return "Gone.";
         if (pet.isYoung()) return "Still Young.";
-        if (pet.getData().isNoSell()) return "This one does not brood.";
+        if (pet.getData().isNoSell()) return "This one does not pair.";
         if (pet.sheet.getGrade(PetGenetics.STERILE) > 0 && pet.sheet.isKnown(PetGenetics.STERILE)) return "Sterile.";
         if (pet.isUnsettled()) return "Unsettled.";
         if (PetsPanel.awayFleet(pet) != null) return "Out with " + PetsPanel.awayFleet(pet).getName() + ".";
@@ -489,10 +489,10 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(this.aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Increases the %s to be on sale by %s and the %s of broods here by %s.", 0f, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true), "mutation rate", StringHelper.getAbsPercentString(PetConstants.ALPHA_MUTATION_MULT - 1f, false)});
+            text.addPara(pre + "Increases the %s to be on sale by %s and the %s of spawns here by %s.", 0f, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true), "mutation rate", StringHelper.getAbsPercentString(PetConstants.ALPHA_MUTATION_MULT - 1f, false)});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Increases the %s to be on sale by %s and the %s of broods here by %s.", opad, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true), "mutation rate", StringHelper.getAbsPercentString(PetConstants.ALPHA_MUTATION_MULT - 1f, false)});
+            tooltip.addPara(pre + "Increases the %s to be on sale by %s and the %s of spawns here by %s.", opad, Misc.getPositiveHighlightColor(), new String[]{"chance for rare pets", StringHelper.getAbsPercentString(ALPHA_CORE_RARITY_BONUS, true), "mutation rate", StringHelper.getAbsPercentString(PetConstants.ALPHA_MUTATION_MULT - 1f, false)});
         }
     }
 

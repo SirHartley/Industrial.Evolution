@@ -766,8 +766,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportBroodReady(PetShop shop, PetBrood brood, Pet a, Pet b) {
         String at = " at " + shop.getMarket().getName();
         int n = brood.getYoung().size();
-        if (n == 0) message("The brood of %s and %s" + at + " brought no young.", Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
-        else message("The brood of %s and %s" + at + " is ready: " + n + " young.", Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
+        if (n == 0) message("The spawn of %s and %s" + at + " brought no young.", Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
+        else message("The spawn of %s and %s" + at + " is ready: " + n + " young.", Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     public void reportTitle(Pet pet, PetTitle title) {

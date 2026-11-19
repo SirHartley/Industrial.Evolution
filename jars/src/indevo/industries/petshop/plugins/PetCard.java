@@ -506,7 +506,7 @@ public class PetCard {
         }
 
         int days = Math.round(PetGenetics.broodDays(pet.getData(), pet.sheet, pet.sheet, PetDataRepo.getTraits()));
-        UiData.grid(p, 0f, y + Ui.HEADING_H + 24f, w, 18f, List.of(GridRow.of("Brood time", days + " days", Ui.text())));
+        UiData.grid(p, 0f, y + Ui.HEADING_H + 24f, w, 18f, List.of(GridRow.of("Incubation time", days + " days", Ui.text())));
     }
 
     // grey with the amount in red when short
@@ -1088,10 +1088,10 @@ public class PetCard {
 
     // a planned young with this pet in the first place, on the Planner tab
     private void planButton(CustomPanelAPI p, float x, float y, Pet pet) {
-        String block = pet.getData().isNoSell() ? "This one does not brood." : pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0 ? "Sterile." : null;
-        ButtonAPI button = UiButtons.button(p, x, y, BUTTON_W, BUTTON_H, "Plan cross", block != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
+        String block = pet.getData().isNoSell() ? "This one does not pair." : pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0 ? "Sterile." : null;
+        ButtonAPI button = UiButtons.button(p, x, y, BUTTON_W, BUTTON_H, "Plan pairing", block != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 block != null ? null : () -> panel.newPlan(pet.typeID, pet.id, null));
-        Ui.tooltip(p, button, "Plan cross", block != null ? block : "A planned young of " + pet.name + " on the Planner tab.");
+        Ui.tooltip(p, button, "Plan pairing", block != null ? block : "A planned young of " + pet.name + " on the Planner tab.");
     }
 
     // gone once everything is read; grey while its reveal runs, when the pet is not here, or with too few relics (cost in red)

@@ -58,7 +58,7 @@ public class PetHusbandry {
     static final String MALFORMED = PetGenetics.MALFORMED;
 
     static final String ALL = "All";
-    static final String NO_PARTNER = "No partner";
+    static final String NO_PARTNER = "No match";
     static final String SORT_GRADE = "Grade";
     static final String SORT_NAME = "Name";
     static final List<UiFilter.Item> KEYS = List.of(
@@ -420,10 +420,10 @@ public class PetHusbandry {
 
         String reason = startBlock(a, b, broke, fee, credits);
         Ui.rule(p, 0f, h - 36f, w);
-        ButtonAPI start = UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Start brood",
+        ButtonAPI start = UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Pair",
                 reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.GREEN, CutStyle.TL_BR, reason != null ? null : () -> start(a, b, habitat));
-        if (reason != null) Ui.tooltip(p, start, "Start brood", reason);
-        else Ui.tooltip(p, start, "Start brood", "Both go into the habitat until the young arrive. They do not age there with a Beta core.");
+        if (reason != null) Ui.tooltip(p, start, "Pair", reason);
+        else Ui.tooltip(p, start, "Pair", "Both go into the habitat until the young arrive. They do not age there with a Beta core.");
     }
 
     private String startBlock(Pet a, Pet b, boolean broke, float fee, float credits) {
@@ -815,10 +815,10 @@ public class PetHusbandry {
 
         Ui.rule(p, 0f, h - 36f, w);
         Color hl = Misc.getHighlightColor();
-        ButtonAPI cancel = UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Cancel brood", UiButtons.Kind.AMBER, CutStyle.TL_BR,
-                () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Cancel the brood of %s and %s?\n\nBoth go back to Pet storage. There will be no young.", 0f,
+        ButtonAPI cancel = UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Cancel pairing", UiButtons.Kind.AMBER, CutStyle.TL_BR,
+                () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Cancel the pairing of %s and %s?\n\nBoth go back to Pet storage. There will be no young.", 0f,
                         new Color[]{hl, hl}, a.name, b.name), () -> shop.cancelBrood(brood))));
-        Ui.tooltip(p, cancel, "Cancel brood", "Both parents go back to Pet storage, Unsettled for " + Math.round(PetConstants.UNSETTLED_DAYS) + " days.");
+        Ui.tooltip(p, cancel, "Cancel pairing", "Both parents go back to Pet storage, Unsettled for " + Math.round(PetConstants.UNSETTLED_DAYS) + " days.");
     }
 
     private void readyCard(CustomPanelAPI p, float w, float h, PetBrood brood) {
@@ -834,7 +834,7 @@ public class PetHusbandry {
 
         Ui.rule(p, 0f, h - 36f, w);
         treeButton(p, h, a, b);
-        UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Open brood", UiButtons.Kind.GREEN, CutStyle.TL_BR,
+        UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Open spawn", UiButtons.Kind.GREEN, CutStyle.TL_BR,
                 () -> panel.popup(new PetYoungDialog(shop, brood)));
     }
 }
