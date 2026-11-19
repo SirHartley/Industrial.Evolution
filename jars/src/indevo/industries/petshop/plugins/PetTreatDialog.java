@@ -299,6 +299,8 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
 
     // a grey cycle toggle: its price against what the fleet has
     private static void priceTip(TooltipMakerAPI t, int n) {
+        // the default 0.85 lets the cost rows under it show through, the vanilla ship tooltip uses 1 too
+        t.setBgAlpha(1f);
         float w = TIP_W - 12f;
         t.addPara(PetLongevity.cycles(n), Ui.hl(), 0f);
         CustomPanelAPI rows = Global.getSettings().createCustom(w, 3 * UiData.COST_ROW_H, null);
