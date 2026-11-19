@@ -269,9 +269,12 @@ public class PetTree {
         if (missing) noMatch(p, fx, y, smallX - WIDE_GAP - WIDE_W);
     }
 
-    // up to 200 px, cut before the first toggle on its right
+    // only when the whole line fits left of the first toggle on its right
     private static void noMatch(CustomPanelAPI p, float x, float y, float right) {
-        Ui.textIn(p, x, y, Math.min(200f, right - TOGGLE_GAP - x), UiFilter.H, "No pet of that name.", Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
+        String text = "No pet of that name.";
+        float w = Math.min(200f, right - TOGGLE_GAP - x);
+        if (Ui.width(text, Ui.INS15) > w - 2f) return;
+        Ui.textIn(p, x, y, w, UiFilter.H, text, Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
     }
 
     // off by default; small tiles have no name, so the two exclude each other
