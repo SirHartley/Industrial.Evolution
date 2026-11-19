@@ -38,6 +38,11 @@ public class PetBestiary {
     static final float TILE_GAP = 4f;
     static final float TILE_PORTRAIT = 64f;
     static final float TILE_NAME_Y = 71f;
+    // the engine's wrapped line pitch for insignia 15
+    static final float NAME_PITCH = 15f;
+    // several words keep about 6 px clear of each side, one word may run to 2 px
+    static final float NAME_SOFT = 75f;
+    static final float NAME_HARD = TILE_W - 4f;
     static final float QMARK = 24f;
     static final float IDENT_Y = 34f;
     static final float LOOKS_W = 240f;
@@ -160,21 +165,22 @@ public class PetBestiary {
             panel.refresh();
         });
         float px = (TILE_W - TILE_PORTRAIT) / 2f;
-        float nw = TILE_W - 8f;
 
         if (e.seen() == Seen.NEVER) {
             unknown(t, px, 5f, TILE_PORTRAIT);
-            Ui.text(t, 4f, TILE_NAME_Y, nw, "Unknown", Ui.gray(), Ui.CENTER);
+            Ui.text(t, 1f, TILE_NAME_Y, TILE_W - 2f, "Unknown", Ui.gray(), Ui.CENTER);
             return;
         }
 
         boolean old = e.seen() == Seen.OLD;
         String name = e.data().species;
         portrait(t, px, 5f, TILE_PORTRAIT, e.data().icon, old);
-        String shownName = Ui.lines(name, Ui.INS15, nw, 2);
-        Ui.wrap(t, 4f, TILE_NAME_Y, nw, shownName, Ui.INS15, old ? Ui.gray() : Ui.text(), Alignment.TMID, new String[0], new Color[0]);
+        List<String> lines = Ui.breakLines(name, Ui.INS15, NAME_SOFT, NAME_HARD, 2);
+        for (int i = 0; i < lines.size(); i++) {
+            Ui.text(t, 1f, TILE_NAME_Y + i * NAME_PITCH, TILE_W - 2f, lines.get(i), Ui.INS15, old ? Ui.gray() : Ui.text(), Ui.CENTER);
+        }
         if (old) Ui.tooltip(b, t, name, "Not seen in this game yet.");
-        else if (!shownName.equals(name)) Ui.tooltip(b, t, null, name);
+        else if (!lines.isEmpty() && lines.get(lines.size() - 1).endsWith(Ui.ELLIPSIS)) Ui.tooltip(b, t, null, name);
     }
 
     // dashed box with the vanilla question mark, a species or look never seen

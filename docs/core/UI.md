@@ -80,6 +80,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `width(s, font)` / `fit(s, font, w)` | Real font width (`SettingsAPI.computeStringWidth`); shorten to `w - 2` with `...` |
 | `nameLines(p, x, y, pitch, w, name, color, second, secondW)` | Name and a grey second line `pitch` below; a name too long for one line wraps to two (ellipsis and tooltip past that) and the second line drops |
 | `lines(s, font, w, n)` | The leading words that wrap into `n` lines, `...` when words are left out |
+| `breakLines(s, font, soft, hard, n)` | Lines for centred labels, one label each: several words on a line stay within `soft`, a lone word may reach `hard` and is hyphenated past it (after a hyphen, before a consonant between vowels, between two consonants that are not one sound), `soft` is raised to `hard` when `n` lines do not hold it, `...` on the last line past that. A label made by `autoSizeToWidth` breaks inside a word and keeps its lines left aligned under `TMID` |
 | `sentences(s, font, w)` | The leading whole sentences that fit `w - 2`; when the first one does not fit, cut at a word with `...` |
 | `text(p, x, y, w, s[, color[, align]])`, `text(p, x, y, w, s, font, color, align)` | One line, fitted, tooltip with the full text when shortened. Align `LEFT`, `RIGHT`, `CENTER` |
 | `runs(p, x, y, w, font, color, align, s, parts, colors)` | One line with coloured runs (first occurrence of each part) |
