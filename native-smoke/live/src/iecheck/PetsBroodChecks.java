@@ -162,14 +162,14 @@ public final class PetsBroodChecks {
                 List<Pet> ys = new ArrayList<>(hb.getYoung());
                 Pet first = ys.get(0);
                 FleetMemberAPI to = ship("ISS Young Home");
-                own.placeYoung(hb, first, to);
+                own.placeYoung(hb, first, to, false);
                 c.expect(first.assignedFleetMember == to && manager().get(first.id) == first && first.isYoung(), "a young placed on a ship is registered and Young (" + first.age + " days)");
                 c.expect(first.parentA != null && first.parentB != null, "a young knows its parents");
                 if (ys.size() > 1) {
-                    own.placeYoung(hb, ys.get(1), null);
+                    own.placeYoung(hb, ys.get(1), null, false);
                     c.expect(ys.get(1).storage == own, "a young placed in storage is in storage here");
                 }
-                for (int i = 2; i < ys.size(); i++) own.placeYoung(hb, ys.get(i), null);
+                for (int i = 2; i < ys.size(); i++) own.placeYoung(hb, ys.get(i), null, false);
                 c.expect(own.getBrood(1) == null, "the habitat is free once every young is placed");
             }
             c.days(54f);
