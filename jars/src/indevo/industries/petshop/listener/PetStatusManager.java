@@ -115,6 +115,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private transient List<Note> held = null;
     private transient int holds = 0;
     private transient InteractionDialogAPI heldFor = null;
+    // battle reports come while the encounter dialog closes, its text goes with it, so they wait for the next frame
+    private transient boolean deferring = false;
+    private transient List<Note> deferred = null;
 
     private record Line(String format, Color color, String[] hl, Color[] hlColors) {
     }
@@ -191,6 +194,12 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         if (!fleet.getEventListeners().contains(this)) fleet.addEventListener(this);
+
+        if (deferred != null) {
+            List<Note> out = deferred;
+            deferred = null;
+            out.forEach(this::post);
+        }
 
         for (Pet pet : new ArrayList<>(pets)) pet.advance(amount);
         advanceLines(amount);
@@ -722,7 +731,10 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
     // reports go into the open dialog's text, a campaign message only when no dialog is open
     private void post(Note note) {
-        if (held != null) held.add(note);
+        if (deferring) {
+            if (deferred == null) deferred = new ArrayList<>();
+            deferred.add(note);
+        } else if (held != null) held.add(note);
         else note.show(Global.getSector().getCampaignUI().getCurrentInteractionDialog());
     }
 
@@ -838,13 +850,18 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportBattleOccurred(CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (!Setting.PETS.enabled()) return;
 
-        for (CampaignFleetAPI fleet : battle.getSnapshotBothSides()) {
-            if (!fleet.isPlayerFleet() && !FleetUtils.isDetachmentFleet(fleet)) continue;
+        deferring = true;
+        try {
+            for (CampaignFleetAPI fleet : battle.getSnapshotBothSides()) {
+                if (!fleet.isPlayerFleet() && !FleetUtils.isDetachmentFleet(fleet)) continue;
 
-            List<FleetMemberAPI> lost = Misc.getSnapshotMembersLost(fleet);
-            for (Pet pet : new ArrayList<>(pets)) {
-                if (!pet.isDead() && lost.contains(pet.assignedFleetMember)) escapeOrDie(pet, fleet, lost);
+                List<FleetMemberAPI> lost = Misc.getSnapshotMembersLost(fleet);
+                for (Pet pet : new ArrayList<>(pets)) {
+                    if (!pet.isDead() && lost.contains(pet.assignedFleetMember)) escapeOrDie(pet, fleet, lost);
+                }
             }
+        } finally {
+            deferring = false;
         }
     }
 

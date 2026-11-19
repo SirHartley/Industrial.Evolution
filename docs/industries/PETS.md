@@ -224,7 +224,8 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Reports
 
-- Every pet report except lines (`say`) and the Scavenger find goes through `PetStatusManager.message` or a `Note` and `post`: paragraphs in the text of the open interaction dialog (a market after a sale, storage or scuttle, the fleet encounter after a battle), a campaign message only when no dialog is open (time based reports, in flight). One line with no icon is a plain message, more lines or an icon a `MessageIntel`.
+- Every pet report except lines (`say`) and the Scavenger find goes through `PetStatusManager.message` or a `Note` and `post`: paragraphs in the text of the open interaction dialog (a market after a sale, storage or scuttle), a campaign message only when no dialog is open (time based reports, in flight). One line with no icon is a plain message, more lines or an icon a `MessageIntel`.
+- Battle reports (escape pods, combat deaths and the titles they give) wait one unpaused frame (`deferring`, `deferred`, flushed in `advance`): vanilla fires `reportBattleOccurred` from `FleetEncounterContext.applyAfterBattleEffectsIfThereWasABattle` right before the encounter dialog dismisses (`api/impl/campaign/FleetInteractionDialogPluginImpl.java:1553`, `:1646`), so its text would vanish. They then go to a dialog still open or become campaign messages.
 - Pet popups hide the dialog text: the Pets panel and the syringe popup call `holdMessages(under)` with the dialog the player sees after they close and `releaseMessages` on close. Holds nest; the outermost decides the target.
 - The Scavenger find stays a campaign message: the loot screen hides the dialog text and vanilla salvage closes the dialog after it.
 
