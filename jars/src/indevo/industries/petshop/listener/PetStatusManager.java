@@ -1005,8 +1005,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 new String[]{"forgot", "pets", onMarket.getMarket().getName() + " " + onMarket.getNameOneLine()},
                 Misc.getNegativeHighlightColor(), Misc.getHighlightColor(), onMarket.getFaction().getColor());
         note.line("They will starve to death unless fed.", Misc.getTextColor(), new String[0]);
-        note.line("Store or sell them at a %s if you no longer want them.", Misc.getTextColor(),
-                new String[]{Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName()}, Misc.getHighlightColor());
+        String center = Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName();
+        note.line("Store or sell them at " + Misc.getAOrAnFor(center) + " %s if you no longer want them.", Misc.getTextColor(),
+                new String[]{center}, Misc.getHighlightColor());
 
         note.icon = Global.getSettings().getSpriteName("IndEvo", "warning");
         note.sound = true;
