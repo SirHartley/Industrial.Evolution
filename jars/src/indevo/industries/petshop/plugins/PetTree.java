@@ -393,7 +393,7 @@ public class PetTree {
         if (!any) Ui.text(p, 8f, y, w - 16f, "No shared ancestors.", Ui.gray());
 
         Ui.rule(p, 0f, h - 36f, w);
-        UiButtons.button(p, w - BACK_W, h - PetCard.BUTTON_H, BACK_W, PetCard.BUTTON_H, "Back to the cross", UiButtons.Kind.STD, CutStyle.TL_BR, panel::showHusbandry);
+        UiButtons.button(p, w - BACK_W, h - PetCard.BUTTON_H, BACK_W, PetCard.BUTTON_H, "Back to the pairing", UiButtons.Kind.STD, CutStyle.TL_BR, panel::showHusbandry);
     }
 
     static String generation(int n) {
@@ -411,7 +411,7 @@ public class PetTree {
         if (shared.isEmpty()) return null;
 
         String both = a.name + " and " + b.name;
-        if (a.parentA != null && a.parentB != null && Set.of(a.parentA, a.parentB).equals(new HashSet<>(Arrays.asList(b.parentA, b.parentB)))) return both + " come from one brood.";
+        if (a.parentA != null && a.parentB != null && Set.of(a.parentA, a.parentB).equals(new HashSet<>(Arrays.asList(b.parentA, b.parentB)))) return both + " come from one spawn.";
         for (int[] d : shared.values()) if (d[0] == 1 && d[1] == 1) return both + " share a parent.";
         for (int[] d : shared.values()) if (d[0] == 2 && d[1] == 2) return both + " are cousins.";
         return both + " are kin.";

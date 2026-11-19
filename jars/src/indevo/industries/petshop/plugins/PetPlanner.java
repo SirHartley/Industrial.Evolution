@@ -866,7 +866,7 @@ public class PetPlanner {
     private void best(CustomPanelAPI p, float w, float y, float bottom, PetPlan plan, Parent fixed) {
         List<Pet> pets = candidates(plan.typeID);
         String note = "of your " + pets.size() + (pets.size() == 1 ? " pet" : " pets");
-        Ui.heading(p, 0f, y, w, fixed == null ? "Best pairs" : "Best partners for " + fixed.name(), note);
+        Ui.heading(p, 0f, y, w, fixed == null ? "Best pairs" : "Best matches for " + fixed.name(), note);
         y += Ui.HEADING_H + 4f;
 
         if (fixed != null && fixed.pet() != null) pets.remove(fixed.pet());
@@ -1011,7 +1011,7 @@ public class PetPlanner {
         }
         String broods = String.valueOf(e.broods());
         String days = String.valueOf(Math.round(e.days()));
-        Ui.textIn(p, w - 240f, y, 240f, Ui.LINE_H, "about " + broods + (e.broods() == 1 ? " brood, " : " broods, ") + days + " days", Ui.INS15, Ui.text(), Ui.RIGHT,
+        Ui.textIn(p, w - 240f, y, 240f, Ui.LINE_H, "about " + broods + (e.broods() == 1 ? " spawn, " : " spawns, ") + days + " days", Ui.INS15, Ui.text(), Ui.RIGHT,
                 new String[]{broods, days}, new Color[]{Ui.hl(), Ui.hl()});
     }
 
@@ -1043,10 +1043,10 @@ public class PetPlanner {
         float y = h - PetCard.BUTTON_H;
         String reason = a == null || b == null ? "Pick both parents." : a.plan() != null ? a.name() + " is not raised yet."
                 : b.plan() != null ? b.name() + " is not raised yet." : shop == null ? "Only at an Animal Center." : null;
-        ButtonAPI open = UiButtons.button(p, 0f, y, OPEN_W, PetCard.BUTTON_H, "Open cross", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
+        ButtonAPI open = UiButtons.button(p, 0f, y, OPEN_W, PetCard.BUTTON_H, "Open pairing", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 reason != null ? null : () -> panel.openCross(a.pet(), b.pet()));
         if (reason != null) Ui.textIn(p, OPEN_W + 8f, y, w - OPEN_W - SIDE_W - 24f, PetCard.BUTTON_H, reason, Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);
-        else Ui.tooltip(p, open, "Open cross", "The pair on the Husbandry tab, where Start brood is.");
+        else Ui.tooltip(p, open, "Open pairing", "The pair on the Husbandry tab, where Pair is.");
 
         ButtonAPI remove = UiButtons.button(p, w - SIDE_W, y, SIDE_W, PetCard.BUTTON_H, "Remove", UiButtons.Kind.RED, CutStyle.TL_BR, () -> {
             manager.removePlan(plan);

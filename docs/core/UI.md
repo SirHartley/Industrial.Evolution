@@ -110,6 +110,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `check(p, x, y, w, label, on, enabled, action)` | Vanilla checkbox with label |
 | `stepper(p, x, y, value, enabled, minus, plus)` | `-` value `+`, 72 wide |
 | `field(p, x, y, w, h, text, maxChars[, font])` | Vanilla text field, `INS15` unless a font is given |
+| `boxed(p, x, y, w, h, field)` | Black interior with a 1 px outline (`base()` at `FIELD_EDGE` 0.45, the board colour) as the boards draw a field. The field fills its whole box with the border colour at alpha 127 to 255 (cursor fade) and lays the bg at alpha 200 over it (`obf/ui/B.java` `renderImpl`), so a coloured border tints the interior: both are set black and the outline is a `Ui.box` painted over the field |
 
 ### UiImages
 
@@ -185,7 +186,7 @@ Every big list gets one (Philipp's rule). The bar takes no list: the caller filt
 | `State.sort(list, comparator)` | Sorts by the comparator (null keeps the list order), then reverses when `reversed` |
 | `State.off`, `State.fallback`, `State.sortKey()` | Keys in `off` draw grey and can not be picked; while the picked `sort` is one of them, `sortKey()` returns `fallback`, which is lit in its place. Sort by `sortKey()` |
 | `State.poll()` | True when the typed text changed; call it from the panel plugin's `advance`, then reset the list scroll and refresh |
-| `field(p, x, y, w, state, hint)` | The text field of the bar alone, `H` high, with the grey hint while empty; for a find field with no fold. Poll it with `State.poll()` as the bar |
+| `field(p, x, y, w, state, hint)` | The text field of the bar alone, `H` high, `boxed`, with the grey hint while empty; for a find field with no fold. Poll it with `State.poll()` as the bar |
 | `height(state or open, toggles, keys)` | `H` 26 closed; open adds 30 per row of toggles and of sort keys |
 | `bar(p, x, y, state, hint, showTip, toggles, onToggle, keys, changed, refresh)` | Field 150 x 26 with a grey hint while empty, then the Show filters toggle (108, 124 with the gold count of toggles and sort that differ from the default, "Hide filters" while open). Open: a row of `Item` toggles (`onToggle` null flips one, a radio group passes its own; an `Item` with an `icon` shows the 20 px icon and its `shown` text in the highlight colour in place of its label, which stays the key), then "Sort" and one left aligned key per `Item`, the key in use lit with an 8 x 5 arrow 18 px from its right edge, a second click turns the order. `changed` runs after a filter or sort change, `refresh` after the fold opens or closes. Returns the height used; the list starts `BELOW` 8 px under it |
 

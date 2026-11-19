@@ -222,7 +222,7 @@ public class PetBestiary {
         UiData.grid(p, PetCard.GRID_X, IDENT_Y, w - PetCard.GRID_X, UiData.GRID_ROW_H, List.of(
                 GridRow.of("Class", className(data), Ui.text()),
                 GridRow.of("Life span", PetPlaceDialog.lifeSpan(data), Ui.text()),
-                GridRow.of("Brood time", broods ? Math.round(PetGenetics.baseBroodDays(data)) + " days" : "None", broods ? Ui.text() : Ui.gray()),
+                GridRow.of("Incubation time", broods ? Math.round(PetGenetics.baseBroodDays(data)) + " days" : "None", broods ? Ui.text() : Ui.gray()),
                 GridRow.of("Looks", found + " / " + (1 + data.looks.size()), Ui.hl())));
 
         float ty = IDENT_Y + PetCard.IDENT + PetsPanel.HEAD_GAP;

@@ -34,14 +34,14 @@ IndEvo_pt_giant,Giant,mutation,,percent,100,,,1,Mascot effect,Mascot effect %s p
 IndEvo_pt_savant,Savant,mutation,,percent,25,,,1,Talent effects,Talent effects %s per level.,%s solved the navigator's practice puzzle before the navigator did.,unnerving sullen,
 IndEvo_pt_split_mind,Split mind,mutation,,count,1,,,1,Best talent again,"Its best talent counts again, %s per level.",%s seems to be in two places at once. The crew has stopped asking.,vicious glutton,
 IndEvo_pt_long_lived,Long-lived,mutation,,percent,25,,,1,Lifespan,Lifespan %s per level.,%s has outlasted two quartermasters and shows no sign of slowing.,slow_grower,
-IndEvo_pt_mayfly,Mayfly,mutation,,reduce,25,,90,1,Brood time,Brood time and Young stage %s per level.,"%s does everything in a hurry, as if it knows.",short_lived,
-IndEvo_pt_fecund,Fecund,mutation,,count,1,,,1,Brood size,Young in its broods %s per level.,The habitat logs for %s need a second page.,short_lived weak_brood,
-IndEvo_pt_unstable,Unstable,mutation,,flat,3,,,1,Mutation rate,Mutation rate of its broods %s points per level.,The gene scanner gives a different reading of %s every time.,slow_grower weak_brood,
+IndEvo_pt_mayfly,Mayfly,mutation,,reduce,25,,90,1,Incubation time,Incubation time and Young stage %s per level.,"%s does everything in a hurry, as if it knows.",short_lived,
+IndEvo_pt_fecund,Fecund,mutation,,count,1,,,1,Spawn size,Young per spawn %s per level.,The habitat logs for %s need a second page.,short_lived weak_brood,
+IndEvo_pt_unstable,Unstable,mutation,,flat,3,,,1,Mutation rate,Mutation rate of its young %s points per level.,The gene scanner gives a different reading of %s every time.,slow_grower weak_brood,
 IndEvo_pt_luminous,Luminous,mutation,,percent,25,,,1,Sale value,Sale value %s per level.,%s gives off a soft light in the dark corridors.,loud,
-IndEvo_pt_sterile,Sterile,flaw,,none,1,,,1,Cannot brood,Cannot brood.,"%s will not brood, whatever the habitat keeper tries.",,inbreeding
+IndEvo_pt_sterile,Sterile,flaw,,none,1,,,1,Cannot pair,Cannot pair.,"%s will not pair, whatever the habitat keeper tries.",,inbreeding
 IndEvo_pt_short_lived,Short lived,flaw,,divide,1,,,1,Lifespan,"Lifespan %s at level 1, a third at level 2.",%s burns through its days faster than its kind should.,,inbreeding
-IndEvo_pt_slow_grower,Slow grower,flaw,,percent,100,,,1,Brood time,Brood time and Young stage %s per level.,"%s takes its time with everything, growing up included.",,inbreeding
-IndEvo_pt_weak_brood,Weak brood,flaw,,percent,25,,90,1,Young lost,"Its young die at birth, %s per level.",The habitat keeper does not look forward to the broods of %s.,,inbreeding
+IndEvo_pt_slow_grower,Slow grower,flaw,,percent,100,,,1,Incubation time,Incubation time and Young stage %s per level.,"%s takes its time with everything, growing up included.",,inbreeding
+IndEvo_pt_weak_brood,Weak spawn,flaw,,percent,25,,90,1,Young lost,"Its young die at birth, %s per level.",The habitat keeper does not look forward to the spawns of %s.,,inbreeding
 IndEvo_pt_glutton,Glutton,flaw,,percent,200,,,1,Food eaten,Food eaten %s per level. Its ship uses more supplies.,The quartermaster keeps a separate ledger for %s.,,
 IndEvo_pt_destructive,Destructive,flaw,cr_recovery_less,reduce,25,,90,1,CR recovery,CR recovery and repairs of its ship %s per level.,%s took apart the repair drone again.,,
 IndEvo_pt_vicious,Vicious,flaw,crew_loss,percent,25,,,1,Crew losses,Crew losses on its ship %s per level.,The medbay knows %s by name.,,

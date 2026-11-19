@@ -30,6 +30,8 @@ import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
+import org.lazywizard.lazylib.ui.LazyFont;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -57,6 +59,7 @@ public class PetCard {
     static final float PET_GROW = 0.2f;
     static final float PORTRAIT = 64f;
     static final float MARKER = 28f;
+    static final float UNKNOWN_BOX = 22f;
     static final float NAME_H = 26f;
     static final float TAG_Y = 34f;
     static final float IDENT_Y = 82f;
@@ -88,6 +91,7 @@ public class PetCard {
     static final float REFIT_GAP = 3f;
     // the refit button: both left corners cut by 6, in a 34 box with y down
     static final float[] CUT = {6, 0, 12, 0, 12, 34, 6, 34, 0, 28, 0, 6};
+    private static LazyFont.DrawableString qmark;
 
     private final PetsPanel panel;
     private final PetsView view;
@@ -139,6 +143,44 @@ public class PetCard {
     // the vanilla question mark, the unknown traits marker
     static String unknownSprite() {
         return Global.getSettings().getSpriteName("misc", "question_mark_actual");
+    }
+
+    // the unknown traits marker of the boards: the question mark in base colour with a 2 px black outline stamped every 30 degrees, in a 22 px box
+    static CustomPanelAPI unknownMarker(CustomPanelAPI p, float x, float y) {
+        return Ui.painted(p, x, y, UNKNOWN_BOX, UNKNOWN_BOX, null, (pos, a) -> {
+            float cx = pos.getX() + UNKNOWN_BOX / 2f;
+            float cy = pos.getY() + UNKNOWN_BOX / 2f;
+            for (int deg = 0; deg < 360; deg += 30) {
+                double r = Math.toRadians(deg);
+                paintQmark(cx + (float) (2 * Math.cos(r)), cy + (float) (2 * Math.sin(r)), 1f, Color.BLACK, a * 0.75f);
+            }
+            paintQmark(cx, cy, 1f, Ui.base(), a);
+        });
+    }
+
+    // the question mark glyph (ORBITRON_24AABOLD, 15 px high) centred on cx, cy
+    static void paintQmark(float cx, float cy, float scale, Color c, float alpha) {
+        LazyFont.DrawableString q = qmark();
+        if (q == null) return;
+
+        q.setBaseColor(Misc.scaleAlpha(c, alpha));
+        GL11.glPushMatrix();
+        GL11.glTranslatef(cx, cy, 0f);
+        GL11.glScalef(scale, scale, 1f);
+        q.draw(-Math.round(q.getWidth() / 2f), Math.round(q.getHeight() / 2f));
+        GL11.glPopMatrix();
+    }
+
+    private static LazyFont.DrawableString qmark() {
+        if (qmark != null) return qmark;
+
+        try {
+            LazyFont font = LazyFont.loadFont(Fonts.ORBITRON_24AABOLD);
+            qmark = font.createText("?", Color.WHITE, font.getBaseHeight());
+        } catch (Exception e) {
+            Global.getLogger(PetCard.class).warn("IndEvo: no font for the pet question mark", e);
+        }
+        return qmark;
     }
 
     // the vanilla intel (!), the quest marker
@@ -464,7 +506,7 @@ public class PetCard {
         }
 
         int days = Math.round(PetGenetics.broodDays(pet.getData(), pet.sheet, pet.sheet, PetDataRepo.getTraits()));
-        UiData.grid(p, 0f, y + Ui.HEADING_H + 24f, w, 18f, List.of(GridRow.of("Brood time", days + " days", Ui.text())));
+        UiData.grid(p, 0f, y + Ui.HEADING_H + 24f, w, 18f, List.of(GridRow.of("Incubation time", days + " days", Ui.text())));
     }
 
     // grey with the amount in red when short
@@ -542,8 +584,7 @@ public class PetCard {
         TextFieldAPI field = UiButtons.field(p, x, y, w, NAME_H, name, PetConstants.NAME_MAX_CHARS, Ui.ORB20);
         field.setMidAlignment();
         field.setColor(Ui.bright());
-        field.setBorderColor(Misc.scaleAlpha(Ui.base(), 0.45f));
-        return field;
+        return UiButtons.boxed(p, x, y, w, NAME_H, field);
     }
 
     static String trimName(String typed) {
@@ -1047,10 +1088,10 @@ public class PetCard {
 
     // a planned young with this pet in the first place, on the Planner tab
     private void planButton(CustomPanelAPI p, float x, float y, Pet pet) {
-        String block = pet.getData().isNoSell() ? "This one does not brood." : pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0 ? "Sterile." : null;
-        ButtonAPI button = UiButtons.button(p, x, y, BUTTON_W, BUTTON_H, "Plan cross", block != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
+        String block = pet.getData().isNoSell() ? "This one does not pair." : pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0 ? "Sterile." : null;
+        ButtonAPI button = UiButtons.button(p, x, y, BUTTON_W, BUTTON_H, "Plan pairing", block != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 block != null ? null : () -> panel.newPlan(pet.typeID, pet.id, null));
-        Ui.tooltip(p, button, "Plan cross", block != null ? block : "A planned young of " + pet.name + " on the Planner tab.");
+        Ui.tooltip(p, button, "Plan pairing", block != null ? block : "A planned young of " + pet.name + " on the Planner tab.");
     }
 
     // gone once everything is read; grey while its reveal runs, when the pet is not here, or with too few relics (cost in red)
