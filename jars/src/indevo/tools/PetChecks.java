@@ -677,6 +677,17 @@ public final class PetChecks {
         check(pair.broods().stream().anyMatch(b -> b.dashed && b.kids.isEmpty()), "the pair view joins a pair without young by a dashed line");
         check(pair.broods().stream().noneMatch(b -> b.dashed && b.has("Biscuit") && b.has("Fuse")), "a pair with young gets no dashed line");
 
+        List<PetTreeLayout.Item> mates = List.of(item("Gran", null, null), item("Gramps", null, null), item("Opa", null, null), item("Oma", null, null),
+                item("Mom", "Gran", "Gramps"), item("Aunt", "Gran", "Gramps"), item("Dad", "Opa", "Oma"), item("Dadtwo", null, null), item("Uncle", null, null),
+                item("Goneone", "Gran", "Gramps"), item("Gonetwo", "Goneone", "Uncle"),
+                item("Kidone", "Mom", "Dad"), item("Kidtwo", "Mom", "Dad"), item("Kidthree", "Mom", "Dadtwo"), item("Cousin", "Aunt", "Uncle"));
+        PetTreeLayout.Folded kin = PetTreeLayout.fold(mates, Set.of("Oma", "Goneone", "Gonetwo"), Set.of("Kidone"), Set.of(), false);
+        for (PetTreeLayout.Metrics m : List.of(PetTreeLayout.FULL, PetTreeLayout.SMALL)) {
+            Map<String, PetTreeLayout.Node> n = PetTreeLayout.layout(kin.items(), kin.pairs(), m, false).nodes();
+            float mom = n.get("Mom").x;
+            check((n.get("Dad").x - mom) * (n.get("Dadtwo").x - mom) < 0f, "a second mate stands on the other side of the first, got Dad " + n.get("Dad").x + ", Mom " + mom + ", Dadtwo " + n.get("Dadtwo").x);
+        }
+
         Map<String, String[]> parents = new HashMap<>();
         for (PetTreeLayout.Item i : items) parents.put(i.id(), new String[]{i.a(), i.b()});
         Map<String, int[]> shared = PetGenetics.shared("Biscuit", "Jet", parents::get);

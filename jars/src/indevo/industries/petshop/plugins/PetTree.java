@@ -35,8 +35,8 @@ public class PetTree {
     static final float FIND_W = 170f;
     static final float FULL_W = 84f;
     static final float SMALL_W = 96f;
-    static final float SPECIES_W = 52f;
-    static final float SPECIES_PITCH = 56f;
+    static final float SPECIES_COUNT_X = 30f;
+    static final float SPECIES_GAP = 4f;
     static final float TOGGLE_GAP = 12f;
     static final float TILE_H = 94f;
     static final float PORTRAIT = 48f;
@@ -228,29 +228,40 @@ public class PetTree {
         if (!view.treeFull) return;
 
         List<String> kinds = species();
+        Map<String, Integer> counts = new HashMap<>();
+        float countW = 0f;
+        for (String kind : kinds) {
+            int count = 0;
+            for (Pet pet : manager.getPets()) if (pet.typeID.equals(kind) && !pet.isDead()) count++;
+            counts.put(kind, count);
+            countW = Math.max(countW, (float) Math.ceil(Ui.width(String.valueOf(count), Ui.ORB12)) + 2f);
+        }
+        float sw = SPECIES_COUNT_X + countW + 8f;
+        float pitch = sw + SPECIES_GAP;
         float room = x - TOGGLE_GAP - (fx + 200f) - SMALL_W - TOGGLE_GAP;
-        int fit = Math.max(1, (int) Math.floor((room + SPECIES_PITCH - SPECIES_W) / SPECIES_PITCH));
+        int fit = Math.max(1, (int) Math.floor((room + SPECIES_GAP) / pitch));
         if (kinds.size() > fit) {
             kinds = new ArrayList<>(kinds.subList(0, fit));
             if (!kinds.contains(view.treeSpecies)) kinds.set(fit - 1, view.treeSpecies);
         }
 
-        float sx = x - TOGGLE_GAP - kinds.size() * SPECIES_PITCH + (SPECIES_PITCH - SPECIES_W);
+        float sx = x - TOGGLE_GAP - kinds.size() * pitch + SPECIES_GAP;
+        float smallX = sx - 2f - SMALL_W;
         for (String kind : kinds) {
             PetData data = PetDataRepo.get(kind);
-            int count = 0;
-            for (Pet pet : manager.getPets()) if (pet.typeID.equals(kind) && !pet.isDead()) count++;
-            toggle(p, sx, y, SPECIES_W, null, kind.equals(view.treeSpecies), () -> {
+            int count = counts.get(kind);
+            UiButtons.area(p, sx, y, sw, UiFilter.H, null, kind.equals(view.treeSpecies), true, null, Ui.CENTER, () -> {
                 view.treeSpecies = kind;
                 view.treeCard = null;
                 moved();
-            }, data.species + ": " + count + (count == 1 ? " living pet." : " living pets."));
+            });
             UiImages.img(p, sx + 5f, y + 3f, 20f, 20f, data.icon);
-            Ui.textIn(p, sx + 28f, y, 20f, UiFilter.H, String.valueOf(count), Ui.ORB12, Ui.hl(), Ui.CENTER, new String[0], new Color[0]);
-            sx += SPECIES_PITCH;
+            Ui.textIn(p, sx + SPECIES_COUNT_X, y, countW, UiFilter.H, String.valueOf(count), Ui.ORB12, Ui.hl(), Ui.LEFT, new String[0], new Color[0]);
+            // the tooltip on a panel over icon and count, so hovering either shows it; panels let the click through
+            Ui.tooltip(p, Ui.panel(p, sx, y, sw, UiFilter.H), null, data.species + ": " + count + (count == 1 ? " living pet." : " living pets."));
+            sx += pitch;
         }
 
-        float smallX = x - TOGGLE_GAP - kinds.size() * SPECIES_PITCH - 2f - SMALL_W + (SPECIES_PITCH - SPECIES_W);
         toggle(p, smallX, y, SMALL_W, "Small tiles", view.treeSmall, () -> {
             view.treeSmall = !view.treeSmall;
             moved();
@@ -290,7 +301,8 @@ public class PetTree {
         return kinds;
     }
 
-    private Map<String, int[]> shared(Pet a, Pet b) {
+    static Map<String, int[]> shared(Pet a, Pet b) {
+        PetStatusManager manager = PetStatusManager.getInstance();
         return PetGenetics.shared(a.id, b.id, id -> {
             Pet pet = manager.get(id);
             return pet != null ? new String[]{pet.parentA, pet.parentB} : null;
@@ -339,6 +351,10 @@ public class PetTree {
 
     static String generation(int n) {
         return n == 1 ? "Parent" : n == 2 ? "Grandparent" : n == 3 ? "Great grandparent" : n + " generations up";
+    }
+
+    static String relation(Pet a, Pet b) {
+        return relation(a, b, shared(a, b));
     }
 
     // how two pets are related, from their nearest shared ancestors; null when they are not

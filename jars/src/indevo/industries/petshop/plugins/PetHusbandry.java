@@ -442,12 +442,9 @@ public class PetHusbandry {
         panel.refresh();
     }
 
-    // siblings, a parent and its young, or kin further back; nothing for unrelated adults
+    // the kin card's relation line; nothing for unrelated adults
     private static String kinLine(Pet a, Pet b) {
-        if (a.parentA != null && Objects.equals(a.parentA, b.parentA) && Objects.equals(a.parentB, b.parentB)) return a.name + " and " + b.name + " come from one brood.";
-        if (b.id.equals(a.parentA) || b.id.equals(a.parentB)) return b.name + " is a parent of " + a.name + ".";
-        if (a.id.equals(b.parentA) || a.id.equals(b.parentB)) return a.name + " is a parent of " + b.name + ".";
-        return PetShop.getInbreeding(a, b) > 0f ? a.name + " and " + b.name + " are kin." : null;
+        return PetTree.relation(a, b);
     }
 
     private void dials(CustomPanelAPI p, float w, Pet a, Pet b) {

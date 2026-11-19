@@ -481,7 +481,7 @@ public final class PetTreeLayout {
     }
 
     // barycenter of the neighbours above (down sweep) or below (up sweep); a pet with none stands beside a mate in the row,
-    // on the side away from the mate's siblings, a second mate on the other side
+    // on the side away from a mate placed by its own parents, else away from the mate's siblings; a second mate on the other side
     private static void order(List<Node> row, boolean downSweep, Map<Node, List<Node>> mates) {
         for (int i = 0; i < row.size(); i++) row.get(i).key = i;
         Map<Node, Float> keys = new HashMap<>();
@@ -516,9 +516,23 @@ public final class PetTreeLayout {
             Node n = base.get(i);
             boolean sameBefore = i > 0 && keys.get(base.get(i - 1)).equals(keys.get(n));
             boolean sameAfter = i < base.size() - 1 && keys.get(base.get(i + 1)).equals(keys.get(n));
-            emit(n, attached, row, !sameBefore || sameAfter);
+            Boolean placed = placedMateLeft(n, base, i, mates);
+            emit(n, attached, row, placed != null ? !placed : !sameBefore || sameAfter);
         }
         for (int i = 0; i < row.size(); i++) row.get(i).key = i;
+    }
+
+    // a mate placed by its own parents takes one side, the attached mates start on the other; null when none or both sides
+    private static Boolean placedMateLeft(Node n, List<Node> base, int i, Map<Node, List<Node>> mates) {
+        boolean left = false;
+        boolean right = false;
+        for (Node mate : mates.getOrDefault(n, List.of())) {
+            int j = base.indexOf(mate);
+            if (j < 0 || j == i) continue;
+            if (j < i) left = true;
+            else right = true;
+        }
+        return left == right ? null : left;
     }
 
     private static Node attachedTo(Map<Node, List<Node>> attached, Node n) {
