@@ -33,6 +33,8 @@ public final class Groups {
                 return Rc7PayChecks.steps();
             case "petstree":
                 return PetsTreeChecks.steps();
+            case "petsplan":
+                return PetsPlanChecks.steps();
             case "petsbrood":
                 return PetsBroodChecks.steps();
             case "petsgenes":
