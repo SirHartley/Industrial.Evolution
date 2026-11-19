@@ -102,6 +102,31 @@ public final class PetsAdoptChecks {
             c.expect(wild.sheet.look == null, "indevo_pet look wild sets Wild type (" + wild.getLookName() + ")");
             Pet other = pet(c, "Spot");
             cmd("look " + other.id + " doge_4");
+            // one look parent: the young take its look half the time; a new look comes by mutation a third of the time
+            {
+                java.util.Random rnd = new java.util.Random(7);
+                java.util.Map<String, indevo.industries.petshop.memory.PetDataRepo.Trait> traits = indevo.industries.petshop.memory.PetDataRepo.getTraits();
+                int chocolate = 0, wildType = 0, odd = 0;
+                for (int i = 0; i < 2000; i++) {
+                    indevo.industries.petshop.memory.PetSheet y = indevo.industries.petshop.PetGenetics.rollYoung(other.getData(), other.sheet, wild.sheet, 40f, 0, 0f, 0f, traits, rnd);
+                    if ("doge_4".equals(y.look)) chocolate++;
+                    else if (y.look == null) wildType++;
+                    else odd++;
+                }
+                c.note("Chocolate x Wild type: Chocolate " + chocolate + ", Wild type " + wildType + ", other " + odd + " of 2000");
+                c.expect(odd == 0 && chocolate > 800 && wildType > 800, "a young of one Chocolate parent is Chocolate or Wild type, about half each");
+                int newLook = 0, fromMutation = 0, bad = 0;
+                for (int i = 0; i < 3000; i++) {
+                    indevo.industries.petshop.memory.PetSheet y = indevo.industries.petshop.PetGenetics.rollYoung(wild.getData(), wild.sheet, wild.sheet, 40f, 0, 1f, 0f, traits, rnd);
+                    if (y.look != null) {
+                        newLook++;
+                        if (wild.getData().getLook(y.look) == null) bad++;
+                        if (y.from != null && indevo.industries.petshop.memory.PetSheet.FROM_MUTATION.equals(y.from.get(indevo.industries.petshop.memory.PetSheet.LOOK))) fromMutation++;
+                    }
+                }
+                c.note("Wild x Wild at mutation rate 1: new look " + newLook + " of 3000, from mutation " + fromMutation + ", unknown ids " + bad);
+                c.expect(newLook > 700 && newLook < 1300 && bad == 0 && fromMutation == newLook, "a new look comes by mutation about a third of the time, a doge look marked Mutation");
+            }
 
             // two broods of Piebald parents; a second pair for the ready brood the hold shows
             own.startBrood(mom, dad, 0);
@@ -121,6 +146,17 @@ public final class PetsAdoptChecks {
             c.note("Jangala size " + jangala.getSize() + ", offers " + names);
             c.expect(offers.size() == want, "offers by market size (" + offers.size() + " of " + want + ")");
             c.put("offers1", names.toString());
+            {
+                java.util.Set<String> seen = new java.util.HashSet<>();
+                java.util.Set<String> living = new java.util.HashSet<>();
+                for (Pet p : manager().getPets()) if (!p.isDead()) living.add(p.name);
+                boolean unique = true, clash = false;
+                for (Pet p : offers) {
+                    if (!seen.add(p.name)) unique = false;
+                    if (living.contains(p.name)) clash = true;
+                }
+                c.expect(unique && !clash, "offer names are distinct and not the names of living pets");
+            }
             c.days(61f);
         });
         steps.add(c -> {
@@ -139,6 +175,25 @@ public final class PetsAdoptChecks {
                 if (!"doge_1".equals(y.sheet.look)) looks = false;
             }
             c.expect(looks, "young of two Piebald parents are Piebald");
+            {
+                java.util.Set<String> seen = new java.util.HashSet<>();
+                boolean unique = true;
+                for (int b = 0; b < 2; b++) {
+                    PetBrood br = own.getBrood(b);
+                    if (br == null) continue;
+                    seen.clear();
+                    for (Pet y : br.getYoung()) if (!seen.add(y.name)) unique = false;
+                    c.note("brood " + b + " young " + seen);
+                }
+                c.expect(unique, "young of one brood have distinct names");
+                java.util.Set<String> all = new java.util.HashSet<>();
+                boolean across = true;
+                for (int b = 0; b < 2; b++) {
+                    PetBrood br = own.getBrood(b);
+                    if (br != null) for (Pet y : br.getYoung()) if (!all.add(y.name)) across = false;
+                }
+                c.expect(across, "young of two broods waiting at one center have distinct names " + all);
+            }
 
             // one young into a Cryochamber, the rest into storage
             Pet young = brood.getYoung().get(0);
@@ -173,6 +228,8 @@ public final class PetsAdoptChecks {
             c.expect("doge_1".equals(mom.sheet.look), "after a save and load Mom is still Piebald");
             String sw = System.getProperty("ie.switches", "");
             c.keepDialog(true);
+            // SWITCHES=poor: 100 credits, under every price
+            if (sw.contains("poor")) Global.getSector().getPlayerFleet().getCargo().getCredits().set(100f);
             if (sw.contains("adopt")) {
                 // SWITCHES=adopt: the Adoption tab at Jangala's center
                 PetShop npc = (PetShop) Global.getSector().getEconomy().getMarket("jangala").getIndustry(Ids.PET_STORE);
