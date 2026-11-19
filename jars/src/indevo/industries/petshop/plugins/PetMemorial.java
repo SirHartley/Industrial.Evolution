@@ -24,8 +24,11 @@ public final class PetMemorial {
 
     public static final float TOOLTIP_W = 420f;
     static final int SHOWN = 5;
-    // a tooltip can not scroll
+    // a tooltip can not scroll, so F1 shows what fits the screen up to this
     static final int SHOWN_EXPANDED = 12;
+    // vanilla's lines under the section: upkeep, items, the F1 line
+    static final float VANILLA_BELOW = 260f;
+    static final float SECTION_H = 30f;
     static final float[] COLUMN_X = {8f, 112f, 252f, 332f};
     static final float LINE_GAP = 4f;
     static final float MORE_GAP = 6f;
@@ -53,8 +56,8 @@ public final class PetMemorial {
 
         tooltip.addSectionHeading("Remembered", faction.getBaseUIColor(), faction.getDarkUIColor(), Alignment.MID, 10f);
         float w = tooltip.getWidthSoFar();
-        int shown = Math.min(dead.size(), expanded ? SHOWN_EXPANDED : SHOWN);
         float rowH = UiData.GRID_ROW_H + (expanded ? UiData.GRID_ROW_H + LINE_GAP : 0f);
+        int shown = Math.min(dead.size(), expanded ? fitting(tooltip, rowH) : SHOWN);
         int more = dead.size() - shown;
         float h = Ui.HEADING_H + 4f + shown * rowH + (more > 0 ? MORE_GAP + Ui.LINE_H : 0f);
 
@@ -79,6 +82,11 @@ public final class PetMemorial {
         if (more > 0) Ui.text(table, 0f, y + MORE_GAP, w, "and " + more + " more", Ui.gray());
 
         tooltip.addCustom(table, 4f);
+    }
+
+    private static int fitting(TooltipMakerAPI tooltip, float rowH) {
+        float room = Global.getSettings().getScreenHeight() - tooltip.getHeightSoFar() - VANILLA_BELOW - SECTION_H - Ui.HEADING_H - 4f - MORE_GAP - Ui.LINE_H;
+        return Math.max(SHOWN, Math.min(SHOWN_EXPANDED, (int) (room / rowH)));
     }
 
     private static void cell(CustomPanelAPI p, float x, float y, float w, String s, Color c, Alignment align) {

@@ -268,7 +268,7 @@ Code paths relative to `jars/src/indevo/`.
 
 ### Memorial
 
-- On a functional, player owned Memorial while `IndEvo_pets` is on ([World Wonders](WORLD_WONDER.md#memorial)): section Remembered under the description, only when a pet died. `PetMemorial.remembered()`: dead pets, not sold or rehomed, newest first by `DeathData.timestamp` (negative in early cycles; 0, a death saved before the field, last). Table Name, Species, Age (`PetCard.span`), Cause (Old age, Combat, Starved, Put to sleep, Unknown): the latest 5, then "and N more"; vanilla adds its own F1 line. With F1: up to 12 (a tooltip can not scroll), each with a grey line: titles, the ship it lived on last ("Pet storage, <market>" or Menagerie when none), the cycle it died in.
+- On a functional, player owned Memorial while `IndEvo_pets` is on ([World Wonders](WORLD_WONDER.md#memorial)): section Remembered under the description, only when a pet died. `PetMemorial.remembered()`: dead pets, not sold or rehomed, newest first by `DeathData.timestamp` (negative in early cycles; 0, a death saved before the field, last). Table Name, Species, Age (`PetCard.span`), Cause (Old age, Combat, Starved, Put to sleep, Unknown): the latest 5, then "and N more"; vanilla adds its own F1 line. With F1: as many as fit the screen height under the description with 260 px kept for vanilla's lines below, at least 5 and at most 12 (a tooltip can not scroll; 6 at 1280 x 768, 10 at 1600 x 900), each with a grey line: titles, the ship it lived on last ("Pet storage, <market>" or Menagerie when none), the cycle it died in.
 
 ### Gene scan
 
