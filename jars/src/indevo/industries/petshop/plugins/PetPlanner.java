@@ -7,7 +7,9 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
+import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.ui.UIComponentAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
@@ -254,11 +256,11 @@ public class PetPlanner {
         return PetTree.percent(p);
     }
 
-    // living pets of the species that can be a parent some day
+    // living pets of the species that can be a parent some day; a young in a Cryochamber does not grow
     private List<Pet> candidates(String typeId) {
         List<Pet> list = new ArrayList<>();
         for (Pet pet : manager.getPets()) {
-            if (pet.isDead() || !pet.typeID.equals(typeId) || pet.getData().isNoSell()) continue;
+            if (pet.isDead() || pet.inChamber || !pet.typeID.equals(typeId) || pet.getData().isNoSell()) continue;
             if (pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0) continue;
             list.add(pet);
         }
@@ -955,10 +957,18 @@ public class PetPlanner {
             lineColor = Ui.gray();
         }
 
-        float kw = m.kin() != null ? Math.min(Ui.width(m.kin(), Ui.INS15) + 2f, w - x - 120f) : 0f;
-        if (m.kin() != null) Ui.textIn(row, w - 8f - kw, 24f, kw, Ui.LINE_H, Ui.fit(m.kin(), Ui.INS15, kw), Ui.INS15, Ui.neg(), Ui.RIGHT, new String[0], new Color[0]);
-        float lw = w - x - 8f - (kw > 0f ? kw + 12f : 0f);
+        // the line first, the kin note takes what is left and keeps its full text on hover
+        float room = w - x - 8f;
+        float lw = Math.min((float) Math.ceil(Ui.width(line, Ui.INS15)) + 2f, room);
         Ui.textIn(row, x, 24f, lw, Ui.LINE_H, Ui.fit(line, Ui.INS15, lw), Ui.INS15, lineColor, Ui.LEFT, new String[0], new Color[0]);
+        if (m.kin() == null) return;
+
+        String kin = m.kin();
+        float full = (float) Math.ceil(Ui.width(kin, Ui.INS15)) + 2f;
+        float kw = Math.min(full, room - lw - 12f);
+        if (kw <= 0f) return;
+        LabelAPI label = Ui.textIn(row, w - 8f - kw, 24f, kw, Ui.LINE_H, Ui.fit(kin, Ui.INS15, kw), Ui.INS15, Ui.neg(), Ui.RIGHT, new String[0], new Color[0]);
+        if (kw < full) Ui.tooltip(row, (UIComponentAPI) label, full + 10f, TooltipMakerAPI.TooltipLocation.BELOW, t -> t.addPara(esc(kin), 0f));
     }
 
     // a wanted row by name: Scavenger 9 for a grade, Malformed, a flaw or a mutation by name
