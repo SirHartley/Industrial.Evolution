@@ -94,7 +94,7 @@ Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/s
 | `getFleetAssignmentString(id, target[, missionType])` | Category `indEvo_fleetAssignments` |
 | `getShipOrFleet(fleet)`, `getDayOrDays(n)`, `getHeOrShe`, `getHimOrHer`, `writeStringCollection(strings[, and, oxford])` | Grammar helpers |
 | `getAbsPercentString(f, oneMinus)`, `getFloatToIntStrx100(f)`, `getRepIntTooltipPair(faction)` | Number formatting |
-| `ucFirstIgnore$`, `lcFirst`, `flattenToAscii`, constant `HR` | Misc |
+| `ucFirstIgnore$`, `lcFirst` (keeps a leading acronym: "CR recovery"), `flattenToAscii`, constant `HR` | Misc |
 
 ### TrigHelper
 

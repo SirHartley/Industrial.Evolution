@@ -23,11 +23,14 @@ public class PetsView {
     public static final String PLAN_LIST = "planList";
     public static final String WANTED = "wanted";
     public static final String BEST = "best";
+    public static final String BEASTS = "beasts";
+    public static final String BEAST = "beast";
     public static final int TAB_PETS = 0;
     public static final int TAB_HUSBANDRY = 1;
     public static final int TAB_TREE = 2;
     public static final int TAB_PLAN = 3;
     public static final int TAB_ADOPT = 4;
+    public static final int TAB_BEAST = 5;
 
     public int tab = TAB_PETS;
     public String selected = null;
@@ -72,6 +75,10 @@ public class PetsView {
     String offerSort = PetAdoption.PET;
     boolean offerReversed = false;
     final UiFilter.State offers = new UiFilter.State("");
+
+    // Bestiary: the picked species
+    String beast = null;
+    final UiFilter.State beasts = new UiFilter.State(PetBestiary.NAME);
 
     int clicks = 0;
     String answer = null;

@@ -35,6 +35,7 @@ import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.item.PetItemPlugin;
 import indevo.industries.petshop.memory.Pet;
+import indevo.industries.petshop.memory.PetBestiaryFile;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
@@ -106,6 +107,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private float daysSinceLine = 0f;
     private float lineRoll = 0f;
     private float wantGapDays = 0f;
+    // species seen on offer at an Animal Center; null in saves from before the bestiary
+    private Set<String> offered = new HashSet<>();
     // the message list sits under the Pets panel, so its messages wait until it closes
     private transient List<Runnable> held = null;
 
@@ -113,6 +116,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void register(Pet pet) {
         pets.add(pet);
         if (getFavourites().isEmpty()) pet.setFavourite(true);
+        PetBestiaryFile.get().see(List.of(pet.typeID), pet.sheet != null && pet.sheet.look != null ? List.of(pet.sheet.look) : List.of());
     }
 
     public List<Pet> getFavourites() {
@@ -440,6 +444,25 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         Set<String> seen = new HashSet<>();
         for (Pet pet : pets) if (pet.sheet != null && pet.sheet.look != null) seen.add(pet.sheet.look);
         return seen;
+    }
+
+    public void seeOffers(List<Pet> offers) {
+        if (offered == null) offered = new HashSet<>();
+        for (Pet offer : offers) offered.add(offer.typeID);
+        seeAll();
+    }
+
+    // species ids of any pet the player has or had, or saw on offer
+    public Set<String> getSeenSpecies() {
+        Set<String> seen = new HashSet<>();
+        for (Pet pet : pets) seen.add(pet.typeID);
+        if (offered != null) seen.addAll(offered);
+        return seen;
+    }
+
+    // this game into the bestiary file, which carries over to the next game
+    public void seeAll() {
+        PetBestiaryFile.get().see(getSeenSpecies(), getSeenLooks());
     }
 
     public List<Pet> getMenageriePets() {

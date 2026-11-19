@@ -204,6 +204,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             case PetsView.TAB_TREE -> view.find;
             case PetsView.TAB_PLAN -> view.planCopy ? view.planCopies : view.planParents;
             case PetsView.TAB_ADOPT -> view.offers;
+            case PetsView.TAB_BEAST -> view.beasts;
             default -> view.filter;
         };
     }
@@ -213,6 +214,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             case PetsView.TAB_HUSBANDRY -> PetsView.ADULTS;
             case PetsView.TAB_TREE -> PetsView.TREE;
             case PetsView.TAB_PLAN -> PetsView.PLAN_LIST;
+            case PetsView.TAB_BEAST -> PetsView.BEASTS;
             default -> PetsView.LIST;
         });
         refresh();
@@ -258,6 +260,16 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         view.treePair.clear();
         view.treePair.addAll(List.of(a.id, b.id));
         view.treeFull = false;
+        openTree();
+    }
+
+    // the Full view of the tree with one species, from the Bestiary
+    void showSpecies(Pet root) {
+        view.treeRoot = root.id;
+        view.treeCard = null;
+        view.treePair.clear();
+        view.treeFull = true;
+        view.treeSpecies = root.typeID;
         openTree();
     }
 
@@ -324,6 +336,10 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         }
         if (view.tab == PetsView.TAB_ADOPT) {
             new PetAdoption(this, view).build(p, w, h);
+            return;
+        }
+        if (view.tab == PetsView.TAB_BEAST) {
+            new PetBestiary(this, view).build(p, w, h);
             return;
         }
 
@@ -424,6 +440,8 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             ids.add(PetsView.TAB_ADOPT);
             labels.add("Adoption");
         }
+        ids.add(PetsView.TAB_BEAST);
+        labels.add("Bestiary");
         ids.addAll(List.of(PetsView.TAB_TREE, PetsView.TAB_PLAN));
         labels.addAll(List.of("Family tree", "Planner"));
         String[] tabs = labels.toArray(new String[0]);
@@ -448,6 +466,12 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     private void addHelp(TooltipMakerAPI tooltip) {
+        if (view.tab == PetsView.TAB_BEAST) {
+            tooltip.addPara("Bestiary. Every species you owned or saw on offer. It carries over between games.", 0f);
+            tooltip.addPara("A grey species is known from an earlier game only. A species you never saw is a question mark.", 10f);
+            tooltip.addPara("Mutations found lists the highest level of each mutation among your pets of the species in this game.", 10f);
+            return;
+        }
         if (view.tab == PetsView.TAB_ADOPT) {
             tooltip.addPara("Adoption. This Animal Center finds new homes for the pets handed in to it. New pets come at the start of each month.", 0f);
             tooltip.addPara("Their talents stay Unknown until a heart switches them on. A gene scan reads them before you pay.", 10f);

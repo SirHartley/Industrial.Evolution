@@ -299,10 +299,15 @@ public final class PetGenetics {
 
     // 30, 60 or 90 days by pace, the hamster 7; Slow grower of both parents adds, their Mayfly cuts; never past MAX_BROOD_DAYS
     public static float broodDays(PetData data, PetSheet a, PetSheet b, Map<String, Trait> traits) {
-        float days = data.isHamster() ? PetConstants.HAMSTER_BROOD_DAYS : PetConstants.BROOD_DAYS[paceIndex(data)];
+        float days = baseBroodDays(data);
         days *= 1f + value(traits, SLOW_GROWER, a.getGrade(SLOW_GROWER) + b.getGrade(SLOW_GROWER)) * 0.01f;
         days *= 1f - value(traits, MAYFLY, a.getGrade(MAYFLY) + b.getGrade(MAYFLY)) * 0.01f;
         return Math.min(PetConstants.MAX_BROOD_DAYS, days);
+    }
+
+    // parents without Slow grower or Mayfly
+    public static float baseBroodDays(PetData data) {
+        return data.isHamster() ? PetConstants.HAMSTER_BROOD_DAYS : PetConstants.BROOD_DAYS[paceIndex(data)];
     }
 
     // chance a young of a and b meets one wanted row: a talent or mutation at that grade or better, a flaw at that level or less;
