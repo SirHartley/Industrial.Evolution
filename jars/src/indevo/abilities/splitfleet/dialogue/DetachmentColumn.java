@@ -583,7 +583,7 @@ class DetachmentColumn {
             Ui.runs(b, 40f, y + 17f, tw, Ui.INS15, Ui.gray(), Ui.LEFT, m.getHullSpec().getHullName() + " · " + personalityName,
                     new String[]{personalityName}, new Color[]{AcademyPanelDelegate.getPersonalityColor(personality)});
 
-            String salary = Misc.getDGSCredits(DetachmentPayroll.getSalary(officer));
+            String salary = Misc.getDGSCredits(DetachmentPayroll.getSalary(officer, (fleet != null ? fleet : player).getContainingLocation()));
             Ui.runs(b, w - SALARY_W, y + 8f, SALARY_W, Ui.INS15, Ui.gray(), Ui.RIGHT, salary + " per month", new String[]{salary}, new Color[]{Ui.hl()});
         }
     }
