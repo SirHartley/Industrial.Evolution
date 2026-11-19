@@ -55,8 +55,8 @@ public final class PetMemorial {
     static final float FADE = 0.15f;
     // no frame for this long means the tooltip closed; a shorter gap is the F1 rebuild, which keeps the pet and phase
     static final float REOPEN = 0.25f;
-    // estimate of vanilla's lines under the section: items, improvements, the footnote, the F1 strip
-    static final float VANILLA_BELOW = 200f;
+    // measured 99 at 1280 x 768: no items heading, two line footnote, F1 strip; a memorial takes no cores and no improvement
+    static final float VANILLA_BELOW = 100f;
     static final float SCREEN_MARGIN = 20f;
     static final String ELSEWHERE = "Lost in another universe";
     static final String LOST = "Lost";
