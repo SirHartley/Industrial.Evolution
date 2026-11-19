@@ -4,6 +4,8 @@ How IE is run inside the real game to see or exercise a change: setup on the use
 
 A smoke test supplements the compile gate and is not a merge requirement. When one ran, the PR records it.
 
+Pet groups (`pets*`): a pet PR runs only its new groups and the groups that cover the code its diff changes, and the result names them with the reason. After a fix, only the fixed items are checked again. All pet groups run once, before the merge to master.
+
 ## When to use
 
 | Need | Mode |
