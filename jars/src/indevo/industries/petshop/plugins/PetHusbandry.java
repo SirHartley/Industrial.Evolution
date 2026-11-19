@@ -840,7 +840,7 @@ public class PetHusbandry {
             if (brood.opened.contains(pet.id)) {
                 Ui.card(p, x, y, YOUNG_W + 16f, YOUNG_H);
                 UiImages.img(p, x + 8f, y + 8f, YOUNG_W, YOUNG_W, pet.getIcon());
-            } else PetYoungDialog.back(p, x, y, YOUNG_W + 16f, YOUNG_H, false);
+            } else PetYoungDialog.back(p, x, y, YOUNG_W + 16f, YOUNG_H);
         }
 
         Ui.rule(p, 0f, h - 36f, w);

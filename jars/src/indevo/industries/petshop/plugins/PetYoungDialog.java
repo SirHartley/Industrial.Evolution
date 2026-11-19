@@ -52,7 +52,18 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     // sparks: start offset from the card's top left, as a share of its size, and the push outwards in px
     static final float[][] SPARKS = {{-0.05f, 0.08f, -18f, 0f}, {-0.04f, 0.4f, -14f, 0f}, {-0.06f, 0.8f, -20f, 0f}, {1.03f, 0.16f, 16f, 0f},
             {1.04f, 0.56f, 20f, 0f}, {1.02f, 0.88f, 14f, 0f}, {0.24f, -0.04f, 0f, -16f}, {0.72f, -0.03f, 0f, -12f}, {0.48f, 1.02f, 0f, 14f}};
+    // card back as the board card_back: lattice of 20 x 28 diamonds framed 5 px in, a black 80 x 112 diamond in the middle
+    static final float BACK_INSET = 5f;
+    static final float LATTICE_W = 20f;
+    static final float LATTICE_H = 28f;
+    static final float MID_W = 80f;
+    static final float MID_H = 112f;
+    static final int BACK_ROUND = 6;
+    static final int FRAME_ROUND = 3;
+    // board question mark is 21 px high, the font glyph 15
+    static final float QMARK_SCALE = 1.4f;
     private static final Map<String, LazyFont.DrawableString> TAG_TEXT = new HashMap<>();
+    private static LazyFont.DrawableString qmark;
 
     private final PetShop shop;
     private final PetBrood brood;
@@ -159,7 +170,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
             if (brood.opened.contains(pet.id)) openCard(p, x, CARDS_Y, pet);
             else {
                 CustomPanelAPI row = UiButtons.row(p, x, CARDS_Y, CARD_W, CARD_H, false, true, null, () -> open(pet));
-                back(row, 0f, 0f, CARD_W, CARD_H, true);
+                cardBack(row, 0f, 0f);
             }
         }
     }
@@ -177,8 +188,8 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         refresh();
     }
 
-    // the back of a closed card: the plain card outline, a diamond lattice, a diamond in the middle with the question mark, a hint under it
-    static void back(CustomPanelAPI p, float x, float y, float w, float h, boolean hint) {
+    // closed young tile of the Husbandry tab: a diamond lattice, a diamond in the middle with the question mark
+    static void back(CustomPanelAPI p, float x, float y, float w, float h) {
         float scale = h / CARD_H;
         float tile = Math.max(8f, 20f * scale);
         float slope = 28f / 20f;
@@ -193,7 +204,6 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
             float iw = pos.getWidth() - 10f;
             float ih = pos.getHeight() - 10f;
             UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), Color.BLACK, a);
-            UiDraw.outline(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), color(Tier.PLAIN), a);
 
             float reach = ih / slope;
             for (float c = -reach - tile; c <= iw + reach + tile; c += tile) {
@@ -216,13 +226,96 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
 
         float q = Math.max(12f, Math.round(24f * scale));
         UiImages.img(p, x + Math.round((w - q) / 2f), y + Math.round((h - q) / 2f), q, q, PetCard.unknownSprite());
+    }
 
-        if (!hint) return;
+    // back of a closed young card, then "Click to open" under the middle diamond
+    private static void cardBack(CustomPanelAPI p, float x, float y) {
+        Ui.painted(p, x, y, CARD_W, CARD_H, PetYoungDialog::paintBack, null);
+
         String text = "Click to open";
         float hw = Ui.width(text, Ui.INS15) + 20f;
-        float hy = y + Math.round(h / 2f + mh / 2f + 24f);
-        Ui.box(p, x + Math.round((w - hw) / 2f), hy, hw, 22f, edge, Color.BLACK);
-        Ui.textIn(p, x + Math.round((w - hw) / 2f), hy, hw, 22f, text, Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
+        float hx = x + Math.round((CARD_W - hw) / 2f);
+        float hy = y + Math.round(CARD_H / 2f + MID_H / 2f + 24f);
+        Ui.box(p, hx, hy, hw, 22f, Ui.dark(), Color.BLACK);
+        Ui.textIn(p, hx, hy, hw, 22f, text, Ui.INS15, Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
+    }
+
+    // board colours: lattice the dark ui colour at full alpha, small diamonds, frame and inner diamond the dark colour, middle diamond base
+    private static void paintBack(PositionAPI pos, float a) {
+        float x = Math.round(pos.getX());
+        float y = Math.round(pos.getY());
+        float w = pos.getWidth();
+        float h = pos.getHeight();
+        float iw = w - 2f * BACK_INSET;
+        float ih = h - 2f * BACK_INSET;
+        float left = x + BACK_INSET;
+        float top = y + h - BACK_INSET;
+        float ox = (iw % LATTICE_W) / 2f;
+        float oy = (ih % LATTICE_H) / 2f;
+        float run = LATTICE_W / LATTICE_H;
+        UiDraw.quad(x, y, w, h, Color.BLACK, a);
+
+        List<Float> lines = new ArrayList<>();
+        for (float c = ox + LATTICE_W / 2f - (float) Math.ceil(ih * run / LATTICE_W + 1f) * LATTICE_W; c <= iw + ih * run + LATTICE_W; c += LATTICE_W) {
+            for (int dir = -1; dir <= 1; dir += 2) {
+                float y0 = 0f;
+                float y1 = ih;
+                float xa = c + dir * run * (y0 - oy);
+                float xb = c + dir * run * (y1 - oy);
+                if (Math.max(xa, xb) < 0f || Math.min(xa, xb) > iw) continue;
+                if (xa < 0f || xa > iw) {
+                    xa = Math.max(0f, Math.min(iw, xa));
+                    y0 = oy + (xa - c) / (dir * run);
+                }
+                if (xb < 0f || xb > iw) {
+                    xb = Math.max(0f, Math.min(iw, xb));
+                    y1 = oy + (xb - c) / (dir * run);
+                }
+                Collections.addAll(lines, left + xa + 0.5f, top - y0 - 0.5f, left + xb + 0.5f, top - y1 - 0.5f);
+            }
+        }
+        float[] pts = new float[lines.size()];
+        for (int i = 0; i < pts.length; i++) pts[i] = lines.get(i);
+        UiDraw.lines(pts, Misc.setAlpha(Ui.dark(), 255), a);
+
+        List<Float> dots = new ArrayList<>();
+        for (float dx = ox + LATTICE_W / 2f; dx + 3f <= iw; dx += LATTICE_W) {
+            for (float dy = oy + LATTICE_H / 2f; dy + 4f <= ih; dy += LATTICE_H) Collections.addAll(dots, left + dx, top - dy);
+        }
+        float[] centres = new float[dots.size()];
+        for (int i = 0; i < centres.length; i++) centres[i] = dots.get(i);
+        UiDraw.diamonds(centres, 6f, 8f, Ui.dark(), a);
+
+        UiDraw.roundOutline(left, y + BACK_INSET, iw, ih, FRAME_ROUND, Ui.dark(), Color.BLACK, a);
+        float cx = x + Math.round(w / 2f);
+        float cy = y + Math.round(h / 2f);
+        UiDraw.diamonds(new float[]{cx, cy}, MID_W, MID_H, Color.BLACK, a);
+        diamond(cx, cy, MID_W, MID_H, Ui.base(), a);
+        diamond(cx, cy, MID_W - 8f, MID_H - 10f, Ui.dark(), a);
+
+        LazyFont.DrawableString q = qmark();
+        if (q != null) {
+            q.setBaseColor(Misc.scaleAlpha(Misc.scaleColorOnly(Ui.base(), 0.66f), a));
+            GL11.glPushMatrix();
+            GL11.glTranslatef(cx, cy, 0f);
+            GL11.glScalef(QMARK_SCALE, QMARK_SCALE, 1f);
+            q.draw(-Math.round(q.getWidth() / 2f), Math.round(q.getHeight() / 2f));
+            GL11.glPopMatrix();
+        }
+
+        UiDraw.roundOutline(x, y, w, h, BACK_ROUND, color(Tier.PLAIN), Color.BLACK, a);
+    }
+
+    private static LazyFont.DrawableString qmark() {
+        if (qmark != null) return qmark;
+
+        try {
+            LazyFont font = LazyFont.loadFont(Fonts.ORBITRON_24AABOLD);
+            qmark = font.createText("?", Color.WHITE, font.getBaseHeight());
+        } catch (Exception e) {
+            Global.getLogger(PetYoungDialog.class).warn("IndEvo: no font for the young card back", e);
+        }
+        return qmark;
     }
 
     private static void diamond(float cx, float cy, float w, float h, Color c, float a) {
