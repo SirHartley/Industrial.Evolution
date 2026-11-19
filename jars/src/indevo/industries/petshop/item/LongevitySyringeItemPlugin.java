@@ -1,5 +1,6 @@
 package indevo.industries.petshop.item;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
 import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
@@ -28,7 +29,8 @@ public class LongevitySyringeItemPlugin extends BaseSpecialItemPlugin {
 
         // the codex shows the item outside a campaign
         if (stack == null || stack.getCargo() == null) return;
-        if (!PetItemPlugin.isFleetCargo()) tooltip.addPara("Can only be used from fleet cargo", Misc.getNegativeHighlightColor(), opad);
+        if (Global.getSector().getCampaignUI().getCurrentInteractionDialog() != null) tooltip.addPara("Can't be used while docked", Misc.getNegativeHighlightColor(), opad);
+        else if (!PetItemPlugin.isFleetCargo()) tooltip.addPara("Can only be used from fleet cargo", Misc.getNegativeHighlightColor(), opad);
         else if (!PetLongevity.hasPetWithFleet()) tooltip.addPara("No pet with the fleet", Misc.getNegativeHighlightColor(), opad);
         else tooltip.addPara("Right-click to use", Misc.getGrayColor(), opad);
     }
