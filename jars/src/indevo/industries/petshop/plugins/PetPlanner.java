@@ -749,7 +749,7 @@ public class PetPlanner {
         else t.addPara("Wanted: " + (trait.isTalent() ? "grade" : "level") + " %s or better" + esc(what) + ".", 10f, Ui.hl(), String.valueOf(v), value);
     }
 
-    // addPara formats its text: effect values like "+15%" are text, not a conversion
+    // addPara with highlights formats its text, plain addPara does not: effect values like "+15%" are text, not a conversion
     private static String esc(String s) {
         return s.replace("%", "%%");
     }
@@ -968,7 +968,7 @@ public class PetPlanner {
         float kw = Math.min(full, room - lw - 12f);
         if (kw <= 0f) return;
         LabelAPI label = Ui.textIn(row, w - 8f - kw, 24f, kw, Ui.LINE_H, Ui.fit(kin, Ui.INS15, kw), Ui.INS15, Ui.neg(), Ui.RIGHT, new String[0], new Color[0]);
-        if (kw < full) Ui.tooltip(row, (UIComponentAPI) label, full + 10f, TooltipMakerAPI.TooltipLocation.BELOW, t -> t.addPara(esc(kin), 0f));
+        if (kw < full) Ui.tooltip(row, (UIComponentAPI) label, full + 10f, TooltipMakerAPI.TooltipLocation.BELOW, t -> t.addPara(kin, 0f));
     }
 
     // a wanted row by name: Scavenger 9 for a grade, Malformed, a flaw or a mutation by name
