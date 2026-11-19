@@ -65,32 +65,29 @@ vec4 g(vec2 q) {
 }
 
 // clear rings round bodies, exact per pixel: a ring is only a few grid cells wide. same math as FogGrid.Shape.keepAt
-float keep(vec2 q) {
+// except wob, which bends the edge of a plain ring by the fog noise
+float keep(vec2 q, float wob) {
 	float k = 1.0;
 	for (int i = 0; i < 32; i++) {
 		if (float(i) >= uRN) break;
 		vec4 r = uRing[i];
 		vec3 hz = uRingH[i];
 		float dist = distance(q, r.xy);
-		float full = smoothstep(r.z, r.w, dist);
-		k *= hz.z > 0.0 ? mix(full, smoothstep(hz.x, hz.y, dist), hz.z) : full;
+		if (hz.z > 0.0) k *= mix(smoothstep(r.z, r.w, dist), smoothstep(hz.x, hz.y, dist), hz.z);
+		else k *= clamp((dist * (1.0 + wob) - r.z) / (r.w - r.z), 0.0, 1.0);
 	}
 	return k;
 }
 
-float dens(vec2 q) {
-	return g(q).r * keep(q);
-}
-
 void main() {
 	vec4 s = g(w);
-	float d = s.r * 1.3 * keep(w);
 	vec2 D = (s.gb - 0.502) * 1405.0;
 	float spd = s.a * 400.0;
 
+	// lit edges come from the grid only, a clear ring draws no outline
 	float e = uCell * 0.6;
-	float gx = dens(w + vec2(e, 0.0)) - dens(w - vec2(e, 0.0));
-	float gy = dens(w + vec2(0.0, e)) - dens(w - vec2(0.0, e));
+	float gx = g(w + vec2(e, 0.0)).r - g(w - vec2(e, 0.0)).r;
+	float gy = g(w + vec2(0.0, e)).r - g(w - vec2(0.0, e)).r;
 	float rim = clamp(length(vec2(gx, gy)) * 3.2, 0.0, 1.0);
 
 	vec2 p = w / 1500.0;
@@ -101,6 +98,7 @@ void main() {
 	float n1b = fbm(q + t1 + vec2(0.035, 0.035));
 	float n2 = fbm(q * 2.2 - uTime * vec2(0.009, -0.004) + 3.1);
 	float n3 = fbm(q * 4.5 + uTime * vec2(-0.012, 0.007) + 8.3);
+	float d = s.r * 1.3 * keep(w, (n3 - 0.5) * 0.35);
 	float lit = clamp((n1 - n1b) * 9.0, -1.0, 1.0);
 	float whorl = 1.0 - smoothstep(0.02, 0.16, abs(n2 - 0.5));
 	whorl *= smoothstep(0.35, 0.65, fbm(p * 1.3 + 2.7));
