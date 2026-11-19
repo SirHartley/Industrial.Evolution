@@ -18,7 +18,7 @@ public final class UiButtons {
     public static final float TAB_GAP = 4f;
     public static final float STRIP_W = 4f;
     public static final float ICON_GAP = 5f;
-    public static final float FIELD_EDGE = 0.9f;
+    public static final float FIELD_EDGE = 0.45f;
 
     // which inline confirm is armed, kept in the panel's view state
     public static final class Confirm {
