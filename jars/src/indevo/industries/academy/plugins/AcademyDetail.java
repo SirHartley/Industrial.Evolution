@@ -118,9 +118,6 @@ class AcademyDetail {
 
             if (blocker == null && !BillingHelper.canAfford(fee)) blocker = "Not enough credits.";
         }
-        // reference only, the list row shows them too, so they are what scrolls
-        addSkills(person, false);
-
         pin();
         if (view.rung != null) {
             grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)),
@@ -172,23 +169,6 @@ class AcademyDetail {
                 Ui.wrap(b, GRID_X + 24f, lineY, shipW, Ui.lines(ship.getShipName(), Ui.INS15, shipW, 2), Ui.gray());
             } else Ui.text(b, GRID_X, lineY, w - GRID_X, assignment != null ? assignment : "Unassigned", Ui.gray());
         });
-    }
-
-    private void addSkills(PersonAPI person, boolean admin) {
-        List<AcademyPanelDelegate.Skill> skills = AcademyPanelDelegate.getSkills(person, admin);
-        heading("Skills", SECTION_GAP);
-
-        if (skills.isEmpty()) add(LINE, GAP, b -> Ui.text(b, 0f, 3f, w, admin ? "No administrator skills." : "No skills.", Ui.gray()));
-
-        // one block per row, so the column ends on a whole row
-        for (int i = 0; i < skills.size(); i++) {
-            AcademyPanelDelegate.Skill skill = skills.get(i);
-            add(LINE, i == 0 ? GAP : 0f, b -> {
-                UiImages.skill(b, 2f, 1f, 22f, skill.spec(), skill.elite());
-                Ui.text(b, 32f, 3f, w - 32f - (skill.elite() ? 48f : 0f), skill.spec().getName());
-                if (skill.elite()) Ui.text(b, w - 44f, 3f, 44f, "Elite", Ui.hl(), Ui.RIGHT);
-            });
-        }
     }
 
     private void addLadder(PersonAPI person, String current) {
@@ -260,7 +240,6 @@ class AcademyDetail {
         int days = academy.getAdminTrainingDays();
         heading("Administrator training", SECTION_GAP);
         grid(GAP, GridRow.of("Gains", "One random skill"));
-        if (Academy.getAdminSkillCount(person) > 0) addSkills(person, true);
 
         pin();
         if (blocker == null) grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)), GridRow.of("Away until", AcademyPanelDelegate.getDoneDate(days)));
