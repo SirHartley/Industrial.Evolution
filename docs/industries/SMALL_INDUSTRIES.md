@@ -143,6 +143,7 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 - The commerce alpha tariff uses `getModId(1)` (`ind_commerce_1`), the slot vanilla uses for the alpha income bonus; set and unset must use the same id.
 - Bureau mods use `modifyFlatAlways` under the bureau's `getModId()` on other industries' stats; `unapply` and `applyBonus` clear it on every industry of the market, so a stale map cannot leave a mod behind.
 - `CentralizationBureauApplyPatch` matches `subtype = Industry.class` and hooks the declared `apply()` of every industry class, vanilla and modded; `BaseIndustry` declares none, so it is not patched. It gates on `isMostDerivedCall()` and does nothing on markets without a bureau. Supply that a mod sets outside `apply()` (scripts, `advance`) still only gets the bonus at the next reapply.
+- A small RAT settlement version of this industry exists (Requisition Office and Restoration Bay: `RequisitionsCenterSubmarketPlugin.ownedByPlayer()` counts the settlement market; the bay uses the static `RestorationDocks` D-mod helpers); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
 

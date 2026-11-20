@@ -31,6 +31,18 @@ Fixed - Other mods' industry tooltip lines now show on all IE industries
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
+RAT Settlements
+Added - Consulate: slowly raises relations with the planet owner
+Added - Requisition Office: imported weapons and consumable missiles
+Added - Fabricator Bay: makes commodities from a loaded VPC each month
+Added - Exhibition Hangar: stores ships for a small monthly income
+Added - Courier Office: runs Courier Port contracts from the settlement
+Added - Restoration Bay: removes a D-mod from a ship in storage every 31 days
+Added - Refit Gantry: moves D-mods and S-mods between ships
+Added - Officer Quarters: stores and trains officers and administrators
+Added - Engineering Annex: reverse engineers one hull class at a time
+Note - Built in the facility slots of Random Assortment of Things settlements
+
 Research Projects
 Added - Stock toggle: repeatable projects carry extra progress over (PR'd by razenpok, thank you!)
 Added - Project Reforge: turn a Corrupted Nanoforge into a Pristine one for 500 Relic Components
