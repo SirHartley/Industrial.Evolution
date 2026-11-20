@@ -403,6 +403,7 @@ Fixed - Crash when an interceptor missile hits a fleet off screen
 Fixed - Warning beacon dialog now opens on top of the cargo screen
 
 Items
+Fixed - Remnant Nexus now drops Relic Components when destroyed (250 to 400, half for a damaged one)
 Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
 Fixed - Ship parts from wrecks now roll per wreck instead of once per session
 

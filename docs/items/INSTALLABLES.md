@@ -135,6 +135,7 @@ On loot: collects the target's drop data (entity, then salvage spec). For each `
 | same | `IndEvo_parts` | `IndEvo_PartsDropInCampaign` and `IndEvo_ScrapYard` on: `0.5 * FP` plus random |
 | `PartsCargoInterceptor`, wreck | `IndEvo_parts` | same settings; `0.3 * FP` plus up to `0.2 * FP`, seeded by the wreck id |
 | `PartsCargoInterceptor`, fleet (not pirates, not Luddic Path) | `IndEvo_rare_parts` | hard battle: `0.3 * FP destroyed`; automated ships of unlisted factions: `0.2 * destroyed FP` plus random |
+| `PartsCargoInterceptor`, destroyed Remnant station (Nexus) | `IndEvo_rare_parts` | `STATION_RELICS_PER_FP_MIN` 1.25 to `_MAX` 2 x station FP, salvage seeded; half for a variant id ending `_Damaged` (`DAMAGED_STATION_RELIC_MULT`). Station hulls have 0 cargo and 0 fuel, so vanilla `handleCargoLooting` returns early and the spawn cargo never drops; full Nexus 250 to 400, damaged 125 to 200 |
 | `PartsCargoInterceptor`, derelict probe / survey ship / mothership / cryosleeper | `IndEvo_rare_parts` | 1-10, 20-200, 150-400, 250-500, salvage seeded |
 
 ## Contracts
