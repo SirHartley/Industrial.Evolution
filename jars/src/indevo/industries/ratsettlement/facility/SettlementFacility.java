@@ -24,14 +24,16 @@ import java.util.function.Function;
 // picker instances have no facility slot, so picker calls (canBeBuild, shouldShowInPicker, getCost, tooltip) never touch it
 public abstract class SettlementFacility extends BaseSettlementFacility {
 
-    // game timestamps are milliseconds, getElapsedDaysSince(0) returns Float.MAX_VALUE
+    // game timestamps are milliseconds and negative in normal play; getElapsedDaysSince(0) returns Float.MAX_VALUE
     private static final long DAY_MS = 86_400_000L;
     // from this many ie facilities with options on, they move into one submenu so rat's option list fits the screen
     private static final int MENU_AT = 2;
     private static final String MENU = "menu";
     private static final String BACK = "back";
 
-    private int lastDay = -1;
+    private static final int NO_DAY = Integer.MIN_VALUE;
+
+    private int lastDay = NO_DAY;
 
     public record OptionKey(String facilityId, String action) {
     }
@@ -48,8 +50,8 @@ public abstract class SettlementFacility extends BaseSettlementFacility {
     public void advance(float amount) {
         if (!isFunctional()) return;
 
-        int day = (int) (Global.getSector().getClock().getTimestamp() / DAY_MS);
-        if (lastDay < 0) lastDay = day;
+        int day = (int) Math.floorDiv(Global.getSector().getClock().getTimestamp(), DAY_MS);
+        if (lastDay == NO_DAY) lastDay = day;
         if (day == lastDay) return;
 
         lastDay = day;
