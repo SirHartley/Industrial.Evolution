@@ -3,6 +3,7 @@ package iecheck;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import indevo.ambience.shuttletraffic.Shuttle;
+import indevo.ambience.shuttletraffic.ShuttleNetwork;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleTraffic;
 import indevo.ambience.shuttletraffic.renderers.ShuttleTrafficRenderer;
@@ -133,17 +134,21 @@ public final class TrafficChecks {
     }
 
     // craft around each market over the samples of its system: one sample swings too much to compare markets
-    private static final Map<String, int[]> around = new HashMap<>();
+    // counts divided by the market's rush hour at sample time, so the swing does not decide the comparison
+    private static final Map<String, float[]> around = new HashMap<>();
 
     private static void sample(String entityId) {
-        int[] sum = around.computeIfAbsent(entityId, x -> new int[2]);
-        sum[0] += around(Global.getSector().getEntityById(entityId));
+        SectorEntityToken e = Global.getSector().getEntityById(entityId);
+        ShuttleTraffic t = traffic();
+        float rush = e.getMarket() != null && t != null ? ShuttleNetwork.getRushHour(e.getMarket().getId(), t.getDays()) : 1f;
+        float[] sum = around.computeIfAbsent(entityId, x -> new float[2]);
+        sum[0] += around(e) / rush;
         sum[1]++;
     }
 
     private static float mean(String entityId) {
-        int[] sum = around.get(entityId);
-        return sum == null || sum[1] == 0 ? 0f : sum[0] / (float) sum[1];
+        float[] sum = around.get(entityId);
+        return sum == null || sum[1] == 0 ? 0f : sum[0] / sum[1];
     }
     private static final Map<Shuttle, Vector2f> start = new IdentityHashMap<>();
     private static final Map<Shuttle, Float> startAge = new IdentityHashMap<>();
@@ -318,7 +323,7 @@ public final class TrafficChecks {
         system(steps, "sindria", "askonia");
         system(steps, "jangala", "corvus");
         steps.add(c -> c.expect(mean("chicomoztoc") >= 2f * Math.max(1f, mean("arcadia_station")),
-                "Chicomoztoc at least twice as busy as Citadel Arcadia (means: Chicomoztoc " + mean("chicomoztoc") + ", Sindria " + mean("sindria") + ", Jangala " + mean("jangala")
+                "Chicomoztoc at least twice as busy as Citadel Arcadia, rush hours divided out (means: Chicomoztoc " + mean("chicomoztoc") + ", Sindria " + mean("sindria") + ", Jangala " + mean("jangala")
                         + ", Citadel Arcadia " + mean("arcadia_station") + ")"));
         return steps;
     }
