@@ -233,8 +233,8 @@ public class SalvageYardsPanel extends BaseCustomDialogDelegate {
                 t.addPara("The yards build ships from your blueprints and from the Wreck Registry. Delivery to local storage takes %s.", 0f, hl, YardsContract.getDeliveryText());
                 t.addPara("The budget is the yards' capacity, plus %s of the value of scrapped ships, less per D-mod. A story point doubles the yard capacity for one contract and is kept until the next one.", pad, hl, "30%");
                 t.addPara("The price follows your standing with " + market.getFaction().getDisplayNameWithArticle() + ": %s at best, %s at worst.", pad, hl, "90%", "150%");
-                t.addPara("%s reduce the D-mods on the new hulls, %s for each fleet point fills the quota. %s count %s each against the cost, up to half of it.", pad, hl,
-                        Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName(), Setting.RARE_PARTS_AMOUNT_PER_FP.intValue() + "",
+                t.addPara("%s reduce the D-mods on the new hulls, %s for each deployment point fills the quota. %s count %s each against the cost, up to half of it.", pad, hl,
+                        Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName(), Setting.RARE_PARTS_AMOUNT_PER_DP.intValue() + "",
                         Global.getSettings().getCommoditySpec(ItemIds.PARTS).getName(), Misc.getDGSCredits(YardsProductionData.getPartValue()));
                 t.addPara("A running order can be accelerated once every %s with %s.", pad, hl, "60 days", Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getName());
                 t.addPara("\"Spend enough time taking 'em apart, you get to know how to make one. Bring us the parts we can't just scrounge up, pay us, and we'll build you a beauty!\"", Misc.getGrayColor(), pad);

@@ -36,8 +36,8 @@ public class RogueDrizzleSpawner implements EveryFrameScript {
 
     public static final float MIN_ROCK_SIZE = 20f;
     public static final float MAX_ROCK_SIZE = 48f;
-    public static final float MIN_SPEED = 200f;
-    public static final float MAX_SPEED = 500f;
+    public static final float MIN_SPEED = 120f;
+    public static final float MAX_SPEED = 300f;
     public static final float MAX_LANE_SPREAD = 8f;
     public static final int MIN_LANE_SETS = 2;
     public static final int MAX_LANE_SETS = 3;

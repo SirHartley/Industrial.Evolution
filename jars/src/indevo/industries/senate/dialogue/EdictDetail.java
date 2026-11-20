@@ -307,8 +307,8 @@ class EdictDetail {
         CustomPanelAPI b = block(UiButtons.guardHeight(half, BUTTON_H, reason), GAP);
         UiButtons.button(b, 0f, 0f, half, BUTTON_H, "Remove", UiButtons.Kind.RED, CutStyle.TL_BR, () -> createRemoveConfirm(active, condition).show(panel::refresh));
 
-        ButtonAPI bribe = UiButtons.button(b, w - half, 0f, half, BUTTON_H, "Bribe senators", affordable ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
-                UiImages.relicSprite(), amount, Ui.ORB12, affordable ? () -> createBribeConfirm(active, condition).show(panel::refresh) : null);
+        ButtonAPI bribe = UiButtons.relic(b, w - half, 0f, half, BUTTON_H, "Bribe senators", cost, affordable, CutStyle.TL_BR,
+                affordable ? () -> createBribeConfirm(active, condition).show(panel::refresh) : null);
         if (reason != null) Ui.wrap(b, w - half, BUTTON_H + UiButtons.REASON_GAP, half, reason, Ui.neg());
 
         MarketAPI market = colony;

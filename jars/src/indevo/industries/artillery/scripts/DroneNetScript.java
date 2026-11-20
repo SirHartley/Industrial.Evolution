@@ -255,6 +255,7 @@ public class DroneNetScript implements EveryFrameScript {
         relics.group = NEST_DROP_GROUP;
         relics.chances = MIN_NEST_RELICS;
         relics.maxChances = MAX_NEST_RELICS;
+        relics.unaffectedByExtMode = true;
 
         return List.of(relics, createValueDrop(NEST_MACHINERY_GROUP, NEST_MACHINERY_VALUE), createValueDrop(NEST_METALS_GROUP, NEST_METALS_VALUE));
     }
