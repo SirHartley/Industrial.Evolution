@@ -43,10 +43,12 @@ public class PetPlanner {
     static final float FIT_H = 40f;
     static final float WANT_ROW = 26f;
     static final float WANT_H = 24f;
-    static final float STEP = 22f;
+    // a selected row draws outline, 1 px black, then its fill: the step buttons stay inside the fill
+    static final float STEP = 20f;
+    static final float STEP_Y = 2f;
     static final float VALUE_X = 26f;
     static final float VALUE_W = 62f;
-    static final float PLUS_X = 88f;
+    static final float PLUS_X = 90f;
     static final float TRAIT_X = 120f;
     static final float EFFECT_X = 235f;
     static final float CHANCE_W = 60f;
@@ -717,9 +719,9 @@ public class PetPlanner {
 
     // minus, the wanted value, plus; a null action greys its button
     private static void stepper(CustomPanelAPI p, String value, Color color, Runnable minus, Runnable plus) {
-        UiButtons.button(p, 4f, 1f, STEP, STEP, "-", minus != null ? UiButtons.Kind.STD : UiButtons.Kind.OFF, minus);
+        UiButtons.button(p, 4f, STEP_Y, STEP, STEP, "-", minus != null ? UiButtons.Kind.STD : UiButtons.Kind.OFF, minus);
         Ui.textIn(p, VALUE_X, 0f, VALUE_W, WANT_H, value, Ui.INS15, color, Ui.CENTER, new String[0], new Color[0]);
-        UiButtons.button(p, PLUS_X, 1f, STEP, STEP, "+", plus != null ? UiButtons.Kind.STD : UiButtons.Kind.OFF, plus);
+        UiButtons.button(p, PLUS_X, STEP_Y, STEP, STEP, "+", plus != null ? UiButtons.Kind.STD : UiButtons.Kind.OFF, plus);
     }
 
     // minus under the lowest value takes the row out
