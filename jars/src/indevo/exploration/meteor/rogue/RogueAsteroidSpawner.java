@@ -41,8 +41,8 @@ public final class RogueAsteroidSpawner {
     public static final float AIM_RANDOM_RADIUS = 20000f;
     public static final float GRID_MARGIN = 500f;
 
-    public static final float MIN_SPEED = 250f;
-    public static final float MAX_SPEED = 400f;
+    public static final float MIN_SPEED = 150f;
+    public static final float MAX_SPEED = 250f;
     public static final float MIN_FLEET_SPEED = 10f;
     public static final float VIEW_CLEARANCE = 2000f;
     public static final float START_SEARCH_STEP = 250f;

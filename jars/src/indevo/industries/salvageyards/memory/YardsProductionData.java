@@ -33,21 +33,21 @@ public class YardsProductionData {
     }
 
     public int getRequiredParts() {
-        return getFP() * Setting.RARE_PARTS_AMOUNT_PER_FP.intValue();
+        return getDP() * Setting.RARE_PARTS_AMOUNT_PER_DP.intValue();
     }
 
     public int getMaxPartsAmt() {
         return (int) Math.round((baseCost / 2) / getPartValue());
     }
 
-    private int getFP() {
-        int totalFP = 0;
+    private int getDP() {
+        int totalDP = 0;
 
         for (Map.Entry<String, Integer> e : productionList.entrySet()) {
-            totalFP += Global.getSettings().getHullSpec(e.getKey()).getFleetPoints() * e.getValue();
+            totalDP += Math.round(Global.getSettings().getHullSpec(e.getKey()).getSuppliesToRecover()) * e.getValue();
         }
 
-        return totalFP;
+        return totalDP;
     }
 
     public int getAverageDModAmount() {

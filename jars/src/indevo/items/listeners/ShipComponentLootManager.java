@@ -3,6 +3,7 @@ package indevo.items.listeners;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
+import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.DerelictShipEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Entities;
@@ -40,6 +41,9 @@ public class ShipComponentLootManager {
     }};
 
     public static final float DEFAULT_AI_SHIP_RARE_PARTS_DROP_DP_FRACTION = 0.2f;
+    public static final float STATION_RELICS_PER_FP_MIN = 1.25f;
+    public static final float STATION_RELICS_PER_FP_MAX = 2f;
+    public static final float DAMAGED_STATION_RELIC_MULT = 0.5f;
 
     public static class PartsLootAdder extends BaseCampaignEventListener {
 
@@ -107,6 +111,8 @@ public class ShipComponentLootManager {
                     int amt = (int) Math.round(destroyedAiFp * DEFAULT_AI_SHIP_RARE_PARTS_DROP_DP_FRACTION + (0.15 * new Random().nextFloat() * destroyedAiFp));
                     loot.addCommodity(ItemIds.RARE_PARTS, amt);
                 }
+
+                addDestroyedStationRelics(fleet, loot);
             }
 
             SectorEntityToken target = dialog.getInteractionTarget();
@@ -137,6 +143,29 @@ public class ShipComponentLootManager {
 
             int amt = toAdd.one + new Random(Misc.getSalvageSeed(target)).nextInt(toAdd.two - toAdd.one + 1);
             loot.addCommodity(ItemIds.RARE_PARTS, amt);
+        }
+
+        // station hulls have no cargo or fuel space, so vanilla never loots the relics put into their fleet cargo
+        private static void addDestroyedStationRelics(CampaignFleetAPI fleet, CargoAPI loot) {
+            if (!Factions.REMNANTS.equals(fleet.getFaction().getId())) return;
+
+            List<FleetMemberAPI> currentMembers = fleet.getFleetData().getMembersListCopy();
+            Random random = new Random(Misc.getSalvageSeed(fleet));
+
+            for (FleetMemberAPI member : fleet.getFleetData().getSnapshot()) {
+                if (!member.isStation() || currentMembers.contains(member)) continue;
+
+                float perFp = STATION_RELICS_PER_FP_MIN + random.nextFloat() * (STATION_RELICS_PER_FP_MAX - STATION_RELICS_PER_FP_MIN);
+                if (isDamagedStation(member)) perFp *= DAMAGED_STATION_RELIC_MULT;
+                loot.addCommodity(ItemIds.RARE_PARTS, Math.round(member.getHullSpec().getFleetPoints() * perFp));
+            }
+        }
+
+        // vanilla seeds suppressed remnant systems with remnant_station2_Damaged, resurgent ones with remnant_station2_Standard
+        private static boolean isDamagedStation(FleetMemberAPI member) {
+            ShipVariantAPI variant = member.getVariant();
+            String id = variant.getOriginalVariant() != null ? variant.getOriginalVariant() : variant.getHullVariantId();
+            return id != null && id.endsWith("_Damaged");
         }
 
         private static float getDestroyedAiFp(CampaignFleetAPI fleet) {
