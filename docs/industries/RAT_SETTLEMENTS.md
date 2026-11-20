@@ -1,8 +1,8 @@
 # RAT settlements
 
-IE facilities for the settlements of Random Assortment of Things (RAT, `assortment_of_things`, 3.3.1): small versions of IE industries built in a settlement's facility slots. Read it before changing a facility, the settlement option and return flow, or the Engineering Annex panel. It does not cover the parent industries; each facility links its parent doc. Other RAT touch points (Courier Port targets, storage fallback, loot ids) are in [Compatibility](../core/COMPATIBILITY.md).
+IE facilities for the settlements of Random Assortment of Things (RAT, `assortment_of_things`, 3.4.1): small versions of IE industries built in a settlement's facility slots. Read it before changing a facility, the settlement option and return flow, or the Engineering Annex panel. It does not cover the parent industries; each facility links its parent doc. Other RAT touch points (Courier Port targets, storage fallback, loot ids) are in [Compatibility](../core/COMPATIBILITY.md).
 
-Checked against RAT 3.3.1 (`lib/RandomAssortmentofThings.jar`) and Starsector 0.98.5a-RC7. Not tested in game.
+Checked against RAT 3.4.1 (`lib/RandomAssortmentofThings.jar`; its Frontiers code and data match 3.3.1) and Starsector 0.98.5a-RC7. Not tested in game.
 
 ## Overview
 
