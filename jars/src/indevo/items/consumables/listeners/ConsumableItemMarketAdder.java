@@ -38,7 +38,7 @@ public class ConsumableItemMarketAdder extends BaseCampaignEventListener {
         }
     }
 
-    public void updateSubmarketCargo(SubmarketAPI submarket) {
+    public static void updateSubmarketCargo(SubmarketAPI submarket) {
         MarketAPI market = submarket.getMarket();
         if (market == null) return;
 

@@ -22,6 +22,9 @@ import indevo.industries.RequisitionCenter;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.BillingHelper;
+import indevo.config.Setting;
+import indevo.industries.ratsettlement.RatSettlements;
+import indevo.items.consumables.listeners.ConsumableItemMarketAdder;
 
 import java.util.*;
 
@@ -30,7 +33,7 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin {
     private boolean playerPaidToUnlock = false;
 
     public void updateCargoPrePlayerInteraction() {
-        if (market.isPlayerOwned() && !playerPaidToUnlock) {
+        if (ownedByPlayer() && !playerPaidToUnlock) {
             setPlayerPaidToUnlock(true);
         }
 
@@ -80,9 +83,18 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin {
             }
 
             getCargo().getMothballedShips().clear();
+
+            // whether rat's settlement cargo screen fires reportPlayerOpenedMarketAndCargoUpdated is unchecked, so stock here; the adder marks the update so the listener skips it
+            if (RatSettlements.isSettlementMarket(market) && Setting.CONSUMABLE_ADD_TO_MARKETS.enabled())
+                ConsumableItemMarketAdder.updateSubmarketCargo(submarket);
         }
 
         getCargo().sort();
+    }
+
+    // the rat settlement market is never player owned but counts as the player's here
+    private boolean ownedByPlayer() {
+        return market.isPlayerOwned() || RatSettlements.isSettlementMarket(market);
     }
 
     public boolean isParticipatesInEconomy() {
@@ -150,7 +162,7 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin {
         WeightedRandomPicker<WeaponSpecAPI> strike = new WeightedRandomPicker<>(itemGenRandom);
 
         boolean betaCore = getLocalAICoreId().equals(Commodities.BETA_CORE);
-        boolean isPlayerOwned = market.isPlayerOwned();
+        boolean isPlayerOwned = ownedByPlayer();
         FactionAPI playerFaction = Global.getSector().getPlayerFaction();
         Map<String, Float> weaponsInCargoMap = null;
         if (getLocalAICoreId().equals(Commodities.ALPHA_CORE)) weaponsInCargoMap = getWeaponsInCargo();
@@ -369,7 +381,7 @@ public class RequisitionsCenterSubmarketPlugin extends BaseSubmarketPlugin {
 
     @Override
     public float getTariff() {
-        return market.isPlayerOwned() ? 0.40f : 0.60f;
+        return ownedByPlayer() ? 0.40f : 0.60f;
     }
 
     //unlock shit
