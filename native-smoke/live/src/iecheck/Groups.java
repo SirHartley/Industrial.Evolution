@@ -117,6 +117,8 @@ public final class Groups {
                 return TrafficPerfChecks.steps();
             case "trafficapproach":
                 return TrafficChecks.approachSteps();
+            case "trafficrush":
+                return TrafficRushChecks.steps();
             case "traffic":
                 return TrafficChecks.steps();
             case "uiacademy":
