@@ -153,6 +153,7 @@ S-mods tab (`TransferTab`, `ModTransfer.Kind.SMOD`), same ship pool and layout a
 - The industry only counts battles of fleets present when `apply()` last ran; new arrivals are added on the next reapply.
 - `isFunctional()` returns false while the setting is off, which also stops a saved yards from producing. The card goes dark; the tooltip shows "Salvage Yards are turned off in the mod settings." (`addRightAfterDescriptionSection`, `SalvageYards.java:423`, `NORMAL` mode, not while building) and vanilla's "Currently under construction" line below it, since vanilla prints that for any non functional industry that is not disrupted.
 - `custom_production_mod` handling (`modifyPlayerCustomProduction`) is never called; only the unmodify runs. Output reaches custom production through heavy industry `ships` supply instead (inferred from the "now adds onto heavy industry directly" comment, `:76`).
+- A small RAT settlement version of this industry exists (Refit Gantry: `SalvageYardsPanel` in transfer only mode, `SalvageYardsDialogPlugin` with `onReturn`); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
 

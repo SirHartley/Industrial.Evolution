@@ -118,9 +118,6 @@ class AcademyDetail {
 
             if (blocker == null && !BillingHelper.canAfford(fee)) blocker = "Not enough credits.";
         }
-        // reference only, the list row shows them too, so they are what scrolls
-        addSkills(person, false);
-
         pin();
         if (view.rung != null) {
             grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)),
@@ -174,27 +171,10 @@ class AcademyDetail {
         });
     }
 
-    private void addSkills(PersonAPI person, boolean admin) {
-        List<AcademyPanelDelegate.Skill> skills = AcademyPanelDelegate.getSkills(person, admin);
-        heading("Skills", SECTION_GAP);
-
-        if (skills.isEmpty()) add(LINE, GAP, b -> Ui.text(b, 0f, 3f, w, admin ? "No administrator skills." : "No skills.", Ui.gray()));
-
-        // one block per row, so the column ends on a whole row
-        for (int i = 0; i < skills.size(); i++) {
-            AcademyPanelDelegate.Skill skill = skills.get(i);
-            add(LINE, i == 0 ? GAP : 0f, b -> {
-                UiImages.skill(b, 2f, 1f, 22f, skill.spec(), skill.elite());
-                Ui.text(b, 32f, 3f, w - 32f - (skill.elite() ? 48f : 0f), skill.spec().getName());
-                if (skill.elite()) Ui.text(b, w - 44f, 3f, 44f, "Elite", Ui.hl(), Ui.RIGHT);
-            });
-        }
-    }
-
     private void addLadder(PersonAPI person, String current) {
         List<String> ladder = new ArrayList<>(Academy.COLOURS_BY_PERSONALITY.keySet());
         List<String> reachable = academy.getReachablePersonalities(person);
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
 
         // one block per rung, so the column ends on a whole rung
         for (int i = 0; i < ladder.size(); i++) {
@@ -260,7 +240,6 @@ class AcademyDetail {
         int days = academy.getAdminTrainingDays();
         heading("Administrator training", SECTION_GAP);
         grid(GAP, GridRow.of("Gains", "One random skill"));
-        if (Academy.getAdminSkillCount(person) > 0) addSkills(person, true);
 
         pin();
         if (blocker == null) grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)), GridRow.of("Away until", AcademyPanelDelegate.getDoneDate(days)));
@@ -338,7 +317,7 @@ class AcademyDetail {
                 AcademyPanelDelegate.getDayLabel(total, left)));
         if (paused != null) text("Paused: " + paused, Ui.neg(), 4f);
 
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
         List<GridRow> rows = new ArrayList<>();
         rows.add(GridRow.of("Days left", left + ""));
         rows.add(GridRow.of("Done on", AcademyPanelDelegate.getDoneDate(left)));
@@ -414,14 +393,14 @@ class AcademyDetail {
 
     private void addFee(float fee) {
         add(UiData.COST_ROW_H, 4f, b -> {
-            if (academy.getMarket().isPlayerOwned()) {
+            if (academy.ownedByPlayer()) {
                 UiData.value(b, 0f, 0f, w, UiData.COST_ROW_H, "Fee", "Free own Academy", Ui.gray(), new String[]{"Free"}, new Color[]{Ui.pos()});
             } else UiData.creditsRow(b, 0f, 0f, w, "Fee", fee);
         });
     }
 
     private String getStoreTooltip(MarketAPI governed) {
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
         String fee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
         String text;
 

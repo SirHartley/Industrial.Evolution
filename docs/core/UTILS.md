@@ -65,10 +65,11 @@ Owner of IE costs and income: monthly report lines and dialog purchases. Do not 
 |---|---|
 | `charge(ind, line, label, amount)` | Adds `amount` to the upkeep of the line node. Callable any time in the month; writes add up, nothing is reset. `amount <= 0` adds nothing |
 | `pay(ind, line, label, amount)` | Same node, adds to income |
+| `charge(market, ownerId, line, label, amount)`, `pay(...)` | Same for an owner without an `Industry` (RAT settlement facilities): node id `<ownerId>_<line>`, `custom` the market |
 | `canAfford(amount)` | Player credits `>= amount`. Every dialog checks it before it offers a purchase |
 | `chargeNow(amount)` | Subtracts credits immediately for dialog purchases; throws `IllegalStateException` when the player cannot afford it (the caller skipped `canAfford`) |
 
-Node layout in `SharedData.getCurrentReport()`, node id `<industry id>_<line>`, `name` the label, `custom` the industry (the income tab then draws the industry image, shows the industry tooltip and opens the market on the map on click; obfuscated `com.fs.starfarer.campaign.command.IntelIncomePanel` and its row class):
+Node layout in `SharedData.getCurrentReport()`, node id `<industry id or ownerId>_<line>`, `name` the label, `custom` the industry (the income tab then draws the industry image, shows the industry tooltip and opens the market on the map on click; obfuscated `com.fs.starfarer.campaign.command.IntelIncomePanel` and its row class):
 
 | Market | Path |
 |---|---|

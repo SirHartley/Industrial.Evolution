@@ -34,6 +34,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [ORBITAL_WORKS_SLOT](industries/ORBITAL_WORKS_SLOT.md) | Relic Lattice Work: extra S-mod slot at vanilla Orbital Works | `industries/orbitalworks` |
 | | [PETS](industries/PETS.md) | Pet shop, pets, pet management ability | `industries/petshop`, `abilities/pets` |
 | | [PRIVATEER](industries/PRIVATEER.md) | Privateer base raids | `industries/privateer` |
+| | [RAT_SETTLEMENTS](industries/RAT_SETTLEMENTS.md) | IE facilities for RAT settlements, Engineering Annex panel | `industries/ratsettlement` |
 | | [RELAY](industries/RELAY.md) | Military and interstellar relays, fleet size sharing | `industries/relay` |
 | | [RUINED_INFRASTRUCTURE](industries/RUINED_INFRASTRUCTURE.md) | Ruined infrastructure conditions and restoration | `industries/ruinfra` |
 | | [SALVAGE_YARDS](industries/SALVAGE_YARDS.md) | Salvage yards, custom production, D-mod transfer | `industries/salvageyards` |
@@ -122,7 +123,7 @@ Every load (`:153` to `:173`):
 | `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:522` |
 | `system.addScript` guarded by a system memory key | Saved script on one star system, added at placement | `DroneNetScript.getInstanceOrRegister` ([ARTILLERY](industries/ARTILLERY.md#drone-net)) |
 | `LunaCampaignRenderer.addTransientRenderer` guarded by `hasRendererOfClass` or `getRendererOfClass` | Transient LunaLib campaign renderer, one per session, not saved | `ShuttleTrafficRenderer.register()` ([SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md)), `RogueRockDustRenderer.register()` ([METEOR](exploration/METEOR.md#rogue-asteroids)), `ArtilleryFireRenderer.getInstanceOrRegister` on the first shot ([ARTILLERY](industries/ARTILLERY.md#fire-animation)) |
-| Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub |
+| Industry adds itself in `apply()` | `addListener(this)` from the industry; the listener manager skips an instance already present (obf `ObjectRepository.java:87`, per the knowledge skill) | Assembler, engineering hub; RAT settlement facilities add themselves as `NewDayListener` in `apply()` and remove themselves in `unapply()` ([RAT_SETTLEMENTS](industries/RAT_SETTLEMENTS.md)) |
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
 | `ruleCommandPackages` | Rule commands found by package | `settings.json:30` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
@@ -238,6 +239,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 - `IndEvo_SharedStore` (`SharedSubmarketUser`) is shared by the supercomputer, salvage yards, engineering hub, commodity forge and forge template users. Forge templates move between derelict industries as cargo ([DERELICTS](industries/DERELICTS.md), [INSTALLABLES](items/INSTALLABLES.md)).
 - `MiscIE.getStorage` falls back to RAT `rat_settlement_storage` ([UTILS](core/UTILS.md)).
+- RAT settlement facilities add `IndEvo_ReqMarket` and the museum submarket to the settlement market from `apply()` and remove them with `IndustrySubmarkets.remove` on demolish; the settlement market is not in the economy, so `removeOrphans` never sees it ([RAT_SETTLEMENTS](industries/RAT_SETTLEMENTS.md)).
 - Industry submarkets are added and removed only through `IndustrySubmarkets`: `ensure` from the owner's `advance()`, `release` from its `notifyBeingRemoved()`, never from `unapply()` ([SUBMARKETS](core/SUBMARKETS.md)).
 
 ### Cross-feature coupling
@@ -246,6 +248,8 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 |---|---|---|
 | Privateer | Current changeling government; `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
+| RAT settlements | Parent industry code: `Academy`, `ReverseEngineering`, Salvage Yards and Courier panels, `Museum` and `RestorationDocks` static helpers, Requisitions Center submarket, `VariableAssembler` deposits, `AmbassadorPersonManager`, `PetShop` (`HabitatPetShop`, `planCenter`) and the Pets panel | [RAT_SETTLEMENTS](industries/RAT_SETTLEMENTS.md) |
+| Courier port | Contracts allowed and billed with a RAT Courier Office | `ShippingManager.java:44`, `:101` |
 | Split fleet | Courier `ShippingTargetHelper` for targets | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | Pets | `Academy.COLOURS_BY_PERSONALITY` | `PetCard.java:462` |
 | Split fleet | Skips the pet captain (`Ids.TAG_PET_CAPTAIN`) as an officer | [PETS](industries/PETS.md#contracts) |

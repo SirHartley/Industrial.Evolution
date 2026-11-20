@@ -1,0 +1,11 @@
+id,name,buildTime,shortDesc,icon,cost,plugin
+IndEvo_rat_consulate,Consulate,45,Slowly improves relations with the planet owner.,graphics/icons/ratsettlement/consulate.png,75000,indevo.industries.ratsettlement.facility.Consulate
+IndEvo_rat_requisition,Requisition Office,60,Imports weapons and stocks consumable missiles.,graphics/icons/ratsettlement/requisition.png,90000,indevo.industries.ratsettlement.facility.RequisitionOffice
+IndEvo_rat_fabricator,Fabricator Bay,60,Makes commodities from a loaded VPC each month.,graphics/icons/ratsettlement/fabricator.png,100000,indevo.industries.ratsettlement.facility.FabricatorBay
+IndEvo_rat_exhibition,Exhibition Hangar,45,Stores rare ships for a small monthly income.,graphics/icons/ratsettlement/exhibition.png,50000,indevo.industries.ratsettlement.facility.ExhibitionHangar
+IndEvo_rat_courier,Courier Office,45,Runs Courier Port contracts from the settlement.,graphics/icons/ratsettlement/courier.png,65000,indevo.industries.ratsettlement.facility.CourierOffice
+IndEvo_rat_restoration,Restoration Bay,60,Removes one D-mod from a ship in storage every 31 days.,graphics/icons/ratsettlement/restoration.png,100000,indevo.industries.ratsettlement.facility.RestorationBay
+IndEvo_rat_gantry,Refit Gantry,60,Moves D-mods and S-mods between ships.,graphics/icons/ratsettlement/gantry.png,75000,indevo.industries.ratsettlement.facility.RefitGantry
+IndEvo_rat_quarters,Officer Quarters,45,Stores and trains officers and administrators.,graphics/icons/ratsettlement/quarters.png,75000,indevo.industries.ratsettlement.facility.OfficerQuarters
+IndEvo_rat_annex,Engineering Annex,60,Reverse engineers one hull class at a time.,graphics/icons/ratsettlement/annex.png,100000,indevo.industries.ratsettlement.facility.EngineeringAnnex
+IndEvo_rat_habitat,Pet Habitat,30,Stores pets and raises young in one habitat.,graphics/icons/ratsettlement/habitat.png,50000,indevo.industries.ratsettlement.facility.PetHabitat

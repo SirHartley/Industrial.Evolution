@@ -25,6 +25,7 @@ public class SalvageYardsDialogPlugin implements InteractionDialogPlugin, Escape
 
     private final InteractionDialogPlugin originalPlugin;
     private final Map<String, MemoryAPI> memoryMap;
+    private final Consumer<InteractionDialogAPI> onReturn;
     private final SalvageYardsPanel panel;
 
     private InteractionDialogAPI dialog;
@@ -39,7 +40,16 @@ public class SalvageYardsDialogPlugin implements InteractionDialogPlugin, Escape
     public SalvageYardsDialogPlugin(MarketAPI market, SalvageYardsView view, InteractionDialogPlugin originalPlugin, Map<String, MemoryAPI> memoryMap) {
         this.originalPlugin = originalPlugin;
         this.memoryMap = memoryMap;
+        this.onReturn = null;
         this.panel = new SalvageYardsPanel(market, view, this);
+    }
+
+    // return hands the dialog to onReturn instead of rules, for hosts that are not rules (rat settlements)
+    public SalvageYardsDialogPlugin(MarketAPI market, SalvageYardsView view, Consumer<InteractionDialogAPI> onReturn, boolean transferOnly) {
+        this.originalPlugin = null;
+        this.memoryMap = null;
+        this.onReturn = onReturn;
+        this.panel = new SalvageYardsPanel(market, view, this, transferOnly);
     }
 
     // opens the panel for the market's yards in the given view, for code and tests
@@ -89,12 +99,17 @@ public class SalvageYardsDialogPlugin implements InteractionDialogPlugin, Escape
     }
 
     void leave() {
-        if (originalPlugin == null) dialog.dismiss();
+        if (originalPlugin == null && onReturn == null) dialog.dismiss();
         else returnPending = true;
     }
 
     // runs a frame after the custom dialog is gone, rules must not fire from inside its dismiss
     private void returnToRules() {
+        if (onReturn != null) {
+            onReturn.accept(dialog);
+            return;
+        }
+
         dialog.setPlugin(originalPlugin);
         dialog.showTextPanel();
         dialog.showVisualPanel();

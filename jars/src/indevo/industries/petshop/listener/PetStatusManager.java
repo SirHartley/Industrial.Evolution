@@ -674,7 +674,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
                 String home;
                 if (pet.isAssigned()) home = "formerly living on the " + petLocation;
-                else if (pet.storage != null) home = "formerly living at the " + pet.storage.getMarket().getName() + " " + Global.getSettings().getIndustrySpec(Ids.PET_STORE).getName().toLowerCase();
+                else if (pet.storage != null) home = "formerly living at the " + pet.storage.getMarket().getName() + " " + pet.storage.getCurrentName().toLowerCase();
                 else home = "formerly of the menagerie";
                 message("%s the " + pet.getData().species + ", " + home + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
 

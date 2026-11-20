@@ -12,6 +12,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.salvageyards.industry.SalvageYards;
 import indevo.industries.salvageyards.memory.YardsProductionData;
+import indevo.utils.helper.RelicHelper;
 import indevo.utils.ui.*;
 
 import java.awt.*;
@@ -23,6 +24,7 @@ import static indevo.items.installable.SpecialItemEffectsRepo.SALVAGE_DRONES_SP_
 
 public class SalvageYardsPanel extends BaseCustomDialogDelegate {
 
+    public static final String TRANSFER_ONLY_TITLE = "Refit Gantry";
     public static final float BOARD_W = 1024f;
     public static final float BOARD_H = 760f;
     static final float BODY_Y = 64f;
@@ -33,15 +35,22 @@ public class SalvageYardsPanel extends BaseCustomDialogDelegate {
     private final MarketAPI market;
     private final SalvageYardsView view;
     private final SalvageYardsDialogPlugin host;
+    // only the D-mod and S-mod tabs, no yards needed (rat settlement Refit Gantry)
+    private final boolean transferOnly;
     private CustomDialogCallback callback;
     private UiRoot root;
     private boolean open = false;
     private boolean forPicker = false;
 
     public SalvageYardsPanel(MarketAPI market, SalvageYardsView view, SalvageYardsDialogPlugin host) {
+        this(market, view, host, false);
+    }
+
+    public SalvageYardsPanel(MarketAPI market, SalvageYardsView view, SalvageYardsDialogPlugin host, boolean transferOnly) {
         this.market = market;
         this.view = view;
         this.host = host;
+        this.transferOnly = transferOnly;
     }
 
     public static float getWidth() {
@@ -127,6 +136,12 @@ public class SalvageYardsPanel extends BaseCustomDialogDelegate {
 
     private List<SalvageYardsView.Tab> getTabs() {
         List<SalvageYardsView.Tab> tabs = new ArrayList<>();
+        if (transferOnly) {
+            tabs.add(SalvageYardsView.Tab.DMODS);
+            tabs.add(SalvageYardsView.Tab.SMODS);
+            return tabs;
+        }
+
         tabs.add(SalvageYardsView.Tab.ASSEMBLY);
         if (hasRegistry()) tabs.add(SalvageYardsView.Tab.REGISTRY);
         tabs.add(SalvageYardsView.Tab.DMODS);
@@ -135,6 +150,18 @@ public class SalvageYardsPanel extends BaseCustomDialogDelegate {
     }
 
     private void build(CustomPanelAPI p, float w, float h) {
+        if (transferOnly) {
+            List<SalvageYardsView.Tab> tabs = getTabs();
+            if (!tabs.contains(view.tab)) view.tab = SalvageYardsView.Tab.DMODS;
+
+            UiFrame.title(p, w, TRANSFER_ONLY_TITLE, market.getName(), this::addHelp);
+            float tabsEnd = addTabs(p, w, tabs, null);
+            float right = counter(p, w, tabsEnd, null, UiImages.creditsSprite(), Ui.credits(Global.getSector().getPlayerFleet().getCargo().getCredits().get()), "Credits");
+            counter(p, right, tabsEnd, null, UiImages.relicSprite(), Ui.num(RelicHelper.getAvailable(market)), RelicHelper.getName() + ", in your fleet and in storage here");
+            new TransferTab(this, view.tab == SalvageYardsView.Tab.DMODS ? ModTransfer.Kind.DMOD : ModTransfer.Kind.SMOD).build(p, w, h);
+            return;
+        }
+
         if (getYards() == null) {
             UiFrame.title(p, w, "Salvage Yards", market.getName(), null);
             Ui.text(p, 0f, BODY_Y + 6f, w, "The Salvage Yards are gone.", Ui.gray(), Ui.CENTER);

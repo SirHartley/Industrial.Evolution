@@ -19,17 +19,22 @@ import indevo.industries.petshop.script.EscBlockerMemoryIterator;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_ESC;
 
 // rule command and host of the Courier Port panel; pickers close the panel and it reopens a frame after they are gone
 public class CourierPortDialoguePlugin extends BaseCommandPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
+    public static final String TITLE = "Courier Port";
     private static final String RETURN_OPTION = "IndEvo_SelectreturnToMenu";
 
     private InteractionDialogPlugin originalPlugin;
     private Map<String, MemoryAPI> memoryMap;
     private SectorEntityToken entity;
+    private Consumer<InteractionDialogAPI> onReturn;
+    private String title = TITLE;
+    private String subtitle = null;
 
     private CourierPanelDelegate panel;
     private InteractionDialogAPI dialog;
@@ -41,6 +46,22 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
 
     private CourierPortDialoguePlugin(CourierView view) {
         this.panel = new CourierPanelDelegate(view, this);
+    }
+
+    // return hands the dialog to onReturn instead of rules, for hosts that are not rules (rat settlements)
+    public CourierPortDialoguePlugin(String title, String subtitle, Consumer<InteractionDialogAPI> onReturn) {
+        this.title = title;
+        this.subtitle = subtitle;
+        this.onReturn = onReturn;
+        this.panel = new CourierPanelDelegate(new CourierView(), this);
+    }
+
+    String getTitle() {
+        return title;
+    }
+
+    String getSubtitle() {
+        return subtitle;
     }
 
     // opens the panel at the entity in the given view, for code and tests; Return closes the dialog
@@ -110,12 +131,17 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
     }
 
     void leave() {
-        if (originalPlugin == null) dialog.dismiss();
+        if (originalPlugin == null && onReturn == null) dialog.dismiss();
         else returnPending = true;
     }
 
     // runs a frame after the custom dialog is gone, rules must not fire from inside its dismiss
     private void returnToRules() {
+        if (onReturn != null) {
+            onReturn.accept(dialog);
+            return;
+        }
+
         dialog.setPlugin(originalPlugin);
         dialog.showTextPanel();
         dialog.showVisualPanel();

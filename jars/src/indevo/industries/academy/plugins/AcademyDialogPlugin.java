@@ -17,12 +17,14 @@ import indevo.industries.petshop.listener.EscapeInterceptListener;
 import indevo.industries.petshop.script.EscBlockerMemoryIterator;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
     private final InteractionDialogPlugin originalPlugin;
     private final Map<String, MemoryAPI> memoryMap;
     private final String returnOption;
+    private final Consumer<InteractionDialogAPI> onReturn;
 
     private final AcademyPanelDelegate panel;
     private InteractionDialogAPI dialog;
@@ -36,6 +38,16 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
         this.originalPlugin = originalPlugin;
         this.memoryMap = memoryMap;
         this.returnOption = returnOption;
+        this.onReturn = null;
+        this.panel = new AcademyPanelDelegate(academy, view, this::leave);
+    }
+
+    // return hands the dialog to onReturn instead of rules, for hosts that are not rules (rat settlements)
+    public AcademyDialogPlugin(Academy academy, AcademyView view, Consumer<InteractionDialogAPI> onReturn) {
+        this.originalPlugin = null;
+        this.memoryMap = null;
+        this.returnOption = null;
+        this.onReturn = onReturn;
         this.panel = new AcademyPanelDelegate(academy, view, this::leave);
     }
 
@@ -81,12 +93,17 @@ public class AcademyDialogPlugin implements InteractionDialogPlugin, EscapeBlock
     }
 
     public void leave() {
-        if (originalPlugin == null) dialog.dismiss();
+        if (originalPlugin == null && onReturn == null) dialog.dismiss();
         else returnPending = true;
     }
 
     // runs a frame after the custom dialog is gone, rules must not fire from inside its dismiss
     private void returnToRules() {
+        if (onReturn != null) {
+            onReturn.accept(dialog);
+            return;
+        }
+
         dialog.setPlugin(originalPlugin);
         dialog.showTextPanel();
         dialog.showVisualPanel();

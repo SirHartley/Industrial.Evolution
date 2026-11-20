@@ -167,7 +167,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public void onNewDay() {
 
         if (isFunctional()) {
-            if (!market.getId().equals(Ids.ACADEMY_MARKET_ID)) {
+            if (spawnsHireables()) {
                 //spawn officers/admins if the market has none:
                 if (!marketHasHireableOfficer(false) && getRandomBoolean(Setting.DAILY_OFFICER_SPAWN_CHANCE.value())) {
                     createHireablePerson(false);
@@ -183,6 +183,15 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
                 trainAdminInTraining();
             }
         }
+    }
+
+    protected boolean spawnsHireables() {
+        return !market.getId().equals(Ids.ACADEMY_MARKET_ID);
+    }
+
+    // player rules for fees and training; the rat settlement Officer Quarters is never player owned but counts
+    public boolean ownedByPlayer() {
+        return market.isPlayerOwned();
     }
 
     public void reportEconomyTick(int iterIndex) {
@@ -228,7 +237,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         tooltip.addPara("Officers in storage: %s", opad, hl, new String[]{getOfficerStorage().size() + ""});
         tooltip.addPara("Administrators in storage: %s", spad, hl, new String[]{getAdminStorage().size() + ""});
 
-        if (!market.isPlayerOwned()) {
+        if (!ownedByPlayer()) {
             tooltip.addPara("Monthly salary cost: %s, storage fees: %s", opad, hl, new String[]{Misc.getDGSCredits(calculateSalaryStorageCost()), Misc.getDGSCredits(calculateFeeStorageCost())});
         } else {
             tooltip.addPara("Monthly salary cost: %s, no storage fee.", opad, hl, new String[]{Misc.getDGSCredits(calculateSalaryStorageCost())});
@@ -280,7 +289,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     private float calculateFeeStorageCost() {
-        if (!market.isPlayerOwned()) {
+        if (!ownedByPlayer()) {
             int personAmount = +getAdminStorage().size() + getOfficerStorage().size();
             return Setting.MONTHLY_AI_STORAGE_COST.value() * personAmount;
         }
@@ -289,11 +298,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public float getOfficerTrainingFee(int steps) {
-        return market.isPlayerOwned() ? 0f : steps * Setting.PERSONALITY_TRAINING_COST.intValue();
+        return ownedByPlayer() ? 0f : steps * Setting.PERSONALITY_TRAINING_COST.intValue();
     }
 
     public float getAdminTrainingFee() {
-        return market.isPlayerOwned() ? 0f : Setting.ADMIN_TRAINING_COST.intValue();
+        return ownedByPlayer() ? 0f : Setting.ADMIN_TRAINING_COST.intValue();
     }
 
     private void chargeTraining(float amount) {
