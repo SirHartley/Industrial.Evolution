@@ -25,7 +25,6 @@ import indevo.industries.petshop.memory.DeathData;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetDataRepo;
-import indevo.ids.ItemIds;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.ui.*;
@@ -1136,9 +1135,7 @@ public class PetCard {
         String cost = String.valueOf(PetConstants.GENE_SCAN_COST);
         boolean afford = shop.canAffordScan();
         boolean ready = !reading && held == null && afford;
-        Color sub = !reading && held == null && !afford ? Ui.neg() : null;
-        ButtonAPI button = UiButtons.button(p, x, y, SCAN_W, BUTTON_H, "Gene scan", ready ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, CutStyle.TL_BR,
-                Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getIconName(), cost, sub, Ui.ORB12, ready ? scan : null);
+        ButtonAPI button = UiButtons.relic(p, x, y, SCAN_W, BUTTON_H, "Gene scan", PetConstants.GENE_SCAN_COST, afford, CutStyle.TL_BR, ready ? scan : null);
         if (reading) return;
 
         if (held != null) Ui.tooltip(p, button, "Gene scan", held);
