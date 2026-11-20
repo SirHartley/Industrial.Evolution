@@ -34,7 +34,7 @@ import java.util.List;
 
 public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
-    public static final int RELICS_PER_TEMPLATE_FP = 2;
+    public static final int RELICS_PER_TEMPLATE_DP = 2;
     public static final int RELICS_PER_SHIP_DP = 10;
 
     public static final String REFINE_LORE = "Centuries of copying have left gaps in the template. Domain reference cores give the laboratory an intact pattern to work from.";
@@ -170,7 +170,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
         if (!view.ships) {
             tooltip.addPara("Lower quality levels mean fewer defects and D-mods. The minimum is %s.", 0f, hl, "0");
-            tooltip.addPara("Cost: %s %s per fleet point and quality level.", 10f, hl, RELICS_PER_TEMPLATE_FP + "", RelicHelper.getName());
+            tooltip.addPara("Cost: %s %s per deployment point and quality level.", 10f, hl, RELICS_PER_TEMPLATE_DP + "", RelicHelper.getName());
             tooltip.addPara("Templates in the Industrial Supply Store and in storage are listed.", 10f);
         } else {
             tooltip.addPara("Permanently removes the automated ship CR penalty and exempts the ship from the Automated Ships skill limit.", 0f);
@@ -340,7 +340,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
                 GridRow.of("Charges each", ForgeTemplateItemPlugin.getCharges(data) + ""),
                 GridRow.of("Stored in", entry.location, Ui.text()));
 
-        int per = RELICS_PER_TEMPLATE_FP * entry.hull.getFleetPoints();
+        int per = RELICS_PER_TEMPLATE_DP * Math.round(entry.hull.getSuppliesToRecover());
         addCostAndAction(entry, RelicHelper.getName() + ", " + Ui.num(per) + " per template", "Refine", REFINE_LORE, () -> refine(entry));
     }
 
@@ -472,7 +472,7 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
             entry.name = entry.hull.getHullNameWithDashClass();
             entry.sub = Misc.getHullSizeStr(entry.hull.getHullSize());
             entry.location = submarket.getNameOneLine();
-            entry.cost = RELICS_PER_TEMPLATE_FP * entry.hull.getFleetPoints() * (int) stack.getSize();
+            entry.cost = RELICS_PER_TEMPLATE_DP * Math.round(entry.hull.getSuppliesToRecover()) * (int) stack.getSize();
             entries.add(entry);
         }
     }

@@ -263,6 +263,7 @@ Note - Registry hulls, weapons and wings can be ordered once without a blueprint
 Adjusted - Ship assembly, Wreck Registry and both transfers now share one panel with tabs
 Adjusted - Ship assembly shows the order, budget and cost next to each other
 Adjusted - Transfer options stay selectable, the tab shows what is missing
+Adjusted - Relic Components for zero D-mods are counted per DP instead of per FP (this is a nerf for strong hulls)
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage

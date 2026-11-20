@@ -135,7 +135,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
 | Salvage Yards S-mod transfer | 5 x target DP per S-mod, plus credits | local storage, then fleet cargo | [Salvage Yards](../industries/SALVAGE_YARDS.md#s-mod-transfer) |
 | Project Reforge (Galatia research) | 500, plus 1 Corrupted Nanoforge on Redeem | fleet cargo (relics as points) | [Research](../dialogue/RESEARCH.md#projects) |
-| Forge Template refining | 2 per hull FP per quality level | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
+| Forge Template refining | 2 per hull DP per quality level | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 | Automated ship integration | 10 per hull DP | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 | Hullmod extraction | `max(25, round(baseValue / 100))` per hullmod | colony storage, then fleet cargo | [Engineering Hub](../industries/ENGINEERING_HUB.md#hullmod-extraction) |
 | Relic Lattice Work (Orbital Works) | 10 per hull DP, +1 S-mod slot after 93 days | colony storage, then fleet cargo | [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) |

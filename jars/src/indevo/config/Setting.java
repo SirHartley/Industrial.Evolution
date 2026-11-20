@@ -108,7 +108,7 @@ public enum Setting {
     ENGHUB_STRICT_WL("IndEvo_EngHubStrictWhitelist", false),
     ENGHUB_IGNORE_WHITELISTS("IndEvo_EngHubIgnoreWhitelists", false),
     AUTO_SHIP_BP_TO_GATHERING_POINT("IndEvo_AutoshipBPToGatheringPoint", false),
-    RARE_PARTS_AMOUNT_PER_FP("IndEvo_RarePartsAmountPerFP", 2, 1, 10),
+    RARE_PARTS_AMOUNT_PER_DP("IndEvo_RarePartsAmountPerDP", 2, 1, 10),
     SY_BASE_DMODS("IndEvo_SYBaseDMods", 5, 1, 10),
     SY_PART_VALUE_MULT("IndEvo_SYPartValueMult", 1.2, 0.1, 5),
     SY_HULL_DELIVERY_TIME("IndEvo_SYHullDeliveryTime", 60, 1, 365),
