@@ -17,6 +17,7 @@ import com.fs.starfarer.api.impl.hullmods.Automated;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
@@ -374,7 +375,8 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
 
         String reason = ok ? null : "Not enough " + RelicHelper.getName() + ".";
         CustomPanelAPI b = block(UiButtons.guardHeight(cw, BUTTON_H, reason), GAP);
-        ButtonAPI button = UiButtons.guarded(b, 0f, 0f, cw, BUTTON_H, action, UiButtons.Kind.GREEN, reason, run);
+        ButtonAPI button = UiButtons.relic(b, 0f, 0f, cw, BUTTON_H, action, entry.cost, ok, CutStyle.ALL, ok ? run : null);
+        if (!ok) Ui.wrap(b, 0f, BUTTON_H + UiButtons.REASON_GAP, cw, reason, Ui.neg());
         Ui.tooltip(b, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> t.addPara(lore, Misc.getGrayColor(), 0f));
     }
 

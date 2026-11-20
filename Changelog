@@ -16,6 +16,7 @@ Added - Celestial Orbits: no orbit lines for mines, meteors, projectiles and oth
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
 Adjusted - Cut redundant UI text and tightened service and panel descriptions
+Adjusted - Buttons that cost Relic Components are now green and show the relic icon and cost in every panel
 Adjusted - Settings tabs re-sorted
 Adjusted - Settings now apply without a game restart
 Adjusted - IE colony items now list under colony items in the codex

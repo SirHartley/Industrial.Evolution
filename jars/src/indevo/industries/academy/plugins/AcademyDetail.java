@@ -374,11 +374,10 @@ class AcademyDetail {
 
         boolean blocked = reason != null;
         add(UiButtons.guardHeight(w, TRAIN_H, reason), GAP, row -> {
-            ButtonAPI button = UiButtons.button(row, 0f, 0f, w, TRAIN_H, target.getSpeedUpLabel(), blocked ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.ALL,
-                    UiImages.relicSprite(), null, Ui.ORB12, blocked ? null : () -> {
-                        RelicSpeedUpDialog.apply(target);
-                        panel.refresh();
-                    });
+            ButtonAPI button = UiButtons.relic(row, 0f, 0f, w, TRAIN_H, target.getSpeedUpLabel(), cost, RelicHelper.canAfford(market, cost), CutStyle.ALL, blocked ? null : () -> {
+                RelicSpeedUpDialog.apply(target);
+                panel.refresh();
+            });
             if (blocked) Ui.wrap(row, 0f, TRAIN_H + UiButtons.REASON_GAP, w, reason, Ui.neg());
             Ui.tooltip(row, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> RelicSpeedUpDialog.addTooltip(t, target));
         });

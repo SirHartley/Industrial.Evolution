@@ -85,6 +85,12 @@ public final class UiButtons {
         return button;
     }
 
+    // every button that costs only relic components: green, relic icon, label, amount; the cut is the panel's
+    // action null is grey; the amount is red while the relics are short
+    public static ButtonAPI relic(CustomPanelAPI p, float x, float y, float w, float h, String label, int cost, boolean afford, CutStyle cut, Runnable action) {
+        return button(p, x, y, w, h, label, action == null ? Kind.OFF : Kind.GREEN, cut, UiImages.relicSprite(), Ui.num(cost), afford ? null : Ui.neg(), Ui.ORB12, action);
+    }
+
     // a blocked action: grey button and the reason in red below; the reason line is reserved either way
     // takes guardHeight(w, h, reason)
     public static ButtonAPI guarded(CustomPanelAPI p, float x, float y, float w, float h, String label, Kind kind, String reason, Runnable action) {
