@@ -17,6 +17,11 @@ public class RefitGantry extends SettlementFacility {
     }
 
     @Override
+    protected boolean hasOptions() {
+        return true;
+    }
+
+    @Override
     protected void addOptions(InteractionDialogAPI dialog) {
         addOption(dialog, "Transfer D-mods and S-mods", OPEN);
     }

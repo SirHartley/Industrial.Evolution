@@ -92,6 +92,11 @@ public class RestorationBay extends SettlementFacility {
     }
 
     @Override
+    protected boolean hasOptions() {
+        return true;
+    }
+
+    @Override
     protected void addOptions(InteractionDialogAPI dialog) {
         addOption(dialog, "Check the Restoration Bay", STATUS);
         dialog.getOptionPanel().setTooltip(new OptionKey(getID(), STATUS), getStatus());

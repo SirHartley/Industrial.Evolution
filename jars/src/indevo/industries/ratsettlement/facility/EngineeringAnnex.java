@@ -334,6 +334,11 @@ public class EngineeringAnnex extends SettlementFacility implements RelicSpeedUp
     }
 
     @Override
+    protected boolean hasOptions() {
+        return true;
+    }
+
+    @Override
     protected void addOptions(InteractionDialogAPI dialog) {
         addOption(dialog, "Visit the Engineering Annex", OPEN);
     }

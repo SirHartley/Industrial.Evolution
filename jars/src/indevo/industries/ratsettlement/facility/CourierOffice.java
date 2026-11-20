@@ -17,6 +17,11 @@ public class CourierOffice extends SettlementFacility {
     }
 
     @Override
+    protected boolean hasOptions() {
+        return true;
+    }
+
+    @Override
     protected void addOptions(InteractionDialogAPI dialog) {
         addOption(dialog, "Manage shipping contracts", OPEN);
     }

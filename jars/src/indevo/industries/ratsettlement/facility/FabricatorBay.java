@@ -57,6 +57,11 @@ public class FabricatorBay extends SettlementFacility {
     }
 
     @Override
+    protected boolean hasOptions() {
+        return true;
+    }
+
+    @Override
     protected void addOptions(InteractionDialogAPI dialog) {
         addOption(dialog, vpc == null ? "Load a VPC into the Fabricator Bay" : "Swap the VPC in the Fabricator Bay", LOAD);
     }

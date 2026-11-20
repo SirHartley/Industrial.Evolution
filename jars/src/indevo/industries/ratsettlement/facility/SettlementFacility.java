@@ -1,5 +1,7 @@
 package indevo.industries.ratsettlement.facility;
 
+import assortment_of_things.frontiers.data.SettlementFacilitySlot;
+import assortment_of_things.frontiers.interactions.SettlementInteraction;
 import assortment_of_things.frontiers.plugins.facilities.BaseSettlementFacility;
 import assortment_of_things.misc.RATInteractionPlugin;
 import com.fs.starfarer.api.Global;
@@ -11,7 +13,10 @@ import indevo.config.Setting;
 import indevo.industries.ratsettlement.RatSettlements;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
+import org.lwjgl.input.Keyboard;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -21,6 +26,10 @@ public abstract class SettlementFacility extends BaseSettlementFacility {
 
     // game timestamps are milliseconds, getElapsedDaysSince(0) returns Float.MAX_VALUE
     private static final long DAY_MS = 86_400_000L;
+    // from this many ie facilities with options on, they move into one submenu so rat's option list fits the screen
+    private static final int MENU_AT = 2;
+    private static final String MENU = "menu";
+    private static final String BACK = "back";
 
     private int lastDay = -1;
 
@@ -50,12 +59,38 @@ public abstract class SettlementFacility extends BaseSettlementFacility {
     protected void onNewDay() {
     }
 
+    // rat calls every functional facility; with a submenu only the first ie facility with options adds its entry
     @Override
     public void populateSettlementDialog(InteractionDialogAPI dialog, RATInteractionPlugin plugin) {
-        addOptions(dialog);
+        if (!hasOptions()) return;
+
+        List<SettlementFacility> grouped = withOptions();
+        if (grouped.size() < MENU_AT) addOptions(dialog);
+        else if (grouped.get(0) == this) addOption(dialog, "Visit the facilities", MENU);
+    }
+
+    protected boolean hasOptions() {
+        return false;
     }
 
     protected void addOptions(InteractionDialogAPI dialog) {
+    }
+
+    private List<SettlementFacility> withOptions() {
+        List<SettlementFacility> list = new ArrayList<>();
+        for (SettlementFacilitySlot slot : getSettlement().getFunctionalSlots()) {
+            if (slot.getPlugin() instanceof SettlementFacility facility && facility.hasOptions()) list.add(facility);
+        }
+        return list;
+    }
+
+    private void showMenu(InteractionDialogAPI dialog) {
+        dialog.getOptionPanel().clearOptions();
+        for (SettlementFacility facility : withOptions()) facility.addOptions(dialog);
+
+        OptionKey back = new OptionKey(getID(), BACK);
+        dialog.getOptionPanel().addOption("Back", back);
+        dialog.getOptionPanel().setShortcut(back, Keyboard.KEY_ESCAPE, false, false, false, false);
     }
 
     protected final void addOption(InteractionDialogAPI dialog, String label, String action) {
@@ -70,7 +105,14 @@ public abstract class SettlementFacility extends BaseSettlementFacility {
         InteractionDialogAPI dialog = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
         if (dialog == null) throw new IllegalStateException("settlement option " + key.action() + " pressed without a dialog");
 
-        onOption(dialog, key.action());
+        switch (key.action()) {
+            case MENU -> showMenu(dialog);
+            case BACK -> {
+                if (!(dialog.getPlugin() instanceof SettlementInteraction settlement)) throw new IllegalStateException("settlement submenu outside rat's settlement dialog");
+                settlement.populateOptions();
+            }
+            default -> onOption(dialog, key.action());
+        }
         return true;
     }
 

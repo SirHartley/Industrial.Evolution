@@ -80,6 +80,11 @@ public class PetHabitat extends SettlementFacility {
     }
 
     @Override
+    protected boolean hasOptions() {
+        return true;
+    }
+
+    @Override
     protected void addOptions(InteractionDialogAPI dialog) {
         addOption(dialog, "Visit the Pet Habitat", OPEN);
     }

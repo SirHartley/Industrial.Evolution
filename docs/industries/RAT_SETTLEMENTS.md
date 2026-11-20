@@ -40,14 +40,14 @@ Changes outside the package: `BillingHelper.charge/pay(market, ownerId, ...)` ([
 
 - Nothing is registered in `ModPlugin`. RAT reads the CSV and creates the plugin by class name for the picker and for every built slot; IE classes load only with RAT.
 - RAT calls `apply()` when construction finishes and `unapply()` on demolish (inferred from the slot code, untested). Picker instances have no facility slot: `canBeBuild`, `shouldShowInPicker`, the cost and the tooltip must never touch `getFacilitySlot()`.
-- RAT has no day callback. `SettlementFacility.advance` (`:39`) runs every frame for every slot, also while paused, and calls `onNewDay()` once per game day: the day index is `getTimestamp() / 86400000` (timestamps are game milliseconds; `getElapsedDaysSince(0L)` returns `Float.MAX_VALUE`, `obf/campaign/CampaignClock.java:92-94`). The saved `lastDay` survives loads.
+- RAT has no day callback. `SettlementFacility.advance` (`:48`) runs every frame for every slot, also while paused, and calls `onNewDay()` once per game day: the day index is `getTimestamp() / 86400000` (timestamps are game milliseconds; `getElapsedDaysSince(0L)` returns `Float.MAX_VALUE`, `obf/campaign/CampaignClock.java:92-94`). The saved `lastDay` survives loads.
 - `reportEconomyTick`, `reportEconomyMonthEnd` and `addToMonthlyCargo` come from RAT.
 
 ## Flow
 
 ### Options and panels
 
-`populateSettlementDialog` adds the facility's options with an `OptionKey(facilityId, action)` as data. RAT asks every facility in turn on a press; `optionPressDetected` (`SettlementFacility.java:64`) takes only its own keys and calls `onOption` with the current dialog. A panel opens through `openPanel` (`:78`): the IE dialog plugin replaces RAT's in the same dialog and gets an `onReturn` that runs `RatSettlements.returnTo` (`RatSettlements.java:47`): plugin back, text and visual panels shown, text cleared, then RAT's `init(dialog)` redraws the settlement menu. The IE plugin calls `onReturn` a frame after its custom dialog closed.
+`populateSettlementDialog` (`SettlementFacility.java:64`) adds the facility's options with an `OptionKey(facilityId, action)` as data; a facility with options returns true from `hasOptions()`. With 2 or more such facilities built, they share one "Visit the facilities" entry, added by the first of them in slot order, so RAT's list fits 1600 x 900: it replaces the options with every IE facility's options and a Back (Escape) that calls RAT's `SettlementInteraction.populateOptions()`. RAT asks every facility in turn on a press; `optionPressDetected` (`:102`) takes only its own keys and calls `onOption` with the current dialog. A panel opens through `openPanel` (`:123`): the IE dialog plugin replaces RAT's in the same dialog and gets an `onReturn` that runs `RatSettlements.returnTo` (`RatSettlements.java:54`): plugin back, text and visual panels shown, text cleared, then RAT's `init(dialog)` redraws the settlement menu. The IE plugin calls `onReturn` a frame after its custom dialog closed.
 
 | Facility | Option | Opens |
 |---|---|---|

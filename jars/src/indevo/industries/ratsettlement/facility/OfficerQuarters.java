@@ -61,6 +61,11 @@ public class OfficerQuarters extends SettlementFacility {
     }
 
     @Override
+    protected boolean hasOptions() {
+        return true;
+    }
+
+    @Override
     protected void addOptions(InteractionDialogAPI dialog) {
         addOption(dialog, "Visit the Officer Quarters", OPEN);
     }
