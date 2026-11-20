@@ -146,7 +146,7 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     private void addHeader(CustomPanelAPI p, float w) {
-        UiFrame.title(p, w, "Courier Port", null, this::addHelp);
+        UiFrame.title(p, w, host.getTitle(), host.getSubtitle(), this::addHelp);
         float right = UiFrame.credits(p, w, UiFrame.HEADER_Y);
 
         List<ShippingContract> contracts = ShippingContractMemory.getContractList();

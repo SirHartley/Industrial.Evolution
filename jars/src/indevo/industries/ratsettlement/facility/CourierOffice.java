@@ -28,7 +28,7 @@ public class CourierOffice extends SettlementFacility {
 
     @Override
     protected void onOption(InteractionDialogAPI dialog, String action) {
-        openPanel(dialog, CourierPortDialoguePlugin::new);
+        openPanel(dialog, onReturn -> new CourierPortDialoguePlugin(getName(), getSettlementMarket().getName(), onReturn));
     }
 
     @Override

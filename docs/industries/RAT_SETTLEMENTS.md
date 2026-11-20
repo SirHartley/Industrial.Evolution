@@ -51,7 +51,7 @@ Changes outside the package: `BillingHelper.charge/pay(market, ownerId, ...)` ([
 
 | Facility | Option | Opens |
 |---|---|---|
-| Courier Office | Manage shipping contracts | Courier panel |
+| Courier Office | Manage shipping contracts | Courier panel, titled with the facility and settlement name |
 | Refit Gantry | Transfer D-mods and S-mods | `SalvageYardsPanel` in transfer only mode, title "Refit Gantry" |
 | Officer Quarters | Visit the Officer Quarters | Academy panel on the embedded `QuartersAcademy` |
 | Engineering Annex | Visit the Engineering Annex | Annex panel |

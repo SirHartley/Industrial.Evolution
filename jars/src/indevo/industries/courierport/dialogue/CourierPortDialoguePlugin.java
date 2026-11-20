@@ -26,12 +26,15 @@ import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_E
 // rule command and host of the Courier Port panel; pickers close the panel and it reopens a frame after they are gone
 public class CourierPortDialoguePlugin extends BaseCommandPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
+    public static final String TITLE = "Courier Port";
     private static final String RETURN_OPTION = "IndEvo_SelectreturnToMenu";
 
     private InteractionDialogPlugin originalPlugin;
     private Map<String, MemoryAPI> memoryMap;
     private SectorEntityToken entity;
     private Consumer<InteractionDialogAPI> onReturn;
+    private String title = TITLE;
+    private String subtitle = null;
 
     private CourierPanelDelegate panel;
     private InteractionDialogAPI dialog;
@@ -46,9 +49,19 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
     }
 
     // return hands the dialog to onReturn instead of rules, for hosts that are not rules (rat settlements)
-    public CourierPortDialoguePlugin(Consumer<InteractionDialogAPI> onReturn) {
+    public CourierPortDialoguePlugin(String title, String subtitle, Consumer<InteractionDialogAPI> onReturn) {
+        this.title = title;
+        this.subtitle = subtitle;
         this.onReturn = onReturn;
         this.panel = new CourierPanelDelegate(new CourierView(), this);
+    }
+
+    String getTitle() {
+        return title;
+    }
+
+    String getSubtitle() {
+        return subtitle;
     }
 
     // opens the panel at the entity in the given view, for code and tests; Return closes the dialog
