@@ -56,7 +56,8 @@ class AnnexShipList {
                 this::filtered, panel::refresh) + GAP;
 
         float by = h - BUTTON_H;
-        float listBottom = by - 13f - 6f;
+        // the filter bar is 26 high, 2 more than the board; 4 px above the rule keeps the board's 4 rows
+        float listBottom = by - 13f - 4f;
         List<FleetMemberAPI> shown = filter(all, drop, classes);
 
         if (all.isEmpty()) {
