@@ -45,11 +45,11 @@ public class SalvageYardsDialogPlugin implements InteractionDialogPlugin, Escape
     }
 
     // return hands the dialog to onReturn instead of rules, for hosts that are not rules (rat settlements)
-    public SalvageYardsDialogPlugin(MarketAPI market, SalvageYardsView view, Consumer<InteractionDialogAPI> onReturn) {
+    public SalvageYardsDialogPlugin(MarketAPI market, SalvageYardsView view, Consumer<InteractionDialogAPI> onReturn, boolean transferOnly) {
         this.originalPlugin = null;
         this.memoryMap = null;
         this.onReturn = onReturn;
-        this.panel = new SalvageYardsPanel(market, view, this);
+        this.panel = new SalvageYardsPanel(market, view, this, transferOnly);
     }
 
     // opens the panel for the market's yards in the given view, for code and tests

@@ -194,7 +194,7 @@ class AcademyDetail {
     private void addLadder(PersonAPI person, String current) {
         List<String> ladder = new ArrayList<>(Academy.COLOURS_BY_PERSONALITY.keySet());
         List<String> reachable = academy.getReachablePersonalities(person);
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
 
         // one block per rung, so the column ends on a whole rung
         for (int i = 0; i < ladder.size(); i++) {
@@ -338,7 +338,7 @@ class AcademyDetail {
                 AcademyPanelDelegate.getDayLabel(total, left)));
         if (paused != null) text("Paused: " + paused, Ui.neg(), 4f);
 
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
         List<GridRow> rows = new ArrayList<>();
         rows.add(GridRow.of("Days left", left + ""));
         rows.add(GridRow.of("Done on", AcademyPanelDelegate.getDoneDate(left)));
@@ -415,14 +415,14 @@ class AcademyDetail {
 
     private void addFee(float fee) {
         add(UiData.COST_ROW_H, 4f, b -> {
-            if (academy.getMarket().isPlayerOwned()) {
+            if (academy.ownedByPlayer()) {
                 UiData.value(b, 0f, 0f, w, UiData.COST_ROW_H, "Fee", "Free own Academy", Ui.gray(), new String[]{"Free"}, new Color[]{Ui.pos()});
             } else UiData.creditsRow(b, 0f, 0f, w, "Fee", fee);
         });
     }
 
     private String getStoreTooltip(MarketAPI governed) {
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
         String fee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
         String text;
 
