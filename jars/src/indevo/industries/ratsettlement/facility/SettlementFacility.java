@@ -19,6 +19,9 @@ import java.util.function.Function;
 // picker instances have no facility slot, so picker calls (canBeBuild, shouldShowInPicker, getCost, tooltip) never touch it
 public abstract class SettlementFacility extends BaseSettlementFacility {
 
+    // game timestamps are milliseconds, getElapsedDaysSince(0) returns Float.MAX_VALUE
+    private static final long DAY_MS = 86_400_000L;
+
     private int lastDay = -1;
 
     public record OptionKey(String facilityId, String action) {
@@ -36,7 +39,7 @@ public abstract class SettlementFacility extends BaseSettlementFacility {
     public void advance(float amount) {
         if (!isFunctional()) return;
 
-        int day = (int) Global.getSector().getClock().getElapsedDaysSince(0L);
+        int day = (int) (Global.getSector().getClock().getTimestamp() / DAY_MS);
         if (lastDay < 0) lastDay = day;
         if (day == lastDay) return;
 
