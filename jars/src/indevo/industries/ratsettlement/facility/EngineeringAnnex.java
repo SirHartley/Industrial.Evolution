@@ -54,7 +54,7 @@ public class EngineeringAnnex extends SettlementFacility implements RelicSpeedUp
     }
 
     @Override
-    protected void onNewDay() {
+    public void onNewDay() {
         if (hullId == null) return;
         if (getHullSpec() == null) {
             inWork = null;
@@ -115,7 +115,7 @@ public class EngineeringAnnex extends SettlementFacility implements RelicSpeedUp
 
     // demolished: the ship in work is lost, the drop off goes back to storage
     @Override
-    public void unapply() {
+    protected void onUnapply() {
         inWork = null;
         returnDropOff();
         hullId = null;

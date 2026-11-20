@@ -32,7 +32,7 @@ public class RestorationBay extends SettlementFacility {
     }
 
     @Override
-    protected void onNewDay() {
+    public void onNewDay() {
         FleetMemberAPI ship = getShip();
         if (ship == null) {
             pick();

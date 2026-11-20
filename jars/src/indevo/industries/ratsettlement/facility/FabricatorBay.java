@@ -31,7 +31,7 @@ public class FabricatorBay extends SettlementFacility {
     }
 
     @Override
-    public void unapply() {
+    protected void onUnapply() {
         if (vpc != null) getStorageCargo().addSpecial(vpc, 1f);
         vpc = null;
     }

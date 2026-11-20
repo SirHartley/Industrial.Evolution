@@ -31,14 +31,14 @@ public class PetHabitat extends SettlementFacility {
     }
 
     @Override
-    public void apply() {
+    protected void onApply() {
         shop = new HabitatPetShop(getSettlement().getPrimaryPlanet());
         shop.init(Ids.PET_STORE, getSettlementMarket());
     }
 
     // running broods end early, parents, young and stored pets go to settlement storage in cryochambers
     @Override
-    public void unapply() {
+    protected void onUnapply() {
         if (shop == null) return;
 
         PetStatusManager manager = PetStatusManager.getInstance();

@@ -25,14 +25,14 @@ public class OfficerQuarters extends SettlementFacility {
     }
 
     @Override
-    public void apply() {
+    protected void onApply() {
         academy = new QuartersAcademy();
         academy.init(Ids.ACADEMY, getSettlementMarket());
     }
 
     // officers and admins go to the fleet even over the cap, nothing is lost
     @Override
-    public void unapply() {
+    protected void onUnapply() {
         if (academy == null) return;
 
         academy.abortOfficerTraining(true);
@@ -46,7 +46,7 @@ public class OfficerQuarters extends SettlementFacility {
     }
 
     @Override
-    protected void onNewDay() {
+    public void onNewDay() {
         getAcademy().onNewDay();
     }
 

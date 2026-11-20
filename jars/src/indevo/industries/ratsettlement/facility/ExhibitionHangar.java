@@ -21,13 +21,13 @@ public class ExhibitionHangar extends SettlementFacility {
     }
 
     @Override
-    public void apply() {
+    protected void onApply() {
         getSettlementMarket().addSubmarket(Ids.MUSEUM_SUBMARKET);
         updateIncome();
     }
 
     @Override
-    public void unapply() {
+    protected void onUnapply() {
         IndustrySubmarkets.remove(getSettlementMarket(), Ids.MUSEUM_SUBMARKET);
         getSettlement().getStats().getIncome().unmodify(MOD_ID);
     }

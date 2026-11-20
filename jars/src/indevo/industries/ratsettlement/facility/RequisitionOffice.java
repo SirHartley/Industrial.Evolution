@@ -15,12 +15,12 @@ public class RequisitionOffice extends SettlementFacility {
     }
 
     @Override
-    public void apply() {
+    protected void onApply() {
         getSettlementMarket().addSubmarket(Ids.REQMARKET);
     }
 
     @Override
-    public void unapply() {
+    protected void onUnapply() {
         IndustrySubmarkets.remove(getSettlementMarket(), Ids.REQMARKET);
     }
 

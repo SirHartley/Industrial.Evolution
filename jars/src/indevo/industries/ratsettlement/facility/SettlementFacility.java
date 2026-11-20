@@ -9,10 +9,12 @@ import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import indevo.config.Setting;
 import indevo.industries.ratsettlement.RatSettlements;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.timers.NewDayListener;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
@@ -22,18 +24,12 @@ import java.util.function.Function;
 
 // base of every ie facility in a rat settlement; instances and their fields are saved in rat's slots, never rename
 // picker instances have no facility slot, so picker calls (canBeBuild, shouldShowInPicker, getCost, tooltip) never touch it
-public abstract class SettlementFacility extends BaseSettlementFacility {
+public abstract class SettlementFacility extends BaseSettlementFacility implements NewDayListener {
 
-    // game timestamps are milliseconds and negative in normal play; getElapsedDaysSince(0) returns Float.MAX_VALUE
-    private static final long DAY_MS = 86_400_000L;
     // from this many ie facilities with options on, they move into one submenu so rat's option list fits the screen
     private static final int MENU_AT = 2;
     private static final String MENU = "menu";
     private static final String BACK = "back";
-
-    private static final int NO_DAY = Integer.MIN_VALUE;
-
-    private int lastDay = NO_DAY;
 
     public record OptionKey(String facilityId, String action) {
     }
@@ -45,20 +41,29 @@ public abstract class SettlementFacility extends BaseSettlementFacility {
         return parentSetting().enabled();
     }
 
-    // rat has no day callback; advance runs every frame for every slot, also while paused
+    // rat calls apply once when construction ends and unapply on demolish or abandon; the day tick runs between them
     @Override
-    public void advance(float amount) {
-        if (!isFunctional()) return;
-
-        int day = (int) Math.floorDiv(Global.getSector().getClock().getTimestamp(), DAY_MS);
-        if (lastDay == NO_DAY) lastDay = day;
-        if (day == lastDay) return;
-
-        lastDay = day;
-        onNewDay();
+    public final void apply() {
+        ListenerManagerAPI listeners = Global.getSector().getListenerManager();
+        if (!listeners.hasListener(this)) listeners.addListener(this);
+        onApply();
     }
 
-    protected void onNewDay() {
+    @Override
+    public final void unapply() {
+        Global.getSector().getListenerManager().removeListener(this);
+        onUnapply();
+    }
+
+    protected void onApply() {
+    }
+
+    protected void onUnapply() {
+    }
+
+    // TimeTracker calls it once per game day while the facility is built
+    @Override
+    public void onNewDay() {
     }
 
     // rat calls every functional facility; with a submenu only the first ie facility with options adds its entry
