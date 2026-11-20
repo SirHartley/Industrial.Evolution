@@ -89,6 +89,18 @@ public class Ids {
 
     public static final String COMMERCE = "commerce";
 
+    //rat settlement facilities, saved in rat slots, never rename
+    public static final String RAT_REQUISITION = "IndEvo_rat_requisition";
+    public static final String RAT_COURIER = "IndEvo_rat_courier";
+    public static final String RAT_RESTORATION = "IndEvo_rat_restoration";
+    public static final String RAT_CONSULATE = "IndEvo_rat_consulate";
+    public static final String RAT_GANTRY = "IndEvo_rat_gantry";
+    public static final String RAT_ANNEX = "IndEvo_rat_annex";
+    public static final String RAT_QUARTERS = "IndEvo_rat_quarters";
+    public static final String RAT_HABITAT = "IndEvo_rat_habitat";
+    public static final String RAT_FABRICATOR = "IndEvo_rat_fabricator";
+    public static final String RAT_EXHIBITION = "IndEvo_rat_exhibition";
+
     //conditions
     public static final String COND_RUINS = "IndEvo_RuinsCondition";
     public static final String COND_PIRATES = "IndEvo_pirate_subpop";

@@ -19,6 +19,7 @@ import indevo.industries.petshop.script.EscBlockerMemoryIterator;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_ESC;
 
@@ -30,6 +31,7 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
     private InteractionDialogPlugin originalPlugin;
     private Map<String, MemoryAPI> memoryMap;
     private SectorEntityToken entity;
+    private Consumer<InteractionDialogAPI> onReturn;
 
     private CourierPanelDelegate panel;
     private InteractionDialogAPI dialog;
@@ -41,6 +43,12 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
 
     private CourierPortDialoguePlugin(CourierView view) {
         this.panel = new CourierPanelDelegate(view, this);
+    }
+
+    // return hands the dialog to onReturn instead of rules, for hosts that are not rules (rat settlements)
+    public CourierPortDialoguePlugin(Consumer<InteractionDialogAPI> onReturn) {
+        this.onReturn = onReturn;
+        this.panel = new CourierPanelDelegate(new CourierView(), this);
     }
 
     // opens the panel at the entity in the given view, for code and tests; Return closes the dialog
@@ -110,12 +118,17 @@ public class CourierPortDialoguePlugin extends BaseCommandPlugin implements Inte
     }
 
     void leave() {
-        if (originalPlugin == null) dialog.dismiss();
+        if (originalPlugin == null && onReturn == null) dialog.dismiss();
         else returnPending = true;
     }
 
     // runs a frame after the custom dialog is gone, rules must not fire from inside its dismiss
     private void returnToRules() {
+        if (onReturn != null) {
+            onReturn.accept(dialog);
+            return;
+        }
+
         dialog.setPlugin(originalPlugin);
         dialog.showTextPanel();
         dialog.showVisualPanel();
