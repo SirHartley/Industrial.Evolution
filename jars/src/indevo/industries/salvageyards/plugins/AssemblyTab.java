@@ -407,19 +407,20 @@ class AssemblyTab {
         String reason = getAccelerateReason(order);
         String id = "accelerate" + System.identityHashCode(order);
         Runnable apply = () -> RelicSpeedUpDialog.apply(order);
+        int cost = order.getSpeedUpCost();
+        boolean afford = RelicHelper.canAfford(panel.getMarket(), cost);
 
         ButtonAPI button;
         if (reason != null) {
-            button = UiButtons.button(row, x, 3f, ACCEL_W, BUTTON_H, "Accelerate", UiButtons.Kind.OFF, CutStyle.ALL, UiImages.relicSprite(), null, Ui.ORB12, null);
+            button = UiButtons.relic(row, x, 3f, ACCEL_W, BUTTON_H, "Accelerate", cost, afford, CutStyle.ALL, null);
             Ui.text(row, cw - 204f, 29f, 200f, reason, Ui.neg(), Ui.RIGHT);
         } else if (view.confirm.isArmed(id)) {
-            button = UiButtons.confirm(row, x, 10f, ACCEL_W, BUTTON_H, "Accelerate", UiButtons.Kind.STD, view.confirm, id, apply, panel::refresh);
+            button = UiButtons.confirm(row, x, 10f, ACCEL_W, BUTTON_H, "Accelerate", UiButtons.Kind.GREEN, view.confirm, id, apply, panel::refresh);
         } else {
-            button = UiButtons.button(row, x, 10f, ACCEL_W, BUTTON_H, "Accelerate", UiButtons.Kind.STD, CutStyle.ALL, UiImages.relicSprite(),
-                    Ui.num(order.getSpeedUpCost()), Ui.ORB12, () -> {
-                        view.confirm.arm(id);
-                        panel.refresh();
-                    });
+            button = UiButtons.relic(row, x, 10f, ACCEL_W, BUTTON_H, "Accelerate", cost, afford, CutStyle.ALL, () -> {
+                view.confirm.arm(id);
+                panel.refresh();
+            });
         }
 
         Ui.tooltip(row, button, 400f, TooltipMakerAPI.TooltipLocation.BELOW, t -> RelicSpeedUpDialog.addTooltip(t, order));
