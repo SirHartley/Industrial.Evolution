@@ -191,7 +191,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | `data/config/settings.json`, `LunaSettings.csv`, `indEvo/*.csv` | Config and settings | [SETTINGS](core/SETTINGS.md) |
 | `data/config/indEvo/shuttle_traffic.csv` | Base craft for shuttle traffic | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) |
 | `data/config/indEvo/shuttle_factions.csv` | Shuttle traffic flying style per faction | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md#faction-profiles) |
-| `data/config/exerelinFactionConfig`, `vayraBounties`, `prism`, `BetterColonyConfig`, `modFiles`, `version` | Other mods' config | [COMPATIBILITY](core/COMPATIBILITY.md) |
+| `data/config/exerelinFactionConfig`, `vayraBounties`, `prism`, `BetterColonyConfig`, `modFiles`, `version`, `orbit_entity_blacklist.csv` | Other mods' config | [COMPATIBILITY](core/COMPATIBILITY.md) |
 | `data/console/commands.csv` | Console commands | [CONSOLE](core/CONSOLE.md) |
 | `data/lights`, `data/shaders` | GraphicsLib lights, IE shaders | [COMBAT](core/COMBAT.md), [UTILS](core/UTILS.md), [FOG](exploration/FOG.md) (`indevo_fog*.shader`) |
 | `data/strings` | Descriptions, tips, name lists | Feature docs |
