@@ -29,6 +29,7 @@ import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.memory.PetSheet;
 import indevo.industries.petshop.plugins.PetsPanel;
+import indevo.industries.ratsettlement.RatSettlements;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.RelicHelper;
@@ -83,8 +84,17 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         return broods;
     }
 
+    // overridden by the habitat a rat settlement holds, whose market is not player owned
+    public boolean ownedByPlayer() {
+        return market.isPlayerOwned();
+    }
+
+    protected boolean isIrradiated() {
+        return market.hasCondition(Conditions.IRRADIATED);
+    }
+
     public int getHabitatCount() {
-        return market.isPlayerOwned() ? PetConstants.PLAYER_HABITATS : PetConstants.NPC_HABITATS;
+        return ownedByPlayer() ? PetConstants.PLAYER_HABITATS : PetConstants.NPC_HABITATS;
     }
 
     public PetBrood getBrood(int habitat) {
@@ -112,14 +122,14 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     }
 
     public float getCare() {
-        float care = market.isPlayerOwned() ? PetConstants.PLAYER_CARE : PetConstants.NPC_CARE;
+        float care = ownedByPlayer() ? PetConstants.PLAYER_CARE : PetConstants.NPC_CARE;
         if (Commodities.GAMMA_CORE.equals(aiCoreId)) care += PetConstants.GAMMA_CARE;
         if (isImproved()) care += PetConstants.IMPROVED_CARE;
         return care;
     }
 
     public float getMutationRate(Pet a, Pet b) {
-        return PetGenetics.mutationRate(a.getData(), a.sheet, b.sheet, market.hasCondition(Conditions.IRRADIATED), Commodities.ALPHA_CORE.equals(aiCoreId), PetDataRepo.getTraits());
+        return PetGenetics.mutationRate(a.getData(), a.sheet, b.sheet, isIrradiated(), Commodities.ALPHA_CORE.equals(aiCoreId), PetDataRepo.getTraits());
     }
 
     public static float getInbreeding(Pet a, Pet b) {
@@ -139,12 +149,15 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         for (MarketAPI market : Misc.getPlayerMarkets(true)) {
             if (market.getIndustry(Ids.PET_STORE) instanceof PetShop shop && shop.isFunctional() && (best == null || shop.getCare() > best.getCare())) best = shop;
         }
+
+        PetShop habitat = RatSettlements.getHabitat();
+        if (habitat != null && (best == null || habitat.getCare() > best.getCare())) best = habitat;
         return best;
     }
 
     // a month per busy habitat, only at npc centers
     public float getFee() {
-        return market.isPlayerOwned() ? 0f : PetConstants.HABITAT_FEE;
+        return ownedByPlayer() ? 0f : PetConstants.HABITAT_FEE;
     }
 
     // why a pet cannot be a parent here, null when it can
@@ -281,7 +294,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     public float getStorageCost(Pet pet){
         float cost = Math.max(MIN_STORAGE_FEE, pet.getData().value * STORAGE_FEE_FRACT);
-        if (!market.isPlayerOwned()) cost *= NPC_STORAGE_FEE_MULT;
+        if (!ownedByPlayer()) cost *= NPC_STORAGE_FEE_MULT;
 
         return cost * petStorageCostMult;
     }
@@ -292,11 +305,11 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
     }
 
     private float getStorageMult() {
-        return market.isPlayerOwned() ? getUpkeep().getMult() : 1f;
+        return ownedByPlayer() ? getUpkeep().getMult() : 1f;
     }
 
     public boolean hasAdoption() {
-        return isFunctional() && !market.isPlayerOwned();
+        return isFunctional() && !ownedByPlayer();
     }
 
     public List<Pet> getOffers() {
@@ -388,13 +401,13 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
         if (iterIndex != lastIterInMonth) return;
 
-        if (isFunctional() && !market.isPlayerOwned()) BillingHelper.charge(this, "storage", "Pet storage", getTotalStorageCost());
-        if (!market.isPlayerOwned()) BillingHelper.charge(this, "habitats", "Pet habitats", getBroods().size() * getFee());
+        if (isFunctional() && !ownedByPlayer()) BillingHelper.charge(this, "storage", "Pet storage", getTotalStorageCost());
+        if (!ownedByPlayer()) BillingHelper.charge(this, "habitats", "Pet habitats", getBroods().size() * getFee());
     }
 
     @Override
     public void reportEconomyMonthEnd() {
-        if (!market.isPlayerOwned()) offers = null;
+        if (!ownedByPlayer()) offers = null;
     }
 
     @Override
@@ -414,6 +427,10 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         if (Setting.PETS.enabled()) IndustrySubmarkets.ensure(this, Ids.PETMARKET);
         else IndustrySubmarkets.remove(market, Ids.PETMARKET);
 
+        advanceBroods();
+    }
+
+    public void advanceBroods() {
         for (PetBrood brood : new ArrayList<>(getBroods())) {
             if (!brood.isReady() && getDaysLeft(brood) <= 0f) roll(brood);
         }
@@ -430,7 +447,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
         super.apply(true);
 
         // npc markets bill storage through the monthly report in reportEconomyTick
-        float storageCost = isFunctional() && market.isPlayerOwned() ? getTotalStorageCost() : 0f;
+        float storageCost = isFunctional() && ownedByPlayer() ? getTotalStorageCost() : 0f;
 
         if (storageCost > 0) getUpkeep().modifyFlat(STORAGE_UPKEEP_ID, storageCost, "Pet storage");
         else getUpkeep().unmodifyFlat(STORAGE_UPKEEP_ID);
@@ -447,7 +464,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
         if (isFunctional() && petsEnabled) {
             //if (!market.hasSubmarket(Ids.PETMARKET)) market.addSubmarket(Ids.PETMARKET);
-            if (market.isPlayerOwned()){
+            if (ownedByPlayer()){
                 SubmarketPlugin sub = Misc.getLocalResources(market);
                 if (sub instanceof LocalResourcesSubmarketPlugin) {
                     LocalResourcesSubmarketPlugin lr = (LocalResourcesSubmarketPlugin) sub;

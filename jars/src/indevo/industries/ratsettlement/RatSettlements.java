@@ -8,6 +8,9 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import indevo.ids.Ids;
+import indevo.industries.petshop.industry.PetShop;
+import indevo.industries.ratsettlement.facility.PetHabitat;
 
 // the only ie side entry to rat settlements; every rat call sits behind isEnabled
 public class RatSettlements {
@@ -41,6 +44,10 @@ public class RatSettlements {
         }
 
         return null;
+    }
+
+    public static PetShop getHabitat() {
+        return getFacility(Ids.RAT_HABITAT) instanceof PetHabitat habitat ? habitat.getShop() : null;
     }
 
     // hands the dialog back to rat's settlement plugin, init redraws its options

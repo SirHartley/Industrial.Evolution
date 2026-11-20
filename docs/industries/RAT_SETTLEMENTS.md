@@ -19,22 +19,22 @@ RAT merges `data/campaign/frontiers/rat_frontiers_facilities.csv` from every mod
 | Refit Gantry | `IndEvo_rat_gantry` | [Salvage Yards](SALVAGE_YARDS.md) | `SCRAPYARD` | 75000, 60 | Opens the Salvage Yards panel with only the D-mod and S-mod transfer tabs |
 | Officer Quarters | `IndEvo_rat_quarters` | [Academy](ACADEMY.md) | `ACADEMY` | 75000, 45 | Officer and admin storage and training at own Academy rules through an embedded `QuartersAcademy`; no hireables |
 | Engineering Annex | `IndEvo_rat_annex` | [Engineering Hub](ENGINEERING_HUB.md) | `ENGHUB` | 100000, 60 | One hull class at a time at hub speed, own panel ([below](#engineering-annex)) |
-
-Pet Habitat (Animal Center) is not built yet.
+| Pet Habitat | `IndEvo_rat_habitat` | [Animal Center](PETS.md) | `PETS` | 50000, 30 | Pet storage and 1 habitat at player Care (40) through an embedded `HabitatPetShop`; no sales or adoption; mutation x2 when the settlement's planet is irradiated ([below](#pet-habitat)) |
 
 ## Files
 
 | File | Owner / role |
 |---|---|
-| `indevo/industries/ratsettlement/RatSettlements.java` | Only IE side entry to RAT: `isEnabled()`, `isSettlementMarket(market)`, `getSettlementMarket()`, `hasFunctionalFacility(id)`, `getFacility(id)`, `returnTo(dialog, ratPlugin)`. Every RAT call sits behind `isEnabled` (`:56`) |
+| `indevo/industries/ratsettlement/RatSettlements.java` | Only IE side entry to RAT: `isEnabled()`, `isSettlementMarket(market)`, `getSettlementMarket()`, `hasFunctionalFacility(id)`, `getFacility(id)`, `getHabitat()`, `returnTo(dialog, ratPlugin)`. Every RAT call sits behind `isEnabled` (`:56`) |
 | `ratsettlement/facility/SettlementFacility.java` | Base class: settings gate, day tick, option keys, panel swap, storage and billing helpers |
-| `ratsettlement/facility/Consulate.java`, `RequisitionOffice`, `FabricatorBay`, `ExhibitionHangar`, `CourierOffice`, `RestorationBay`, `RefitGantry`, `OfficerQuarters`, `EngineeringAnnex` | The facilities |
+| `ratsettlement/facility/Consulate.java`, `RequisitionOffice`, `FabricatorBay`, `ExhibitionHangar`, `CourierOffice`, `RestorationBay`, `RefitGantry`, `OfficerQuarters`, `EngineeringAnnex`, `PetHabitat` | The facilities |
 | `ratsettlement/facility/QuartersAcademy.java` | `Academy` subclass for the Quarters: `spawnsHireables()` false, `ownedByPlayer()` true, name "Officer Quarters" |
+| `ratsettlement/facility/HabitatPetShop.java` | `PetShop` subclass for the Habitat: `ownedByPlayer()` true, 1 habitat, `isIrradiated()` from the settlement's primary planet, name "Pet Habitat" |
 | `ratsettlement/dialogue/AnnexDialogPlugin.java`, `AnnexPanelDelegate`, `AnnexShipList`, `AnnexView` | Engineering Annex panel |
 | `data/campaign/frontiers/rat_frontiers_facilities.csv` | Rows: `id,name,buildTime,shortDesc,icon,cost,plugin` |
 | `graphics/icons/ratsettlement/*.png` | 95 x 95 picker icons (crops of the parent industry images, placeholders) |
 
-Changes outside the package: `BillingHelper.charge/pay(market, ownerId, ...)` ([UTILS](../core/UTILS.md#billinghelper)); `ShippingManager` (contracts with the office, billing); `RequisitionsCenterSubmarketPlugin.ownedByPlayer()` (`:96`); `ConsumableItemMarketAdder.updateSubmarketCargo` static; `Museum` static value helpers; `RestorationDocks` static D-mod helpers; `Academy.spawnsHireables()` and `ownedByPlayer()`; `onReturn` constructors on `SalvageYardsDialogPlugin`, `AcademyDialogPlugin`, `CourierPortDialoguePlugin`; `SalvageYardsPanel` transfer only mode; `engineeringhub/ReverseEngineering.java`.
+Changes outside the package: `BillingHelper.charge/pay(market, ownerId, ...)` ([UTILS](../core/UTILS.md#billinghelper)); `ShippingManager` (contracts with the office, billing); `RequisitionsCenterSubmarketPlugin.ownedByPlayer()` (`:96`); `ConsumableItemMarketAdder.updateSubmarketCargo` static; `Museum` static value helpers; `RestorationDocks` static D-mod helpers; `Academy.spawnsHireables()` and `ownedByPlayer()`; `onReturn` constructors on `SalvageYardsDialogPlugin`, `AcademyDialogPlugin`, `CourierPortDialoguePlugin`, `PetsDialogPlugin`; `PetShop.ownedByPlayer()`, `isIrradiated()`, `advanceBroods()`, `planCenter` and `PetsDialogPlugin.dockedShop` ask `RatSettlements.getHabitat()`; `SalvageYardsPanel` transfer only mode; `engineeringhub/ReverseEngineering.java`.
 
 ## Registration and lifecycle
 
@@ -60,7 +60,13 @@ Changes outside the package: `BillingHelper.charge/pay(market, ownerId, ...)` ([
 
 ### Billing
 
-Restoration Bay repairs and Courier contracts go through `BillingHelper.charge(settlementMarket, facilityId, ...)`; the Quarters storage fee through the embedded academy's `BillingHelper.charge(ind, ...)`. The settlement market is not player owned, so the lines land under "Services". Exhibition Hangar income is a flat mod on RAT's settlement income stat, not a report line.
+Restoration Bay repairs and Courier contracts go through `BillingHelper.charge(settlementMarket, facilityId, ...)`; the Quarters storage fee through the embedded academy's `BillingHelper.charge(ind, ...)`; Pet Habitat storage on the last economy tick of the month (`PetHabitat.reportEconomyTick`). The settlement market is not player owned, so the lines land under "Services". Exhibition Hangar income is a flat mod on RAT's settlement income stat, not a report line.
+
+### Pet Habitat
+
+The embedded `HabitatPetShop` is an `Industry` that is never added to the market or applied, so `Pet.storage` (type `Industry`) holds it like a real center and no save field changes. It has no pet market, no upkeep and no listener: `PetHabitat.advance` calls `advanceBroods()` every frame, `reportEconomyTick` bills storage at `getTotalStorageCost()`. Pet code that finds a center by market also finds the habitat: `PetShop.planCenter` (player center with the most Care, the habitat only when it has more) and `PetsDialogPlugin.dockedShop` (the habitat while docked at the settlement). The option opens the Pets panel with storage and Husbandry; Adoption is off because `hasAdoption()` needs a center that is not player owned.
+
+- Demolish (`unapply`): running broods end and their parents go to storage, young of finished broods are registered; every living pet then goes into a Cryochamber in settlement storage (a free transfer submarket, so the pet is kept).
 
 ### Engineering Annex
 
@@ -89,7 +95,6 @@ Panel (approved boards `/mnt/project-files/ie/annex_ui/`, kit [UI](../core/UI.md
 
 | Item | State |
 |---|---|
-| Pet Habitat | Not built: an embedded Animal Center is missed by the pet code that finds centers by market. Follow up PR |
 | Icons | Placeholders cut from the parent industry images |
 | `apply`/`unapply` timing | Read from RAT's slot code, not tested in game |
 | Smoke | Needs RAT in the smoke mod set |
