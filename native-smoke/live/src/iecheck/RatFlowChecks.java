@@ -266,6 +266,13 @@ public final class RatFlowChecks {
             ((indevo.industries.academy.industry.Academy) academy).storeOfficer(officer);
             c.expect(((indevo.industries.academy.industry.Academy) academy).getOfficerStorage().contains(officer), "officer stored in the Quarters");
             c.put("officer", officer.getId());
+            PersonAPI trainee = OfficerManagerEvent.createOfficer(Global.getSector().getPlayerFaction(), 2, true);
+            Global.getSector().getPlayerFleet().getFleetData().addOfficer(trainee);
+            String p0 = trainee.getPersonalityAPI().getId();
+            String target = switch (p0) { case "timid" -> "cautious"; case "cautious", "aggressive" -> "steady"; case "reckless" -> "aggressive"; default -> "aggressive"; };
+            ((indevo.industries.academy.industry.Academy) academy).setOfficerForTraining(trainee, target);
+            c.put("train0", ((indevo.industries.academy.industry.Academy) academy).getRemainingOfficerTrainingDays());
+            c.note("officer training " + trainee.getPersonalityAPI().getId() + " -> " + target + ", " + c.get("train0") + " days, training " + ((indevo.industries.academy.industry.Academy) academy).isTrainingOfficer());
 
             // habitat: a hamster brood and a stored doge
             PetHabitat habitat = fac(Ids.RAT_HABITAT);
@@ -355,6 +362,10 @@ public final class RatFlowChecks {
             var inc = data().getStats().getIncome().getFlatStatMod("IndEvo_rat_exhibition");
             c.note("hangar income " + (inc == null ? "none" : inc.getValue()));
             c.expect(inc != null && inc.getValue() > 0f, "the Exhibition Hangar adds settlement income at month end");
+            var acad = (indevo.industries.academy.industry.Academy) field(fac(Ids.RAT_QUARTERS), "academy", indevo.industries.ratsettlement.facility.QuartersAcademy.class);
+            int left = acad.getRemainingOfficerTrainingDays();
+            c.note("quarters training: " + c.get("train0") + " days left at start, now " + left + ", training " + acad.isTrainingOfficer());
+            c.expect(acad.isTrainingOfficer() && left <= (Integer) c.get("train0") - 30, "Officer Quarters training advanced over 36 days");
             float rel0 = (Float) c.get("rel0");
             c.note("hegemony relation " + rel0 + " -> " + relation());
             c.expect(relation() > rel0 + 0.02f, "the Consulate raised the Hegemony standing at month end");
