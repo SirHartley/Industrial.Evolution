@@ -134,7 +134,7 @@ IndEvo_beta_core_runtime,[Supercomputer] Core Runtime [Beta],Int,279,,Core lifet
 IndEvo_gamma_core_runtime,[Supercomputer] Core Runtime [Gamma],Int,93,,Core lifetime in days. Use multiples of 31 for correct tooltip values. Default 93.,31,3100,Production
 ,,,,,,,,
 IndEvo_header_sy,Salvage Yards,Header,Salvage Yards,,,,,Production
-IndEvo_RarePartsAmountPerFP,[Salvage Yards] Relic Components per FP,Int,2,,Required Relic Components per FP for zero D-Mods. Default 2.,1,10,Production
+IndEvo_RarePartsAmountPerDP,[Salvage Yards] Relic Components per DP,Int,2,,Required Relic Components per deployment point for zero D-Mods. Default 2.,1,10,Production
 IndEvo_SYBaseDMods,[Salvage Yards] Base D-Mod Amount,Int,5,,Base D-Mod count on ships built via the Yards. Default 5.,1,10,Production
 IndEvo_SYPartValueMult,[Salvage Yards] Ship Component Value Mult,Double,1.2,,Ship component value multiplier for the Salvage Yards budget. Default 1.2.,0.1,5,Production
 IndEvo_SYHullDeliveryTime,[Salvage Yards] Delivery Time,Int,60,,Ship order delivery time in days. Applies to new orders. Default 60.,1,365,Production

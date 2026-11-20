@@ -36,6 +36,7 @@ Added - Stock toggle: repeatable projects carry extra progress over (PR'd by raz
 Added - Project Reforge: turn a Corrupted Nanoforge into a Pristine one for 500 Relic Components
 Adjusted - Projects now show as cards, Info opens in the card with a table of the accepted items
 Adjusted - Accepted items show their icon and how many you have
+Fixed - Survival mode no longer thins the rewards of Project Spyglass, Mjölnir and Transistor
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
 Fixed - Drive Field Tuning modspec no longer drops as random loot
@@ -263,6 +264,7 @@ Note - Registry hulls, weapons and wings can be ordered once without a blueprint
 Adjusted - Ship assembly, Wreck Registry and both transfers now share one panel with tabs
 Adjusted - Ship assembly shows the order, budget and cost next to each other
 Adjusted - Transfer options stay selectable, the tab shows what is missing
+Adjusted - Relic Components for zero D-mods are counted per DP instead of per FP (this is a nerf for strong hulls)
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
@@ -401,6 +403,7 @@ Fixed - Crash when an interceptor missile hits a fleet off screen
 Fixed - Warning beacon dialog now opens on top of the cargo screen
 
 Items
+Fixed - Remnant Nexus now drops Relic Components when destroyed (250 to 400, half for a damaged one)
 Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
 Fixed - Ship parts from wrecks now roll per wreck instead of once per session
 

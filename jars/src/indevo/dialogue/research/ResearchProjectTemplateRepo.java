@@ -491,12 +491,12 @@ public class ResearchProjectTemplateRepo {
 
                 List<SalvageEntityGenDataSpec.DropData> dropRandom = new ArrayList<>();
 
-                dropRandom.add(DropDataCreator.createDropData(Drops.AI_CORES2, 3));
-                dropRandom.add(DropDataCreator.createDropData(Drops.AI_CORES3, 2));
-                dropRandom.add(DropDataCreator.createDropData("blueprints_low", 4));
-                dropRandom.add(DropDataCreator.createDropData("indEvo_tech", 4));
-                dropRandom.add(DropDataCreator.createDropData(Drops.ANY_HULLMOD_MEDIUM, 4));
-                dropRandom.add(DropDataCreator.createDropData("rare_tech_low", 1));
+                dropRandom.add(DropDataCreator.createPaidDropData(Drops.AI_CORES2, 3));
+                dropRandom.add(DropDataCreator.createPaidDropData(Drops.AI_CORES3, 2));
+                dropRandom.add(DropDataCreator.createPaidDropData("blueprints_low", 4));
+                dropRandom.add(DropDataCreator.createPaidDropData("indEvo_tech", 4));
+                dropRandom.add(DropDataCreator.createPaidDropData(Drops.ANY_HULLMOD_MEDIUM, 4));
+                dropRandom.add(DropDataCreator.createPaidDropData("rare_tech_low", 1));
 
                 //create 5 rolls and return the best
 
@@ -559,7 +559,7 @@ public class ResearchProjectTemplateRepo {
                 List<Random> randomList = getRandomForProj(Ids.PROJ_TRANSISTOR); //Anti-save-scum
 
                 List<SalvageEntityGenDataSpec.DropData> dropRandom = new ArrayList<>();
-                dropRandom.add(DropDataCreator.createDropData("indEvo_missiles_always", 5));
+                dropRandom.add(DropDataCreator.createPaidDropData("indEvo_missiles_always", 5));
                 Random random = randomList.get(0);
 
                 return SalvageEntity.generateSalvage(random, 1f, 1f, 1f, 1f, null, dropRandom);
@@ -596,7 +596,7 @@ public class ResearchProjectTemplateRepo {
                 List<Random> randomList = getRandomForProj(Ids.PROJ_TRANSISTOR); //Anti-save-scum
 
                 List<SalvageEntityGenDataSpec.DropData> dropRandom = new ArrayList<>();
-                dropRandom.add(DropDataCreator.createDropData("indEvo_consumables_always", 5));
+                dropRandom.add(DropDataCreator.createPaidDropData("indEvo_consumables_always", 5));
                 Random random = randomList.get(0);
 
                 return SalvageEntity.generateSalvage(random, 1f, 1f, 1f, 1f, null, dropRandom);
