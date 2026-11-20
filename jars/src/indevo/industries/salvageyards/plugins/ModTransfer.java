@@ -24,7 +24,7 @@ public final class ModTransfer {
         DMOD, SMOD
     }
 
-    public static final float RELICS_PER_DP = 5f;
+    public static final float RELICS_PER_DP = 3f;
     public static final String LORE = "The modification is woven through the ship's frame. Domain micro-assemblers can separate it at the joints and rebuild it inside a compatible hull.";
 
     private ModTransfer() {
