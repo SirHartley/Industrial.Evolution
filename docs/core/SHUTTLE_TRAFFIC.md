@@ -84,7 +84,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 
 ### Anchors and routes
 
-`ShuttleNetwork.rebuild` (`:163`) on location change and once per day, with the sector day for rush hours (`getTimestamp() / 86_400_000f`; `getElapsedDaysSince(0L)` always returns `Float.MAX_VALUE`, knowledge skill `obf/campaign/CampaignClock.java:92`).
+`ShuttleNetwork.rebuild` (`:163`) on location change and once per day, with `ShuttleTraffic.days` for rush hours (game days summed with `convertToDays` since the renderer started, so the phase restarts on load; `getElapsedDaysSince(0L)` always returns `Float.MAX_VALUE`, knowledge skill `obf/campaign/CampaignClock.java:92`).
 
 - A market counts if its primary entity is in the location, `isInEconomy()`, `hasSpaceport()`, not `isDiscoverable()`, and not `isHidden()` unless its faction profile is `pirate` (`hasTraffic`). Vanilla raider and Luddic Path bases stay hidden for life and start discoverable; `DiscoverEntityPluginImpl.discoverEntity` sets discoverable to null once the player finds them (knowledge skill `api/impl/campaign/DiscoverEntityPluginImpl.java:39`), so a found base gets traffic and an unfound one has none. A primary entity tagged `Tags.STATION` is a station anchor, otherwise a planet anchor.
 - Density (`:617`): Megaport x1.5, Commerce x1.25, stability `clamp(0.5 + stability / 20, 0.5, 1)`, x0.5 while `MemFlags.RECENTLY_RAIDED` or `RECENTLY_BOMBARDED`. A disrupted Spaceport or Megaport closes the market anchor and its stations (`:611`).
