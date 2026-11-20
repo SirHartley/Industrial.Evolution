@@ -7,3 +7,4 @@ IndEvo_rat_courier,Courier Office,45,Runs Courier Port contracts from the settle
 IndEvo_rat_restoration,Restoration Bay,60,Removes one D-mod from a ship in storage every 31 days.,graphics/icons/ratsettlement/restoration.png,100000,indevo.industries.ratsettlement.facility.RestorationBay
 IndEvo_rat_gantry,Refit Gantry,60,Moves D-mods and S-mods between ships.,graphics/icons/ratsettlement/gantry.png,75000,indevo.industries.ratsettlement.facility.RefitGantry
 IndEvo_rat_quarters,Officer Quarters,45,Stores and trains officers and administrators.,graphics/icons/ratsettlement/quarters.png,75000,indevo.industries.ratsettlement.facility.OfficerQuarters
+IndEvo_rat_annex,Engineering Annex,60,Reverse engineers one hull class at a time.,graphics/icons/ratsettlement/annex.png,100000,indevo.industries.ratsettlement.facility.EngineeringAnnex
