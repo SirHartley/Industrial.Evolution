@@ -77,6 +77,6 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
     @Override
     public void addToIndustryTooltip(Industry ind, Industry.IndustryTooltipMode mode, TooltipMakerAPI tooltip, float width, boolean expanded) {
         if (!ind.getId().equals(Industries.POPULATION) || ind.getMarket() == null) return;
-        GovernmentCondition.addGovernanceSection(tooltip, ind, mode);
+        GovernmentCondition.addGovernanceSection(tooltip, ind);
     }
 }

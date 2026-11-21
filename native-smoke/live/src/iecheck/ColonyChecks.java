@@ -90,6 +90,10 @@ public final class ColonyChecks {
             c.expect(!population.getClass().getName().startsWith("indevo."), "population plugin is not replaced (" + population.getClass().getName() + ")");
             c.expect(a.hasCondition(GovernmentCondition.ID), "underworld sits on the market as the government condition");
             c.expect("Underworld Governance".equals(population.getCurrentName()), "population shows the government name (" + population.getCurrentName() + ")");
+            c.expect(!a.getCondition(GovernmentCondition.ID).getPlugin().showIcon(), "government condition shows no icon");
+            String govImage = GovernmentCondition.getGovernment(a).getImageName(a);
+            c.expect(govImage.equals(population.getCurrentImage()), "size 3 population shows the government image through the patch (" + population.getCurrentImage() + ")");
+            c.expect(GovernmentCondition.getDescriptionOverride(population) != null, "population tooltip takes the government description");
             c.near(flatMod(a.getStability(), "_ind_population_3_ms"), UnderworldSubIndustry.BASE_STABILITY_AMT, 0.01f, "underworld base stability replaces the vanilla base value");
             c.expect(!a.getStability().getFlatMods().containsKey("ind_population_0"), "underworld drops the domestic goods stability bonus");
             c.expect(provider.isSuitable(b.getIndustry(Industries.POPULATION)), "base government still offers the option at size 3");
@@ -155,6 +159,8 @@ public final class ColonyChecks {
             c.near(flatMod(mining.getSupply(Commodities.ORE).getQuantity(), key), 2f, 0.01f, "ore mining adds 2 ore on the vanilla mine");
             c.near(flatMod(mining.getSupply(Commodities.VOLATILES).getQuantity(), key), -2f, 0.01f, "ore mining takes 2 volatiles");
             c.expect("Ore Mining".equals(mining.getCurrentName()), "specialized mine shows the variant name (" + mining.getCurrentName() + ")");
+            c.expect(Specialization.MINING.get("ore_mining").imageName.equals(mining.getCurrentImage()), "specialized mine shows the variant image (" + mining.getCurrentImage() + ")");
+            c.expect(Specialization.getDescriptionOverride(mining) != null, "specialized mine tooltip takes the variant description");
             c.expect(mining.getClass().getName().startsWith("com.fs.starfarer.api"), "mining plugin is not replaced (" + mining.getClass().getName() + ")");
 
             Specialization.MINING.setCurrent(b, Specialization.MINING.get(MiningSpecializations.BASE_ID));

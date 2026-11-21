@@ -20,7 +20,7 @@ IE never replaces the host industry. A government is the market condition `IndEv
 | `indevo/industries/changeling/industry/mining/MiningSpecializations.java` | Mining variant list, `applyOutputDeltas` |
 | `indevo/industries/changeling/industry/refining/RefiningSpecializations.java` | Refining variant list, `applyOutputDeltas` |
 | `indevo/industries/changeling/industry/population/Governments.java` | Government variant list, `get(id)` |
-| `indevo/industries/changeling/conditions/GovernmentCondition.java` | Condition `IndEvo_government`: current variant, 7 day lock, `set`, `canChange`, overrides, condition and population tooltip, pather interest lookup |
+| `indevo/industries/changeling/conditions/GovernmentCondition.java` | Condition `IndEvo_government` (hidden, no icon): current variant, 7 day lock, `set`, `canChange`, overrides, population tooltip parts, pather interest lookup |
 | `indevo/industries/changeling/listener/ChangelingApplyListener.java` | `IndustryApplyListener` that applies specializations and the government |
 | `indevo/industries/changeling/patches/GovernmentPatherInterestPatch.java` | PatchLib redirect: the government's pather interest stands in for the population's in `LuddicPathBaseManager.getLuddicPathMarketInterest` |
 | `.../population/UnderworldSubIndustry.java` | Underworld Governance: inverted stability to income, illegal output +1, extorts trader cargo into storage |
@@ -50,7 +50,7 @@ IE never replaces the host industry. A government is the market condition `IndEv
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Condition | `IndEvo_government` (icon `established_polity.png`, order 20.5, removed on decivilization) | `data/campaign/market_conditions.csv` |
+| Condition | `IndEvo_government` (`showIcon` false, tag `hide_in_codex`, order 20.5, removed on decivilization) | `data/campaign/market_conditions.csv` |
 | Memory key | `$IndEvo_miningFocus`, `$IndEvo_refiningFocus` (market, variant id, unset for base) | `Specialization.java:20-21` |
 | Mod key | `<host id>_IndEvo_specialized` on the host's supply and demand | `Specialization.java` |
 | Variant ids | `base_population_and_infrastructure`, `underworld`, `rural`, `hidden`, `outpost`, `helldivers`, `warhammer`, `corpos` (dormant `monks`, `resort`) | `Governments.java` |
@@ -87,7 +87,9 @@ Apply chain, per industry, from `Market.reapplyIndustries` and `BaseIndustry.rea
 - `gov.unapply()` runs in the pop's `aboutToBeApplied`, so it may only touch market and pop level mods. Per industry effects live in `preApplyToOther` (before that industry's apply, for `getSupplyBonusFromOther` and other inputs its apply reads) and `applyToOther` (after it, for anything that reads its fresh output). `unapplyFromOther` runs only when the government changes.
 - `GovernmentCondition.set` unapplies the old variant from the pop and every industry, clears its overrides, then adds or removes the condition (base removes it) and reapplies the market. Switching between two non-base variants keeps `daysPassed`; going to base resets it.
 - Name and image overrides go on the pop only when its spec id is `population` (not the SoP capital) and the current override is null or the one the condition set last. Specializations do the same on the vanilla `mining` and `refining` hosts only.
-- LARP mode (`IndEvo_GovernmentLarpMode`): names and images stay, effects are skipped and removed.
+- LARP mode (`IndEvo_GovernmentLarpMode`): names, images and descriptions stay, effects are skipped and removed.
+- Images: vanilla `PopulationAndInfrastructure.getCurrentImage` (small and large sizes) and `Mining.getCurrentImage` (gas giant, small size) skip `imageOverride`. `ChangelingImagePatch` (`@After getCurrentImage` on every `BaseIndustry` subtype, most derived call only) returns the override again when it is the one the condition or specialization set.
+- Tooltip: `ChangelingTooltipPatch` redirects two calls in `BaseIndustry.createTooltip`. `getDescriptionOverride()` returns the variant's description text1 for a government pop or a specialized vanilla host (same as the old Switchable plugins); `addRightAfterDescriptionSection` is followed by the government's `addRightAfterDescription` unless LARP. The Governance Type section stays in `ChangelingPopulationOptionProvider.addToIndustryTooltip`, which vanilla calls right after `addPostDemandSection`.
 - Pather interest has no market hook: `LuddicPathBaseManager.getLuddicPathMarketInterest` sums `ind.getPatherInterest()`. `GovernmentPatherInterestPatch` redirects that one call for the pop and returns the variant's value unless it is above 1e8. Other callers of `getPatherInterest()` see the vanilla pop value.
 
 ### Mining and refining
@@ -146,7 +148,6 @@ Apply chain, per industry, from `Market.reapplyIndustries` and `BaseIndustry.rea
 | `RuralPolitySubIndustry.fixClosest` | Debug helper, only referenced from a comment |
 | Forge World without spaceport | Suspected: `return` in the unrest branch also skips ship building (`:213`) |
 | Decivilization | Removes the condition without `unapply`, so a Forge World or Managed Democracy listener stays registered (inferred, not tested) |
-| Condition icon | Reuses vanilla `established_polity.png` |
 | `HandBuiltHullmod` | Repo entries are never pruned, one per hand built ship; ships built before 4.2.a keep their 5 stored effects |
 | Changelog_todo | "Choose a government popup on colony establishment", "add some more info/tt/notifications to governments" |
 

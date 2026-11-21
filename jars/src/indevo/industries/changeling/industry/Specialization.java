@@ -1,11 +1,13 @@
 package indevo.industries.changeling.industry;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.loading.Description;
 import indevo.industries.changeling.industry.mining.MiningSpecializations;
 import indevo.industries.changeling.industry.refining.RefiningSpecializations;
 
@@ -60,6 +62,20 @@ public class Specialization implements ChangelingTarget {
         }
 
         for (MutableCommodityQuantity q : ind.getAllDemand()) q.getQuantity().unmodifyFlat(key);
+    }
+
+    // only the vanilla host takes the variant's name, image and description, modded tiers keep their own
+    public static String getDescriptionOverride(Industry ind) {
+        Specialization spec = getFor(ind);
+        if (spec == null || ind.getMarket() == null || !spec.vanillaId.equals(ind.getSpec().getId())) return null;
+
+        SubIndustryData data = spec.getData(ind.getMarket());
+        return spec.baseId.equals(data.id) ? null : Global.getSettings().getDescription(data.descriptionID, Description.Type.CUSTOM).getText1();
+    }
+
+    public static boolean isOwnImage(Industry ind) {
+        Specialization spec = getFor(ind);
+        return spec != null && ind instanceof BaseIndustry base && base.getImageOverride() != null && spec.isOwnImage(base.getImageOverride());
     }
 
     public static Specialization getFor(Industry ind) {

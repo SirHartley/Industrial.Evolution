@@ -186,7 +186,7 @@ Adjusted - VPC commodities and outputs moved to data/config/indEvo/vpc_commoditi
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 
 Governments
-Adjusted - Now a colony condition, Population & Infrastructure stays vanilla (works with mods that change it)
+Adjusted - Population & Infrastructure stays vanilla, the government sits on the colony (works with mods that change it)
 Fixed - Permanent governments can no longer be changed
 Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
 Fixed - Managed Democracy size cap no longer stays after a government change

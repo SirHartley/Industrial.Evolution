@@ -127,6 +127,11 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
         return false;
     }
 
+    @Override
+    public boolean showIcon() {
+        return false;
+    }
+
     public SubIndustryAPI getCurrent() {
         return current;
     }
@@ -196,19 +201,30 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
         return current == null ? super.getName() : current.getName();
     }
 
-    @Override
-    public void createTooltip(TooltipMakerAPI tooltip, boolean expanded) {
-        if (!Global.CODEX_TOOLTIP_MODE) tooltip.addTitle(getName(), market.getTextColorForFactionOrPlanet());
-        if (current == null) return;
+    // the population plugin is never replaced, ChangelingTooltipPatch puts the government's text into its tooltip
+    public static String getDescriptionOverride(Industry ind) {
+        if (!Industries.POPULATION.equals(ind.getId())) return null;
+        SubIndustryAPI gov = getGovernment(ind.getMarket());
+        return gov == null ? null : gov.getDescription().getText1();
+    }
 
-        float opad = 10f;
-        tooltip.addPara(current.getDescription().getText1(), opad);
-        tooltip.addPara(current.getDescription().getText2(), opad);
-        addLockInfo(tooltip, market);
+    public static void addRightAfterDescription(TooltipMakerAPI tooltip, Industry ind, Industry.IndustryTooltipMode mode) {
+        if (Setting.GOVERNMENT_LARP_MODE.enabled() || !Industries.POPULATION.equals(ind.getId())) return;
+
+        SubIndustryAPI gov = getGovernment(ind.getMarket());
+        if (gov == null) return;
+
+        gov.init(ind);
+        gov.addRightAfterDescription(tooltip, mode);
+    }
+
+    public static boolean isOwnImage(Industry ind) {
+        GovernmentCondition cond = get(ind.getMarket());
+        return cond != null && cond.appliedImage != null && ind instanceof BaseIndustry base && cond.appliedImage.equals(base.getImageOverride());
     }
 
     // governance section on the population tooltip, the population plugin is never replaced
-    public static void addGovernanceSection(TooltipMakerAPI tooltip, Industry pop, Industry.IndustryTooltipMode mode) {
+    public static void addGovernanceSection(TooltipMakerAPI tooltip, Industry pop) {
         MarketAPI market = pop.getMarket();
         SubIndustryAPI gov = getGovernment(market);
         if (gov == null && !market.isPlayerOwned()) return;
@@ -220,9 +236,7 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
             SubIndustryData base = Governments.get(Governments.BASE_ID);
             tooltip.addPara(Global.getSettings().getDescription(base.descriptionID, Description.Type.CUSTOM).getText2(), opad);
         } else {
-            gov.init(pop);
             tooltip.addPara(gov.getDescription().getText2(), opad);
-            gov.addRightAfterDescription(tooltip, mode);
         }
 
         if (!canChange(market) || !market.isPlayerOwned()) return;
