@@ -23,12 +23,10 @@ public class RiftTargets {
 
     private final MarketAPI market;
     private final float rangeLY;
-    private final int riftLimit;
 
-    public RiftTargets(MarketAPI market, float rangeLY, int riftLimit) {
+    public RiftTargets(MarketAPI market, float rangeLY) {
         this.market = market;
         this.rangeLY = rangeLY;
-        this.riftLimit = riftLimit;
     }
 
     public RiftTargetArea getArea(RiftTargetMode mode) {
@@ -80,9 +78,8 @@ public class RiftTargets {
                 || system.hasTag(NO_TARGET_TAG)) return false;
         if (system.isDeepSpace() || system.getHyperspaceAnchor() == null || Misc.isInAbyss(system.getLocation())) return false;
         if (system.getStar() == null && !system.isNebula()) return false;
-        if (MiscIE.getCSVSetFromMemory(Ids.RIFT_BLOCKED_SYSTEMS_LIST).contains(system.getId())) return false;
 
-        return RiftRelocator.countRifts(system) < riftLimit;
+        return !MiscIE.getCSVSetFromMemory(Ids.RIFT_BLOCKED_SYSTEMS_LIST).contains(system.getId());
     }
 
     public static Vector2f getCoreCenter() {

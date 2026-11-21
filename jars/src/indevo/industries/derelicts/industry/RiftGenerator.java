@@ -33,8 +33,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener, Relic
 
     public static final int ALPHA_DAY_REDUCTION = 30;
     public static final int BETA_RANGE_INCREASE = 3;
-    public static final int BASE_RIFT_LIMIT = 1;
-    public static final int GAMMA_RIFT_LIMIT = 2;
+    public static final int GAMMA_TEAR_MULT = 2;
 
     private int daysPassed = 999;
     private boolean jumping = false;
@@ -102,22 +101,22 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener, Relic
     }
 
     public RiftBlockers.Reason getBlockReason() {
-        if (jumping) return new RiftBlockers.Reason("The Generator is already charging for a jump.");
+        if (jumping) return new RiftBlockers.Reason("The Generator is charging for a jump.");
 
         if (!isReady()) {
             int days = getDaysUntilReady();
-            return new RiftBlockers.Reason("The Rift Generator is not ready to fire yet. It will be ready in " + days + (days == 1 ? " day." : " days."), days + "");
+            return new RiftBlockers.Reason("The Generator is recharging. Ready in " + days + (days == 1 ? " day." : " days."), days + "");
         }
 
         RiftBlockers.Reason reason = RiftBlockers.getReason(market);
         if (reason != null) return reason;
 
-        if (!getTargets().hasAnyTarget()) return new RiftBlockers.Reason("There is no star system in range that can take the planet.");
+        if (!getTargets().hasAnyTarget()) return new RiftBlockers.Reason("No star system in range can take the planet.");
         return null;
     }
 
     public RiftTargets getTargets() {
-        return new RiftTargets(market, getRangeLY(), getRiftLimit());
+        return new RiftTargets(market, getRangeLY());
     }
 
     public void fire(RiftTargetMode mode, Random random) {
@@ -135,7 +134,7 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener, Relic
         jumping = true;
         daysPassed = 0;
         RecentUnrest.get(market).add(1, "Recent Rift Generator usage");
-        Global.getSector().addScript(new RiftJumpScript(market, target));
+        Global.getSector().addScript(new RiftJumpScript(market, target, getTearDays()));
     }
 
     public void onJumpDone() {
@@ -152,8 +151,9 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener, Relic
         return Commodities.ALPHA_CORE.equals(getAICoreId()) ? Math.max(days - ALPHA_DAY_REDUCTION, 0) : days;
     }
 
-    public int getRiftLimit() {
-        return Commodities.GAMMA_CORE.equals(getAICoreId()) ? GAMMA_RIFT_LIMIT : BASE_RIFT_LIMIT;
+    public int getTearDays() {
+        int days = Math.max(getDaysRequired(), 1);
+        return Commodities.GAMMA_CORE.equals(getAICoreId()) ? days * GAMMA_TEAR_MULT : days;
     }
 
     public int getPreciseCost() {
@@ -178,13 +178,14 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener, Relic
         if (reason == null) {
             tooltip.addPara("The Generator is %s.", 10f, Misc.getPositiveHighlightColor(), "ready to fire");
         } else if (!isReady()) {
-            tooltip.addPara("The Generator is %s - it will be ready in %s.", 10f, Misc.getHighlightColor(), "recharging", getDaysUntilReady() + " days");
+            int days = getDaysUntilReady();
+            tooltip.addPara("The Generator is %s, ready in %s" + (days == 1 ? " day." : " days."), 10f, Misc.getHighlightColor(), "recharging", days + "");
         } else if (!jumping) {
             tooltip.addPara("The Generator is %s.", 10f, Misc.getNegativeHighlightColor(), "unable to fire");
             tooltip.addPara(reason.text(), 2f, Misc.getHighlightColor(), reason.highlights());
         }
 
-        tooltip.addPara("Current range: %s", 2f, Misc.getHighlightColor(), Math.round(getRangeLY()) + " LY");
+        tooltip.addPara("Jump range: %s light years", 2f, Misc.getHighlightColor(), Math.round(getRangeLY()) + "");
     }
 
     @Override
@@ -210,12 +211,12 @@ public class RiftGenerator extends BaseIndustry implements NewDayListener, Relic
 
     @Override
     protected void addBetaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
-        addCoreDescription(tooltip, mode, "Beta", "Increases jump range by %s", BETA_RANGE_INCREASE + " light years");
+        addCoreDescription(tooltip, mode, "Beta", "Increases jump range by %s.", BETA_RANGE_INCREASE + " light years");
     }
 
     @Override
     protected void addGammaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
-        addCoreDescription(tooltip, mode, "Gamma", "Allows to %s star systems that already have an Artificial Rift %s.", "retarget", "once");
+        addCoreDescription(tooltip, mode, "Gamma", "Keeps the Artificial Hyperspace Tear open %s as long.", "twice");
     }
 
     private void addCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode, String level, String text, String... highlights) {

@@ -117,7 +117,7 @@ Every load (`:153` to `:173`):
 | Pattern | Meaning | Example |
 |---|---|---|
 | `X.register()` | `getListenerManager().addListener(new X(), true)`: transient, added on every load, not saved | `DepositMessage.register()` |
-| `X.getInstanceOrRegister()` | Returns the saved instance from `getListeners(X.class)` or adds a persistent one | `ShippingManager`, `AdminGovernTimeTracker`; `RelayNetworkBrain` is the transient variant, see below |
+| `X.getInstanceOrRegister()` | Returns the saved instance from `getListeners(X.class)` or adds a persistent one | `ShippingManager`, `AdminGovernTimeTracker`, `RiftTearManager` (on the first rift jump, [DERELICTS](industries/DERELICTS.md#registration-and-lifecycle)); `RelayNetworkBrain` is the transient variant, see below |
 | `registerPlugin(new XCampaignPlugin())` | Campaign plugin; all four IE plugins are transient (`BaseCampaignPlugin.isTransient()` returns true) | `setScriptsIfNeeded()` `:516` to `:519` |
 | `@Patch` class | PatchLib finds it in `jars/IndEvo.jar` at startup, no registration. A hook installs when its target class loads | [Patches](#patches) |
 | `sector.addScript` guarded by `hasScript` | Saved script, added once | `TimeTracker` `:522` |

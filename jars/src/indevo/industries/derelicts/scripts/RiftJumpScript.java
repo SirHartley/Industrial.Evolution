@@ -23,14 +23,16 @@ public class RiftJumpScript implements EveryFrameScript {
 
     private final MarketAPI market;
     private final StarSystemAPI target;
+    private final int tearDays;
     private final float radius;
     private float elapsed = 0f;
     private boolean done = false;
     private transient RiftWarpRenderer renderer;
 
-    public RiftJumpScript(MarketAPI market, StarSystemAPI target) {
+    public RiftJumpScript(MarketAPI market, StarSystemAPI target, int tearDays) {
         this.market = market;
         this.target = target;
+        this.tearDays = tearDays;
         this.radius = market.getPlanetEntity().getRadius();
     }
 
@@ -70,7 +72,7 @@ public class RiftJumpScript implements EveryFrameScript {
         }
 
         StarSystemAPI from = market.getStarSystem();
-        RiftRelocator.relocate(market, target);
+        RiftRelocator.relocate(market, target, tearDays);
 
         String name = target.getNameWithLowercaseType();
         Global.getSector().getCampaignUI().addMessage(market.getName() + " has jumped to the " + name + ".",

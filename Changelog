@@ -228,7 +228,10 @@ Added - Accelerate: halve the remaining Ancient Laboratory repair time with Reli
 Added - Recharge: end the Rift Generator cooldown at once for 3 Relic Components per day left
 Added - Rift Generator: each jump direction now shows its target area on the sector map before you fire
 Added - Rift Generator: Precise targeting picks the exact star system on the map for Relic Components (100 by default, setting)
-Adjusted - Rift Generator: the planet now jumps with its station, rings, magnetic field, orbital junk and everything else in its orbit; moons and jump points stay behind and orbit the rift
+Adjusted - Rift Generator: the planet now jumps with its station, rings, stellar mirrors and shades, magnetic field, orbital junk and everything else in its orbit; moons and jump points stay behind and orbit the tear
+Adjusted - Rift Generator: the Artificial Hyperspace Tear left behind now closes after the recharge time and shows the days left; moons go back to orbiting the star
+Adjusted - Rift Generator: a star system can be targeted again after a jump into it
+Adjusted - Rift Generator: the gamma core now keeps the tear open twice as long
 Adjusted - Rift Generator: the colony menu now says why the Generator can not fire
 Adjusted - Rift Generator: never jumps into hidden, abyssal or cut off systems; mods can block star systems and orbiting entities (rift_blocked_systems.csv, rift_blocking_entities.csv, $IndEvo_riftBlocked)
 Adjusted - Rift Generator: the warp now has sound

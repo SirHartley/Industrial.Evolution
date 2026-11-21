@@ -1,5 +1,7 @@
 package indevo.industries.derelicts.dialogue;
 
+import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
@@ -13,7 +15,6 @@ import indevo.industries.derelicts.RiftTargetArea;
 import indevo.industries.derelicts.RiftTargetMode;
 import org.lwjgl.util.vector.Vector2f;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -28,30 +29,17 @@ public class RiftTargetMap {
     }
 
     public static void addAreaTooltip(TooltipMakerAPI tooltip, MarketAPI market, RiftTargetArea area) {
-        Color hl = Misc.getHighlightColor();
-        int count = area.systems.size();
-
-        if (area.mode == RiftTargetMode.RANDOM) tooltip.addPara("Target area: anywhere within %s light years.", 0f, hl, Math.round(area.reachLY) + "");
-        else tooltip.addPara("Target area: around the %s.", 0f, hl, area.anchor.getNameWithLowercaseType());
-
-        if (count == 1) tooltip.addPara("The %s is the only star system in reach.", 2f, hl, area.systems.get(0).getNameWithLowercaseType());
-        else tooltip.addPara("%s star systems in reach. The exact one is only known after the jump.", 2f, hl, count + "");
-
+        tooltip.addPara(getAreaLine(area), 0f, Misc.getHighlightColor(), area.getHighlight());
         float w = tooltip.getWidthSoFar();
         addMap(tooltip, market, area, w, Math.round(w / MAP_ASPECT), OPAD);
     }
 
-    public static void addAreaText(TextPanelAPI text, float width, MarketAPI market, RiftTargetArea area) {
-        Color hl = Misc.getHighlightColor();
-        String count = area.systems.size() + "";
-        String systems = area.systems.size() == 1 ? " star system in reach." : " star systems in reach.";
+    public static void addAreaText(TextPanelAPI text, RiftTargetArea area) {
+        text.addPara(getAreaLine(area), Misc.getHighlightColor(), area.getHighlight());
+    }
 
-        if (area.mode == RiftTargetMode.RANDOM) text.addPara("Target area: anywhere within %s light years, %s" + systems, hl, Math.round(area.reachLY) + "", count);
-        else text.addPara("Target area: around the %s, %s" + systems, hl, area.anchor.getNameWithLowercaseType(), count);
-
-        TooltipMakerAPI info = text.beginTooltip();
-        addMap(info, market, area, width, Math.round(width / MAP_ASPECT), 0f);
-        text.addTooltip();
+    private static String getAreaLine(RiftTargetArea area) {
+        return "Target area: " + area.getDescription() + ".";
     }
 
     public static void addMap(TooltipMakerAPI tooltip, MarketAPI market, RiftTargetArea area, float w, float h, float pad) {
@@ -61,15 +49,25 @@ public class RiftTargetMap {
         params.skipCurrLocMarkerRendering = true;
         params.markers = new ArrayList<>();
         params.markers.add(new MarkerData(new Vector2f(area.origin), null, market.getFaction().getBaseUIColor()));
+        for (StarSystemAPI system : area.systems) params.markers.add(new MarkerData(new Vector2f(system.getLocation()), null, Misc.getHighlightColor()));
 
         StarSystemAPI from = market.getStarSystem();
-        if (area.anchor != null && from.getHyperspaceAnchor() != null && area.anchor.getHyperspaceAnchor() != null)
-            params.arrows.add(new IntelInfoPlugin.ArrowData(from.getHyperspaceAnchor(), area.anchor.getHyperspaceAnchor()));
+        if (area.mode != RiftTargetMode.RANDOM && from.getHyperspaceAnchor() != null) {
+            SectorEntityToken centre = Global.getSector().getHyperspace().createToken(getCentre(area));
+            params.arrows.add(new IntelInfoPlugin.ArrowData(from.getHyperspaceAnchor(), centre));
+        }
 
         frame(params, area, Math.min(w, h));
 
         UIPanelAPI map = tooltip.createSectorMap(Math.round(w), Math.round(h), params, TITLE);
         tooltip.addCustom(map, pad);
+    }
+
+    private static Vector2f getCentre(RiftTargetArea area) {
+        Vector2f centre = new Vector2f();
+        for (StarSystemAPI system : area.systems) Vector2f.add(centre, system.getLocation(), centre);
+        centre.scale(1f / area.systems.size());
+        return centre;
     }
 
     // MapParams.positionToShowAllMarkersAndSystems centres on the player fleet, this frames the planet and its area

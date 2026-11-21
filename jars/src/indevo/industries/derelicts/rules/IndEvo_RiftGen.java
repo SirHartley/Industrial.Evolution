@@ -29,6 +29,7 @@ import java.util.Map;
 public class IndEvo_RiftGen extends BaseCommandPlugin {
 
     public static final String PRECISE_PICK_OPTION = "IndEvo_RiftTarget_PRECISE_pick";
+    public static final String PRECISE_INIT_OPTION = "IndEvo_RiftTarget_PRECISE_init";
     public static final String PRECISE_LORE = "The targeting array can hold a single system steady, but only after its Domain era focusing lattice has been rebuilt from scratch.";
 
     @Override
@@ -94,12 +95,12 @@ public class IndEvo_RiftGen extends BaseCommandPlugin {
             if (!options.hasOption(id)) continue;
 
             if (mode == RiftTargetMode.COLONY && !targets.hasOtherColonySystem()) {
-                disable(options, id, new RiftBlockers.Reason("You do not have another colonized star system."));
+                disable(options, id, new RiftBlockers.Reason("You have no colony in another star system."));
                 continue;
             }
 
             RiftTargetArea area = targets.getArea(mode);
-            if (area.isEmpty()) disable(options, id, new RiftBlockers.Reason("There is no star system in that direction that can take the planet."));
+            if (area.isEmpty()) disable(options, id, new RiftBlockers.Reason("No star system in that direction can take the planet."));
             else options.addOptionTooltipAppender(id, (tooltip, hadOtherText) -> RiftTargetMap.addAreaTooltip(tooltip, market, area));
         }
 
@@ -107,7 +108,7 @@ public class IndEvo_RiftGen extends BaseCommandPlugin {
 
         dialog.setOptionColor(PRECISE_PICK_OPTION, Misc.getPositiveHighlightColor());
         if (targets.getPreciseTargets().isEmpty()) {
-            disable(options, PRECISE_PICK_OPTION, new RiftBlockers.Reason("There is no star system in range that can take the planet."));
+            disable(options, PRECISE_PICK_OPTION, new RiftBlockers.Reason("No star system in range can take the planet."));
             return;
         }
 
@@ -116,7 +117,7 @@ public class IndEvo_RiftGen extends BaseCommandPlugin {
     }
 
     private static void addPreciseTooltip(TooltipMakerAPI tooltip, RiftGenerator gen) {
-        tooltip.addPara("Lock the Generator onto one star system of your choice within %s light years.", 0f, Misc.getHighlightColor(), Math.round(gen.getRangeLY()) + "");
+        tooltip.addPara("Pick the exact star system, within %s light years.", 0f, Misc.getHighlightColor(), Math.round(gen.getRangeLY()) + "");
         RelicHelper.addCostLine(tooltip, gen.getMarket(), gen.getPreciseCost(), 10f);
         tooltip.addPara(PRECISE_LORE, Misc.getGrayColor(), 10f);
     }
@@ -125,12 +126,13 @@ public class IndEvo_RiftGen extends BaseCommandPlugin {
         RiftTargetArea area = gen.getTargets().getArea(mode);
         if (area.isEmpty()) throw new IllegalStateException("rift mode page " + mode + " opened on " + gen.getMarket().getId() + " without targets, the option should be disabled");
 
-        RiftTargetMap.addAreaText(dialog.getTextPanel(), dialog.getTextWidth(), gen.getMarket(), area);
+        RiftTargetMap.addAreaText(dialog.getTextPanel(), area);
     }
 
     private static void showPick(InteractionDialogAPI dialog, RiftGenerator gen, StarSystemAPI system) {
         String distance = Misc.getRoundedValueMaxOneAfterDecimal(RiftPrecisePicker.getDistanceLY(gen.getMarket(), system));
         dialog.getTextPanel().addPara("The targeting array locks onto the %s, %s light years away.", Misc.getHighlightColor(), system.getNameWithLowercaseType(), distance);
+        if (dialog.getOptionPanel().hasOption(PRECISE_INIT_OPTION)) dialog.setOptionColor(PRECISE_INIT_OPTION, Misc.getPositiveHighlightColor());
     }
 
     private static void confirmPrecise(InteractionDialogAPI dialog, Map<String, MemoryAPI> memoryMap, RiftGenerator gen, StarSystemAPI system) {
