@@ -413,6 +413,19 @@ The hack will eventually be picked up and cleared out by maintenance subroutines
 IndEvo_derelictWatchtower_disableControlUnderAI,COB_DisableIndividualOptions,"$IndEvo_isArtilleryActive score:2000
 $tag:IndEvo_watchtower","SetEnabled COB_takeControl false
 SetTooltip COB_takeControl ""Any attempts at taking control of the $entityName get stifled by a heavily AI-backed counter-hack. Your engineers concede defeat after a few minutes to avoid a network breach.""",,,
+IndEvo_watchtower_aotdOpenDialog,OpenInteractionDialog,"$tag:IndEvo_watchtower
+$tag:aotd_objective","ShowDefaultVisual
+Objectives printDescription
+FireAll COB_AddOptions
+FireBest COB_DisableOptionsIfNeeded
+FireAll COB_DisableIndividualOptions
+FireBest IndEvo_WatchtowerTakeControl",,,"Ashes of the Domain (ToT) swaps objective for aotd_objective and disables COB_takeControl on every objective. Same open flow as cob_openDialog, then IndEvo_WatchtowerTakeControl turns take control back on for watchtowers."
+IndEvo_watchtower_takeControlEnable,IndEvo_WatchtowerTakeControl,,SetEnabled COB_takeControl true,,,
+IndEvo_watchtower_takeControlArtillery,IndEvo_WatchtowerTakeControl,$IndEvo_isArtilleryActive,SetEnabled COB_takeControl false,,,
+IndEvo_watchtower_takeControlHostile,IndEvo_WatchtowerTakeControl,HostileFleetNearbyAndAware,SetEnabled COB_takeControl false,,,
+IndEvo_watchtower_takeControlFaction,IndEvo_WatchtowerTakeControl,FactionFleetNearbyAndAware $faction.id,SetEnabled COB_takeControl false,,,
+IndEvo_watchtower_takeControlInactive,IndEvo_WatchtowerTakeControl,"!Objectives canActivate
+$objectiveNonFunctional",SetEnabled COB_takeControl false,,,"Same checks as vanilla cob_disableOpts, cob_disableOpts2, cob_disableActivateOnly and IE's disableControlUnderAI, so turning take control back on never overrides them."
 IndEvo_droneNest_open,OpenInteractionDialog,$tag:IndEvo_droneNest score:1000,"ShowDefaultVisual
 SetShortcut defaultLeave ""ESCAPE""","The $entityName is little more than a ring of launch cradles around an old Domain fabricator. It does not answer hails, and a short range sensor sweep passes over your hull every few seconds.
 

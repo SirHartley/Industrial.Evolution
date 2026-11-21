@@ -16,6 +16,7 @@ import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour.FleetBehaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.courierport.ShippingTargetHelper;
 import indevo.utils.ui.Ui;
 import indevo.utils.ui.UiFrame;
@@ -251,7 +252,7 @@ public class DetachmentPanel extends BaseCustomDialogDelegate {
 
         for (SectorEntityToken entity : system.getAllEntities()) {
             boolean planet = entity instanceof PlanetAPI && !entity.isStar();
-            if (planet || entity instanceof JumpPointAPI || entity.hasTag(Tags.STATION) || entity.hasTag(Tags.GATE) || entity.hasTag(Tags.OBJECTIVE)) targets.add(entity);
+            if (planet || entity instanceof JumpPointAPI || entity.hasTag(Tags.STATION) || entity.hasTag(Tags.GATE) || AotdManager.isObjective(entity)) targets.add(entity);
         }
 
         return targets;
