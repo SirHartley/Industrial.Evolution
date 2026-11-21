@@ -212,10 +212,14 @@ public final class UiImages {
 
     // cargo style cell: count bottom right in highlight (hidden below 0), extra top left in positive colour and a lit frame while above 0
     public static CustomPanelAPI stack(CustomPanelAPI p, float x, float y, float size, String spriteName, int count, int extra, String name) {
+        return stack(p, x, y, size, spriteName, count >= 0 ? Ui.num(count) : null, extra, name);
+    }
+
+    public static CustomPanelAPI stack(CustomPanelAPI p, float x, float y, float size, String spriteName, String count, int extra, String name) {
         Color border = extra > 0 ? Misc.scaleAlpha(Ui.bright(), 0.85f) : Misc.scaleAlpha(Ui.base(), 0.2f);
         CustomPanelAPI cell = Ui.box(p, x, y, size, size, border, Misc.setAlpha(Color.BLACK, 90));
         img(cell, STACK_PAD, STACK_TOP, size - 2f * STACK_PAD, size - 2f * STACK_PAD, spriteName);
-        if (count >= 0) Ui.text(cell, 0f, size - STACK_COUNT_Y, size - 3f, Ui.num(count), Ui.hl(), Ui.RIGHT);
+        if (count != null) Ui.text(cell, 0f, size - STACK_COUNT_Y, size - 3f, count, Ui.hl(), Ui.RIGHT);
         if (extra > 0) Ui.text(cell, 4f, 2f, size - 8f, "+" + Ui.num(extra), Ui.pos());
         if (name != null) Ui.tooltip(p, cell, name);
         return cell;

@@ -17,7 +17,7 @@ public final class EffectLines {
 
     public static final float PITCH = 18f;
     public static final String NONE = "No special rules";
-    static final float TEXT_X = 16f;
+    public static final float TEXT_X = 16f;
     static final float SIGN_W = 16f;
     static final float MINUS_W = 7f;
     static final float MINUS_H = 2f;

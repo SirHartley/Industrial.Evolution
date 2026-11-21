@@ -282,6 +282,6 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
         if (full && data != null) EffectLines.add(tooltip, w, data.effects, opad);
         if (warning != null) tooltip.addPara(warning, Misc.getNegativeHighlightColor(), opad);
         if (days > 0) tooltip.addPara("Permanent in %s", opad, Misc.getHighlightColor(), days + " " + StringHelper.getDayOrDays(days));
-        gov.addOngoing(tooltip, w);
+        gov.addOngoing(tooltip, w, full);
     }
 }

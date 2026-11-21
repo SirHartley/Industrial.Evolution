@@ -49,5 +49,5 @@ public interface SubIndustryAPI {
     // ongoing effects for the population tooltip; a government that owns a section keeps it when empty
     boolean hasOngoing();
 
-    void addOngoing(TooltipMakerAPI tooltip, float width);
+    void addOngoing(TooltipMakerAPI tooltip, float width, boolean expanded);
 }
