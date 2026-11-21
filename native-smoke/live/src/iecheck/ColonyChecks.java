@@ -165,6 +165,11 @@ public final class ColonyChecks {
 
             Specialization.MINING.setCurrent(b, Specialization.MINING.get(MiningSpecializations.BASE_ID));
             c.expect(!mining.getSupply(Commodities.ORE).getQuantity().getFlatMods().containsKey(key), "base mining removes the ore delta");
+            boolean leftover = false;
+            for (String id : Specialization.MINING.commodities) {
+                leftover |= mining.getSupply(id).getQuantity().getFlatMods().containsKey(key) || mining.getDemand(id).getQuantity().getFlatMods().containsKey(key);
+            }
+            c.expect(!leftover, "base mining removes the malus on lines the mine does not produce");
             c.expect(mining.getSpec().getName().equals(mining.getCurrentName()), "base mining clears the name override (" + mining.getCurrentName() + ")");
             b.removeIndustry(Industries.MINING, null, false);
         });
