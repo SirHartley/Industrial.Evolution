@@ -102,7 +102,7 @@ Apply chain, per industry, from `Market.reapplyIndustries` and `BaseIndustry.rea
 
 `ChangelingIndustryDialogueDelegate` is one kit panel for all three targets, board width 840. The window height comes from the tile rows and the tallest card of all options (`height`), so the card area keeps its size when another tile is picked.
 
-- Tiles, 4 per row, 198 x 142: name, picture, bottom line (cost, "Current", the red unavailable reason, or grey "Requires research"). The current variant is in the grid and picked at open.
+- Tiles, 4 per row, 198 x 142: name on a left aligned heading bar flush on the picture, picture, bottom line (cost, "Current", the red unavailable reason, or grey "Requires research"). The current variant is in the grid and picked at open.
 - A tile that can not be picked is disabled: missing AOTD research (grey picture and text), `isAvailableToBuild()` false (dim picture, red), or too expensive (dim picture, red cost). Its tooltip holds the full reason, the effect lines and the cost. A mod `CustomDialogDelegate` can not disable the host's Confirm button, so the selection can only ever be a tile that may be confirmed; Confirm on the current variant does nothing.
 - Card of the picked tile, two columns with a heading each: left the variant name over Cost (or Status: Current), Requires (`SubIndustryData.requires`, red while not met), Permanent (`ChangelingTarget.getPermanence`) and the description text1; right "Effects" over the gain and cost lines (`ChangelingTarget.getEffects`, grey "No special rules" when empty; governments return none in LARP mode). The description is only cut, with a tooltip, where the screen is too small for the full window.
 - Footer: the player's credits. The ? icon on the title shows `ChangelingTarget.getHelp()`.

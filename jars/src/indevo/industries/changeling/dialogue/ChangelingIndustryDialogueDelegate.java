@@ -42,6 +42,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
     static final float TILE_GAP = 8f;
     static final float TILE_PAD = 8f;
     static final float ART_X = 4f;
+    static final float HEAD_Y = 4f;
     static final float ART_Y = 22f;
     static final float ART_W = 190f;
     static final float ART_H = 95f;
@@ -203,7 +204,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
         });
 
         Color name = picked ? Ui.bright() : o.research != null ? Ui.gray() : why != null ? Ui.neg() : Ui.base();
-        Ui.text(tile, TILE_PAD, 3f, tw, o.data.name, name);
+        Ui.heading(tile, ART_X, HEAD_Y, ART_W, o.data.name, Ui.LEFT, name, Ui.dark());
 
         if (o.research != null) UiImages.grey(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite);
         else UiImages.img(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite, null, why == null ? 1f : DIM);
