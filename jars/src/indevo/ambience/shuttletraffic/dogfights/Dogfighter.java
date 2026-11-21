@@ -189,12 +189,12 @@ public class Dogfighter {
         glow.renderAtCenter(pos.x - dirX() * back, pos.y - dirY() * back);
     }
 
-    public void renderTrail(float alphaMult) {
+    public void renderTrail(float alphaMult, float minWidth) {
         float a = alpha * alphaMult;
         if (a <= 0.01f) return;
 
         float back = hull.length * scale * 0.5f;
-        float width = Math.min(3f, 0.5f * hull.width * scale);
+        float width = Math.max(minWidth, Math.min(3f, 0.5f * hull.width * scale));
         trail.render(pos.x - dirX() * back, pos.y - dirY() * back, width, hull.trailColor, hull.additiveTrail, a, true);
     }
 

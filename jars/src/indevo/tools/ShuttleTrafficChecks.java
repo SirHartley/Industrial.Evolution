@@ -7,6 +7,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleBudget;
+import indevo.ambience.shuttletraffic.ShuttleDepartures;
 import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleState;
@@ -107,6 +108,7 @@ public final class ShuttleTrafficChecks {
             run.checkCruise();
             run.checkSurfaceHop();
             run.checkBudget();
+            run.checkDepartures();
             run.checkTrail();
             run.checkFleetHop();
             run.checkRoundRate();
@@ -682,6 +684,25 @@ public final class ShuttleTrafficChecks {
     }
 
     // a busy system keeps room for local flights, lanes scale down but keep one flight each, rare flights fit while there is room
+    // at most 3 craft leave one pad within the window, other pads are not affected
+    private void checkDepartures() {
+        ShuttleAnchor pad = anchor(new Body(0f, 0f, 100f));
+        ShuttleAnchor other = anchor(new Body(2000f, 0f, 100f));
+        ShuttleDepartures departures = new ShuttleDepartures();
+        check(departures.getRoom(pad, 0f) == 3, "empty pad has room " + departures.getRoom(pad, 0f));
+        check(departures.getRoom(null, 0f) == 3, "no anchor has room " + departures.getRoom(null, 0f));
+
+        departures.add(pad, 2, 0f);
+        check(departures.getRoom(pad, 1f) == 1, "pad with 2 out has room " + departures.getRoom(pad, 1f));
+        departures.add(pad, 1, 5f);
+        check(departures.getRoom(pad, 6f) == 0, "full pad has room " + departures.getRoom(pad, 6f));
+        check(departures.getRoom(other, 6f) == 3, "other pad has room " + departures.getRoom(other, 6f));
+        check(departures.getRoom(pad, ShuttleDepartures.WINDOW + 0.1f) == 2, "pad after the first pair left has room " + departures.getRoom(pad, ShuttleDepartures.WINDOW + 0.1f));
+
+        departures.prune(30f);
+        check(departures.getRoom(pad, 30f) == 3, "pruned pad has room " + departures.getRoom(pad, 30f));
+    }
+
     private void checkBudget() {
         List<ShuttleRoute> routes = new ArrayList<>();
         for (int i = 0; i < 6; i++) routes.add(route(ShuttleRoute.Kind.MARKET, 8));

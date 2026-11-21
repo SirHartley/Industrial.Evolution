@@ -86,7 +86,7 @@ Shared by construction and the IE timers. Constants on `RelicSpeedUpTarget`: `RE
 - `canSpeedUp()` needs more than 1 day left; the industry option only shows then. `RelicSpeedUpDialog.isAvailable` adds the cooldown check, the option or button is disabled while it runs.
 - `RelicSpeedUpDialog.apply` checks availability and relics again, takes the cost through `RelicHelper.take(getMarket(), cost)` (colony storage, then fleet cargo, [Utils](UTILS.md#helper)), calls `speedUp(left - after)` and starts the cooldown.
 - Cooldowns: market memory per timer by default (`getSpeedUpCooldownLeft`, `startSpeedUpCooldown`). Construction keeps `$IndEvo_reduceBuildTimeCooldown` (per colony, "on this colony"). Salvage Yards orders keep a clock timestamp on the intel (`relicSpeedUpTimestamp`, "on this order"). Default scope text "here".
-- Dialog: `RelicConfirmDialog` sizes itself to its text (`getHeight`) and draws the counter "Relic Components: N" below its own panel, left of the dialog buttons. Without enough relics the only button is Return; Confirm checks the relics again before `apply()`. Subclasses pay in `apply()`.
+- Dialog: `RelicConfirmDialog` sizes itself to its text (`getHeight`) and draws the counter "Relic Components: N" below its own panel, left of the dialog buttons. The engine right aligns the 150 px buttons (`O0oo`), so `getWidth` widens the dialog past `WIDTH` when the measured counter would reach them. Without enough relics the only button is Return; Confirm checks the relics again before `apply()`. Subclasses pay in `apply()`.
 - Text: the dialog writes the requirement line, the effect with time remaining before and after, and the relic counter. `addBody` writes the same for the intel confirm prompt. `addTooltip` writes effect, cost line, the cooldown rule (`getSpeedUpScope()`), the cooldown left or "Too few days left" and the gray lore (`getSpeedUpLore()`, Philipp's text, RELIC_PLAN section 6; construction has none) for the option or button hover.
 - Construction: `ConstructionTarget` reads private `buildTime` via `StarReflectionUtils.get(ind, "buildTime", float.class, true)`; days left `round(buildTime - buildProgress)`; `speedUp` adds the days to `BaseIndustry.setBuildProgress`. `isSuitable`: a `BaseIndustry` that is building, or upgrading with an upgrade spec.
 
@@ -130,15 +130,16 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | IE timer speed up (Accelerate, Salvage Yards Accelerate Construction) | 1 per remaining day, halves it | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | Rift Generator recharge (Recharge) | 3 per remaining day, ends the cooldown | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
+| Rift Generator Precise targeting | `IndEvo_RG_preciseCost` (100) per jump | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#rift-generator-move) |
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Express Delivery | 1 per delivery day (60 at vanilla) | fleet cargo | [Custom production Express Delivery](#custom-production-express-delivery) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
-| Salvage Yards S-mod transfer | 5 x target DP per S-mod, plus credits | local storage, then fleet cargo | [Salvage Yards](../industries/SALVAGE_YARDS.md#s-mod-transfer) |
+| Salvage Yards S-mod transfer | 3 x target DP per S-mod, plus credits | local storage, then fleet cargo | [Salvage Yards](../industries/SALVAGE_YARDS.md#s-mod-transfer) |
 | Project Reforge (Galatia research) | 500, plus 1 Corrupted Nanoforge on Redeem | fleet cargo (relics as points) | [Research](../dialogue/RESEARCH.md#projects) |
-| Forge Template refining | 2 per hull FP per quality level | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
+| Forge Template refining | 2 per hull DP per quality level | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 | Automated ship integration | 10 per hull DP | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 | Hullmod extraction | `max(25, round(baseValue / 100))` per hullmod | colony storage, then fleet cargo | [Engineering Hub](../industries/ENGINEERING_HUB.md#hullmod-extraction) |
-| Relic Lattice Work (Orbital Works) | 20 per hull DP, +1 S-mod slot after 93 days | colony storage, then fleet cargo | [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) |
+| Relic Lattice Work (Orbital Works) | 10 per hull DP, +1 S-mod slot after 93 days | colony storage, then fleet cargo | [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) |
 | Refit build in | 5 per DP of the ship, per S-mod | market storage, then fleet cargo | [Relic build in](#relic-build-in) |
 | Tech Mining Boost Extraction | `max(5, round(20 x ruin size x find level))` | colony storage, then fleet cargo | [Tech Mining boost](#tech-mining-boost) |
 

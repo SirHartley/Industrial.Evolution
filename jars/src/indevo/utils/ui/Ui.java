@@ -5,8 +5,12 @@ import com.fs.starfarer.api.ui.*;
 import com.fs.starfarer.api.util.Misc;
 
 import java.awt.*;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
+import java.util.Set;
 
 public final class Ui {
 
@@ -30,9 +34,15 @@ public final class Ui {
     // first item of a tooltip element sits 5 px right of the element (StandardTooltipV2Expandable.addCustom)
     public static final float INSET = 5f;
     public static final String ELLIPSIS = "...";
+    // letter pairs that are one sound, never hyphenated between
+    private static final Set<String> PAIRS = Set.of("ch", "ck", "gh", "ph", "sh", "th", "wh");
 
     public interface Content {
         void create(TooltipMakerAPI tooltip);
+    }
+
+    // a line of breakLines, hyphen when the line ends inside a word that had none
+    private record Cut(String text, boolean hyphen) {
     }
 
     private Ui() {
@@ -171,6 +181,74 @@ public final class Ui {
         return words.isEmpty() ? fit(s, font, w) : words.replaceAll("[,;:.]+$", "") + ELLIPSIS;
     }
 
+    // words over at most n lines: several words on a line stay within soft, a lone word may reach hard and is hyphenated past it, "..." when it still runs out
+    public static List<String> breakLines(String s, String font, float soft, float hard, int n) {
+        String text = s == null ? "" : s;
+        List<Cut> cuts = cuts(text, font, soft, hard);
+        if (cuts.size() > n) cuts = cuts(text, font, hard, hard);
+
+        List<String> out = new ArrayList<>();
+        for (int i = 0; i < Math.min(n, cuts.size()); i++) {
+            String line = cuts.get(i).text() + (cuts.get(i).hyphen() ? "-" : "");
+            if (i == n - 1 && cuts.size() > n) {
+                StringBuilder rest = new StringBuilder();
+                for (int j = i; j < cuts.size(); j++) rest.append(j > i && !cuts.get(j - 1).hyphen() && !cuts.get(j - 1).text().endsWith("-") ? " " : "").append(cuts.get(j).text());
+                line = rest.toString();
+            }
+            out.add(fit(line, font, hard + 2f));
+        }
+        return out;
+    }
+
+    private static List<Cut> cuts(String s, String font, float soft, float hard) {
+        List<Cut> out = new ArrayList<>();
+        Deque<String> words = new ArrayDeque<>(Arrays.asList(s.trim().split("\\s+")));
+        String line = "";
+        while (!words.isEmpty()) {
+            String word = words.pop();
+            String next = line.isEmpty() ? word : line + " " + word;
+            if (width(next, font) <= soft || line.isEmpty() && width(word, font) <= hard) {
+                line = next;
+            } else if (!line.isEmpty()) {
+                out.add(new Cut(line, false));
+                line = "";
+                words.push(word);
+            } else {
+                int at = hyphenAt(word, font, hard);
+                if (at < 0) {
+                    line = word;
+                    continue;
+                }
+                out.add(new Cut(word.substring(0, at), word.charAt(at - 1) != '-'));
+                words.push(word.substring(at));
+            }
+        }
+        if (!line.isEmpty()) out.add(new Cut(line, false));
+        return out;
+    }
+
+    // latest break whose part fits hard with its hyphen: after a hyphen, before one consonant between vowels, between two consonants with vowels around; two letters stay before, three after
+    private static int hyphenAt(String word, String font, float hard) {
+        for (int i = word.length() - 3; i >= 2; i--) {
+            char a = Character.toLowerCase(word.charAt(i - 1));
+            char b = Character.toLowerCase(word.charAt(i));
+            char c = Character.toLowerCase(word.charAt(i + 1));
+            boolean at = a == '-'
+                    || vowel(a) && consonant(b) && vowel(c)
+                    || vowel(Character.toLowerCase(word.charAt(i - 2))) && consonant(a) && consonant(b) && vowel(c) && !PAIRS.contains("" + a + b);
+            if (at && width(word.substring(0, i) + (a == '-' ? "" : "-"), font) <= hard) return i;
+        }
+        return -1;
+    }
+
+    private static boolean vowel(char c) {
+        return "aeiouy".indexOf(c) >= 0;
+    }
+
+    private static boolean consonant(char c) {
+        return Character.isLetter(c) && !vowel(c);
+    }
+
     public static String sentences(String s, String font, float w) {
         if (s == null) return "";
         float max = w - 2f;
@@ -297,15 +375,17 @@ public final class Ui {
         return textIn(p, x + 8f, y, w - 16f, HEADING_H, title, ORB12, c, align, new String[0], new Color[0]);
     }
 
-    // left heading with a grey note at its right end, the note gets what the title leaves
-    public static LabelAPI heading(CustomPanelAPI p, float x, float y, float w, String title, String note) {
+    // left heading with a grey note at its right end, the note gets what the title leaves; hl parts of the note in the highlight colour
+    public static LabelAPI heading(CustomPanelAPI p, float x, float y, float w, String title, String note, String... hl) {
         float tw = Math.min(width(title, ORB12) + 2f, w - 16f);
         bar(p, x, y, w, dark());
         LabelAPI label = textIn(p, x + 8f, y, tw, HEADING_H, title, ORB12, base(), LEFT, new String[0], new Color[0]);
 
         float nx = x + 8f + tw + 16f;
         float nw = x + w - 8f - nx;
-        if (note != null && nw > 20f) textIn(p, nx, y, nw, HEADING_H, note, ORB12, gray(), RIGHT, new String[0], new Color[0]);
+        Color[] colors = new Color[hl.length];
+        Arrays.fill(colors, hl());
+        if (note != null && nw > 20f) textIn(p, nx, y, nw, HEADING_H, note, ORB12, gray(), RIGHT, hl, colors);
         return label;
     }
 

@@ -12,7 +12,11 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.FlickerUtilV2;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.industries.artillery.renderers.ArtilleryFireRenderer;
+import indevo.industries.artillery.scripts.DroneNetScript;
+import indevo.utils.trails.MagicCampaignTrailPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -23,7 +27,7 @@ import static indevo.utils.helper.MiscIE.smootherstep;
 
 public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
-    public static final float GLOW_SIZE = 30f;
+    public static final float GLOW_SIZE = 20f;
     public static Color GLOW_COLOR = new Color(255, 80, 60, 255);
     public static float GLOW_FREQUENCY = 3f; // on/off cycles per second
 
@@ -32,6 +36,13 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public static final float MAX_FADE_IN_SIZE_MULT = 1.5f;
     public static final float MAX_RETICULE_ALPHA = 0.7f;
     public static final float PROJECTILE_VELOCITY = 1500f;
+    public static final float MIN_LAUNCH_DELAY = 0.5f;
+    // min delay plus the mean of the 0 to 3 s warning spread
+    public static final float AVERAGE_LAUNCH_DELAY = MIN_LAUNCH_DELAY + 1.5f;
+    public static final float MIN_RETARGET_SPEED_MULT = 0.25f;
+    public static final float MAX_RETARGET_SPEED_MULT = 3f;
+    public static final float TRAIL_TIME = 0.1f;
+    public static final float TRAIL_WIDTH = 5f;
 
     transient private SpriteAPI glow;
     transient private SpriteAPI targetReticule;
@@ -48,12 +59,21 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
 
     //base
     public float impactSeconds;
+    public float warningSeconds;
+    public float revealSeconds;
+    public boolean revealed = false;
     public SectorEntityToken origin;
     public Vector2f target;
     private float projectileDelayTime;
+    private float velocity = PROJECTILE_VELOCITY;
+    public float trailID;
+
+    //player shells aim again when the reticule shows
+    public SectorEntityToken track;
+    public Vector2f trackOffset;
 
     //the projectile is an entity, the target reticule a particle
-    //render reticule, wait until flight time matches impact eta, then render projectile at fixed velocity on impact vector
+    //leave when flight time matches impact eta, show the reticule warningSeconds before impact
     //when projectile matches reticule pos, spawn explosion entity
     //add the avoidance script
 
@@ -105,17 +125,21 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public static class ProjectileParams {
         public SectorEntityToken origin;
         public Vector2f target;
-        public float impactSeconds;
+        public float warningSeconds;
+        public SectorEntityToken track;
+        public Vector2f trackOffset;
 
-        public ProjectileParams(SectorEntityToken origin, Vector2f target, float impactSeconds) {
+        public ProjectileParams(SectorEntityToken origin, Vector2f target, float warningSeconds, SectorEntityToken track, Vector2f trackOffset) {
             this.origin = origin;
             this.target = target;
-            this.impactSeconds = impactSeconds;
+            this.warningSeconds = warningSeconds;
+            this.track = track;
+            this.trackOffset = trackOffset;
         }
     }
 
-    public static void spawn(LocationAPI loc, SectorEntityToken origin, Vector2f target, float impactSeconds) {
-        SectorEntityToken t = loc.addCustomEntity(null, null, "IndEvo_artillery_projectile", null, new ProjectileParams(origin, target, impactSeconds));
+    public static void spawn(LocationAPI loc, SectorEntityToken origin, Vector2f target, float warningSeconds, SectorEntityToken track, Vector2f trackOffset) {
+        SectorEntityToken t = loc.addCustomEntity(null, null, "IndEvo_artillery_projectile", null, new ProjectileParams(origin, target, warningSeconds, track, trackOffset));
         t.setLocation(origin.getLocation().x, origin.getLocation().y);
     }
 
@@ -129,11 +153,18 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
             target.x = ((ProjectileParams) pluginParams).target.x;
             target.y = ((ProjectileParams) pluginParams).target.y;
 
-            this.impactSeconds = ((ProjectileParams) pluginParams).impactSeconds;
+            this.warningSeconds = ((ProjectileParams) pluginParams).warningSeconds;
+            this.track = ((ProjectileParams) pluginParams).track;
+            this.trackOffset = ((ProjectileParams) pluginParams).trackOffset;
 
+            // a flight longer than the warning leaves after a short wind up and the reticule waits instead
             float projectileFlightTime = Misc.getDistance(origin.getLocation(), target) / PROJECTILE_VELOCITY;
+            float launchDelay = MIN_LAUNCH_DELAY + Math.max(0f, warningSeconds - Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value());
+            this.impactSeconds = Math.max(warningSeconds, launchDelay + projectileFlightTime);
             this.projectileDelayTime = impactSeconds - projectileFlightTime;
+            this.revealSeconds = impactSeconds - warningSeconds;
             this.angle = MathUtils.getRandomNumberInRange(-20, 20);
+            trailID = MagicCampaignTrailPlugin.getUniqueID();
         }
 
         readResolve();
@@ -153,46 +184,41 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public void advance(float amount) {
         timePassedSeconds += amount;
 
-        //make other fleets avoid the location
-        for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
-            if (other == entity) continue;
-
-            float dist = Misc.getDistance(target, other.getLocation());
-            if (dist > Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value() + 500f) continue;
-
-            float timing = impactSeconds - timePassedSeconds;
-            String key = ARTILLERY_REACTION_SCRIPT_KEY + entity.getId();
-
-            if (!other.getMemoryWithoutUpdate().contains(key)) {
-                other.addScript(new ArtilleryReactionScript(target, Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value() + 100f, other, timing));
-                other.getMemoryWithoutUpdate().set(key, true, timing);
-            }
-        }
+        if (!revealed && timePassedSeconds >= revealSeconds) reveal();
+        if (revealed) warnFleets();
 
         //target reticule alpha
-        float maxFadeInTime = impactSeconds * RETICULE_ALPHA_RAMPUP_FRACTION;
-        float minFadeoutTime = impactSeconds * RETICULE_ALPHA_FADEOUT_FRACTION;
+        float shown = timePassedSeconds - revealSeconds;
+        float maxFadeInTime = warningSeconds * RETICULE_ALPHA_RAMPUP_FRACTION;
+        float minFadeoutTime = warningSeconds * RETICULE_ALPHA_FADEOUT_FRACTION;
 
-        if (timePassedSeconds < maxFadeInTime) {
-            float mult = smootherstep(0, maxFadeInTime, timePassedSeconds);
+        if (!revealed) currentAlpha = 0f;
+        else if (shown < maxFadeInTime) {
+            float mult = smootherstep(0, maxFadeInTime, shown);
             currentAlpha = MAX_RETICULE_ALPHA * mult;
             sizeMult = MAX_FADE_IN_SIZE_MULT - (MAX_FADE_IN_SIZE_MULT - 1) * mult;
-        } else if (timePassedSeconds < minFadeoutTime) {
+        } else if (shown < minFadeoutTime) {
             currentAlpha = MAX_RETICULE_ALPHA;
             sizeMult = 1f;
-        } else currentAlpha = MAX_RETICULE_ALPHA * (1 - smootherstep(minFadeoutTime, impactSeconds, timePassedSeconds));
+        } else currentAlpha = MAX_RETICULE_ALPHA * (1 - smootherstep(minFadeoutTime, warningSeconds, shown));
 
         //check if the projectile should be in the air
         boolean projectileDelayPassed = timePassedSeconds > projectileDelayTime;
 
+        if (!projectileDelayPassed && !finishing) {
+            ArtilleryFireRenderer.reportIncoming(origin, ArtilleryStationEntityPlugin.TYPE_MORTAR, Misc.getAngleInDegrees(origin.getLocation(), target), projectileDelayTime - timePassedSeconds);
+        }
+
         if (projectileDelayPassed && !finishing) {
             //advance projectile location
             if (sound) {
+                ArtilleryFireRenderer.reportShot(origin, ArtilleryStationEntityPlugin.TYPE_MORTAR, Misc.getAngleInDegrees(origin.getLocation(), target));
                 Global.getSoundPlayer().playSound("IndEvo_mortar_fire", MathUtils.getRandomNumberInRange(0.9f, 1.1f), 0.5f, origin.getLocation(), Misc.ZERO);
                 sound = false;
             }
 
             advanceEntityPosition(amount);
+            if (timePassedSeconds > projectileDelayTime + 0.05f) addTrailToProj();
 
             if (Misc.getDistance(entity.getLocation(), target) < 30f) {
                 spawnExplosion();
@@ -207,8 +233,62 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         } else if (!finishing) entity.setLocation(origin.getLocation().x, origin.getLocation().y);
     }
 
+    private void reveal() {
+        revealed = true;
+
+        if (track == null || trackOffset == null || finishing || !track.isAlive() || track.getContainingLocation() != entity.getContainingLocation()) return;
+
+        float remaining = impactSeconds - timePassedSeconds;
+        Vector2f aim = MortarShotScript.predict(track, remaining);
+        target.set(aim.x + trackOffset.x, aim.y + trackOffset.y);
+
+        if (timePassedSeconds > projectileDelayTime) {
+            float speed = Misc.getDistance(entity.getLocation(), target) / Math.max(remaining, 0.1f);
+            velocity = MathUtils.clamp(speed, PROJECTILE_VELOCITY * MIN_RETARGET_SPEED_MULT, PROJECTILE_VELOCITY * MAX_RETARGET_SPEED_MULT);
+        } else projectileDelayTime = impactSeconds - Misc.getDistance(origin.getLocation(), target) / PROJECTILE_VELOCITY;
+    }
+
+    private void warnFleets() {
+        for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
+            if (other == entity) continue;
+
+            float dist = Misc.getDistance(target, other.getLocation());
+            if (dist > Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value() + 500f) continue;
+
+            float timing = impactSeconds - timePassedSeconds;
+            String key = ARTILLERY_REACTION_SCRIPT_KEY + entity.getId();
+
+            if (!other.getMemoryWithoutUpdate().contains(key)) {
+                other.addScript(new ArtilleryReactionScript(target, Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value() + 100f, other, timing));
+                other.getMemoryWithoutUpdate().set(key, true, timing);
+            }
+        }
+    }
+
+    private void addTrailToProj() {
+        MagicCampaignTrailPlugin.AddTrailMemberSimple(
+                entity,
+                trailID,
+                Global.getSettings().getSprite("fx", "IndEvo_stream_core"),
+                entity.getLocation(),
+                0f,
+                Misc.getAngleInDegrees(entity.getLocation(), target),
+                TRAIL_WIDTH,
+                1f,
+                GLOW_COLOR,
+                0.8f,
+                TRAIL_TIME,
+                true,
+                new Vector2f(0, 0));
+    }
+
     public void advanceEntityPosition(float amount) {
-        float distanceThisFrame = PROJECTILE_VELOCITY * amount;
+        float distanceThisFrame = velocity * amount;
+        if (distanceThisFrame >= Misc.getDistance(entity.getLocation(), target)) {
+            entity.setLocation(target.x, target.y);
+            return;
+        }
+
         Vector2f currentTargetDirection = VectorUtils.getDirectionalVector(entity.getLocation(), target);
         currentTargetDirection = VectorUtils.resize(currentTargetDirection, Misc.getDistance(entity.getLocation(), target) - distanceThisFrame);
         Vector2f newCurrentPos = Vector2f.sub(target, currentTargetDirection, null);
@@ -235,6 +315,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
                 "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
         explosion.setLocation(target.x, target.y);
+        DroneNetScript.reportBlast(cl, target, Setting.ARTILLERY_MORTAR_EXPLOSION_SIZE.value());
     }
 
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
@@ -245,7 +326,9 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     }
 
     public void renderTargetReticule() {
-        float timeRemainingMult = 1 - Math.min(timePassedSeconds / impactSeconds, 1);
+        if (!revealed) return;
+
+        float timeRemainingMult = 1 - Math.min((timePassedSeconds - revealSeconds) / warningSeconds, 1);
         int gColour = Math.max((int) Math.round(200 * timeRemainingMult), 0);
         int rColour = Math.max((int) Math.round(100 * timeRemainingMult), 0);
         Color color = new Color(255, gColour, rColour, 255); //Start

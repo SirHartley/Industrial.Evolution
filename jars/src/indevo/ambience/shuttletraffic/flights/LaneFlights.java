@@ -27,9 +27,10 @@ public class LaneFlights extends BaseFlights {
     public static final int CONVOY_MARKET_SIZE = 5;
     public static final float CONVOY_GAP_MIN = 3f;
     public static final float CONVOY_GAP_MAX = 6f;
-    private static final int CONVOY_MIN = 4;
-    private static final int CONVOY_MAX = 6;
-    private static final int CONVOY_ESCORT = 2;
+    private static final int CONVOY_MIN = 2;
+    private static final int CONVOY_MAX = 3;
+    private static final int ESCORT_MIN = 1;
+    private static final int ESCORT_MAX = 2;
     private static final float CONVOY_SPACING = 16f;
     private static final float CONVOY_ESCORT_SIDE = 25f;
     private static final String ESCORT_FALLBACK = "talon";
@@ -101,10 +102,11 @@ public class LaneFlights extends BaseFlights {
         return (CONVOY_GAP_MIN + random.nextFloat() * (CONVOY_GAP_MAX - CONVOY_GAP_MIN)) / mult;
     }
 
-    // freighters in line astern, one fighter wing in a v on one flank
+    // freighters in line astern within the pad's departure room, escorts in a v on one flank only take budget room
     private List<Shuttle> launchConvoy(ShuttleRoute route, int room) {
-        int count = Math.min(CONVOY_MIN + random.nextInt(CONVOY_MAX - CONVOY_MIN + 1), room - CONVOY_ESCORT);
-        if (count < CONVOY_MIN) return List.of();
+        int count = Math.min(CONVOY_MIN + random.nextInt(CONVOY_MAX - CONVOY_MIN + 1), room);
+        int escorts = Math.min(ESCORT_MIN + random.nextInt(ESCORT_MAX - ESCORT_MIN + 1), traffic.getBudget().getRoom(route.kind.group) - count);
+        if (count < CONVOY_MIN || escorts < ESCORT_MIN) return List.of();
 
         boolean reverse = random.nextBoolean();
         ShuttleAnchor from = reverse ? route.b : route.a;
@@ -116,8 +118,8 @@ public class LaneFlights extends BaseFlights {
         if (lead == null) return List.of();
 
         Shuttle leader = create(lead, route, faction, from, to, paths.trafficLanePath(route, reverse, ShuttleFactionRepo.get(faction).laneDiscipline()), SpeedClass.CIVIL, 1f,
-                TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(Shuttle.CIVIL, count));
-        List<Shuttle> convoy = new ArrayList<>(count + CONVOY_ESCORT);
+                TRAFFIC_LANE_JITTER, ShuttleLook.CRAFT, leaderTraits(Shuttle.CIVIL, count + escorts));
+        List<Shuttle> convoy = new ArrayList<>(count + escorts);
         convoy.add(leader);
         for (int i = 1; i < count; i++) {
             ShuttleHull hull = ShuttleHullPool.rollCargo(faction, random, 0.6f, false);
@@ -130,8 +132,8 @@ public class LaneFlights extends BaseFlights {
 
         float side = CONVOY_ESCORT_SIDE * paths.randomSign();
         float mid = CONVOY_SPACING * (count - 1) * 0.5f;
-        // the wing flies its own small v on the flank: each wingman 10 su back and 8 su further out
-        for (int i = 0; i < CONVOY_ESCORT; i++) convoy.add(follower(leader, escort, ShuttleLook.CRAFT, mid + 10f * i, side + Math.signum(side) * 8f * i, 1f, false));
+        // each wingman 10 su back and 8 su further out
+        for (int i = 0; i < escorts; i++) convoy.add(follower(leader, escort, ShuttleLook.CRAFT, mid + 10f * i, side + Math.signum(side) * 8f * i, 1f, false));
         return convoy;
     }
 

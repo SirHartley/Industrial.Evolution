@@ -21,6 +21,58 @@ public final class Groups {
                 return ArcMath.steps();
             case "pets":
                 return PetsChecks.steps();
+            case "petshearts":
+                return PetsHeartsChecks.steps();
+            case "petspods":
+                return PetsHeartsChecks.pods();
+            case "petscross":
+                return PetsCrossChecks.steps();
+            case "petsscan":
+                return PetsScanChecks.steps();
+            case "rc7pay":
+                return Rc7PayChecks.steps();
+            case "petstree":
+                return PetsTreeChecks.steps();
+            case "petsplan":
+                return PetsPlanChecks.steps();
+            case "petsadopt":
+                return PetsAdoptChecks.steps();
+            case "petsstatus":
+                return PetsStatusChecks.steps();
+            case "petsreport":
+                return PetsReportChecks.steps();
+            case "petsmemo":
+                return PetsMemorialChecks.steps();
+            case "ratsettle":
+                return RatSettleChecks.steps();
+            case "ratflows":
+                return RatFlowChecks.steps();
+            case "petslong":
+                return PetsLongevityChecks.steps();
+            case "petsbest":
+                return PetsBestiaryChecks.steps();
+            case "petsbrood":
+                return PetsBroodChecks.steps();
+            case "petsgenes":
+                return PetsGeneticsChecks.steps();
+            case "petstitles":
+                return PetsTitlesChecks.steps();
+            case "petssig":
+                return PetsSignatureChecks.steps();
+            case "petstalents":
+                return PetsTalentsChecks.steps();
+            case "petswants":
+                return PetsWantsChecks.steps();
+            case "petsfee":
+                return PetsFeeChecks.steps();
+            case "petsui":
+                return PetsUiChecks.steps();
+            case "petslines":
+                return PetsLinesChecks.steps();
+            case "petsmove":
+                return PetsMoveChecks.steps();
+            case "petsfight":
+                return PetsFightChecks.steps();
             case "ruins":
                 return RuinsChecks.steps();
             case "embassy":
@@ -69,6 +121,8 @@ public final class Groups {
                 return TrafficPerfChecks.steps();
             case "trafficapproach":
                 return TrafficChecks.approachSteps();
+            case "trafficrush":
+                return TrafficRushChecks.steps();
             case "traffic":
                 return TrafficChecks.steps();
             case "uiacademy":
@@ -83,12 +137,16 @@ public final class Groups {
                 return EdictUiChecks.steps();
             case "uilab":
                 return LabUiChecks.steps();
+            case "uigov":
+                return GovernmentUiChecks.steps();
             case "uihub":
                 return HubUiChecks.steps();
             case "uiresearch":
                 return ResearchUiChecks.steps();
             case "uistyle":
                 return StyleChecks.steps();
+            case "holdnest":
+                return ArtilleryChecks.holdNest();
             case "holdacademy":
             case "holddetach":
             case "holdcourier":
@@ -99,6 +157,12 @@ public final class Groups {
             case "holdresearch":
             case "holdvanilla":
                 return HoldChecks.steps(group.substring(4));
+            case "artillery":
+                return ArtilleryChecks.steps();
+            case "artillerynest":
+                return ArtilleryChecks.nest();
+            case "artilleryplace":
+                return ArtilleryChecks.placement();
             case "shuttle":
                 return ShuttleChecks.steps();
             default:

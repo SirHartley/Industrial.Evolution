@@ -149,11 +149,10 @@ class ReverseEngineeringTab {
         else Ui.runs(card, BAR_X, 37f, BAR_W, Ui.INS15, Ui.gray(), Ui.CENTER, left + " " + getDayOrDays(left) + " left", new String[]{left + ""}, new Color[]{Ui.hl()});
 
         boolean blocked = reason != null;
-        ButtonAPI button = UiButtons.button(card, lw - 154f, 9f, 146f, 26f, "Accelerate", blocked ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.ALL,
-                UiImages.relicSprite(), Ui.num(cost), Ui.ORB12, blocked ? null : () -> {
-                    RelicSpeedUpDialog.apply(target);
-                    panel.refresh();
-                });
+        ButtonAPI button = UiButtons.relic(card, lw - 154f, 9f, 146f, 26f, "Accelerate", cost, RelicHelper.canAfford(market, cost), CutStyle.ALL, blocked ? null : () -> {
+            RelicSpeedUpDialog.apply(target);
+            panel.refresh();
+        });
         Ui.tooltip(card, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> RelicSpeedUpDialog.addTooltip(t, target));
     }
 

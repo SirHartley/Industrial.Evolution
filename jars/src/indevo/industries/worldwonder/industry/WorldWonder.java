@@ -12,7 +12,10 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
+import indevo.industries.petshop.plugins.PetMemorial;
 
 import java.awt.*;
 
@@ -27,6 +30,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     public static final String TAG_SYSTEM_HAS_WONDER = "IndEvo_hasWonder";
 
     public boolean isAlternateVisual = false;
+    private transient boolean expanded = false;
 
     @Override
     public String getCurrentImage() {
@@ -91,6 +95,17 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     }
 
     @Override
+    public boolean isAvailableToBuild() {
+        return super.isAvailableToBuild() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
+    }
+
+    @Override
     public void unapply() {
         super.unapply();
         if (market.getStarSystem() != null) market.getStarSystem().removeTag(TAG_SYSTEM_HAS_WONDER);
@@ -132,6 +147,28 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     }
 
     @Override
+    public void createTooltip(IndustryTooltipMode mode, TooltipMakerAPI tooltip, boolean expanded) {
+        this.expanded = expanded;
+        if (remembers()) tooltip.setBgAlpha(1f);
+        super.createTooltip(mode, tooltip, expanded);
+    }
+
+    @Override
+    public boolean isTooltipExpandable() {
+        return remembers();
+    }
+
+    @Override
+    public float getTooltipWidth() {
+        return remembers() ? PetMemorial.TOOLTIP_W : super.getTooltipWidth();
+    }
+
+    // the Memorial keeps the player's dead pets, by industry id so Memorials already in saves keep this plugin
+    private boolean remembers() {
+        return Ids.MEMORIAL.equals(getId()) && Setting.PETS.enabled() && market.isPlayerOwned() && isFunctional() && !PetMemorial.remembered().isEmpty();
+    }
+
+    @Override
     protected void addPostDemandSection(TooltipMakerAPI tooltip, boolean hasDemand, IndustryTooltipMode mode) {
         if (mode != IndustryTooltipMode.NORMAL || isFunctional()) {
             Color h = Misc.getHighlightColor();
@@ -139,5 +176,7 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
 
             tooltip.addPara("Population growth bonus: %s", opad, h, "+" + Math.round(IMMIGRATION_BONUS));
         }
+
+        if (mode != IndustryTooltipMode.ADD_INDUSTRY && remembers()) PetMemorial.addSection(tooltip, market.getFaction(), expanded);
     }
 }

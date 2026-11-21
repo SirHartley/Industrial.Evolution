@@ -16,6 +16,7 @@ import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.DModManager;
 import com.fs.starfarer.api.impl.campaign.FleetEncounterContext;
 import com.fs.starfarer.api.impl.campaign.econ.RecentUnrest;
+import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
@@ -30,6 +31,7 @@ import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.industries.changeling.hullmods.HandBuiltHullmod;
+import indevo.industries.changeling.conditions.GovernmentCondition;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
@@ -79,9 +81,8 @@ x can only be built on very hot worlds
         }
 
         public boolean isSuitable(Industry ind) {
-            Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
-            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof WarhammerSubIndustry;
-            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget;
+            boolean isTarget = GovernmentCondition.getGovernment(ind.getMarket()) instanceof WarhammerSubIndustry;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget && !Industries.POPULATION.equals(ind.getId());
         }
 
         @Override
@@ -116,16 +117,14 @@ x can only be built on very hot worlds
 
     @Override
     public void apply() {
-        ((SwitchablePopulation) industry).superApply();
-
         WarhammerTooltipAdder.register();
-        Global.getSector().getListenerManager().addListener(this);
+        if (!Global.getSector().getListenerManager().hasListener(this)) Global.getSector().getListenerManager().addListener(this);
 
-        if (((SwitchablePopulation) industry).locked && !market.hasCondition(Conditions.POLLUTION) && market.hasCondition(Conditions.HABITABLE))
+        if (GovernmentCondition.isLocked(market) && !market.hasCondition(Conditions.POLLUTION) && market.hasCondition(Conditions.HABITABLE))
             market.addCondition(Conditions.POLLUTION);
 
         int size = market.getSize();
-        SwitchablePopulation population = ((SwitchablePopulation) industry);
+        BaseIndustry population = (BaseIndustry) industry;
 
         population.demand(Commodities.METALS, size);
         population.demand(Commodities.RARE_METALS, size - 3);
@@ -137,21 +136,11 @@ x can only be built on very hot worlds
             market.getStability().modifyFlat(getModId(), -1, "Construction material shortage");
         }
 
-        increaseIncomeAndBudgetForHullOutput();
+        int output = market.getCommodityData(Commodities.SHIPS).getMaxSupply();
+        Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").modifyFlat(getModId(), output * FLAT_PRODUCTION_BUDGET_PER_HULL, getName() + " - ship hull exports x" + output);
 
         if(!isAvailableToBuild()) {
             market.getStability().modifyFlat(getModId() + "_1", -10, getUnavailableReason());
-            return;
-        }
-
-        for (Industry ind : market.getIndustries()) {
-            if (!hasDeficit(ind) && ind.getSpec().getTags().contains("industrial")) {
-                ind.getUpkeep().modifyMult(getModId(), 1f / PopulationAndInfrastructure.getUpkeepHazardMult(market.getHazardValue()), getName() + " hazard upkeep red.");
-            }
-
-            if (ind.getSpec().getTags().contains("rural")) {
-                ind.getUpkeep().modifyMult(getModId(), RURAL_BUILDING_UPKEEP_MULT, getName());
-            }
         }
     }
 
@@ -160,27 +149,39 @@ x can only be built on very hot worlds
         super.unapply();
         Global.getSector().getListenerManager().removeListener(this);
 
-        industry.getIncome().unmodify(getModId());
+        ((BaseIndustry) industry).demand(Commodities.METALS, 0);
+        ((BaseIndustry) industry).demand(Commodities.RARE_METALS, 0);
+
         market.getStability().unmodify(getModId());
         market.getStability().unmodify(getModId() + "_1");
         Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").unmodify(getModId());
+    }
 
-        for (Industry ind : market.getIndustries()) {
-            ind.getUpkeep().unmodify(getModId());
-            ind.getIncome().unmodify(getModId());
+    // runs after the industry applied, so ship output and deficits are the current ones
+    @Override
+    public void applyToOther(Industry ind) {
+        unapplyFromOther(ind);
+
+        int output = market.getCommodityData(Commodities.SHIPS).getMaxSupply();
+        MutableCommodityQuantity supply = ind.getSupply(Commodities.SHIPS);
+        if (supply.getQuantity().getModifiedInt() > 0)
+            ind.getIncome().modifyFlat(getModId(), supply.getQuantity().getModifiedInt() * FLAT_INCOME_PER_HULL, getName() + " - ship hull exports (" + output + ")");
+
+        if (!isAvailableToBuild()) return;
+
+        if (!hasDeficit(ind) && ind.getSpec().getTags().contains("industrial")) {
+            ind.getUpkeep().modifyMult(getModId(), 1f / PopulationAndInfrastructure.getUpkeepHazardMult(market.getHazardValue()), getName() + " hazard upkeep red.");
+        }
+
+        if (ind.getSpec().getTags().contains("rural")) {
+            ind.getUpkeep().modifyMult(getModId(), RURAL_BUILDING_UPKEEP_MULT, getName());
         }
     }
 
-    private void increaseIncomeAndBudgetForHullOutput() {
-        int output = market.getCommodityData(Commodities.SHIPS).getMaxSupply();
-
-        for (Industry ind : market.getIndustries()) {
-            MutableCommodityQuantity supply = ind.getSupply(Commodities.SHIPS);
-            if (supply.getQuantity().getModifiedInt() > 0)
-                ind.getIncome().modifyFlat(getModId(), supply.getQuantity().getModifiedInt() * FLAT_INCOME_PER_HULL, getName() + " - ship hull exports (" + output + ")");
-        }
-
-        Global.getSector().getPlayerStats().getDynamic().getMod("custom_production_mod").modifyFlat(getModId(), output * FLAT_PRODUCTION_BUDGET_PER_HULL, getName() + " - ship hull exports x" + output);
+    @Override
+    public void unapplyFromOther(Industry ind) {
+        ind.getUpkeep().unmodify(getModId());
+        ind.getIncome().unmodify(getModId());
     }
 
     @Override
@@ -197,10 +198,8 @@ x can only be built on very hot worlds
     }
 
     @Override
-    public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
-        super.addRightAfterDescription(tooltip, mode);
-        if (hasDeficit(industry))
-            tooltip.addPara("Unrest is building due to shortages.", Misc.getNegativeHighlightColor(), 10f);
+    public String getWarning() {
+        return hasDeficit(industry) ? "Unrest is building due to shortages." : null;
     }
 
     @Override
@@ -308,7 +307,7 @@ x can only be built on very hot worlds
     }
 
     public String getModId() {
-        return ((SwitchablePopulation) industry).getModId();
+        return modId();
     }
 
     public int getDpPerMonth() {

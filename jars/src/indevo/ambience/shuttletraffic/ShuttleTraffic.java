@@ -23,6 +23,7 @@ public class ShuttleTraffic {
     private final Random random = new Random();
     private final ShuttleFleetScan fleetScan = new ShuttleFleetScan();
     private final ShuttleBudget budget = new ShuttleBudget();
+    private final ShuttleDepartures departures = new ShuttleDepartures();
     private final ShuttleFlights flights = new ShuttleFlights(this);
     private final ShuttleSpawner spawner = new ShuttleSpawner(this);
     private final ShuttleReactions reactions = new ShuttleReactions(this);
@@ -60,7 +61,7 @@ public class ShuttleTraffic {
         if (current != location) {
             clear();
             location = current;
-            network.rebuild(location, random, Global.getSector().getClock().getElapsedDaysSince(0L));
+            network.rebuild(location, random, days);
             network.updateSwarms(location);
             network.updateNear(player.getLocation(), null);
             budget.update(network.routes.values(), cap);
@@ -72,7 +73,7 @@ public class ShuttleTraffic {
             if (daysSinceRebuild >= 1f) {
                 daysSinceRebuild = 0f;
                 ShuttleHullPool.dropStaleFactionPools();
-                network.rebuild(location, random, Global.getSector().getClock().getElapsedDaysSince(0L));
+                network.rebuild(location, random, days);
                 network.updateNear(player.getLocation(), null);
                 budget.update(network.routes.values(), cap);
                 spawner.rollRareFlights();
@@ -145,6 +146,10 @@ public class ShuttleTraffic {
         return budget;
     }
 
+    public ShuttleDepartures getDepartures() {
+        return departures;
+    }
+
     public ShuttleFleetScan getFleetScan() {
         return fleetScan;
     }
@@ -178,6 +183,7 @@ public class ShuttleTraffic {
         pods.clear();
         network.clear();
         fleetRoutes.clear();
+        departures.clear();
         fleetScan.clear();
         hits.clear();
         dogfights.clear();

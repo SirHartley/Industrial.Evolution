@@ -16,6 +16,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.ambience.shuttletraffic.Shuttle;
 import indevo.ambience.shuttletraffic.ShuttleAnchor;
 import indevo.ambience.shuttletraffic.ShuttleBudget;
+import indevo.ambience.shuttletraffic.ShuttleDepartures;
 import indevo.ambience.shuttletraffic.ShuttleFleetScan;
 import indevo.ambience.shuttletraffic.ShuttleHull;
 import indevo.ambience.shuttletraffic.ShuttleHullPool;
@@ -44,7 +45,6 @@ public class FleetFlights extends BaseFlights {
     private static final float BASE_SHARE = 0.7f;
     private static final float TRADE_SPACE_PER_CRAFT = 200f;
     private static final int TRADE_MIN = 2;
-    private static final int TRADE_MAX = 8;
     private static final float TRADE_BURST_TIME = 3f;
     private static final float TRADE_RANGE = 600f;
     private static final float RAID_BURST_TIME = 3f;
@@ -111,7 +111,7 @@ public class FleetFlights extends BaseFlights {
             ShuttleAnchor pad = market.getPrimaryEntity() != null ? network.anchors.get(market.getPrimaryEntity()) : null;
             if (player == null || pad == null || pad.role != ShuttleAnchor.Role.MARKET || player.getContainingLocation() != traffic.getLocation()) continue;
 
-            int count = Math.max(TRADE_MIN, Math.min(TRADE_MAX, Math.round((trade.bought + trade.sold) / TRADE_SPACE_PER_CRAFT)));
+            int count = Math.max(TRADE_MIN, Math.min(ShuttleDepartures.CAP, Math.round((trade.bought + trade.sold) / TRADE_SPACE_PER_CRAFT)));
             launchTrade(pad, player, count, trade.bought >= trade.sold, trade.dark);
         }
 
@@ -134,6 +134,8 @@ public class FleetFlights extends BaseFlights {
         ShuttleBudget budget = traffic.getBudget();
         budget.count(traffic.getShuttles());
         int room = Math.min(count, budget.getRoom(ShuttleBudget.Group.FLEET));
+        if (toFleet) room = Math.min(room, traffic.getDepartures().getRoom(pad, traffic.getTime()));
+        if (toFleet) traffic.getDepartures().add(pad, room, traffic.getTime());
         for (int i = 0; i < room; i++) {
             ShuttleHull hull = toFleet ? ShuttleHullPool.rollCargo(pad.faction, random, BASE_SHARE, true) : ShuttleHullPool.rollSmall(player.getFaction(), random);
             if (hull == null) hull = ShuttleHullPool.rollCargo(null, random, 1f, true);

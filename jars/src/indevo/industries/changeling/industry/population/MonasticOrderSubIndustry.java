@@ -27,6 +27,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.industries.changeling.hullmods.HandBuiltHullmod;
+import indevo.industries.changeling.conditions.GovernmentCondition;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
@@ -86,8 +87,7 @@ Monastic Orders
         }
 
         public boolean isSuitable(Industry ind) {
-            Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
-            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof MonasticOrderSubIndustry;
+            boolean isTarget = GovernmentCondition.getGovernment(ind.getMarket()) instanceof MonasticOrderSubIndustry;
             return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget;
         }
 
@@ -239,13 +239,12 @@ Monastic Orders
 
     @Override
     public void apply() {
-        ((SwitchablePopulation) industry).superApply();
-
+        
         MonasticOrderTooltipAdder.register();
         Global.getSector().getListenerManager().addListener(this);
         correctStability();
 
-        market.getIncomeMult().modifyMult(((SwitchablePopulation) industry).getModId(), INCOME_RED, getName());
+        market.getIncomeMult().modifyMult(modId(), INCOME_RED, getName());
         if (market.getSize() >= MAX_MARKET_SIZE)
             market.getPopulation().setWeight(getWeightForMarketSizeStatic(market.getSize()));
 
@@ -275,7 +274,7 @@ Monastic Orders
     @Override
     public void unapply() {
         super.unapply();
-        String id = ((SwitchablePopulation) industry).getModId();
+        String id = modId();
         market.getStability().unmodify(id);
         market.getIncomeMult().unmodify(id);
 
@@ -292,7 +291,7 @@ Monastic Orders
         int current = market.getStability().getModifiedInt();
         int absDiff = Math.abs(MathUtils.clamp(current, MIN_STAB, MAX_STAB) - current);
         int mod = current > MAX_STAB ? absDiff * -1 : current < MIN_STAB ? absDiff : 0;
-        market.getStability().modifyFlat(((SwitchablePopulation) industry).getModId(), mod, "Base value");
+        market.getStability().modifyFlat(modId(), mod, "Base value");
     }
 
     //negate pather interest
@@ -313,7 +312,7 @@ Monastic Orders
         for (Industry ind : market.getIndustries()) {
             // Wisp: Fixes an infinite loop with TASC, which _also_ calls getPatherInterest on industries.
             // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416817#msg416817>
-            if (ind instanceof SwitchablePopulation || ind.getId().equals("BOGGLED_CHAMELEON")) continue;
+            if (ind.getId().equals(Industries.POPULATION) || ind.getId().equals("BOGGLED_CHAMELEON")) continue;
             total += ind.getPatherInterest();
         }
 

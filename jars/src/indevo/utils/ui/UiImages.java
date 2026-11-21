@@ -16,10 +16,19 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.ItemIds;
+import org.apache.log4j.Logger;
+import org.lwjgl.BufferUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 public final class UiImages {
@@ -29,9 +38,17 @@ public final class UiImages {
     public static final float STACK_PAD = 6f;
     public static final float STACK_TOP = 4f;
     public static final float STACK_COUNT_Y = 18f;
+    public static final float GREY_LIGHT = 0.6f;
+
+    private static final Logger log = Global.getLogger(UiImages.class);
+    // one texture per path for the whole game session, never deleted; null after a failed read
+    private static final Map<String, Grey> GREYS = new HashMap<>();
 
     public interface Cell<T> {
         void render(CustomPanelAPI p, float x, float y, float w, float h, T item);
+    }
+
+    private record Grey(int id, float w, float h, float u, float v) {
     }
 
     private UiImages() {
@@ -61,6 +78,62 @@ public final class UiImages {
         Color color = tint != null ? tint : Color.WHITE;
 
         return Ui.painted(p, x, y, w, h, null, (pos, a) -> UiDraw.sprite(sprite, srcW, srcH, pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), color, a * alpha));
+    }
+
+    // the sprite without colour and darker (luma x GREY_LIGHT, alpha kept), contain fit; the sprite at DIM when the file can not be read
+    public static CustomPanelAPI grey(CustomPanelAPI p, float x, float y, float w, float h, String spriteName) {
+        if (spriteName != null && !GREYS.containsKey(spriteName)) GREYS.put(spriteName, readGrey(spriteName));
+        Grey g = spriteName == null ? null : GREYS.get(spriteName);
+        if (g == null) return img(p, x, y, w, h, spriteName, null, DIM);
+        return Ui.painted(p, x, y, w, h, null, (pos, a) -> UiDraw.texture(g.id(), g.w(), g.h(), g.u(), g.v(), pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), a));
+    }
+
+    // a sprite or its grey copy into a rect from a painter, for pictures that change while the panel stays
+    public static void paint(String spriteName, boolean grey, float x, float y, float w, float h, float alpha) {
+        if (spriteName == null) return;
+        if (grey && !GREYS.containsKey(spriteName)) GREYS.put(spriteName, readGrey(spriteName));
+        Grey g = grey ? GREYS.get(spriteName) : null;
+        if (g != null) {
+            UiDraw.texture(g.id(), g.w(), g.h(), g.u(), g.v(), x, y, w, h, alpha);
+            return;
+        }
+
+        SpriteAPI sprite = Global.getSettings().getSprite(spriteName);
+        UiDraw.sprite(sprite, sprite.getWidth(), sprite.getHeight(), x, y, w, h, Color.WHITE, grey ? alpha * DIM : alpha);
+    }
+
+    private static Grey readGrey(String path) {
+        BufferedImage image;
+        try (InputStream in = Global.getSettings().openStream(path)) {
+            image = ImageIO.read(in);
+        } catch (IOException e) {
+            log.warn("Could not read " + path + " for a grey portrait, drawing it dimmed", e);
+            return null;
+        }
+        if (image == null) {
+            log.warn("Could not decode " + path + " for a grey portrait, drawing it dimmed");
+            return null;
+        }
+
+        int w = image.getWidth();
+        int h = image.getHeight();
+        int tw = 1;
+        int th = 1;
+        while (tw < w) tw <<= 1;
+        while (th < h) th <<= 1;
+
+        ByteBuffer pixels = BufferUtils.createByteBuffer(tw * th * 4);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int argb = image.getRGB(x, y);
+                float luma = 0.299f * ((argb >> 16) & 0xff) + 0.587f * ((argb >> 8) & 0xff) + 0.114f * (argb & 0xff);
+                byte g = (byte) Math.min(255, Math.round(luma * GREY_LIGHT));
+                int i = (y * tw + x) * 4;
+                pixels.put(i, g).put(i + 1, g).put(i + 2, g).put(i + 3, (byte) (argb >>> 24));
+            }
+        }
+
+        return new Grey(UiDraw.upload(pixels, tw, th), w, h, w / (float) tw, h / (float) th);
     }
 
     public static CustomPanelAPI img(CustomPanelAPI p, float x, float y, float w, float h, String spriteName) {
@@ -139,10 +212,14 @@ public final class UiImages {
 
     // cargo style cell: count bottom right in highlight (hidden below 0), extra top left in positive colour and a lit frame while above 0
     public static CustomPanelAPI stack(CustomPanelAPI p, float x, float y, float size, String spriteName, int count, int extra, String name) {
+        return stack(p, x, y, size, spriteName, count >= 0 ? Ui.num(count) : null, extra, name);
+    }
+
+    public static CustomPanelAPI stack(CustomPanelAPI p, float x, float y, float size, String spriteName, String count, int extra, String name) {
         Color border = extra > 0 ? Misc.scaleAlpha(Ui.bright(), 0.85f) : Misc.scaleAlpha(Ui.base(), 0.2f);
         CustomPanelAPI cell = Ui.box(p, x, y, size, size, border, Misc.setAlpha(Color.BLACK, 90));
         img(cell, STACK_PAD, STACK_TOP, size - 2f * STACK_PAD, size - 2f * STACK_PAD, spriteName);
-        if (count >= 0) Ui.text(cell, 0f, size - STACK_COUNT_Y, size - 3f, Ui.num(count), Ui.hl(), Ui.RIGHT);
+        if (count != null) Ui.text(cell, 0f, size - STACK_COUNT_Y, size - 3f, count, Ui.hl(), Ui.RIGHT);
         if (extra > 0) Ui.text(cell, 4f, 2f, size - 8f, "+" + Ui.num(extra), Ui.pos());
         if (name != null) Ui.tooltip(p, cell, name);
         return cell;

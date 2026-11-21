@@ -85,6 +85,7 @@ NPC markets without a VPC get one random VPC once, tier by `Tier.npcWeight` 70/2
 - `aiCoreMult`, `rampUpExpired`, `lastInstalledVPC` (a `SpecialItemData`), Forge `daysPassed`, `depositCounter`, `vpcIsLocked` are saved fields on the industry. The ramp up and Forge lock timers restart when the installed `SpecialItemData` changes.
 - `ConvertVPCSpecial` uses the static `getDepositAmount` and `CommodityForge.LOG_INCREASE`; see [Salvage](../exploration/SALVAGE.md).
 - Shared industry storage and `IndustrySubmarkets`: [Submarkets](../core/SUBMARKETS.md). Setting reads: [Settings](../core/SETTINGS.md).
+- A small RAT settlement version of this industry exists (Fabricator Bay: half of `VariableAssembler.getDepositAmount` per VPC commodity); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
 

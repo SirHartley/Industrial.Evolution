@@ -23,7 +23,7 @@ public class RiftGenOptionProvider extends SingleIndustrySimpifiedOptionProvider
 
     @Override
     public boolean isSuitable(Industry ind, boolean allowUnderConstruction) {
-        return super.isSuitable(ind, allowUnderConstruction) && ((RiftGenerator) ind).isReadyToMove();
+        return super.isSuitable(ind, allowUnderConstruction) && ((RiftGenerator) ind).getBlockReason() == null;
     }
 
     @Override

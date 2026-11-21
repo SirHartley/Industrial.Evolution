@@ -10,6 +10,7 @@ import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContractMemory;
 
@@ -32,12 +33,18 @@ public class CourierPortV2 extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.PRIVATEPORT.enabled();
+        return super.isAvailableToBuild() && Setting.PRIVATEPORT.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.PRIVATEPORT.enabled();
+        return super.showWhenUnavailable() && Setting.PRIVATEPORT.enabled();
     }
 
     @Override

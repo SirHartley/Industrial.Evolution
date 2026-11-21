@@ -12,6 +12,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.industry.PetShop;
+import indevo.industries.petshop.item.PetItemPlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
@@ -29,16 +30,13 @@ public class PetSubMarket extends BaseSubmarketPlugin {
             sinceSWUpdate = 0f;
 
             String aiCoreId = getLocalAICoreId();
-            float rarityBonus = Commodities.ALPHA_CORE.equals(aiCoreId) ? 1 + PetShop.ALPHA_CORE_RARITY_BONUS : 1f;
 
             getCargo().clear();
 
             WeightedRandomPicker<PetData> picker = new WeightedRandomPicker<>(itemGenRandom);
             for (PetData petData : PetDataRepo.getAll()){
                 if (petData.isNoSell()) continue;
-
-                float chance = petData.rarity < 0.5f ? petData.rarity * rarityBonus : petData.rarity;
-                picker.add(petData, chance);
+                picker.add(petData, PetShop.stockWeight(petData, aiCoreId));
             }
 
             if (Global.getSettings().isDevMode()) ModPlugin.log("updating petshop cargo, choices in picker: " + picker.getItems().size());
@@ -91,12 +89,12 @@ public class PetSubMarket extends BaseSubmarketPlugin {
 
     @Override
     public boolean isIllegalOnSubmarket(CargoStackAPI stack, TransferAction action) {
-        return action == TransferAction.PLAYER_SELL;
+        return action == TransferAction.PLAYER_SELL && PetItemPlugin.chamberPet(stack) == null;
     }
 
     @Override
     public String getIllegalTransferText(CargoStackAPI stack, TransferAction action) {
-        return "You can not sell anything here.";
+        return "Only a Cryochamber with a young in it sells here.";
     }
 
     @Override

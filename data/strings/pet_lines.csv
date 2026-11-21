@@ -1,0 +1,212 @@
+id,event,match,mood,disposition,context,text
+IndEvo_pl_st_content_1,status,any,content,,,"%s is where the crew expects to find it, every shift"
+IndEvo_pl_st_content_2,status,any,content,,,%s has its own line on the duty roster now
+IndEvo_pl_st_content_fourleg,status,b_fourleg,content,,,%s sleeps on the deck plate over the drive conduit
+IndEvo_pl_st_content_cautious,status,b_fourleg,content,cautious,,%s sleeps behind the reactor shielding every night
+IndEvo_pl_st_content_legs,status,b_legs,content,,,%s sits on the warmest pipe in the engine room
+IndEvo_pl_st_content_wings,status,b_wings,content,,,%s has claimed the top of the sensor console
+IndEvo_pl_st_content_water,status,b_water,content,,,%s swims slow laps of its tank through the night shift
+IndEvo_pl_st_content_float,status,b_float,content,,,%s hangs over the mess table at every meal
+IndEvo_pl_st_content_blob,status,b_blob,content,,,%s has settled into the warm corner behind the galley
+IndEvo_pl_st_content_machine,status,b_machine,content,,,%s runs its rounds of the lower decks on schedule
+IndEvo_pl_st_content_jar,status,b_jar,content,,,%s glows a steady amber on its shelf in the officers' mess
+IndEvo_pl_st_content_coil,status,b_coil,content,,,%s lies coiled in its cage next to the capacitor bank
+IndEvo_pl_st_content_human,status,b_human,content,,,%s plays cards with the deck crew every night and loses most hands
+IndEvo_pl_st_storage,status,any,content happy sleepy unhappy_with_food,,storage,"%s gets fed at the Animal Center twice a day, on the hour"
+IndEvo_pl_st_storage_fourleg,status,b_fourleg,content happy sleepy,,storage,%s has the run of the Animal Center's back room
+IndEvo_pl_st_docked,status,b_fourleg b_wings,,,docked,%s sits at the airlock window watching the dock crews
+IndEvo_pl_st_old,status,any,,,old,%s sleeps through most of the shift now
+IndEvo_pl_st_old_machine,status,b_machine,,,old,%s spends most of the shift on its charging dock now
+IndEvo_pl_st_hungry,status,any,hungry,,,%s waits at the feeding spot long after feeding time
+IndEvo_pl_st_hungry_fourleg,status,b_fourleg,hungry,,,%s is gnawing on the cargo straps
+IndEvo_pl_st_unsettled,status,any,unsettled,,,%s has not picked a spot to settle in yet
+IndEvo_pl_st_unsettled_fourleg,status,b_fourleg,unsettled,,,%s checks every hatch on the deck and sleeps by the one it came in through
+IndEvo_pl_st_unsettled_wings,status,b_wings,unsettled,,,%s watches the crew from the highest cable run
+IndEvo_pl_st_unsettled_water,status,b_water,unsettled,,,%s keeps to the bottom of its new tank
+IndEvo_pl_st_unsettled_machine,status,b_machine,unsettled,,,%s maps the corridors and starts over every shift
+IndEvo_pl_st_shock,status,any,shell_shocked,,,%s goes still every time the point defence test fires
+IndEvo_pl_st_shock_timid,status,b_fourleg b_legs,shell_shocked,timid,,%s flattens against the deck every time the point defence test fires
+IndEvo_pl_st_shock_reckless,status,b_fourleg,shell_shocked,reckless,,%s keeps going back to sniff the patched hull section
+IndEvo_pl_st_food,status,any,unhappy_with_food,,,%s takes a long time over the Supplies ration
+IndEvo_pl_st_food_fourleg,status,b_fourleg,unhappy_with_food,,,%s drags the Supplies ration out of its bowl and leaves it on the deck
+IndEvo_pl_st_sleepy,status,any,sleepy,,,%s takes longer to notice when someone comes in
+IndEvo_pl_st_sleepy_fourleg,status,b_fourleg,sleepy,,,%s takes the long way around to avoid the ladders now
+IndEvo_pl_amb_content_1,ambient,any,content,,,The night shift has started saying goodnight to %s.
+IndEvo_pl_amb_content_2,ambient,any,content,,,The quartermaster has added %s to the weekly inventory count.
+IndEvo_pl_amb_content_3,ambient,any,content,,,The crew is running a betting pool on what %s does next.
+IndEvo_pl_amb_fourleg_1,ambient,b_fourleg,content,,,%s chased a maintenance drone across the hangar deck and lost.
+IndEvo_pl_amb_fourleg_2,ambient,b_fourleg,content,,hyperspace,%s fell asleep in the navigator's chair. The jump was plotted from the spare console.
+IndEvo_pl_amb_legs_1,ambient,b_legs,content,,,%s climbed into the coolant pipe housing again. The engineers leave the panel open for it now.
+IndEvo_pl_amb_legs_2,ambient,b_legs,content,,,%s has started following the maintenance crew from one repair to the next.
+IndEvo_pl_amb_wings_1,ambient,b_wings,content,,,%s flew three laps of the hangar during the shuttle launch.
+IndEvo_pl_amb_wings_2,ambient,b_wings,content,,,%s took a stylus from the duty officer's console and will not give it back.
+IndEvo_pl_amb_water_1,ambient,b_water,content,,,%s rearranged the gravel in its tank overnight.
+IndEvo_pl_amb_water_2,ambient,b_water,content,,,%s follows anyone who walks past its tank from one end to the other.
+IndEvo_pl_amb_float_1,ambient,b_float,content,,,%s drifted into the air recycler duct again. Life support had to switch the fans off to get it out.
+IndEvo_pl_amb_float_2,ambient,b_float,content,,hyperspace,%s hung over the navigation table for the whole jump plot.
+IndEvo_pl_amb_blob_1,ambient,b_blob,content,,,%s spent the shift on the deck above the reactor. The crew steps around it.
+IndEvo_pl_amb_blob_2,ambient,b_blob,content,,,%s ate a spare bolt from the repair tray. The engineers have stopped leaving them out.
+IndEvo_pl_amb_machine_1,ambient,b_machine,content,,,%s logged another full patrol of the lower decks.
+IndEvo_pl_amb_machine_2,ambient,b_machine,content,,,%s took the spare charging port in the shuttle bay. The shuttle waited.
+IndEvo_pl_amb_jar,ambient,b_jar,content,,hyperspace,%s turned a deep blue during the jump and stayed that way for an hour.
+IndEvo_pl_amb_coil,ambient,b_coil,content,,,%s shorted the lights in the cargo bay again.
+IndEvo_pl_amb_human_1,ambient,b_human,content,,,%s told the deck crew another story about a raid nobody can find a record of.
+IndEvo_pl_amb_human_2,ambient,b_human,content,,,%s has been giving the gunnery crew advice they did not ask for.
+IndEvo_pl_amb_cyberparrot,ambient,cyberparrot,content,,,%s has learned to imitate the proximity alarm.
+IndEvo_pl_amb_hampter,ambient,hampter,content,,,%s filled its cheeks with ration crackers and hid them inside the comm console.
+IndEvo_pl_amb_swearingcrab,ambient,swearingcrab,content,,,%s taught the deck crew a new word. The comms officer has asked them not to use it on open channels.
+IndEvo_pl_amb_salvageraven,ambient,salvageraven,content,,,%s brought back a data chip from the salvage tray. Nobody knows which wreck it came from.
+IndEvo_pl_amb_hullchicken,ambient,hullchicken,content,,,%s laid an egg in the spare parts locker.
+IndEvo_pl_amb_roomba,ambient,giganticcats_roomba,content,,,%s cleaned the bridge deck twice before the morning shift came on.
+IndEvo_pl_amb_hungry,ambient,any,hungry,,,The stores hold nothing %s will eat.
+IndEvo_pl_amb_hungry_fourleg,ambient,b_fourleg,hungry,,,%s has started following the cook around the galley.
+IndEvo_pl_amb_unsettled,ambient,any,unsettled,,,The crew has not seen %s eat since the move.
+IndEvo_pl_amb_unsettled_fourleg,ambient,b_fourleg,unsettled,,,%s walked the new ship end to end twice and went back to its carrier.
+IndEvo_pl_amb_shock,ambient,any,shell_shocked,,,The crew says %s goes quiet every time the alert sounds.
+IndEvo_pl_amb_shock_fourleg,ambient,b_fourleg,shell_shocked,,,%s has been sleeping under the medbay cot since the battle.
+IndEvo_pl_amb_food,ambient,any,unhappy_with_food,,,%s left most of its Supplies ration.
+IndEvo_pl_amb_food_fourleg,ambient,b_fourleg,unhappy_with_food,,,%s buried its Supplies ration under a cargo blanket.
+IndEvo_pl_amb_sleepy,ambient,any,sleepy,,hyperspace,%s slept through the whole jump.
+IndEvo_pl_amb_sleepy_2,ambient,any,sleepy,,,%s slept through the general quarters drill and woke up in time for the next meal.
+IndEvo_pl_amb_sleepy_water,ambient,b_water,sleepy,,,%s spends most of the night resting on the bottom of its tank.
+IndEvo_pl_dock_1,docking,any,,,,A dockhand asks after %s while the clamps lock on.
+IndEvo_pl_dock_2,docking,any,,,,"The customs officer adds %s to the cargo declaration, under personal effects."
+IndEvo_pl_dock_fourleg,docking,b_fourleg,,,,%s waits at the airlock for the dock crew and inspects every crate they bring aboard.
+IndEvo_pl_dock_wings,docking,b_wings,,,,%s flies out through the open hatch and makes a lap of the docking bay before it comes back.
+IndEvo_pl_dock_water,docking,b_water,,,,A dockhand stops to tap on the glass of %s's tank.
+IndEvo_pl_dock_machine,docking,b_machine,,,,%s plugs into the port's maintenance network. The dockmaster sends a polite complaint.
+IndEvo_pl_dock_human,docking,b_human,,,,%s asks the dock crew for news of old friends. Nobody admits to knowing any of them.
+IndEvo_pl_dock_hungry,docking,any,hungry,,,The dockmaster asks whether anyone has fed %s recently.
+IndEvo_pl_st_happy_steady,status,any,happy,steady,,%s gets a visit from every shift
+IndEvo_pl_st_happy_reckless,status,b_fourleg,happy,reckless,,%s has learned to ride the cargo lift and does it every shift change
+IndEvo_pl_st_happy_machine,status,b_machine,happy,,docked,%s is following a dock drone around the bay
+IndEvo_pl_st_happy_1,status,any,happy,,,%s greets everyone who comes through the hatch
+IndEvo_pl_amb_happy_1,ambient,any,happy,,,%s spent the whole shift making the rounds of the duty stations.
+IndEvo_pl_pet_fourleg_1,petting,b_fourleg,,,,%s leans into the scratch and kicks one back leg against the deck plating.
+IndEvo_pl_pet_fourleg_2,petting,b_fourleg,,,,"%s allows four strokes, bites your sleeve and leaves."
+IndEvo_pl_pet_legs,petting,b_legs,,,,%s climbs onto your boot and stays there until you move.
+IndEvo_pl_pet_water,petting,b_water,,,,%s comes up to the glass where your hand is and stays there until you take it away.
+IndEvo_pl_pet_float,petting,b_float,,,,"%s drifts down until it touches your palm, then lifts away again."
+IndEvo_pl_pet_wings,petting,b_wings,,,,%s lands on your shoulder and stays there through the next comm call.
+IndEvo_pl_pet_blob,petting,b_blob,,,,%s leans its whole weight against your hand.
+IndEvo_pl_pet_machine,petting,b_machine,,,,%s stops its rounds and lets you run a thumb over the warm housing.
+IndEvo_pl_pet_reptile,petting,c_reptile,,,,%s does not move. The quartermaster says that is how it shows approval.
+IndEvo_pl_pet_cyberparrot,petting,cyberparrot,,,,%s pushes its head under your fingers and mutters a word it learned from the deck crew.
+IndEvo_pl_pet_agravifish,petting,agravifish,,,,%s wraps one tentacle around your wrist. The medic gets the antitoxin out of the cabinet.
+IndEvo_pl_pet_voidsquid,petting,voidsquid,,,,%s changes colour along the line of your hand and holds the pattern for a few seconds.
+IndEvo_pl_pet_gigabee,petting,gigabee,,,,%s buzzes once and settles against your arm.
+IndEvo_pl_pet_plasmasnek,petting,plasmasnek,,,,%s winds once around your forearm. The cabin lights dim for a second.
+IndEvo_pl_pet_souljar,petting,mipacem7_souljar,,,,%s drifts to the side of the jar nearest your hand and turns a shade warmer.
+IndEvo_pl_pet_human,petting,b_human,,,,%s accepts a pat on the shoulder and tells you which of your officers it would have hired.
+IndEvo_pl_pet_any,petting,any,,,,"%s puts up with it, which the crew says is a good sign."
+IndEvo_pl_pet_starving,petting_starving,any,,,,%s does not react to you. The feeding log ends the day the stores ran out.
+IndEvo_pl_pet_starving_fourleg,petting_starving,b_fourleg,,,,%s ignores your hand and goes back to licking the empty bowl.
+IndEvo_pl_pet_starving_water,petting_starving,b_water,,,,%s stays at the bottom of the tank and does not come up to the glass.
+IndEvo_pl_name_any_1,name,any,,,,Pebble
+IndEvo_pl_name_any_2,name,any,,,,Biscuit
+IndEvo_pl_name_any_3,name,any,,,,Rivet
+IndEvo_pl_name_any_4,name,any,,,,Sprocket
+IndEvo_pl_name_any_5,name,any,,,,Comet
+IndEvo_pl_name_any_6,name,any,,,,Nova
+IndEvo_pl_name_any_7,name,any,,,,Widget
+IndEvo_pl_name_any_8,name,any,,,,Pickle
+IndEvo_pl_name_any_9,name,any,,,,Mochi
+IndEvo_pl_name_any_10,name,any,,,,Gizmo
+IndEvo_pl_name_any_11,name,any,,,,Nugget
+IndEvo_pl_name_any_12,name,any,,,,Waffle
+IndEvo_pl_name_any_13,name,any,,,,Pip
+IndEvo_pl_name_any_14,name,any,,,,Scrap
+IndEvo_pl_name_any_15,name,any,,,,Bean
+IndEvo_pl_name_any_16,name,any,,,,Tango
+IndEvo_pl_name_any_17,name,any,,,,Socket
+IndEvo_pl_name_any_18,name,any,,,,Buttons
+IndEvo_pl_name_any_19,name,any,,,,Dumpling
+IndEvo_pl_name_any_20,name,any,,,,Ember
+IndEvo_pl_name_any_21,name,any,,,,Fuse
+IndEvo_pl_name_any_22,name,any,,,,Grommet
+IndEvo_pl_name_any_23,name,any,,,,Toast
+IndEvo_pl_name_any_24,name,any,,,,Clover
+IndEvo_pl_name_any_25,name,any,,,,Pixel
+IndEvo_pl_name_any_26,name,any,,,,Tinsel
+IndEvo_pl_name_any_27,name,any,,,,Pudding
+IndEvo_pl_name_any_28,name,any,,,,Rocket
+IndEvo_pl_name_any_29,name,any,,,,Flint
+IndEvo_pl_name_any_30,name,any,,,,Juniper
+IndEvo_pl_name_any_31,name,any,,,,Mango
+IndEvo_pl_name_any_32,name,any,,,,Kettle
+IndEvo_pl_name_any_33,name,any,,,,Ballast
+IndEvo_pl_name_any_34,name,any,,,,Ratchet
+IndEvo_pl_name_any_35,name,any,,,,Lugnut
+IndEvo_pl_name_any_36,name,any,,,,Jumper
+IndEvo_pl_name_any_37,name,any,,,,Vector
+IndEvo_pl_name_any_38,name,any,,,,Flux
+IndEvo_pl_name_any_39,name,any,,,,Burnout
+IndEvo_pl_name_any_40,name,any,,,,Doodle
+IndEvo_pl_name_water_1,name,b_water,,,,Bubbles
+IndEvo_pl_name_water_2,name,b_water,,,,Brine
+IndEvo_pl_name_wings_1,name,b_wings,,,,Flutter
+IndEvo_pl_name_wings_2,name,b_wings,,,,Gust
+IndEvo_pl_name_machine_1,name,b_machine,,,,Servo
+IndEvo_pl_name_machine_2,name,b_machine,,,,Unit Seven
+IndEvo_pl_name_blob_1,name,b_blob,,,,Jelly
+IndEvo_pl_name_blob_2,name,b_blob,,,,Gloop
+IndEvo_pl_name_jar_1,name,b_jar,,,,Lid
+IndEvo_pl_name_jar_2,name,b_jar,,,,Murk
+IndEvo_pl_name_coil_1,name,b_coil,,,,Spiral
+IndEvo_pl_name_coil_2,name,b_coil,,,,Twist
+IndEvo_pl_name_float_1,name,b_float,,,,Puff
+IndEvo_pl_name_float_2,name,b_float,,,,Drifter
+IndEvo_pl_name_fourleg_1,name,b_fourleg,,,,Patch
+IndEvo_pl_name_fourleg_2,name,b_fourleg,,,,Scout
+IndEvo_pl_name_legs_1,name,b_legs,,,,Skitter
+IndEvo_pl_name_legs_2,name,b_legs,,,,Tick
+IndEvo_pl_name_human_1,name,b_human,,,,Doris
+IndEvo_pl_name_human_2,name,b_human,,,,Hank
+IndEvo_pl_name_hampter,name,hampter,,,,Hampter
+IndEvo_pl_want_attention_1,want_attention,any,,,,The crew says %s has been restless all shift. It wants some attention.
+IndEvo_pl_want_attention_2,want_attention,any,,,,%s will not settle until someone comes by. It wants some attention.
+IndEvo_pl_want_play_1,want_play,any,,,,%s is wide awake and bored. It wants to play.
+IndEvo_pl_want_play_2,want_play,any,,,,The night shift reports %s up and looking for trouble. It wants to play.
+IndEvo_pl_want_treat_1,want_treat,any,,,,%s ignores its usual food today. It wants a treat.
+IndEvo_pl_want_treat_2,want_treat,any,,,,The quartermaster caught %s watching the galley stores again. It wants a treat.
+IndEvo_pl_want_comfort_1,want_comfort,any,,,,%s has gone quiet since the fight. It wants comfort.
+IndEvo_pl_want_comfort_2,want_comfort,any,,,,The crew found %s hiding after the battle. It wants comfort.
+IndEvo_pl_want_shore_1,want_shore_leave,any,,,,%s has been restless since the last port. It wants shore leave.
+IndEvo_pl_want_shore_2,want_shore_leave,any,,,,The crew says %s needs to get off the ship for a while. It wants shore leave.
+IndEvo_pl_want_along_1,want_come_along,any,,,,%s watches every survey team leave. It wants to come along.
+IndEvo_pl_want_along_2,want_come_along,any,,,,%s got into the salvage crew's gear again. It wants to come along.
+IndEvo_pl_find_1,scavenger,any,,,,%s fussed over one sealed panel until the salvage crew cut it open. There was more behind it.
+IndEvo_pl_find_2,scavenger,any,,,,The salvage crew followed %s back into a section they had marked as cleared. It was not.
+IndEvo_pl_find_fourleg,scavenger,b_fourleg,,,,%s would not stop scratching at one bulkhead. The crew cut it open to keep the peace.
+IndEvo_pl_find_wings,scavenger,b_wings,,,,%s flew back out of the wreck with something shiny. The crew went in after the rest.
+IndEvo_pl_find_water,scavenger,b_water,,,,%s kept circling one side of its tank until the crew checked that side of the wreck.
+IndEvo_pl_find_machine,scavenger,b_machine,,,,%s read the wreck's old cargo manifest and found a hold nobody had opened.
+IndEvo_pl_find_salvageraven,scavenger,salvageraven,,,,%s dropped a part at the quartermaster's feet and led the crew to the rest of the cache.
+IndEvo_pl_jump_1,jump,any,,,,%s was waiting by the navigator's console when the jump ended.
+IndEvo_pl_jump_2,jump,any,,,,The jump alarm sent %s to the same corner it always picks.
+IndEvo_pl_jump_hyper,jump,any,,,hyperspace,%s went very quiet when the ship broke into hyperspace.
+IndEvo_pl_jump_fourleg,jump,b_fourleg,,,,%s pressed itself flat to the deck for the whole jump.
+IndEvo_pl_jump_wings,jump,b_wings,,,,%s circled the bridge until the jump ended.
+IndEvo_pl_jump_water,jump,b_water,,,,The jump left ripples in %s's tank for an hour.
+IndEvo_pl_jump_machine,jump,b_machine,,,,%s logged the jump coordinates on its own and checked them against the navigator's.
+IndEvo_pl_jump_float,jump,b_float,,,,%s drifted up to the ceiling during the jump and stayed there.
+IndEvo_pl_jump_blob,jump,b_blob,,,,%s went flat for the jump and took an hour to round out again.
+IndEvo_pl_fight_1,fight,any,,,,The crew found %s at the damage control station once the guns went quiet.
+IndEvo_pl_fight_2,fight,any,,,,%s stayed with the crew through the whole engagement. Nobody sent it below.
+IndEvo_pl_fight_timid,fight,any,,timid,,%s spent the battle in the deepest compartment it could find and came out last.
+IndEvo_pl_fight_reckless,fight,any,,reckless,,%s was on the bridge when the battle ended. It looked as if it had given the orders.
+IndEvo_pl_fight_fourleg,fight,b_fourleg,,aggressive,,%s paced the gun deck corridor long after the guns went quiet.
+IndEvo_pl_fight_wings,fight,b_wings,,,,%s rode out the battle on top of a cargo rack and would not come down.
+IndEvo_pl_fight_water,fight,b_water,,,,The hits sloshed half of %s's tank onto the deck. The crew topped it up.
+IndEvo_pl_fight_machine,fight,b_machine,,,,%s logged every hit the ship took and filed the list with the chief engineer.
+IndEvo_pl_fight_human,fight,b_human,,,,%s helped carry the wounded to the medbay and will not talk about it.
+IndEvo_pl_play_1,play,any,,,,%s plays until the whole shift has joined in.
+IndEvo_pl_play_2,play,any,,,,%s wins the game by its own rules.
+IndEvo_pl_play_3,play,any,,,,"You play with %s until it loses interest, which takes a while."
+IndEvo_pl_treat_1,treat,any,,,,%s takes the treat and disappears with it.
+IndEvo_pl_treat_2,treat,any,,,,%s finishes the treat and checks your pockets for a second one.
+IndEvo_pl_treat_3,treat,any,,,,"%s eats the treat slowly, to make it last."
+IndEvo_pl_st_sulking_1,status,any,sulking,,,%s ignores everyone who walks past
+IndEvo_pl_st_sulking_2,status,any,sulking,,,%s turns away when the crew calls it
+IndEvo_pl_amb_sulking_1,ambient,any,sulking,,,%s has stopped coming when called. The crew says it is sulking.
+IndEvo_pl_amb_sulking_2,ambient,any,sulking,,,%s ignores the crew all shift. It still remembers being left waiting.

@@ -91,7 +91,7 @@ public final class UiAudit {
         // dialogs (obf ui.impl.o0OO) keep their content in an inner panel that is not in the child list
         try {
             MethodHandle inner = MethodHandles.privateLookupIn(node.getClass(), MethodHandles.lookup())
-                    .findVirtual(node.getClass(), "getInnerPanel", MethodType.methodType(Class.forName("com.fs.starfarer.ui.interfacenew")));
+                    .findVirtual(node.getClass(), "getInnerPanel", MethodType.methodType(panelClass()));
             Object panel = inner.invoke(node);
             if (panel != null && !out.contains(panel)) out.add(panel);
         } catch (Throwable ignored) {
@@ -99,11 +99,24 @@ public final class UiAudit {
         return out;
     }
 
+    // the ui panel class is obfuscated: interfacenew in 0.98a, o000 in 0.98.5a-RC7
+    static Class<?> panelClass() throws ClassNotFoundException {
+        try {
+            return Class.forName("com.fs.starfarer.ui.interfacenew");
+        } catch (ClassNotFoundException e) {
+            try {
+                return Class.forName("com.fs.starfarer.ui.o000");
+            } catch (ClassNotFoundException e2) {
+                return Class.forName("com.fs.starfarer.ui.z");
+            }
+        }
+    }
+
     public static Object screen() {
         Object state = Global.getSector().getCampaignUI();
         try {
             MethodHandle getter = MethodHandles.privateLookupIn(state.getClass(), MethodHandles.lookup())
-                    .findVirtual(state.getClass(), "getScreenPanel", MethodType.methodType(Class.forName("com.fs.starfarer.ui.interfacenew")));
+                    .findVirtual(state.getClass(), "getScreenPanel", MethodType.methodType(panelClass()));
             return getter.invoke(state);
         } catch (Throwable t) {
             throw new IllegalStateException("no screen panel", t);

@@ -22,6 +22,18 @@
 		"plugin":"indevo.industries.artillery.terrain.ArtilleryTerrain",
 	},
 
+	"IndEvo_lighthouse_beam":{
+		"plugin":"indevo.industries.artillery.terrain.LighthouseBeamTerrain",
+	},
+
+	"IndEvo_searchlights":{
+		"plugin":"indevo.industries.artillery.terrain.SearchlightTerrain",
+	},
+
+	"IndEvo_drone_cones":{
+		"plugin":"indevo.industries.artillery.terrain.DroneConeTerrain",
+	},
+
 	"IndEvo_slowfield":{
 		"plugin":"indevo.industries.artillery.terrain.SlowFieldTerrain",
 		"musicSuppression":0.50,
@@ -30,6 +42,13 @@
 	"IndEvo_SmokeCloud":{
 	"plugin":"indevo.items.consumables.terrain.SmokeCloudTerrain",
 	"musicSuppression":0.60,
+	},
+
+	"IndEvo_fog":{
+		"plugin":"indevo.exploration.fog.terrain.FogTerrainPlugin",
+		# same as vanilla nebula: music muted and the nebula hum inside
+		"musicSuppression":1,
+		"loopOne":"terrain_nebula",
 	},
 
 	"crucible_field":{

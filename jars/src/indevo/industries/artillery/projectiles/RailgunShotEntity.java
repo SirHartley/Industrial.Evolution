@@ -27,6 +27,10 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     public static final float DANGERSIGN_ALPHA_RAMPUP_FRACTION = 0.1f;
     public static final float MAX_FADE_IN_SIZE_MULT = 1.5f;
     public static final float MAX_RETICULE_ALPHA = 0.7f;
+    // the old shells ran their clock at double speed, half the setting keeps that warning time
+    public static final float LANCE_TIME_MULT = 0.5f;
+    // lead stays at the full setting time like the old shells, so a fleet flying straight is missed
+    public static final float LEAD_TIME_MULT = 1f;
 
 
     //dangerSign
@@ -94,7 +98,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
 
     public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
         Vector2f vel = entity.getVelocity();
-        float dist = vel.length() * (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + 1f);
+        float dist = vel.length() * (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + 1f) * LEAD_TIME_MULT;
         float currentNavigationAngle = Misc.getAngleInDegrees(vel);
         Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
         location.scale(dist);
@@ -106,7 +110,8 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
         boolean fuzz = true;
 
         for (int i = 1; i <= num; i++) {
-            float impactTimeSeconds = (float) (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + i + 1 * random());
+            float shotTime = (float) (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + i + random());
+            float impactTimeSeconds = shotTime * LANCE_TIME_MULT;
 
             Vector2f vel = target.getVelocity();
 
@@ -119,7 +124,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
                 ModPlugin.log("fuzzing at " + fuzzMult);
             }
 
-            float dist = vel.length() * impactTimeSeconds * fuzzMult;
+            float dist = vel.length() * shotTime * LEAD_TIME_MULT * fuzzMult;
             float currentNavigationAngle = Misc.getAngleInDegrees(vel);
             Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
             location.scale(dist);
@@ -143,7 +148,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     }
 
     public void renderTargetReticule() {
-        float timeRemainingMult = 1 - Math.min(timePassedSeconds / Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value(), 1);
+        float timeRemainingMult = 1 - Math.min(timePassedSeconds / (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() * LANCE_TIME_MULT), 1);
         int gColour = Math.max((int) Math.round(200 * timeRemainingMult), 0);
         int rColour = Math.max((int) Math.round(100 * timeRemainingMult), 0);
         Color color = new Color(255, gColour, rColour, 255); //Start

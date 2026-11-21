@@ -24,8 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static indevo.industries.petshop.listener.EscapeInterceptListener.BLOCK_ESC;
-
 public class ManageParadeDialoguePlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
     public InteractionDialogAPI dialog;
@@ -125,7 +123,7 @@ public class ManageParadeDialoguePlugin implements InteractionDialogPlugin, Esca
     @Override
     public void advance(float amount) {
         if (Global.getSector().getCampaignUI().isShowingDialog())
-            Global.getSector().getMemoryWithoutUpdate().set(BLOCK_ESC, this, 1f);
+            EscapeInterceptListener.block(this);
 
         if (showDelegate) {
             displayMainPanel();

@@ -16,7 +16,7 @@ Checked against Starsector 0.98a-RC8. Recheck engine facts after a game update.
 | `ButtonReportingDialogueDelegate.java` | `BaseCustomDialogDelegate`; `reportButtonPressed` runs the id if it is a `ButtonAction` (`:7`). |
 | `ButtonAction.java`, `ButtonActionInterface.java` | Abstract button id object holding the `CustomDialogDelegate`; `execute()` is the click handler. |
 | `HelpIcon.java` | `?` icon for rules and rates that stay out of the panel text: vanilla `fleetScreen` `icon_more_info` sprite tinted with the base player colour, 20 px, hover tooltip. `HelpIcon.create(parent, tooltip -> ...)` returns the element; the caller positions it. Kit panels get it through `UiFrame.title` ([UI](../core/UI.md#uiframe)); the Orbital Works slot panel places it by hand at `inTR(0, 0)` on the title line. |
-| `EscapeBlockingDialoguePluginAPI.java` | `close()` hook. A dialog plugin stores itself in memory `$IndEvo_BlockESC`; `indevo/industries/petshop/listener/EscapeInterceptListener.java:34` consumes ESC and calls `close()`. |
+| `EscapeBlockingDialoguePluginAPI.java` | `close()` hook. A dialog plugin calls `EscapeInterceptListener.block(this)`: the plugin goes in a static field, memory `$IndEvo_BlockESC` only gets `true`; `indevo/industries/petshop/listener/EscapeInterceptListener.java` consumes ESC and calls `close()`. |
 
 ## Data and ids
 
@@ -32,10 +32,9 @@ Users:
 
 | Pattern | Users |
 |---|---|
-| `ButtonReportingCustomPanel` + `ButtonAction` | `PetManagerDialogueDelegate`, `ParadeManagementDialogueDelegate`, `OrbitalWorksSlotPanelDelegate`, `WarehouseAddSubmarketOptionProvider`, `warehouses/plugin/wi/WarehouseManagementDialogueDelegate` (folder excluded by `IndEvo.iml`) |
-| `ButtonReportingDialogueDelegate` alone | `EdictConfirmDialog` |
+| `ButtonReportingCustomPanel` + `ButtonAction` | `ParadeManagementDialogueDelegate`, `OrbitalWorksSlotPanelDelegate`, `WarehouseAddSubmarketOptionProvider`, `warehouses/plugin/wi/WarehouseManagementDialogueDelegate` (folder excluded by `IndEvo.iml`) |
 | own copy of `ButtonReportingCustomPanel` | `ChangelingIndustryDialogueDelegate.ButtonReportingCustomPanel` (inner class, `:230`) |
-| `EscapeBlockingDialoguePluginAPI` | `AcademyDialogPlugin`, `SalvageYardsDialogPlugin`, `CourierPortDialoguePlugin`, `ManageParadeDialoguePlugin`, `ParadeManagementDialogueDelegate`, `PetShopDialogPlugin` |
+| `EscapeBlockingDialoguePluginAPI` | `AcademyDialogPlugin`, `SalvageYardsDialogPlugin`, `CourierPortDialoguePlugin`, `ManageParadeDialoguePlugin`, `ParadeManagementDialogueDelegate`, `PetsDialogPlugin` |
 
 ## Flow
 
@@ -45,11 +44,12 @@ Users:
 
 ### ESC on a dialog plugin without options
 
-`plugin.advance -> memory.set($IndEvo_BlockESC, plugin, 1f)` while no sub dialog is up `-> EscapeInterceptListener` consumes ESC `-> plugin.close()` on key down only (a vanilla picker closes on key down, so the key up must not close the panel that reopens after it). `EscBlockerMemoryIterator` (transient script, added by the plugin's `init` when missing) counts the key down, so it is gone two frames after the plugin stops setting it. While a vanilla picker is open the plugin does not set the key (Courier Port also unsets it before the picker opens), so ESC reaches the picker.
+`plugin.advance -> EscapeInterceptListener.block(plugin)` (static field, `memory.set($IndEvo_BlockESC, true, 1f)`) while no sub dialog is up `-> EscapeInterceptListener` consumes ESC `-> plugin.close()` on key down only (a vanilla picker closes on key down, so the key up must not close the panel that reopens after it). `EscBlockerMemoryIterator` (transient script, added by the plugin's `init` when missing) counts the key down, so it is gone two frames after the plugin stops setting it. While a vanilla picker is open the plugin does not set the key (Courier Port also unsets it before the picker opens), so ESC reaches the picker.
 
 ## Contracts
 
 - Buttons in a `createUIElement` element report to the owning panel's `CustomUIPanelPlugin.buttonPressed` (skill `docs/ui/widgets.md`, "Event routing"), so a button in a sub panel reports to that sub panel's plugin.
+- Never put a dialog plugin, panel or UI object in memory or any other saved state: a save writes everything reachable from it, and XStream cannot write records ("can't get field offset on a record class"), so the save fails. `EscapeInterceptListener` keeps the plugin in a static field and clears it when the flag is gone; a flag loaded from a save has no plugin and blocks nothing.
 - A `ButtonAction` or `Runnable` button id must never reach a saved object (skill `docs/ui/widgets.md`, "Event routing"). Popups are rebuilt on every change and never saved.
 - `ButtonReportingCustomPanel.render` uses `pos` set by `positionChanged`; a panel rendered before positioning would NPE (inferred).
 - UI guidance for new panels: [UI](../core/UI.md), skill `docs/ui/index.md`, `layout.md`, `widgets.md`.

@@ -12,6 +12,7 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.warehouses.data.WarehouseConstants;
 import indevo.industries.warehouses.data.WarehouseSubmarketData;
 import indevo.industries.warehouses.plugin.LinkedStorageManager;
@@ -77,12 +78,18 @@ public class Warehouses extends BaseIndustry {
     public boolean isAvailableToBuild() {
         if (!Global.getSector().getPlayerFaction().knowsIndustry(getId())) return false; //todo remove this when the industry is ready for release
 
-        return super.isAvailableToBuild();
+        return super.isAvailableToBuild() && AotdManager.isResearched(this);
     }
 
     @Override
     public boolean showWhenUnavailable() {
         return false;
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     public void unlinkAllSubmarkets(){

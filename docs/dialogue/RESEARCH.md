@@ -17,7 +17,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | `dialogue/RedeemRequirement.java` | Item consumed on Redeem: id, `CargoItemType`, count. Name and sprite through `RequiredItem`, available count and `take(cargo)` (throws when short). |
 | `dialogue/ResearchProjectAPI.java` | `display`, `getRewards`, `getRequiredItems`, short and long desc. |
 | `dialogue/RequiredItem.java` | Accepted item: id, `CargoItemType`, points per unit. Static `getName` and `getSprite` per type; weapons use the turret sprite. |
-| `dialogue/DropDataCreator.java` | Builds a `SalvageEntityGenDataSpec.DropData` for reward rolls. |
+| `dialogue/DropDataCreator.java` | Builds a `SalvageEntityGenDataSpec.DropData` for reward rolls. `createPaidDropData` sets `unaffectedByExtMode` so survival mode drop fractions skip it; Spyglass, Mjolnir and Transistor use it because the player paid relics for the rolls. |
 | `dialogue/ResearchProjectDialoguePlugin.java` | Rule command and dialog plugin. Swaps itself in as the dialog plugin, owns one `ResearchView` and one `ResearchProjectPanel` per visit, prints the intro and the reward text, returns to the Galatia menu via `gaMeetingEnd`. Keeps its instance in `$IndEvo_tempDialogueInstance` (expire 0). `getQuantity` and `getStackItemId` match cargo stacks to item ids. |
 | `dialogue/ResearchView.java` | Panel state: ids of projects with Info open, scroll offsets (`CARDS`). Lives as long as the plugin, so rebuilds keep both. |
 | `dialogue/ResearchProjectPanel.java` | Side panel, `VisualPanelAPI.showCustomPanel(600, 600, UiCanvas)` with a `UiRoot` rebuild. One card per visible, unredeemed project, ready to redeem first, then by points; the list ends on the last card that fits whole at rest. Card: header strip (name, "Repeatable", percent or "Ready"), the short desc as whole sentences on one line, or a first sentence longer than the line on up to three (the card grows with it), Stock checkbox (repeatable only) and the Info toggle at the right end, bar, inline accepted items at their measured width (owned count up to 3 items while they fit, `+N` past 5), Donate... and Redeem. A finished project whose redeem requirement is missing gets a red line with the item icon. Info adds the wrapped long desc and a table: points each, owned, units to finish (ceil). Redeem logic lives here: `onRedeem`, `showRedeemConfirm`, `redeem` and the Redeem hover `addRedeemTooltip`. |
@@ -42,13 +42,13 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge` | `indevo/ids/Ids.java:167` to `:180` |
+| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge`, `_longevity` (Methuselah) | `indevo/ids/Ids.java:169` to `:183` |
 | Hullmods | `IndEvo_augfield`, `IndEvo_CamouflageFieldEmitter` | `data/hullmods/hull_mods.csv:16`, `:17` |
 | Tag | `IndEvo_ship_unique_signature` (parked vanilla tag) | `CamouflageFieldEmitter.TAG_UNIQUE` |
 | Memory, sector | `$IndEvo_ResearchProgress_<id>` (`Progress`), `$IndEvo_ProjRand_<id>` (5 `Random`s) | `ResearchProject.java:39`, `ResearchProjectTemplateRepo.java:590` |
 | Memory, sector | `$IndEvo_HasFoundDoritoGun`, `$IndEvo_HasFoundAutopulse`, `$IndEvo_HasUniqueShipChecker`, `$IndEvo_SlowShipFleetCheckerDone`, `$IndEvo_HyperTopoCheckerDone`, `$IndEvo_HasHadCorruptedNanoforge` | unlock listeners |
 | Memory, combat engine custom data | `$IndEvo_GlitcherOverlayAttached_<shipId>` | `CamouflageFieldEmitter.java:14` |
-| Settings | `IndEvo_pets` (Navi), `IndEvo_consumables_researchProject` (Mjolnir) | `data/config/LunaSettings.csv:11`, `:35`; read through `Setting` (see [Settings](../core/SETTINGS.md)) |
+| Settings | `IndEvo_pets` (Navi, Methuselah), `IndEvo_consumables_researchProject` (Mjolnir) | `data/config/LunaSettings.csv:11`, `:35`; read through `Setting` (see [Settings](../core/SETTINGS.md)) |
 | Sprite | `IndEvo` / `galatia_proj` | `data/config/settings.json:162` |
 | Rules | `IndEvo_JobMenuPoint`, `IndEvo_JobMenuInit` | `data/campaign/rules.csv:418`, `:419` |
 | Entity | `station_galatia_academy` (vanilla) | intel map location, rules condition |
@@ -62,6 +62,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | Sonic | 5000 | no | slow ship found | fuel 1 | `IndEvo_augfield` |
 | Prospector | 100 | yes | topography progress 101 to 999 | survey data 1/3/5/10/30 (+ `sun_data` 1 with `sun_perilous_expanse`) | topographic data item + 75 topography points |
 | Navi | 200 | no | `IndEvo_pets` on | rare parts 1, `IndEvo_parts` 0.1, drone replicator 200 | `IndEvo_PetBox` fairy |
+| Methuselah (`indevo_proj_longevity`) | 50 | yes | `IndEvo_pets` on | rare parts 1 | 1 `IndEvo_LongevitySyringe` ([Pets](../industries/PETS.md#longevity)) |
 | Snowblind | 4 | no | omega gun found | `cryoflux` 2, `cryoblaster` 2 | 2x `IndEvo_cryoartillery` + BP |
 | Spitfire | 4 | no | omega gun found | `amsrm` 1.5, `resonatormrm` 2, `disintegrator` 2 | 3x `IndEvo_degrader` + BP |
 | Eureka | 4 | no | omega gun found | `disintegrator` 2, `rifttorpedo` 4, `realitydisruptor` 4 | 1x `IndEvo_causalitygun` + BP |

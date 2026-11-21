@@ -328,9 +328,11 @@ public class StringHelper {
         return gender == MALE ? StringHelper.getString("him") : StringHelper.getString("her");
     }
 
+    // a leading acronym like "CR" keeps its capitals
     public static String lcFirst(String str) {
         if (str == null) return "Null";
         if (str.isEmpty()) return "";
+        if (str.length() > 1 && Character.isUpperCase(str.charAt(1))) return str;
         return ("" + str.charAt(0)).toLowerCase() + str.substring(1);
     }
 

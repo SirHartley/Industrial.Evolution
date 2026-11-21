@@ -12,12 +12,17 @@ import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
+import com.fs.starfarer.api.impl.campaign.intel.bases.LuddicPathBaseManager;
 import com.fs.starfarer.api.impl.campaign.intel.events.HostileActivityEventIntel;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
 import indevo.industries.Supercomputer;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.industries.changeling.industry.population.SwitchablePopulation;
+import indevo.industries.changeling.conditions.GovernmentCondition;
+import indevo.industries.changeling.industry.Specialization;
+import indevo.industries.changeling.industry.mining.MiningSpecializations;
+import indevo.industries.changeling.industry.population.Governments;
+import indevo.industries.changeling.industry.population.UnderworldSubIndustry;
 import indevo.industries.changeling.plugins.ChangelingPopulationOptionProvider;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.listeners.AmbassadorItemTrackerPlugin;
@@ -33,22 +38,15 @@ public final class ColonyChecks {
     private ColonyChecks() {
     }
 
-    static SwitchablePopulation government(MarketAPI market, String id) {
-        Industry old = market.getIndustry(Industries.POPULATION);
-        if (!(old instanceof SwitchablePopulation)) {
-            market.removeIndustry(old.getId(), null, false);
-            market.addIndustry(Ids.SWITCHABLE_POPULATION);
-        }
+    static void government(MarketAPI market, String id) {
+        SubIndustryData data = Governments.get(id);
+        if (data == null) throw new IllegalArgumentException("No government " + id);
+        GovernmentCondition.set(market, data);
+    }
 
-        SwitchablePopulation population = (SwitchablePopulation) market.getIndustry(Industries.POPULATION);
-        for (SubIndustryData data : population.getIndustryList()) {
-            if (data.id.equals(id)) {
-                population.setCurrent(data.newInstance(), true);
-                market.reapplyIndustries();
-                return population;
-            }
-        }
-        throw new IllegalArgumentException("No government " + id);
+    private static float flatMod(MutableStat stat, String key) {
+        MutableStat.StatMod mod = stat.getFlatMods().get(key);
+        return mod == null ? 0f : mod.getValue();
     }
 
     static void size(MarketAPI market, int from, int to) {
@@ -84,11 +82,20 @@ public final class ColonyChecks {
         steps.add(c -> {
             MarketAPI a = c.market("a");
             MarketAPI b = c.market("b");
-            SwitchablePopulation population = (SwitchablePopulation) a.getIndustry(Industries.POPULATION);
+            Industry population = a.getIndustry(Industries.POPULATION);
             ChangelingPopulationOptionProvider provider = new ChangelingPopulationOptionProvider();
-            c.expect(population.locked, "government locks after 7 days");
-            c.expect(!population.canChange(), "402 locked government can not change at size 3");
+            c.expect(GovernmentCondition.isLocked(a), "government locks after 7 days");
+            c.expect(!GovernmentCondition.canChange(a), "402 locked government can not change at size 3");
             c.expect(!provider.isSuitable(population), "402 no change government option on a locked government");
+            c.expect(!population.getClass().getName().startsWith("indevo."), "population plugin is not replaced (" + population.getClass().getName() + ")");
+            c.expect(a.hasCondition(GovernmentCondition.ID), "underworld sits on the market as the government condition");
+            c.expect("Underworld Governance".equals(population.getCurrentName()), "population shows the government name (" + population.getCurrentName() + ")");
+            c.expect(!a.getCondition(GovernmentCondition.ID).getPlugin().showIcon(), "government condition shows no icon");
+            String govImage = GovernmentCondition.getGovernment(a).getImageName(a);
+            c.expect(govImage.equals(population.getCurrentImage()), "size 3 population shows the government image through the patch (" + population.getCurrentImage() + ")");
+            c.expect(GovernmentCondition.getDescriptionOverride(population) != null, "population tooltip takes the government description");
+            c.near(flatMod(a.getStability(), "_ind_population_3_ms"), UnderworldSubIndustry.BASE_STABILITY_AMT, 0.01f, "underworld base stability replaces the vanilla base value");
+            c.expect(!a.getStability().getFlatMods().containsKey("ind_population_0"), "underworld drops the domestic goods stability bonus");
             c.expect(provider.isSuitable(b.getIndustry(Industries.POPULATION)), "base government still offers the option at size 3");
 
             size(b, 3, 5);
@@ -132,6 +139,47 @@ public final class ColonyChecks {
             c.near(supply(b.getIndustry(Industries.FARMING), Commodities.ORGANICS), 0f, 0.01f, "408 leaving rural polity takes organics away");
             c.near(supply(b.getIndustry(Industries.LIGHTINDUSTRY), Commodities.SUPPLIES), 0f, 0.01f, "408 leaving rural polity takes supplies away");
             c.near(supply(b.getIndustry(Industries.FARMING), Commodities.DRUGS), 0f, 0.01f, "408 no drugs after leaving rural polity");
+        });
+        steps.add(c -> {
+            MarketAPI b = c.market("b");
+            c.expect(!b.hasCondition(GovernmentCondition.ID), "base government removes the government condition");
+            c.expect(b.getIndustry(Industries.POPULATION).getCurrentName().equals(b.getIndustry(Industries.POPULATION).getSpec().getName()), "base government clears the name override (" + b.getIndustry(Industries.POPULATION).getCurrentName() + ")");
+
+            float baseInterest = LuddicPathBaseManager.getLuddicPathMarketInterest(b);
+            government(b, "rural");
+            float ruralInterest = LuddicPathBaseManager.getLuddicPathMarketInterest(b);
+            c.expect(ruralInterest < baseInterest - 5f, "rural polity lowers pather interest through the patch (" + baseInterest + " -> " + ruralInterest + ")");
+            government(b, "base_population_and_infrastructure");
+
+            boolean ownOre = !b.hasCondition(Conditions.ORE_MODERATE);
+            if (ownOre) b.addCondition(Conditions.ORE_MODERATE);
+            b.addIndustry(Industries.MINING);
+            b.reapplyConditions();
+            b.reapplyIndustries();
+            Industry mining = b.getIndustry(Industries.MINING);
+            String key = Specialization.getModId(mining);
+            float ore = mining.getSupply(Commodities.ORE).getQuantity().getModifiedValue();
+            float volatiles = mining.getSupply(Commodities.VOLATILES).getQuantity().getModifiedValue();
+            Specialization.MINING.setCurrent(b, Specialization.MINING.get("ore_mining"));
+            c.near(flatMod(mining.getSupply(Commodities.ORE).getQuantity(), key), Math.round(Math.max(0f, ore) * 0.4f), 0.01f, "ore mining adds 40% ore on the vanilla mine (" + ore + ")");
+            c.near(flatMod(mining.getSupply(Commodities.VOLATILES).getQuantity(), key), -Math.round(Math.max(0f, volatiles) * 0.4f), 0.01f, "ore mining takes 40% volatiles (" + volatiles + ")");
+            c.expect(ore > 0f, "check market mines ore (" + ore + ")");
+            c.expect("Ore Mining".equals(mining.getCurrentName()), "specialized mine shows the variant name (" + mining.getCurrentName() + ")");
+            c.expect(Specialization.MINING.get("ore_mining").imageName.equals(mining.getCurrentImage()), "specialized mine shows the variant image (" + mining.getCurrentImage() + ")");
+            c.expect(Specialization.getDescriptionOverride(mining) != null, "specialized mine tooltip takes the variant description");
+            c.expect(mining.getClass().getName().startsWith("com.fs.starfarer.api"), "mining plugin is not replaced (" + mining.getClass().getName() + ")");
+
+            Specialization.MINING.setCurrent(b, Specialization.MINING.get(MiningSpecializations.BASE_ID));
+            c.expect(!mining.getSupply(Commodities.ORE).getQuantity().getFlatMods().containsKey(key), "base mining removes the ore delta");
+            boolean leftover = false;
+            for (String id : Specialization.MINING.commodities) {
+                leftover |= mining.getSupply(id).getQuantity().getFlatMods().containsKey(key) || mining.getDemand(id).getQuantity().getFlatMods().containsKey(key);
+            }
+            c.expect(!leftover, "base mining removes the malus on lines the mine does not produce");
+            c.expect(mining.getSpec().getName().equals(mining.getCurrentName()), "base mining clears the name override (" + mining.getCurrentName() + ")");
+            b.removeIndustry(Industries.MINING, null, false);
+            if (ownOre) b.removeCondition(Conditions.ORE_MODERATE);
+            b.reapplyConditions();
         });
         steps.add(c -> {
             MarketAPI a = c.market("a");

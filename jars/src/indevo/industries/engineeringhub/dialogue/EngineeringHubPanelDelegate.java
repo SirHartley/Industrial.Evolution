@@ -10,6 +10,7 @@ import com.fs.starfarer.api.loading.HullModSpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
@@ -258,7 +259,8 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
         ay += Ui.HEADING_H + 6f;
         UiData.costrow(a, 0f, ay, cw, RelicHelper.getName(), UiImages.relicSprite(), Ui.num(cost), Ui.num(available), cost <= available);
         ay += UiData.COST_ROW_H + GAP;
-        ButtonAPI learn = UiButtons.guarded(a, 0f, ay, cw, BUTTON_H, "Learn", UiButtons.Kind.GREEN, reason, () -> {
+        if (reason != null) Ui.wrap(a, 0f, ay + BUTTON_H + UiButtons.REASON_GAP, cw, reason, Ui.neg());
+        ButtonAPI learn = UiButtons.relic(a, 0f, ay, cw, BUTTON_H, "Learn", cost, reason == null, CutStyle.ALL, reason != null ? null : () -> {
             RecoveredHullmods.learn(market, spec.getId());
             view.hullmod = null;
             view.scroll.reset(EngineeringHubView.DETAIL);

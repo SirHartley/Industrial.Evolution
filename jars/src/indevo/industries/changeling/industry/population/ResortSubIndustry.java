@@ -11,6 +11,5 @@ public class ResortSubIndustry extends SubIndustry {
 
     @Override
     public void apply() {
-        ((SwitchablePopulation) industry).superApply();
     }
 }

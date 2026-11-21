@@ -18,6 +18,7 @@ public final class UiButtons {
     public static final float TAB_GAP = 4f;
     public static final float STRIP_W = 4f;
     public static final float ICON_GAP = 5f;
+    public static final float FIELD_EDGE = 0.45f;
 
     // which inline confirm is armed, kept in the panel's view state
     public static final class Confirm {
@@ -47,9 +48,15 @@ public final class UiButtons {
         return button(p, x, y, w, h, label, kind, cut, null, null, Ui.ORB12, action);
     }
 
-    // icon and sub text are drawn over an empty button face, labels never take the click
     public static ButtonAPI button(CustomPanelAPI p, float x, float y, float w, float h, String label, Kind kind, CutStyle cut,
                                    String icon, String sub, String font, Runnable action) {
+        return button(p, x, y, w, h, label, kind, cut, icon, sub, null, font, action);
+    }
+
+    // icon and sub text are drawn over an empty button face, labels never take the click; subColor null is highlight, grey when off
+    // the icon stays at full alpha when off: dark cargo icons vanish into the grey face
+    public static ButtonAPI button(CustomPanelAPI p, float x, float y, float w, float h, String label, Kind kind, CutStyle cut,
+                                   String icon, String sub, Color subColor, String font, Runnable action) {
         boolean off = kind == Kind.OFF || action == null;
         boolean face = icon == null && sub == null;
 
@@ -73,9 +80,15 @@ public final class UiButtons {
         float textW = Math.min(Ui.width(line, font) + 2f, w - h / 2f - iconW);
         float left = x + Math.round((w - iconW - textW) / 2f);
 
-        if (icon != null) UiImages.img(p, left, y + Math.round((h - iconSize) / 2f), iconSize, iconSize, icon, null, off ? 0.4f : 1f);
-        Ui.textIn(p, left + iconW, y, textW, h, line, font, fg, Ui.LEFT, new String[]{sub}, new Color[]{off ? Ui.gray() : Ui.hl()});
+        if (icon != null) UiImages.img(p, left, y + Math.round((h - iconSize) / 2f), iconSize, iconSize, icon);
+        Ui.textIn(p, left + iconW, y, textW, h, line, font, fg, Ui.LEFT, new String[]{sub}, new Color[]{subColor != null ? subColor : off ? Ui.gray() : Ui.hl()});
         return button;
+    }
+
+    // every button that costs only relic components: green, relic icon, label, amount; the cut is the panel's
+    // action null is grey; the amount is red while the relics are short
+    public static ButtonAPI relic(CustomPanelAPI p, float x, float y, float w, float h, String label, int cost, boolean afford, CutStyle cut, Runnable action) {
+        return button(p, x, y, w, h, label, action == null ? Kind.OFF : Kind.GREEN, cut, UiImages.relicSprite(), Ui.num(cost), afford ? null : Ui.neg(), Ui.ORB12, action);
     }
 
     // a blocked action: grey button and the reason in red below; the reason line is reserved either way
@@ -207,11 +220,24 @@ public final class UiButtons {
 
     // vanilla text field; read getText() in the action that uses it and keep it in the view state before a refresh
     public static TextFieldAPI field(CustomPanelAPI p, float x, float y, float w, float h, String text, int maxChars) {
+        return field(p, x, y, w, h, text, maxChars, Ui.INS15);
+    }
+
+    public static TextFieldAPI field(CustomPanelAPI p, float x, float y, float w, float h, String text, int maxChars, String font) {
         TooltipMakerAPI element = p.createUIElement(w + Ui.INSET, h, false);
-        TextFieldAPI field = element.addTextField(w, h, Ui.INS15, 0f);
+        TextFieldAPI field = element.addTextField(w, h, font, 0f);
         field.setMaxChars(maxChars);
         field.setText(text == null ? "" : text);
         p.addUIElement(element).inTL(x - Ui.INSET, y);
+        return field;
+    }
+
+    // a black box with a 1 px outline as the boards draw a field; the field fills its whole box with the border colour and lays the
+    // bg over it at alpha 200, so both go black and the outline is painted on top
+    public static TextFieldAPI boxed(CustomPanelAPI p, float x, float y, float w, float h, TextFieldAPI field) {
+        field.setBgColor(Color.BLACK);
+        field.setBorderColor(Color.BLACK);
+        Ui.box(p, x, y, w, h, Misc.scaleAlpha(Ui.base(), FIELD_EDGE), null);
         return field;
     }
 

@@ -24,6 +24,7 @@ import indevo.config.Setting;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
+import indevo.industries.compatibility.AotdManager;
 import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,7 +37,6 @@ import static indevo.ids.Ids.TAG_SYSTEM_HAS_ARTILLERY;
 
 public class ArtilleryStation extends BaseIndustry implements FleetEventListener {
     public static float DEFENSE_BONUS_BASE = 0.5f;
-    public static final float IMPROVE_RANGE_BONUS = 4000f;
 
     protected CampaignFleetAPI stationFleet = null;
     protected SectorEntityToken stationEntity = null;
@@ -171,13 +171,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             float bonus = DEFENSE_BONUS_BASE;
 
             addGroundDefensesImpactSection(tooltip, bonus, Commodities.HEAVY_MACHINERY, Commodities.METALS);
-
-            if (stationEntity == null) return;
-
-            ArtilleryStationEntityPlugin plugin = ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin());
-
-            if (plugin != null)
-                tooltip.addPara("Current range: %s", 10f, Misc.getHighlightColor(), (int) Math.round(plugin.getOrInitScript().getRange()) + " units");
+            tooltip.addPara("Range: %s", opad, h, "entire system");
         }
     }
 
@@ -530,38 +524,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
 
     @Override
     public boolean canImprove() {
-        return true;
-    }
-
-    protected void applyImproveModifiers() {
-        if (stationEntity == null) return;
-
-        ArtilleryStationEntityPlugin plugin = ((ArtilleryStationEntityPlugin) stationEntity.getCustomPlugin());
-        CampaignAttackScript script = null;
-        if (plugin != null) script = plugin.getOrInitScript();
-        if (script == null) return;
-
-        if (isImproved()) {
-            script.resetRange();
-            script.addToRange(IMPROVE_RANGE_BONUS);
-        } else {
-            script.resetRange();
-        }
-    }
-
-    public void addImproveDesc(TooltipMakerAPI info, ImprovementDescriptionMode mode) {
-        float opad = 10f;
-        Color highlight = Misc.getHighlightColor();
-
-
-        if (mode == ImprovementDescriptionMode.INDUSTRY_TOOLTIP) {
-            info.addPara("Range increased by %s.", 0f, highlight, "" + (int) IMPROVE_RANGE_BONUS);
-        } else {
-            info.addPara("Increases range by %s.", 0f, highlight, "" + (int) IMPROVE_RANGE_BONUS);
-        }
-
-        info.addSpacer(opad);
-        super.addImproveDesc(info, mode);
+        return false;
     }
 
     @Override
@@ -575,6 +538,9 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
     }
 
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!hasFunctionalOrbital()) return "Requires an orbital station";
 
         return "Requires a functional spaceport";
@@ -582,6 +548,8 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
 
     @Override
     public boolean isAvailableToBuild() {
+        if (!super.isAvailableToBuild()) return false;
+
         boolean canBuild = false;
         boolean hasOrbital = false;
 
@@ -593,11 +561,11 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             if (!hasOrbital) if (ind.getSpec().hasTag(Tags.STATION)) hasOrbital = true;
         }
 
-        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Setting.ENABLE_ARTILLERY.enabled();
+        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Setting.ENABLE_ARTILLERY.enabled() && AotdManager.isResearched(this);
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return market.hasCondition(ArtilleryStationCondition.ID);
+        return super.showWhenUnavailable() && market.hasCondition(ArtilleryStationCondition.ID);
     }
 }

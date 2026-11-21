@@ -108,6 +108,7 @@ The planet, cargo and ship pickers are vanilla sub dialogs and only open while t
 - `ShippingContract` and `ShippingTargetHelper` import `assortment_of_things` classes directly; calls are guarded by `isModEnabled("assortment_of_things")` and the JVM resolves the class lazily (inferred). See [Compatibility](../core/COMPATIBILITY.md).
 - The Embassy ambassador tracker reads `Shipment.cargo` and `Shipment.done` of every `Shipment` listener to find ambassadors in transit ([Embassy](EMBASSY.md#hire-and-transport)). Keep both fields and the listener registration.
 - `ShippingContract.equals` compares ids but `hashCode` is not overridden; it is used as a `HashMap` key in `CourierPortV2.getShipmentWithDayList` (identity hash, works because the same objects are used).
+- A small RAT settlement version of this industry exists (Courier Office: contracts without a port, billed to the settlement market, `CourierPortDialoguePlugin(title, subtitle, onReturn)`, titled "Courier Office" with the settlement name); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
 

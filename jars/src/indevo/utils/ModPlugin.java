@@ -30,6 +30,7 @@ import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.abilities.splitfleet.listeners.DetachmentPayroll;
 import indevo.ambience.shuttletraffic.renderers.ShuttleTrafficRenderer;
+import indevo.exploration.meteor.renderers.RogueRockDustRenderer;
 import indevo.config.PlayerSettings;
 import indevo.config.Setting;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
@@ -41,6 +42,7 @@ import indevo.economy.listeners.TechMiningRelicOptionProvider;
 import indevo.economy.listeners.ResourceConditionApplicator;
 import indevo.exploration.gacha.GachaStationCampaignPlugin;
 import indevo.exploration.gacha.GachaStationSpawner;
+import indevo.exploration.fog.FogWeatherManager;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.scripts.TutorialEncounterScript;
 import indevo.exploration.minefields.conditions.MineFieldCondition;
@@ -57,6 +59,7 @@ import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.industries.changeling.industry.population.RuralPolitySubIndustry;
+import indevo.industries.changeling.listener.ChangelingApplyListener;
 import indevo.industries.changeling.listener.ManagedDemocracyNexerelinListenerPlugin;
 import indevo.industries.changeling.listener.MarineLossAmplifcationHullmodEffectListener;
 import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
@@ -78,10 +81,10 @@ import indevo.industries.museum.plugins.MuseumManageParadeOptionProvider;
 import indevo.industries.orbitalworks.plugins.OrbitalWorksSlotOptionProvider;
 import indevo.industries.orbitalworks.scripts.OrbitalWorksSlotManager;
 import indevo.industries.warehouses.plugin.WarehouseRemoveSubmarketOptionProvider;
+import indevo.industries.petshop.PetLongevity;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
-import indevo.industries.petshop.plugins.PetShopCampaignPlugin;
 import indevo.industries.relay.industry.MilitaryRelay;
 import indevo.industries.ruinfra.listener.RuinfraOnDecivListener;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
@@ -180,6 +183,7 @@ public class ModPlugin extends BaseModPlugin {
 
         PlayerSettings.applyCampaignSettings();
         if (newGame && Setting.PETS.enabled()) addLordFoogRep();
+        if (Setting.PETS.enabled()) PetLongevity.placeSyringes();
     }
 
     public void devActions(boolean active){
@@ -430,6 +434,8 @@ public class ModPlugin extends BaseModPlugin {
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ACADEMY_SKILL_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.RIFT_BLOCKED_SYSTEMS_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.RIFT_BLOCKING_ENTITIES_LIST);
     }
 
     private void setListenersIfNeeded() {
@@ -457,6 +463,7 @@ public class ModPlugin extends BaseModPlugin {
         InterdictionPulseAbilityListener.register();
         WorldWonderAltImageOptionProvider.register();
         WorldWonderTexChangeOptionProvider.register();
+        ChangelingApplyListener.register();
         ChangelingPopulationOptionProvider.register();
         ChangelingMiningOptionProvider.register();
         ChangelingRefiningOptionProvider.register();
@@ -490,6 +497,8 @@ public class ModPlugin extends BaseModPlugin {
         ShieldVisualsOptionProvider.register();
         MilitaryRelay.RelayItemRemovalButtonListener.register();
         MeteorSwarmManager.register();
+        RogueRockDustRenderer.register();
+        FogWeatherManager.register();
         ShuttleTrafficRenderer.register();
         RemoveIndustryOptionWarningProvider.register();
         WarehouseAddSubmarketOptionProvider.register();
@@ -513,7 +522,6 @@ public class ModPlugin extends BaseModPlugin {
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
         Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
-        Global.getSector().registerPlugin(new PetShopCampaignPlugin());
         Global.getSector().registerPlugin(new CorporateGovernanceCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {

@@ -1,6 +1,6 @@
 # Industrial.Evolution
 
-Starsector 0.98a mod (`IndEvo`) that adds industries, exploration content, abilities, consumable items and events to the campaign.
+Starsector 0.98.5a mod (`IndEvo`) that adds industries, exploration content, abilities, consumable items and events to the campaign.
 
 ## Required workflow
 
@@ -11,7 +11,7 @@ Reviews, explanations, audits, and proposals are read-only unless the user reque
 ### Read the current documentation
 
 1. Read the current remote `CLAUDE.md` in full at the start of each new task. Within the same task, reuse the version already read unless the instructions change. Read new or changed instruction files before following them.
-2. Use the `starsector-knowledge` skill before answering or changing anything related to Starsector. It covers 0.98a-RC8. Do not rely on memory.
+2. Use the `starsector-knowledge` skill before answering or changing anything related to Starsector. It covers 0.98.5a-RC4; the game jars in `lib/` are 0.98.5a-RC7 and win where the two differ. Do not rely on memory.
 3. Use the `house-style` skill for every task in this repository. Its personal rules (answers, vocabulary, comments, commits, punctuation) apply everywhere; this file wins on project details.
 4. Use the `starsector-rules-writing` skill for any change to `data/campaign/rules.csv`, dialogue or rule commands. Use the `patchlib` skill only when the official API cannot reach what is needed.
 5. Use the `starsector-native-smoke` skill with [SMOKE_TESTS.md](docs/SMOKE_TESTS.md) when a change must be seen or exercised in the real game.
@@ -45,7 +45,7 @@ After reading this file, use the task to choose the next document. Read the rele
 
 ### Technical references and conflicts
 
-The feature docs own feature behavior; [ARCHITECTURE.md](docs/ARCHITECTURE.md) owns registration, lifecycle and cross-feature contracts; [SETTINGS.md](docs/core/SETTINGS.md) owns the settings mechanism; [UTILS.md](docs/core/UTILS.md) owns shared helpers. Engine facts come from the `starsector-knowledge` skill for 0.98a-RC8. Resolve any technical conflict against the exact source and record the evidence; do not pick a winner by filename, recency or an authority label.
+The feature docs own feature behavior; [ARCHITECTURE.md](docs/ARCHITECTURE.md) owns registration, lifecycle and cross-feature contracts; [SETTINGS.md](docs/core/SETTINGS.md) owns the settings mechanism; [UTILS.md](docs/core/UTILS.md) owns shared helpers. Engine facts come from the `starsector-knowledge` skill for 0.98.5a-RC4, checked against the 0.98.5a-RC7 jars in `lib/` where they differ. Resolve any technical conflict against the exact source and record the evidence; do not pick a winner by filename, recency or an authority label.
 
 `Changelog_todo` is the user's own list of open tasks and known issues. Feature docs link its entries; do not edit it unless asked.
 
@@ -216,9 +216,9 @@ A change to the builder also runs its checks: `javac --release 17 -encoding UTF-
 From `IndEvo.iml` and the imports:
 
 - From the game's `starsector-core`: `starfarer.api.jar`, `starfarer_obf.jar` and `fs.common_obf.jar` (IE imports some obfuscated classes), `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`.
-- Mods: GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib (API jar only), Console Commands (`lw_Console`), Nexerelin (`ExerelinCore`), Shadowyards (`SHI`), Random Assortment of Things (`assortment_of_things`, used by the courier port).
+- Mods: GraphicsLib, LazyLib, LunaLib, MagicLib, PatchLib (API jar only), Console Commands (`lw_Console`), Nexerelin (`ExerelinCore`), Shadowyards (`SHI`), Random Assortment of Things (`assortment_of_things`, used by the courier port and the settlement facilities).
 
-Dependency source: `lib/` in the repository, read-only. It holds the game jars (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar` (LazyLib 3.0.0), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1), `PatchLibAPI.jar` (PatchLib 1.0.3), `lw_Console.jar`, `ExerelinCore.jar` (Nexerelin 0.12.2d), `SHI.jar` (Shadowyards 0.9.5-rc4) and `RandomAssortmentofThings.jar` (RAT 3.3.1). Only the jars the gate needs are kept, never full mod folders. Replace a jar only when the user supplies a new version, and note the version here. The builder puts every `lib/*.jar` on the classpath and hashes them into the release jar's `Source-SHA256`, so a replaced jar makes the release jar stale. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game and never ships ([RELEASE.md](docs/RELEASE.md#what-ships)).
+Dependency source: `lib/` in the repository, read-only. It holds the game jars of 0.98.5a-RC7 (`starfarer.api.jar`, `starfarer_obf.jar`, `fs.common_obf.jar`, `janino.jar`, `lwjgl.jar`, `lwjgl_util.jar`, `json.jar`, `log4j-1.2.9.jar`) and the mod jars `Graphics.jar` (GraphicsLib 1.9.0), `LazyLib.jar` (LazyLib 3.0.0), `LunaLib.jar` (2.0.1), `MagicLib.jar` (1.5.1), `PatchLibAPI.jar` (PatchLib 1.1.2), `lw_Console.jar`, `ExerelinCore.jar` (Nexerelin 0.12.2d), `SHI.jar` (Shadowyards 0.9.5-rc4) and `RandomAssortmentofThings.jar` (RAT 3.4.1). Only the jars the gate needs are kept, never full mod folders. Replace a jar only when the user supplies a new version, and note the version here. The builder puts every `lib/*.jar` on the classpath and hashes them into the release jar's `Source-SHA256`, so a replaced jar makes the release jar stale. The game loads only the jars `mod_info.json` lists, so `lib/` never reaches the game and never ships ([RELEASE.md](docs/RELEASE.md#what-ships)).
 
 IntelliJ on the user's machine (`IndEvo.iml`, artifact `IndEvo:jar`) builds `jars/IndEvo.jar` for local testing. See [ARCHITECTURE.md](docs/ARCHITECTURE.md#build).
 

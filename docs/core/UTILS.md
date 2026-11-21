@@ -14,7 +14,7 @@ Staged campaign animations and LunaLib campaign particle renderers. Users: Cruci
 |---|---|---|
 | `animation/CampaignAnimationScript.java` | interface: `addStage(AnimationStage)`, `loadStages()` | `BaseStagedAnimationScript` |
 | `animation/AnimationStage.java` | abstract stage: ctor `(runtime, delayBySeconds)`; `advance(amt)` waits for the delay, calls `runOnce()` once then `run(amt)` each frame until `isDone()` (`timePassed >= runtime`) | Crucible and derelicts animation scripts |
-| `animation/BaseStagedAnimationScript.java` | `EveryFrameScript`; calls `loadStages()` on first advance, advances all stages in parallel, `done` when all stages are done; `runWhilePaused()` false | `derelicts/scripts/WarpEffectAnimationScript`, `crucible/scripts/CrucibleStartupAnimationScript`, `CrucibleMoveAnimationScript` |
+| `animation/BaseStagedAnimationScript.java` | `EveryFrameScript`; calls `loadStages()` on first advance, advances all stages in parallel, `done` when all stages are done; `runWhilePaused()` false | `crucible/scripts/CrucibleStartupAnimationScript`, `CrucibleMoveAnimationScript` |
 | `animation/data/CirclePathData.java` | center, radius, start and end angle; ctor from two points and a radius via `TrigHelper.findTwoPointCircle` | none (dead) |
 | `animation/particles/NebulaParticle.java` | one nebula sprite cell: `advance(amt)`, `getCurrentAlpha()` (0.5 s fade in, `smootherstep` fade out), `isExpired()`; inner `LocationData` (radius, angle, center) with `getLocation()`, `incrementRadius()` | the renderers below, `consumables/entities/SmokeCloudEntityPlugin`, `meteor/renderers/MeteorDebrisRenderer` |
 | `animation/particles/RadialDustCloudEjectionRenderer.java` | `LunaCampaignRenderingPlugin`; spawns particles for `spawnDur` then pushes them out radially; fixed 6 s life (`DURATION`), layer `TERRAIN_6A` | Crucible scripts |
@@ -33,7 +33,7 @@ Renderers keep the sprite in a `transient` field and fetch it lazily in `render`
 | `helper/RelicHelper.java` | Relic Component payments for colony side sinks: `getName()`, `getAvailable(market)` (colony storage through `MiscIE.getStorageCargo`, so RAT settlement storage counts, plus fleet cargo; `market` null means fleet cargo only), `canAfford(market, amount)`, `take(market, amount)` (storage first, throws when short, call `canAfford` first), `addCostLine(info, market, cost, pad)` (`Cost: X Relic Components (Available: Y)`, cost green or red). Users: [Economy](ECONOMY.md#relic-speed-up) relic speed up and refit build in (`RelicBuildInPatch`), Tech Mining Boost Extraction, the Senate Edict, Academy, Ancient Laboratory, Salvage Yards and Engineering Hub panels, Orbital Works slot, the kit's relic cost rows (`UiData`) |
 | `helper/StringHelper.java` | String lookup and token substitution, table below |
 | `helper/TrigHelper.java` | Geometry, table below |
-| `helper/Circle.java` | `center`, `radius`; `getPointForAngle(angle)`, `getAngleForPoint(point)` |
+| `helper/Circle.java` | `center`, `radius`; `getPointForAngle(angle)`, `getAngleForPoint(point)` (strict `atan2`: `Misc.getAngleInDegrees` reads a lookup table that is off by up to about 0.06 degrees, hundreds of su on the rogue asteroid arcs of radius 150000 to 400000) |
 | `helper/CircularArc.java` | `Circle` plus normalized `startAngle`, `endAngle`; travel direction is the short way round (`getAngleTravelDir()` 1 or -1) |
 | `helper/ReflectionUtils.java` | Static helpers (Lukas04 style) by field or method name: `get(name, instance)`, `set(name, instance, value)`, `setWithSuper(name, instance, value, limit, clazz)`, `invoke(name, instance, args, declared)`, `hasMethodOfName(name, instance, contains)`, `hasVariableOfName`, `instantiate`, `getFieldsOfType`, `findFieldsOfType`. Uses the method handles of `StarReflectionUtils`. User: `senate/conditions/Edict_FastBuild.java:92` |
 | `helper/StarReflectionUtils.java` | Java port of Starficz's Kotlin reflection utils (LGPL-3.0, keep the header): type based matching for obfuscated members. Static `get(instance, name, type, searchSuperclass)`, `set(...)`, `invoke(instance or class, name, args...)`, `getFieldsMatching`, `getFieldsWithMethodsMatching`, `getMethodsMatching`, `getConstructorsMatching`, each with shorter overloads that drop trailing arguments; results cached per signature; wrappers `ReflectedField`, `ReflectedMethod`, `ReflectedConstructor`. Users: `economy/listeners/RelicBuildTimeReductionButtonAdder.java:114`, `senate/conditions/Edict_FastBuild.java:88` |
@@ -53,7 +53,7 @@ Two reflection helpers exist. Prefer `StarReflectionUtils` for new code (ambigui
 | Market queries | `isMilitary(industry)` 80, `marketHasMilitary(market, onlyFunctional)` 634, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 616, `getFactionMarkets(faction)` 371 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 473/484 (skips hidden), `getClosestMarketWithIndustry(market, id)` 284, `getClosestPlayerMarketWithIndustryFromSet` 302, `getAiCoreIdNotNull(ind)` 248 (`"none"`) |
 | System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 675/705, `systemHasIndustryExcludeNotFunctional` 689, `getAmountOfIndustryInSystem` 724, `isOnlyInstanceInSystem` 748, `isOnlyInstanceInSystemExcludeMarket` 648 (both count the construction queue) |
 | Economy | `applyDeficitToProduction(ind, index, deficit, commodities...)` 85. Billing and credits: [BillingHelper](#billinghelper) |
-| Planets | `planetHasRings(planet or market)` 439/455 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 45 |
+| Planets | `planetHasRings(planet)` 438 (a `RingBandAPI` with the planet as focus or orbit focus), `getEntitiesInRange(entity, range)` 45 |
 | Sector memory maps | `getMapFromMemory(key)` 320 (sorted copy, creates the key), `storeMapInMemory(map, key)` 340, `getClampedMap` 330, `sortByLargestValue` 349, `addOrIncrement(map, id, by)` 173/183 |
 | Math and lists | `smootherstep(e0, e1, x)` 97, `customLog(base, x)` 344, `getRandomInRange(min, max, random)` 55, `splitList(list or set, perPage)` 194/207, `getDaysOfCurrentMonth()` 242 |
 
@@ -65,10 +65,11 @@ Owner of IE costs and income: monthly report lines and dialog purchases. Do not 
 |---|---|
 | `charge(ind, line, label, amount)` | Adds `amount` to the upkeep of the line node. Callable any time in the month; writes add up, nothing is reset. `amount <= 0` adds nothing |
 | `pay(ind, line, label, amount)` | Same node, adds to income |
+| `charge(market, ownerId, line, label, amount)`, `pay(...)` | Same for an owner without an `Industry` (RAT settlement facilities): node id `<ownerId>_<line>`, `custom` the market |
 | `canAfford(amount)` | Player credits `>= amount`. Every dialog checks it before it offers a purchase |
 | `chargeNow(amount)` | Subtracts credits immediately for dialog purchases; throws `IllegalStateException` when the player cannot afford it (the caller skipped `canAfford`) |
 
-Node layout in `SharedData.getCurrentReport()`, node id `<industry id>_<line>`, `name` the label, `custom` the industry (the income tab then draws the industry image, shows the industry tooltip and opens the market on the map on click; obfuscated `com.fs.starfarer.campaign.command.IntelIncomePanel` and its row class):
+Node layout in `SharedData.getCurrentReport()`, node id `<industry id or ownerId>_<line>`, `name` the label, `custom` the industry (the income tab then draws the industry image, shows the industry tooltip and opens the market on the map on click; obfuscated `com.fs.starfarer.campaign.command.IntelIncomePanel` and its row class):
 
 | Market | Path |
 |---|---|
@@ -94,7 +95,7 @@ Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/s
 | `getFleetAssignmentString(id, target[, missionType])` | Category `indEvo_fleetAssignments` |
 | `getShipOrFleet(fleet)`, `getDayOrDays(n)`, `getHeOrShe`, `getHimOrHer`, `writeStringCollection(strings[, and, oxford])` | Grammar helpers |
 | `getAbsPercentString(f, oneMinus)`, `getFloatToIntStrx100(f)`, `getRepIntTooltipPair(faction)` | Number formatting |
-| `ucFirstIgnore$`, `lcFirst`, `flattenToAscii`, constant `HR` | Misc |
+| `ucFirstIgnore$`, `lcFirst` (keeps a leading acronym: "CR recovery"), `flattenToAscii`, constant `HR` | Misc |
 
 ### TrigHelper
 
@@ -108,7 +109,7 @@ Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/s
 
 ### CircularArc
 
-`getModifiedRadiusArc(r)`, `isPointOnArc(p)`, `getTraversalProgress(point or angle)` (0 to 1), `convertToDegreesPerSecond(units)`, `getArcCircumference()`, `getEvenlySpacedLocationsOnArc(dist)`, `getPerpendicularLineAtAngle(angle, len)`, `getDistanceFromCenterLine(p)`. Users: `exploration/meteor/movement/*`, `MeteorSwarmManager`, artillery `MissileShotScript`.
+`getModifiedRadiusArc(r)`, `isPointOnArc(p)`, `getTraversalProgress(point or angle)` (0 to 1), `convertToDegreesPerSecond(units)`, `getArcCircumference()`, `getEvenlySpacedLocationsOnArc(dist)`, `getPerpendicularLineAtAngle(angle, len)`, `getDistanceFromCenterLine(p)`. Users: `exploration/meteor/movement/*`, `MeteorSwarmManager`, `exploration/meteor/rogue/*`, artillery `MissileShotScript`.
 
 ## memory
 
@@ -162,7 +163,7 @@ Fixed copy of MagicLib's campaign trail plugin (Nicke535, fix by President Matt 
 | `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:504`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
 | `trails/MagicCustomCampaignTrailEntityScript.java` | Plugin of custom entity `IndEvo_campaign_trail_custom_entity` (`data/config/custom_entities.json`); forwards `render` to the trail plugin. The plugin moves this entity to the player's location each frame |
 
-Users: artillery projectiles (`RailgunProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
+Users: artillery projectiles (`MortarProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
 
 ## ui
 

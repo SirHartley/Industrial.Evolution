@@ -246,7 +246,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     private void addHelp(TooltipMakerAPI tooltip) {
         Color hl = Misc.getHighlightColor();
         float pad = 10f;
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
         String storageFee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
 
         if (!view.admins) {
@@ -289,7 +289,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         for (PersonAPI person : active) addRow(list, rw, person, false);
         if (active.isEmpty()) empty(list, rw, view.admins ? "No administrators on staff." : "No officers in your fleet.");
 
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
         String note;
         if (!own) note = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue()) + " storage fee per month each";
         else note = !view.admins && academy.hasHolobench() ? "reserve drills +" + Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP) + " XP per month" : null;
@@ -332,7 +332,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         float shipX = w - 3f - PORTRAIT;
         float salaryX = shipX - 12f - SALARY_W;
         addSkillIcons(row, SKILL_X, salaryX - 12f, person);
-        addSalary(row, salaryX, Misc.getOfficerSalary(person));
+        addSalary(row, salaryX, Academy.getBaseSalary(person));
         if (stored) return;
 
         FleetMemberAPI ship = Academy.getCommandedShip(person);

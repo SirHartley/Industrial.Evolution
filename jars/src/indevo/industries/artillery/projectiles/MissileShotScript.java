@@ -12,6 +12,7 @@ import org.lwjgl.util.vector.Vector2f;
 import java.util.Random;
 
 import static indevo.industries.artillery.projectiles.MissileCarrierEntityPlugin.AVERAGE_PROJ_IMPACT_TIME;
+import static indevo.industries.artillery.projectiles.MissileCarrierEntityPlugin.MIN_LAUNCH_DELAY;
 
 /**
  * time spent making basic trigonometry cooperate with me: 25 hours (includes missile carrier, submunitions and frustrated youtube watching)
@@ -56,7 +57,8 @@ public class MissileShotScript implements EveryFrameScript {
     public void advance(float amount) {
         if (isDone()) return;
 
-        Vector2f anticipatedTargetLoc = getAnticipatedTargetLoc(target);
+        Vector2f anticipatedTargetLoc = getAnticipatedTargetLoc(origin, target);
+        SectorEntityToken track = target.isPlayerFleet() ? target : null;
         Vector2f originLocation = origin.getLocation();
 
         //RenderTemporaryIndicator.spawn(origin.getContainingLocation(), anticipatedTargetLoc, Color.YELLOW);
@@ -102,15 +104,24 @@ public class MissileShotScript implements EveryFrameScript {
                     trajectoryCircleData.radius,
                     splitAngleOnTrajectory);
 
+            params.track = track;
+            params.trackOffset = Vector2f.sub(fuzzedTarget, anticipatedTargetLoc, null);
             MissileCarrierEntityPlugin.spawn(params);
         }
 
         done = true;
     }
 
-    public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
+    public static Vector2f getAnticipatedTargetLoc(SectorEntityToken origin, SectorEntityToken entity) {
+        // long flights launch at once, so the lead covers the flight
+        float lead = Math.max(AVERAGE_PROJ_IMPACT_TIME, MIN_LAUNCH_DELAY + Misc.getDistance(origin, entity) / MissileCarrierEntityPlugin.PROJECTILE_VELOCITY);
+        float flight = Misc.getDistance(origin.getLocation(), predict(entity, lead + 1f)) / MissileCarrierEntityPlugin.PROJECTILE_VELOCITY;
+        return predict(entity, Math.max(AVERAGE_PROJ_IMPACT_TIME, MIN_LAUNCH_DELAY + flight) + 1f);
+    }
+
+    public static Vector2f predict(SectorEntityToken entity, float seconds) {
         Vector2f vel = entity.getVelocity();
-        float dist = vel.length() * (AVERAGE_PROJ_IMPACT_TIME + 1f);
+        float dist = vel.length() * seconds;
         float currentNavigationAngle = Misc.getAngleInDegrees(vel);
         Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
         location.scale(dist);

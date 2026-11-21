@@ -63,7 +63,7 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 ## Registration and lifecycle
 
 - `ModPlugin.onApplicationLoad`: `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` (`ModPlugin.java:129`), `ItemEffectsRepo.ITEM_EFFECTS.putAll(ITEM_EFFECTS)`. `BaseIndustry` looks up the effect of an installed special item by id in that map (skill `api/impl/campaign/econ/impl/BaseIndustry.java:214`).
-- `ModPlugin.setListenersIfNeeded()`: `SpecialItemEffectsRepo.initEffectListeners()` (`:426`) adds `SuperComputerFactor`, `Senate.SenateFactor`, `MilitaryRelay.RelayFactor`, `CentralizationBureau.BureauFactor` (deduped by class); `PartsCargoInterceptor.register()` (`:431`), `PartsLootAdder.register()` (`:433`, `addTransientListener`), `SpecialItemDropsListener.register()` and `VPCLootResolver.register()` (`:451-452`, deduped by class). All transient.
+- `ModPlugin.setListenersIfNeeded()`: `SpecialItemEffectsRepo.initEffectListeners()` (`:426`) adds `SuperComputerFactor`, `Senate.SenateFactor`, `MilitaryRelay.RelayFactor`, `CentralizationBureau.BureauFactor`, `CentralizationBureau.BureauApplyListener` (deduped by class); `PartsCargoInterceptor.register()` (`:431`), `PartsLootAdder.register()` (`:433`, `addTransientListener`), `SpecialItemDropsListener.register()` and `VPCLootResolver.register()` (`:451-452`, deduped by class). All transient.
 - `ModPlugin.loadTransientMemory()` warms the VPC tables (`ModPlugin.java:412`).
 - Installable plugins are created on demand by the owning industry's `getInstallableItems()` (skill `api/campaign/econ/Industry.java:149`), for example `VariableAssembler.java:315`, `EngineeringHub.java:487`, `Embassy.java:237`, `BaseForgeTemplateUser.java:51`.
 - Item cargo plugins come from the `plugin` column.
@@ -135,6 +135,7 @@ On loot: collects the target's drop data (entity, then salvage spec). For each `
 | same | `IndEvo_parts` | `IndEvo_PartsDropInCampaign` and `IndEvo_ScrapYard` on: `0.5 * FP` plus random |
 | `PartsCargoInterceptor`, wreck | `IndEvo_parts` | same settings; `0.3 * FP` plus up to `0.2 * FP`, seeded by the wreck id |
 | `PartsCargoInterceptor`, fleet (not pirates, not Luddic Path) | `IndEvo_rare_parts` | hard battle: `0.3 * FP destroyed`; automated ships of unlisted factions: `0.2 * destroyed FP` plus random |
+| `PartsCargoInterceptor`, destroyed Remnant station (Nexus) | `IndEvo_rare_parts` | `STATION_RELICS_PER_FP_MIN` 1.25 to `_MAX` 2 x station FP, salvage seeded; half for a variant id ending `_Damaged` (`DAMAGED_STATION_RELIC_MULT`). Station hulls have 0 cargo and 0 fuel, so vanilla `handleCargoLooting` returns early and the spawn cargo never drops; full Nexus 250 to 400, damaged 125 to 200 |
 | `PartsCargoInterceptor`, derelict probe / survey ship / mothership / cryosleeper | `IndEvo_rare_parts` | 1-10, 20-200, 150-400, 250-500, salvage seeded |
 
 ## Contracts

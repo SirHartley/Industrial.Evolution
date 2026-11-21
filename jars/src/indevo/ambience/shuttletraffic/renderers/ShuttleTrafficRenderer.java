@@ -67,20 +67,22 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         float alphaMult = viewport.getAlphaMult() * (1f - fade);
         if (alphaMult <= 0.01f) return;
 
-        render(traffic.getShuttles(), viewport, alphaMult);
-        render(traffic.getPods(), viewport, alphaMult);
-        for (ShuttleDogfight fight : traffic.getDogfights().getFights()) render(fight, viewport, alphaMult);
+        // one screen pixel in su, floor for trail width
+        float minTrail = zoom;
+        render(traffic.getShuttles(), viewport, alphaMult, minTrail);
+        render(traffic.getPods(), viewport, alphaMult, minTrail);
+        for (ShuttleDogfight fight : traffic.getDogfights().getFights()) render(fight, viewport, alphaMult, minTrail);
     }
 
     public ShuttleTraffic getTraffic() {
         return traffic;
     }
 
-    private void render(ShuttleDogfight fight, ViewportAPI viewport, float alphaMult) {
+    private void render(ShuttleDogfight fight, ViewportAPI viewport, float alphaMult, float minTrail) {
         List<Dogfighter> fighters = fight.getFighters();
         ShuttleTrail.beginRender();
         for (Dogfighter fighter : fighters) {
-            if (viewport.isNearViewport(fighter.pos, VIEWPORT_MARGIN)) fighter.renderTrail(alphaMult);
+            if (viewport.isNearViewport(fighter.pos, VIEWPORT_MARGIN)) fighter.renderTrail(alphaMult, minTrail);
         }
         ShuttleTrail.endRender();
 
@@ -91,10 +93,10 @@ public class ShuttleTrafficRenderer implements LunaCampaignRenderingPlugin {
         fight.getProjectiles().render(alphaMult);
     }
 
-    private void render(List<Shuttle> list, ViewportAPI viewport, float alphaMult) {
+    private void render(List<Shuttle> list, ViewportAPI viewport, float alphaMult, float minTrail) {
         ShuttleTrail.beginRender();
         for (Shuttle shuttle : list) {
-            if (viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) shuttle.renderTrail(alphaMult);
+            if (viewport.isNearViewport(shuttle.pos, VIEWPORT_MARGIN)) shuttle.renderTrail(alphaMult, minTrail);
         }
         ShuttleTrail.endRender();
 

@@ -19,6 +19,7 @@ import com.fs.starfarer.api.impl.campaign.intel.events.HostileActivityEventIntel
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.embassy.AmbassadorItemHelper;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.embassy.rules.IndEvo_ambassadorRemoval;
@@ -76,17 +77,20 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.EMBASSY.enabled() && market.getFactionId().equals("player");
+        return super.isAvailableToBuild() && Setting.EMBASSY.enabled() && market.getFactionId().equals("player") && AotdManager.isResearched(this);
     }
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!super.isAvailableToBuild()) return super.getUnavailableReason();
         else return "Can only be established at your own colonies!";
     }
 
     public boolean showWhenUnavailable() {
-        return Setting.EMBASSY.enabled();
+        return super.showWhenUnavailable() && Setting.EMBASSY.enabled();
     }
 
     private void monthlyRepIncrease() {
