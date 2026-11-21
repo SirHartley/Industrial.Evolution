@@ -116,6 +116,7 @@ Apply chain, per industry, from `Market.reapplyIndustries` and `BaseIndustry.rea
 - Refining (`RefiningSpecializations.applyOutputDeltas`): focus supply +40%, the other -40%; ore and rare ore demand move by 3/4 of that (+-30%).
 - `Specialization.removeDeltas` drops the key from every supply and demand, and the `ind_sb` supply bonus a positive `supply()` call left on a commodity that has nothing else.
 - Option providers show on any tagged host on player markets, only while the matching setting is on.
+- Tooltip: the providers add a "Specialized Mine" / "Specialized Refinery" section (`Specialization.addTooltipSection`). The vanilla host shows the variant's text2 only, since its name, image and description already swapped; a modded tier keeps its own, so the section shows the variant image (190 x 95) with its name and text2 beside it.
 
 ### Governments
 
