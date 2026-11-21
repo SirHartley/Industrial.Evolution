@@ -177,7 +177,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
 
     private void build(CustomPanelAPI p, float w, float h) {
         String help = target.getHelp();
-        UiFrame.title(p, w, target.getTitle(), target.getSubTitle(industry), help == null ? null : t -> t.addPara(help, 0f));
+        UiFrame.title(p, w, target.getTitle(industry), null, help == null ? null : t -> t.addPara(help, 0f));
 
         for (int i = 0; i < options.size(); i++) {
             tile(p, GRID_X + (i % PER_ROW) * (TILE_W + TILE_GAP), GRID_Y + (i / PER_ROW) * (TILE_H + TILE_GAP), options.get(i));
