@@ -21,6 +21,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.PopulationAndInfrastructure;
 import com.fs.starfarer.api.impl.campaign.fleets.DefaultFleetInflater;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.ui.Alignment;
@@ -81,7 +82,7 @@ x can only be built on very hot worlds
 
         public boolean isSuitable(Industry ind) {
             boolean isTarget = GovernmentCondition.getGovernment(ind.getMarket()) instanceof WarhammerSubIndustry;
-            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget && !Industries.POPULATION.equals(ind.getId());
         }
 
         @Override

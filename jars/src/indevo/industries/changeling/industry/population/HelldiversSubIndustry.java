@@ -108,7 +108,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
         public boolean isSuitable(Industry ind) {
             boolean isTarget = GovernmentCondition.getGovernment(ind.getMarket()) instanceof HelldiversSubIndustry;
-            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget && !Industries.POPULATION.equals(ind.getId());
         }
 
         @Override

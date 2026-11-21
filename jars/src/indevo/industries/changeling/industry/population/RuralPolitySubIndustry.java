@@ -48,7 +48,7 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
 
         public boolean isSuitable(Industry ind) {
             boolean isRural = GovernmentCondition.getGovernment(ind.getMarket()) instanceof RuralPolitySubIndustry;
-            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isRural;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isRural && !Industries.POPULATION.equals(ind.getId());
         }
 
         @Override
