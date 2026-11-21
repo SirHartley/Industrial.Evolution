@@ -17,6 +17,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
@@ -238,7 +239,8 @@ public class CentralizationBureau extends BaseIndustry {
     public boolean isAvailableToBuild() {
         return Setting.ADINFRA.enabled()
                 && super.isAvailableToBuild()
-                && isOnlyInfraInSystem();
+                && isOnlyInfraInSystem()
+                && AotdManager.isResearched(this);
     }
 
     @Override
@@ -252,6 +254,9 @@ public class CentralizationBureau extends BaseIndustry {
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!super.isAvailableToBuild()) {
             return super.getUnavailableReason();
         }

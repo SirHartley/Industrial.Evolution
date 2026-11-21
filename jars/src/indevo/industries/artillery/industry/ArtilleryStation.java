@@ -24,6 +24,7 @@ import indevo.config.Setting;
 import indevo.industries.artillery.conditions.ArtilleryStationCondition;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
+import indevo.industries.compatibility.AotdManager;
 import indevo.utils.ModPlugin;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -537,6 +538,9 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
     }
 
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!hasFunctionalOrbital()) return "Requires an orbital station";
 
         return "Requires a functional spaceport";
@@ -557,7 +561,7 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
             if (!hasOrbital) if (ind.getSpec().hasTag(Tags.STATION)) hasOrbital = true;
         }
 
-        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Setting.ENABLE_ARTILLERY.enabled();
+        return market.hasCondition(ArtilleryStationCondition.ID) && canBuild && hasOrbital && Setting.ENABLE_ARTILLERY.enabled() && AotdManager.isResearched(this);
     }
 
     @Override

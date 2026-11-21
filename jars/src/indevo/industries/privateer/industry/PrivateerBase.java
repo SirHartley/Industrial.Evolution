@@ -21,6 +21,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.engineeringhub.industry.EngineeringHub;
 import indevo.industries.changeling.industry.population.HelldiversSubIndustry;
 import indevo.industries.changeling.conditions.GovernmentCondition;
@@ -97,7 +98,8 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         return Setting.PIRATEHAVEN.enabled()
                 && getFreeIndustrySlots() >= 2
                 && super.isAvailableToBuild()
-                && getAmountInSystem() < 2;
+                && getAmountInSystem() < 2
+                && AotdManager.isResearched(this);
     }
 
     // BaseIndustry.createTooltip adds this instance to the shared industry list while it builds
@@ -124,6 +126,9 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (getFreeIndustrySlots() < 2) {
             return "Requires two industry slots.";
         }
