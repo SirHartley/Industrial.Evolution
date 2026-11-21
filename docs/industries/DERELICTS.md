@@ -79,7 +79,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 ## Registration and lifecycle
 
 - `ModPlugin.onNewGameAfterEconomyLoad`: `RuinsManager.forceCleanCoreRuins()` (`indevo/utils/ModPlugin.java:290`) -> `RuinsManager.placeIndustrialRuins()` (`:305`).
-- `ModPlugin.onGameLoad`, transient listeners re-added each load: `DerelictRuinsPlacer` (PlayerColonizationListener, `:451`), `ResolveRuinsToUpgradeListener` (SurveyPlanetListener, `:452`), `AncientLabCommoditySwitchOptionProvider.register()` (`:470`), `AncientLabRelicOptionProvider.register()` (`:471`), `RiftGenOptionProvider.register()` (`:491`), `RemoveIndustryOptionWarningProvider.register()` (`:503`). `loadTransientMemory` (`:418`) preloads the two rift lists.
+- `ModPlugin.onGameLoad`, transient listeners re-added each load: `DerelictRuinsPlacer` (PlayerColonizationListener, `:451`), `ResolveRuinsToUpgradeListener` (SurveyPlanetListener and ColonyInteractionListener, `:452`), `AncientLabCommoditySwitchOptionProvider.register()` (`:470`), `AncientLabRelicOptionProvider.register()` (`:471`), `RiftGenOptionProvider.register()` (`:491`), `RemoveIndustryOptionWarningProvider.register()` (`:503`). `loadTransientMemory` (`:418`) preloads the two rift lists.
 - Each industry adds itself as a transient listener in `apply()` and removes itself in `unapply()`. `onNewDay` comes from IE's `NewDayListener`, driven by `indevo/utils/timers/TimeTracker.java:127`. See [Utils](../core/UTILS.md).
 - Rule commands: package `indevo.industries.derelicts.rules` listed in `data/config/settings.json:35`. `IndEvo_requiresColonyMenuPoint.java:32` also checks `IndEvo_RiftGen`; see [Rule commands](../dialogue/RULE_COMMANDS.md).
 - `RiftJumpScript` is persistent (`Global.getSector().addScript` in `RiftGenerator.fire`, `:129`). `RiftWarpRenderer` is a transient LunaLib renderer (`addTransientRenderer`); after a load during the warp the script starts it again.
@@ -90,6 +90,8 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 ### Ruins placement and upgrade pick
 
 `placeIndustrialRuins` (`RuinsManager.java:104-169`) -> for uninhabited remnant systems only: chance 0.1, suppressed 0.3, resurgent 0.5; second planet x0.7; max 2 per system; tag `IndEvo_RuinsAlways` forces it. Removes generated conditions elsewhere. `seedRuinsIfNeeded` adds `ruins_scattered`.
+
+`ResolveRuinsToUpgradeListener` -> `RuinsManager.setUpgradeSpec` if `$IndEvo_ruinsIndustryId` is missing, on survey and when the player opens any planet dialog (`reportPlayerOpenedMarket`, fired for uncolonized planets too, skill `obf/campaign/CampaignState.java:2272`). The dialog roll covers survey data items and other `Misc.setFullySurveyed` paths, which fire no survey listener; the condition tooltip shows the scan line only with a target and a full survey (`RuinsCondition.java:102`).
 
 `RuinsCondition.apply` (`RuinsCondition.java:23`) -> on a real non neutral colony: `RuinsManager.setUpgradeSpec` if `$IndEvo_ruinsIndustryId` missing -> add `IndEvo_Ruins` once.
 

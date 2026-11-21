@@ -2,9 +2,11 @@ package indevo.industries.derelicts.utils;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.PlayerMarketTransaction;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
+import com.fs.starfarer.api.campaign.listeners.ColonyInteractionListener;
 import com.fs.starfarer.api.campaign.listeners.PlayerColonizationListener;
 import com.fs.starfarer.api.campaign.listeners.SurveyPlanetListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
@@ -31,7 +33,7 @@ public class RuinsManager {
         Global.getLogger(RuinsManager.class).info(Text);
     }
 
-    public static class ResolveRuinsToUpgradeListener implements SurveyPlanetListener {
+    public static class ResolveRuinsToUpgradeListener implements SurveyPlanetListener, ColonyInteractionListener {
 
         public static void register() {
             Global.getSector().getListenerManager().addListener(new ResolveRuinsToUpgradeListener(), true);
@@ -39,8 +41,32 @@ public class RuinsManager {
 
         @Override
         public void reportPlayerSurveyedPlanet(PlanetAPI planet) {
-            if (planet.getMarket().hasCondition(Ids.COND_RUINS)
-                    && !planet.getMarket().getMemoryWithoutUpdate().contains(INDUSTRY_ID_MEMORY_KEY)) {
+            setUpgradeSpecIfMissing(planet);
+        }
+
+        // survey data items and other Misc.setFullySurveyed paths skip the survey listener
+        @Override
+        public void reportPlayerOpenedMarket(MarketAPI market) {
+            if (market.getPrimaryEntity() instanceof PlanetAPI planet) setUpgradeSpecIfMissing(planet);
+        }
+
+        @Override
+        public void reportPlayerClosedMarket(MarketAPI market) {
+        }
+
+        @Override
+        public void reportPlayerOpenedMarketAndCargoUpdated(MarketAPI market) {
+        }
+
+        @Override
+        public void reportPlayerMarketTransaction(PlayerMarketTransaction transaction) {
+        }
+
+        private static void setUpgradeSpecIfMissing(PlanetAPI planet) {
+            MarketAPI market = planet.getMarket();
+            if (market != null
+                    && market.hasCondition(Ids.COND_RUINS)
+                    && !market.getMemoryWithoutUpdate().contains(INDUSTRY_ID_MEMORY_KEY)) {
                 RuinsManager.setUpgradeSpec(planet);
             }
         }
