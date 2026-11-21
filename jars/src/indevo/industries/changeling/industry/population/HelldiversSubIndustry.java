@@ -219,7 +219,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
     }
 
     @Override
-    public void addOngoing(TooltipMakerAPI tooltip, float width) {
+    public void addOngoing(TooltipMakerAPI tooltip, float width, boolean expanded) {
         float opad = 10f;
         int size = market.getSize();
 
@@ -240,12 +240,6 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         }
         tooltip.addPara(patrols.toString(), opad, Misc.getHighlightColor(), counts.toArray(new String[0]));
 
-        tooltip.addPara("Hellpod installation progress", opad);
-        tooltip.beginTable(faction, 20f, "Ship", 270f, "Days remaining", 120f);
-
-        int i = 0;
-        int max = 10;
-
         Map<FleetMemberAPI, Integer> validMembersWithRefitTime = new LinkedHashMap<>();
         CargoAPI storage = MiscIE.getStorageCargo(market);
         if (storage != null) {
@@ -254,6 +248,19 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
                 if (daysToApplicationForFleetMember.containsKey(m.getId())) validMembersWithRefitTime.put(m, daysToApplicationForFleetMember.get(m.getId()));
             }
         }
+
+        // the F1 form with the table is taller than a 900 px screen
+        if (expanded) {
+            int n = validMembersWithRefitTime.size();
+            if (n > 0) tooltip.addPara("Hellpod installation progress: %s", opad, Misc.getHighlightColor(), n + (n == 1 ? " ship" : " ships"));
+            return;
+        }
+
+        tooltip.addPara("Hellpod installation progress", opad);
+        tooltip.beginTable(faction, 20f, "Ship", 270f, "Days remaining", 120f);
+
+        int i = 0;
+        int max = 10;
 
         for (Map.Entry<FleetMemberAPI, Integer > e : validMembersWithRefitTime.entrySet()) {
             tooltip.addRow(e.getKey().getHullSpec().getNameWithDesignationWithDashClass(), e.getValue() +" "+ StringHelper.getDayOrDays(e.getValue()));

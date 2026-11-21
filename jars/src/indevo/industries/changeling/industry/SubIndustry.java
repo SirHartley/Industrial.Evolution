@@ -168,7 +168,7 @@ public abstract class SubIndustry implements SubIndustryAPI {
     }
 
     @Override
-    public void addOngoing(TooltipMakerAPI tooltip, float width) {
+    public void addOngoing(TooltipMakerAPI tooltip, float width, boolean expanded) {
 
     }
 }

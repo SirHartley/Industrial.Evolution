@@ -128,7 +128,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `shipIcon(p, x, y, size, member)` | Vanilla `addShipList` icon with the stock ship tooltip |
 | `skill(p, x, y, size, spec, elite)` | Skill icon, elite framed in highlight |
 | `commodity`, `hullmod`, `item` (ids), `submarket` (`SubmarketAPI`) | Spec icons with name tooltip |
-| `stack(p, x, y, size, sprite, count, extra, name)` | Cargo style cell in a well: sprite inset 6, `count` bottom right in highlight (hidden below 0), `extra` as `+N` top left in positive colour with a lit frame while above 0, `name` tooltip |
+| `stack(p, x, y, size, sprite, count, extra, name)` | Cargo style cell in a well: sprite inset 6, `count` bottom right in highlight (an int, hidden below 0, or a ready text, hidden when null), `extra` as `+N` top left in positive colour with a lit frame while above 0, `name` tooltip |
 | `planet(p, x, y, size, market)` | Vanilla `showPlanetInfo` for a planet, faction crest for a station; market name tooltip |
 | `planet(p, x, y, size, entity)` | `SectorEntityToken`: vanilla render for a planet or star, else the custom entity sprite, else its icon, else the faction crest; entity name tooltip |
 | `iconrow(p, x, y, w, items, cw, ch, gap, rows, cell, name)` | Fixed cells, wraps to `rows`, last cell `+N` with the rest; returns the used height |

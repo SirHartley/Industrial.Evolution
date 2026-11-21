@@ -17,6 +17,7 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.ui.Ui;
 import indevo.utils.ui.UiCanvas;
 import indevo.utils.ui.UiImages;
 
@@ -35,7 +36,7 @@ public class UnderworldSubIndustry extends SubIndustry {
 
     public static final String HAS_BEEN_EXTORTED_KEY = "$HasBeenExtortedByUnderworld";
     public static final float EXTORTION_SHARE = 0.05f;
-    public static final float GOODS_CELL = 40f;
+    public static final float GOODS_CELL = 44f;
     public static final float GOODS_GAP = 4f;
     public IntervalUtil extortionInterval = new IntervalUtil(10f, 10f);
     public List<TimedCommodityQuantity> stolenGoodsList = new ArrayList<>();
@@ -128,7 +129,7 @@ public class UnderworldSubIndustry extends SubIndustry {
     }
 
     @Override
-    public void addOngoing(TooltipMakerAPI tooltip, float width) {
+    public void addOngoing(TooltipMakerAPI tooltip, float width, boolean expanded) {
         tooltip.addPara("Extorted in the past 30 days", 10f);
 
         List<Map.Entry<Float, String>> goods = new ArrayList<>(getSortedStolenGoodsMap().entrySet());
@@ -141,9 +142,15 @@ public class UnderworldSubIndustry extends SubIndustry {
 
         CustomPanelAPI row = Global.getSettings().createCustom(width, GOODS_CELL, new UiCanvas());
         UiImages.iconrow(row, 0f, 0f, width, goods, GOODS_CELL, GOODS_CELL, GOODS_GAP, 1,
-                (p, x, y, w, h, e) -> UiImages.stack(p, x, y, w, UiImages.commoditySprite(e.getValue()), Math.round(e.getKey()), 0, null),
+                (p, x, y, w, h, e) -> UiImages.stack(p, x, y, w, UiImages.commoditySprite(e.getValue()), amount(e.getKey()), 0, null),
                 e -> Global.getSettings().getCommoditySpec(e.getValue()).getName() + " " + Math.round(e.getKey()));
         tooltip.addCustom(row, 6f);
+    }
+
+    // a cell holds four digits
+    private static String amount(float quantity) {
+        int n = Math.round(quantity);
+        return n < 10000 ? Ui.num(n) : Ui.num(n / 1000) + "K";
     }
 
     // the host pop applied first, this re-sets its base values and income mult under the host's own keys

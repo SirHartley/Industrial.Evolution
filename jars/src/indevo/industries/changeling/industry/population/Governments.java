@@ -123,8 +123,8 @@ public class Governments {
                 }
             }
                     .gain("Industrial buildings ignore hazard upkeep while supplied")
-                    .gain("Per ship hull unit: %s income, %s production budget", "+" + Misc.getDGSCredits(WarhammerSubIndustry.FLAT_INCOME_PER_HULL),
-                            "+" + Misc.getDGSCredits(WarhammerSubIndustry.FLAT_PRODUCTION_BUDGET_PER_HULL))
+                    .gain("Income %s per ship hull unit", "+" + Misc.getDGSCredits(WarhammerSubIndustry.FLAT_INCOME_PER_HULL))
+                    .gain("Production budget %s per ship hull unit", "+" + Misc.getDGSCredits(WarhammerSubIndustry.FLAT_PRODUCTION_BUDGET_PER_HULL))
                     .gain("%s chance per month of a hand built ship", Math.round(WarhammerSubIndustry.BUILD_CHANCE_PER_MONTH * 100f) + "%")
                     .gain("Stability %s while metals are supplied", "+1")
                     .cost("Demands metals and transplutonics")
