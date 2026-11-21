@@ -7,7 +7,8 @@ import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.*;
-import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
@@ -16,6 +17,8 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
+import indevo.utils.ui.UiCanvas;
+import indevo.utils.ui.UiImages;
 
 import java.util.*;
 
@@ -32,6 +35,8 @@ public class UnderworldSubIndustry extends SubIndustry {
 
     public static final String HAS_BEEN_EXTORTED_KEY = "$HasBeenExtortedByUnderworld";
     public static final float EXTORTION_SHARE = 0.05f;
+    public static final float GOODS_CELL = 40f;
+    public static final float GOODS_GAP = 4f;
     public IntervalUtil extortionInterval = new IntervalUtil(10f, 10f);
     public List<TimedCommodityQuantity> stolenGoodsList = new ArrayList<>();
 
@@ -118,27 +123,27 @@ public class UnderworldSubIndustry extends SubIndustry {
     }
 
     @Override
-    public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
-        super.addRightAfterDescription(tooltip, mode);
+    public boolean hasOngoing() {
+        return true;
+    }
 
-        float opad = 10f;
-        tooltip.addSectionHeading("Extorted goods (past 30 days)", Alignment.MID, opad);
-        tooltip.beginTable(market.getFaction(), 20f, "Commodity", 250f, "Amount", 140f);
+    @Override
+    public void addOngoing(TooltipMakerAPI tooltip, float width) {
+        tooltip.addPara("Extorted in the past 30 days", 10f);
 
-        int i = 0;
-        int max = 10;
-
-        Map<Float, String> sortedStolenGoods = getSortedStolenGoodsMap();
-
-        for (Map.Entry<Float, String > e : sortedStolenGoods.entrySet()) {
-            tooltip.addRow(Global.getSettings().getCommoditySpec(e.getValue()).getName(), Math.round(e.getKey()));
-            i++;
-            if (i == max) break;
+        List<Map.Entry<Float, String>> goods = new ArrayList<>(getSortedStolenGoodsMap().entrySet());
+        if (goods.isEmpty()) {
+            tooltip.setBulletedListMode(BaseIntelPlugin.INDENT);
+            tooltip.addPara("No donations yet, check back later.", Misc.getGrayColor(), 3f);
+            tooltip.setBulletedListMode(null);
+            return;
         }
 
-        //add the table to the tooltip
-        tooltip.addTable("No donations yet, check back later.", sortedStolenGoods.size() - 10, opad);
-
+        CustomPanelAPI row = Global.getSettings().createCustom(width, GOODS_CELL, new UiCanvas());
+        UiImages.iconrow(row, 0f, 0f, width, goods, GOODS_CELL, GOODS_CELL, GOODS_GAP, 1,
+                (p, x, y, w, h, e) -> UiImages.stack(p, x, y, w, UiImages.commoditySprite(e.getValue()), Math.round(e.getKey()), 0, null),
+                e -> Global.getSettings().getCommoditySpec(e.getValue()).getName() + " " + Math.round(e.getKey()));
+        tooltip.addCustom(row, 6f);
     }
 
     // the host pop applied first, this re-sets its base values and income mult under the host's own keys

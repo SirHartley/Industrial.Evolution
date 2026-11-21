@@ -41,7 +41,7 @@ public class RefiningSpecializations {
                     }
                 };
             }
-        });
+        }.gain("Metals output %s", "+40%").cost("Transplutonics output %s", "-40%"));
 
         add(new SubIndustryData("rare_refining", "Transplutonics Refinery", Global.getSettings().getSpriteName("IndEvo", "rare_ore_refining"), "IndEvo_rare_refining", 25000) {
             @Override
@@ -53,7 +53,7 @@ public class RefiningSpecializations {
                     }
                 };
             }
-        });
+        }.gain("Transplutonics output %s", "+40%").cost("Metals output %s", "-40%"));
     }};
 
     // percent of each line, ore demand moves by 3/4 of its output so a size 6 colony matches the old flat +-2

@@ -29,6 +29,7 @@ Fixed - Industry storage contents are no longer lost on colonies without storage
 Fixed - Leftover storages of removed industries are now cleaned up on load
 Fixed - Other mods' industry tooltip lines now show on all IE industries
 Fixed - IE industries can no longer be built on colonies that allow no industries
+Fixed - Crash when interacting with a warning beacon in hyperspace
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
@@ -195,6 +196,10 @@ Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 
 Governments
 Adjusted - Population & Infrastructure stays vanilla, the government sits on the colony (works with mods that change it)
+Adjusted - Change government dialog: picture tiles and a card for the picked government
+Adjusted - Population tooltip: ongoing government effects on hover, effect list and lore on F1
+Adjusted - Extorted goods of Underworld Governance show as cargo icons
+Adjusted - Long rule texts replaced with short gain and cost lines
 Fixed - Permanent governments can no longer be changed
 Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
 Fixed - Managed Democracy size cap no longer stays after a government change
@@ -205,6 +210,7 @@ Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
 Specialized Industries
 Adjusted - Mining and Refining keep their own industry when specialized
 Adjusted - Modded Mining and Refining tiers can now be specialized (Ashes of the Domain)
+Adjusted - Change specialization dialog uses the new government dialog layout
 Adjusted - Specializations now scale output by percent (was flat +2, -2 or -3)
 
 Courier Port

@@ -137,6 +137,8 @@ public final class Groups {
                 return EdictUiChecks.steps();
             case "uilab":
                 return LabUiChecks.steps();
+            case "uigov":
+                return GovernmentUiChecks.steps();
             case "uihub":
                 return HubUiChecks.steps();
             case "uiresearch":

@@ -40,7 +40,7 @@ public class MiningSpecializations {
                     }
                 };
             }
-        });
+        }.gain("Ore output %s", "+40%").cost("Other mining output %s", "-40%"));
 
         add(new SubIndustryData("rare_mining", "Transplutonics Mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "IndEvo_rare_mining", 25000) {
             @Override
@@ -51,7 +51,7 @@ public class MiningSpecializations {
                     }
                 };
             }
-        });
+        }.gain("Transplutonic ore output %s", "+40%").cost("Other mining output %s", "-50%"));
 
         add(new SubIndustryData("volatile_mining", "Volatile Extraction", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "IndEvo_volatile_mining", 50000) {
             @Override
@@ -62,7 +62,7 @@ public class MiningSpecializations {
                     }
                 };
             }
-        });
+        }.gain("Volatiles output %s", "+40%").cost("Other mining output %s", "-50%"));
 
         add(new SubIndustryData("organics_mining", "Organics Extraction", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "IndEvo_organics_mining", 10000) {
             @Override
@@ -73,7 +73,7 @@ public class MiningSpecializations {
                     }
                 };
             }
-        });
+        }.gain("Organics output %s", "+40%").cost("Other mining output %s", "-50%"));
     }};
 
     // percent of each line, close to the old flat +2 and -2 or -3 on a size 6 colony

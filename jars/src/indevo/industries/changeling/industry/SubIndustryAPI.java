@@ -43,5 +43,11 @@ public interface SubIndustryAPI {
 
     boolean isInit();
 
-    void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode);
+    // red line at the top of the government section, null for none
+    String getWarning();
+
+    // ongoing effects for the population tooltip; a government that owns a section keeps it when empty
+    boolean hasOngoing();
+
+    void addOngoing(TooltipMakerAPI tooltip, float width);
 }
