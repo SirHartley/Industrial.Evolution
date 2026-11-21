@@ -76,13 +76,13 @@ public class PetPlanner {
     static final String SORT_CHANCE = "Chance";
     static final String SORT_TALENTS = "Talents";
     static final String SORT_NAME = "Name";
-    static final List<UiFilter.Item> PARENT_TOGGLES = List.of(new UiFilter.Item(NO_RELATIVES, 104f, "Hides the kin of the other parent."),
-            new UiFilter.Item(ABOVE_ZERO, 92f, "Hides the pets that cannot give the target."));
-    static final List<UiFilter.Item> PARENT_KEYS = List.of(new UiFilter.Item(SORT_CHANCE, 78f, "Best chance first."), new UiFilter.Item(SORT_NAME, 70f),
-            new UiFilter.Item("Hearts", 78f, "Most hearts first."), new UiFilter.Item("Age", 62f));
-    static final List<UiFilter.Item> COPY_TOGGLES = List.of(new UiFilter.Item(LIVING, 70f, "Hides dead, sold and rehomed pets."));
+    static final List<UiFilter.Item> PARENT_TOGGLES = List.of(new UiFilter.Item(NO_RELATIVES, 104f),
+            new UiFilter.Item(ABOVE_ZERO, 92f));
+    static final List<UiFilter.Item> PARENT_KEYS = List.of(new UiFilter.Item(SORT_CHANCE, 78f), new UiFilter.Item(SORT_NAME, 70f),
+            new UiFilter.Item("Hearts", 78f), new UiFilter.Item("Age", 62f));
+    static final List<UiFilter.Item> COPY_TOGGLES = List.of(new UiFilter.Item(LIVING, 70f));
     static final List<UiFilter.Item> COPY_KEYS = List.of(new UiFilter.Item(SORT_TALENTS, 82f, "Highest sum of known grades first."), new UiFilter.Item(SORT_NAME, 70f),
-            new UiFilter.Item("Hearts", 78f, "Most hearts first."), new UiFilter.Item("Age", 62f));
+            new UiFilter.Item("Hearts", 78f), new UiFilter.Item("Age", 62f));
 
     private final PetsPanel panel;
     private final PetsView view;
@@ -300,8 +300,7 @@ public class PetPlanner {
     private void control(CustomPanelAPI p, float w, List<String> kinds) {
         float y = PetTree.CONTROL_Y;
         float nx = w - 2f - NEW_W;
-        ButtonAPI add = UiButtons.button(p, nx, y, NEW_W, UiFilter.H, "New plan", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.newPlan(view.planSpecies, null, null));
-        Ui.tooltip(p, add, "New plan", "A planned young with two open parent places.");
+        UiButtons.button(p, nx, y, NEW_W, UiFilter.H, "New plan", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.newPlan(view.planSpecies, null, null));
 
         Map<String, Integer> counts = new HashMap<>();
         for (String kind : kinds) counts.put(kind, plans(kind).size());
@@ -443,7 +442,6 @@ public class PetPlanner {
         else Ui.painted(t, 0f, 0f, s, th, null, (pos, a) -> UiDraw.dashed(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(),
                 Misc.scaleAlpha(Ui.base(), click.hover ? 0.6f : 0.35f), a));
         Ui.textIn(t, 0f, 0f, s, th, "Empty", Ui.INS15, focus ? Ui.text() : Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
-        Ui.tooltip(world, t, "Empty", "An open parent place of " + plan.name + ". Click to pick a parent.");
     }
 
     // the hover of a planned young: what is wanted from it and the chance of each
@@ -560,11 +558,10 @@ public class PetPlanner {
         float frame = h - FRAME_UP;
         float end = wanted(p, w, y + PetsPanel.HEAD_GAP, frame - PetsPanel.HEAD_GAP - ADD_H - PetsPanel.HEAD_GAP, plan, calc, both);
         float by = end + PetsPanel.HEAD_GAP;
-        ButtonAPI add = UiButtons.button(p, 4f, by, ADD_W, ADD_H, "Add trait...", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.popup(new TraitDialog(plan, candidates(plan.typeID), id -> {
+        UiButtons.button(p, 4f, by, ADD_W, ADD_H, "Add trait...", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.popup(new TraitDialog(plan, candidates(plan.typeID), id -> {
             view.planRow = id;
             view.scroll.reset(PetsView.WANTED);
         })));
-        Ui.tooltip(p, add, "Add trait", "A trait you want from " + plan.name + ".");
         ButtonAPI copy = UiButtons.button(p, 10f + ADD_W, by, ADD_W, ADD_H, "Copy pet...", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
             view.planCopy = true;
             view.planPlace = -1;
@@ -598,7 +595,7 @@ public class PetPlanner {
     private void fits(CustomPanelAPI p, float w, float y, PetPlan plan, Pet pet, Parent a, Parent b) {
         Ui.card(p, 0f, y, w, FIT_H);
         CustomPanelAPI icon = UiImages.img(p, 8f, y + 10f, 20f, 20f, PetCard.quest());
-        Ui.tooltip(p, icon, null, "A young fits. " + pet.name + " has every wanted trait.");
+        Ui.tooltip(p, icon, null, pet.name + " has every wanted trait.");
         Ui.textIn(p, 38f, y, 110f, FIT_H, Ui.fit(pet.name + " fits", Ui.INS15, 110f), Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
         float lw = w - 150f - SIDE_W - 16f;
         Ui.textIn(p, 150f, y, lw, FIT_H, Ui.fit("Young of " + a.name() + " and " + b.name(), Ui.INS15, lw), Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
@@ -632,8 +629,6 @@ public class PetPlanner {
         float cx = rw - CHANCE_W - 8f;
         Ui.thead(p, 0f, y, w, new String[]{"Wanted", "Trait", "Effect", "Chance"}, new float[]{8f, TRAIT_X, EFFECT_X, cx},
                 new float[]{100f, EFFECT_X - TRAIT_X - 8f, cx - EFFECT_X - 8f, CHANCE_W}, new Alignment[]{Ui.LEFT, Ui.LEFT, Ui.LEFT, Ui.RIGHT});
-        CustomPanelAPI head = Ui.panel(p, 0f, y, 100f, Ui.HEADING_H);
-        Ui.tooltip(p, head, "Wanted", "This grade or better. For a flaw: this level or less.");
         y += Ui.HEADING_H + 6f;
 
         List<String> keys = new ArrayList<>();
@@ -674,7 +669,7 @@ public class PetPlanner {
             stepper(row, "None", Ui.hl(), () -> change(plan, key, -1, 0), null);
             Ui.textIn(row, TRAIT_X, 0f, EFFECT_X - TRAIT_X - 8f, WANT_H, "Malformed", Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);
             Ui.textIn(row, EFFECT_X, 0f, ew, WANT_H, "None", Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
-            Ui.tooltip(row, row, "Malformed", "A young of related parents can come out with one new flaw, or one more level of a flaw.", "Wanted: none.");
+            Ui.tooltip(row, row, "Malformed", "A young of related parents can come out with one new flaw, or one more level of a flaw.");
             return;
         }
 
@@ -687,7 +682,7 @@ public class PetPlanner {
         Ui.textIn(row, TRAIT_X, 0f, EFFECT_X - TRAIT_X - 8f, WANT_H, Ui.fit(trait.name(), Ui.INS15, EFFECT_X - TRAIT_X - 8f), Ui.INS15,
                 trait.isFlaw() ? Ui.neg() : Ui.text(), Ui.LEFT, new String[0], new Color[0]);
         Ui.textIn(row, EFFECT_X, 0f, ew, WANT_H, Ui.fit(effect(trait, v), Ui.INS15, ew), Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
-        Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> wantTip(t, trait, v));
+        Ui.tooltip(row, row, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> wantTip(t, trait));
     }
 
     // the stepper runs Any, Wild type, then the looks you have seen
@@ -703,7 +698,7 @@ public class PetPlanner {
             float cx = rw - CHANCE_W - 8f;
             Ui.textIn(row, cx, 0f, CHANCE_W, WANT_H, chance(p), Ui.INS15, p <= 0f ? Ui.neg() : Ui.hl(), Ui.RIGHT, new String[0], new Color[0]);
         }
-        Ui.tooltip(row, row, "Look", plan.look == null ? "Any look counts." : "Wanted: " + value + ".", "A young has the look of one parent, or now and then a new one. Only looks you have seen are listed.");
+        Ui.tooltip(row, row, "Look", "A young has the look of one parent, or now and then a new one. Only looks you have seen are listed.");
     }
 
     private void setLook(PetPlan plan, String look) {
@@ -742,19 +737,12 @@ public class PetPlanner {
         }
     }
 
-    private static void wantTip(TooltipMakerAPI t, PetDataRepo.Trait trait, int v) {
+    private static void wantTip(TooltipMakerAPI t, PetDataRepo.Trait trait) {
         Color c = trait.isFlaw() ? Ui.neg() : Ui.hl();
         t.addPara(trait.name(), c, 0f);
         if (trait.hasLevels()) t.addPara(trait.desc(), 10f, c, trait.format(trait.value(trait.per(), 1f)));
         else t.addPara(trait.desc(), 10f);
         arrivesWith(t, trait);
-
-        String value = trait.format(trait.value(v, 1f));
-        String what = value.isEmpty() ? "" : ", " + StringHelper.lcFirst(trait.effect()) + " " + value;
-        if (trait.isFlaw() && v == 0) t.addPara("Wanted: none.", 10f);
-        else if (trait.isFlaw()) t.addPara("Wanted: level %s or less" + esc(what) + ".", 10f, new Color[]{Ui.hl(), Ui.neg()}, String.valueOf(v), value);
-        else if (!trait.hasLevels()) t.addPara("Wanted: has it.", 10f);
-        else t.addPara("Wanted: " + (trait.isTalent() ? "grade" : "level") + " %s or better" + esc(what) + ".", 10f, Ui.hl(), String.valueOf(v), value);
     }
 
     // addPara with highlights formats its text, plain addPara does not: effect values like "+15%" are text, not a conversion
@@ -995,7 +983,7 @@ public class PetPlanner {
         Ui.textIn(p, w - 140f, y, 140f, 24f, calc == null ? "?" : chance(calc.chance()), Ui.INS21, Ui.hl(), Ui.RIGHT, new String[0], new Color[0]);
         UiData.thinbar(p, 0f, y + 25f, w, calc == null ? 0f : calc.chance(), Ui.hl());
         String careLine = "Care " + Math.round(care) + (center != null ? ", from the Animal Center on " + center.getMarket().getName() + "." : ". You have no Animal Center.");
-        Ui.tooltip(p, label, "Chance per young", "Every wanted trait has to come up in the same young.", careLine);
+        Ui.tooltip(p, label, "Chance per young", careLine);
 
         y += 32f;
         List<String> before = new ArrayList<>();
@@ -1045,18 +1033,16 @@ public class PetPlanner {
         float y = h - PetCard.BUTTON_H;
         String reason = a == null || b == null ? "Pick both parents." : a.plan() != null ? a.name() + " is not raised yet."
                 : b.plan() != null ? b.name() + " is not raised yet." : shop == null ? "Only at an Animal Center." : null;
-        ButtonAPI open = UiButtons.button(p, 0f, y, OPEN_W, PetCard.BUTTON_H, "Open pairing", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
+        UiButtons.button(p, 0f, y, OPEN_W, PetCard.BUTTON_H, "Open pairing", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 reason != null ? null : () -> panel.openCross(a.pet(), b.pet()));
         if (reason != null) Ui.textIn(p, OPEN_W + 8f, y, w - OPEN_W - SIDE_W - 24f, PetCard.BUTTON_H, reason, Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);
-        else Ui.tooltip(p, open, "Open pairing", "The pair on the Husbandry tab, where Pair is.");
 
-        ButtonAPI remove = UiButtons.button(p, w - SIDE_W, y, SIDE_W, PetCard.BUTTON_H, "Remove", UiButtons.Kind.RED, CutStyle.TL_BR, () -> {
+        UiButtons.button(p, w - SIDE_W, y, SIDE_W, PetCard.BUTTON_H, "Remove", UiButtons.Kind.RED, CutStyle.TL_BR, () -> {
             manager.removePlan(plan);
             view.planSelected = null;
             closeLists();
             panel.refresh();
         });
-        Ui.tooltip(p, remove, "Remove", "Deletes " + plan.name + ". The places it stood in are open again.");
     }
 
     // a click on a place: every living pet of the species for it, the first row a new planned young
@@ -1107,7 +1093,6 @@ public class PetPlanner {
         });
         PetHusbandry.planFace(first, 3f, 3f, FACE);
         Ui.text(first, 56f, 6f, lw - 64f, "Planned young");
-        Ui.text(first, 56f, 24f, lw - 64f, "A pet you do not have yet", Ui.gray());
 
         if (shown.isEmpty()) Ui.text(list.block(Ui.LINE_H, 8f), 0f, 0f, lw, all.isEmpty() ? "You have no other pets of this species." : "No pet matches.", Ui.gray());
         for (Pet pet : shown) {
@@ -1124,12 +1109,11 @@ public class PetPlanner {
         list.end();
 
         Ui.rule(p, 0f, h - 36f, w);
-        ButtonAPI clear = UiButtons.button(p, w - SIDE_W, h - PetCard.BUTTON_H, SIDE_W, PetCard.BUTTON_H, "Clear", current != null ? UiButtons.Kind.RED : UiButtons.Kind.OFF,
+        UiButtons.button(p, w - SIDE_W, h - PetCard.BUTTON_H, SIDE_W, PetCard.BUTTON_H, "Clear", current != null ? UiButtons.Kind.RED : UiButtons.Kind.OFF,
                 CutStyle.TL_BR, current != null ? () -> {
                     plan.setParent(place, null);
                     panel.refresh();
                 } : null);
-        Ui.tooltip(p, clear, "Clear", "Empties the place.");
     }
 
     // Copy pet: any pet of the species in the family tree, gone ones too; a click makes its known traits the target
@@ -1303,9 +1287,8 @@ public class PetPlanner {
                 CustomPanelAPI b = list.block(ROW, g);
                 g = PITCH - ROW;
                 if (!seen.contains(trait.id())) {
-                    CustomPanelAPI box = Ui.box(b, 0f, 0f, w, ROW, Ui.line(), null);
+                    Ui.box(b, 0f, 0f, w, ROW, Ui.line(), null);
                     Ui.textIn(b, 8f, 0f, 100f, ROW, "???", Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
-                    Ui.tooltip(b, box, "???", "Not seen yet.");
                     continue;
                 }
                 row(b, w, trait.name(), trait.isFlaw() ? Ui.neg() : Ui.text(), perText(trait), best(trait), () -> add(trait.id(), trait.isFlaw() ? 0 : 1));

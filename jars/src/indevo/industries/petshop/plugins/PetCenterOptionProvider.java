@@ -54,7 +54,6 @@ public class PetCenterOptionProvider extends BaseIndustryOptionProvider {
     public void createTooltip(IndustryOptionData opt, TooltipMakerAPI tooltip, float width) {
         if (opt.id == CUSTOM_PLUGIN) {
             tooltip.addSectionHeading("Manage your Pets", Alignment.MID, 0f);
-            tooltip.addPara("Rename, move, store, rehome or euthanize your pets.", 10f);
         }
     }
 

@@ -41,7 +41,7 @@ public class PetAdoption {
     static final String ADULT = "Adult";
     static final String YOUNG = "Young";
     static final List<UiFilter.Item> TOGGLES = List.of(
-            new UiFilter.Item(AFFORDABLE, 96f, "Only pets you can pay for."),
+            new UiFilter.Item(AFFORDABLE, 96f),
             new UiFilter.Item(ADULT, 64f),
             new UiFilter.Item(YOUNG, 66f));
 
@@ -86,7 +86,7 @@ public class PetAdoption {
             return;
         }
 
-        y += UiFilter.bar(p, 2f, y, view.offers, "Name or species", "Filters of this list.", TOGGLES, null, List.of(), panel::filtered, panel::refresh) + UiFilter.BELOW;
+        y += UiFilter.bar(p, 2f, y, view.offers, "Name or species", null, TOGGLES, null, List.of(), panel::filtered, panel::refresh) + UiFilter.BELOW;
         addHead(p, y);
         y += Ui.HEADING_H + 4f;
 
