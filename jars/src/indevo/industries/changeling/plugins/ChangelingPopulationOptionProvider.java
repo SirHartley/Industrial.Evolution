@@ -10,9 +10,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
-import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
-import indevo.industries.changeling.industry.population.SwitchablePopulation;
+import indevo.industries.changeling.conditions.GovernmentCondition;
 import indevo.utils.helper.StringHelper;
 
 import java.awt.*;
@@ -36,14 +35,10 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
     }
 
     public boolean isSuitable(Industry ind){
-        boolean isChangeling = ind instanceof SwitchablePopulation;
-        // SwitchablePopulation also reports the population id
-        boolean isPop = !isChangeling && ind.getId().equals(Industries.POPULATION);
-        boolean isNotTooLarge = ind.getMarket().getSize() <= Setting.GOVERNMENT_MAX_SIZE.intValue() || Global.getSettings().isDevMode();
-        boolean isValidChangeling = isChangeling && ((SwitchablePopulation) ind).canChange();
+        boolean isPop = ind.getId().equals(Industries.POPULATION);
         boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
 
-        return ((isPop || isValidChangeling) && isPlayerOwned && isNotTooLarge);
+        return isPop && isPlayerOwned && GovernmentCondition.canChange(ind.getMarket());
     }
 
     @Override
@@ -67,19 +62,21 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
 
             tooltip.addPara("This is only possible until %s and becomes permanent after %s.", 10f, Misc.getHighlightColor(),
                     "size " + Setting.GOVERNMENT_MAX_SIZE.intValue(),
-                    SwitchablePopulation.DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(SwitchablePopulation.DAYS_TO_LOCK));
+                    GovernmentCondition.DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(GovernmentCondition.DAYS_TO_LOCK));
         }
     }
 
     @Override
     public void optionSelected(IndustryOptionData opt, DialogCreatorUI ui) {
         if (opt.id == CUSTOM_PLUGIN) {
-            CustomDialogDelegate delegate = new ChangelingIndustryDialogueDelegate(opt.ind, Ids.SWITCHABLE_POPULATION, SwitchablePopulation.industryList);
+            CustomDialogDelegate delegate = new ChangelingIndustryDialogueDelegate(opt.ind, GovernmentCondition.TARGET);
             ui.showDialog(ChangelingIndustryDialogueDelegate.WIDTH, ChangelingIndustryDialogueDelegate.HEIGHT, delegate);
         }
     }
 
     @Override
     public void addToIndustryTooltip(Industry ind, Industry.IndustryTooltipMode mode, TooltipMakerAPI tooltip, float width, boolean expanded) {
+        if (!ind.getId().equals(Industries.POPULATION) || ind.getMarket() == null) return;
+        GovernmentCondition.addGovernanceSection(tooltip, ind);
     }
 }

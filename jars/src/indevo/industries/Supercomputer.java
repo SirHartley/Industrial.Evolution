@@ -355,7 +355,7 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
     }
 
     public boolean showWhenUnavailable() {
-        return Setting.SUPCOM.enabled();
+        return super.showWhenUnavailable() && Setting.SUPCOM.enabled();
     }
 
     @Override

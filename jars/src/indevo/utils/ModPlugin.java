@@ -59,6 +59,7 @@ import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.industries.changeling.industry.population.RuralPolitySubIndustry;
+import indevo.industries.changeling.listener.ChangelingApplyListener;
 import indevo.industries.changeling.listener.ManagedDemocracyNexerelinListenerPlugin;
 import indevo.industries.changeling.listener.MarineLossAmplifcationHullmodEffectListener;
 import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
@@ -460,6 +461,7 @@ public class ModPlugin extends BaseModPlugin {
         InterdictionPulseAbilityListener.register();
         WorldWonderAltImageOptionProvider.register();
         WorldWonderTexChangeOptionProvider.register();
+        ChangelingApplyListener.register();
         ChangelingPopulationOptionProvider.register();
         ChangelingMiningOptionProvider.register();
         ChangelingRefiningOptionProvider.register();

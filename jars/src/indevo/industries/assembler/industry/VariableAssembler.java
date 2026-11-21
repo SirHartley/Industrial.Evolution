@@ -165,11 +165,11 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.ADASSEM.enabled();
+        return super.isAvailableToBuild() && Setting.ADASSEM.enabled();
     }
 
     public boolean showWhenUnavailable() {
-        return Setting.ADASSEM.enabled();
+        return super.showWhenUnavailable() && Setting.ADASSEM.enabled();
     }
 
     private void applyOutputReduction() {

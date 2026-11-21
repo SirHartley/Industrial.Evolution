@@ -6,14 +6,14 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.impl.campaign.ids.Industries;
+import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
-import indevo.ids.Ids;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
-import indevo.industries.changeling.industry.mining.SwitchableMining;
+import indevo.industries.changeling.industry.Specialization;
+import indevo.industries.changeling.industry.SubIndustryData;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -37,12 +37,10 @@ public class ChangelingMiningOptionProvider extends BaseIndustryOptionProvider {
     }
 
     public boolean isSuitable(Industry ind){
-        boolean isTarget = ind.getId().equals(Industries.MINING);
-        boolean isChangeling = ind instanceof SwitchableMining;
-        boolean canChange = isChangeling && ((SwitchableMining) ind).canChange();
+        boolean isTarget = Specialization.MINING.appliesTo(ind);
         boolean isPlayerOwned = ind.getMarket().isPlayerOwned();
 
-        return (isTarget || canChange) && Setting.SWITCHABLEMINING.enabled() && isPlayerOwned;
+        return isTarget && Setting.SWITCHABLEMINING.enabled() && isPlayerOwned;
     }
 
     @Override
@@ -70,18 +68,18 @@ public class ChangelingMiningOptionProvider extends BaseIndustryOptionProvider {
     @Override
     public void optionSelected(IndustryOptionData opt, DialogCreatorUI ui) {
         if (opt.id == CUSTOM_PLUGIN) {
-            CustomDialogDelegate delegate = new ChangelingIndustryDialogueDelegate(opt.ind, Ids.SWITCHABLE_MINING, SwitchableMining.industryList);
+            CustomDialogDelegate delegate = new ChangelingIndustryDialogueDelegate(opt.ind, Specialization.MINING);
             ui.showDialog(ChangelingIndustryDialogueDelegate.WIDTH, ChangelingIndustryDialogueDelegate.HEIGHT, delegate);
         }
     }
 
     @Override
     public void addToIndustryTooltip(Industry ind, Industry.IndustryTooltipMode mode, TooltipMakerAPI tooltip, float width, boolean expanded) {
-        if (getIndustryOptions(ind) == null || !(ind instanceof SwitchableMining)) return;
-        if (((SwitchableMining) ind).getCurrent().isBase()) return;
+        if (ind.getMarket() == null || !Specialization.MINING.appliesTo(ind) || !Specialization.MINING.isSpecialized(ind.getMarket())) return;
+        SubIndustryData data = Specialization.MINING.getData(ind.getMarket());
 
         float opad = 10f;
         tooltip.addSectionHeading("Specialized Mine", Alignment.MID, opad);
-        tooltip.addPara(((SwitchableMining) ind).getCurrent().getDescription().getText2(), opad);
+        tooltip.addPara(Global.getSettings().getDescription(data.descriptionID, Description.Type.CUSTOM).getText2(), opad);
     }
 }

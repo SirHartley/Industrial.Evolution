@@ -100,11 +100,11 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.COMFORGE.enabled();
+        return super.isAvailableToBuild() && Setting.COMFORGE.enabled();
     }
 
     public boolean showWhenUnavailable() {
-        return Setting.COMFORGE.enabled();
+        return super.showWhenUnavailable() && Setting.COMFORGE.enabled();
     }
 
     private void autoFeed() {

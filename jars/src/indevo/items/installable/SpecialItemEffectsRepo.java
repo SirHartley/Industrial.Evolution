@@ -38,6 +38,10 @@ public class SpecialItemEffectsRepo {
         if (!l.hasListenerOfClass(CentralizationBureau.BureauFactor.class)) {
             l.addListener(new CentralizationBureau.BureauFactor(), true);
         }
+
+        if (!l.hasListenerOfClass(CentralizationBureau.BureauApplyListener.class)) {
+            l.addListener(new CentralizationBureau.BureauApplyListener(), true);
+        }
     }
 
     public static float SIMULATOR_BASE_INCREASE = 0.1f;

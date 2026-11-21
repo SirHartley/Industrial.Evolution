@@ -312,7 +312,7 @@ public class MilitaryRelay extends MilitaryBase {
     }
 
     public boolean showWhenUnavailable() {
-        return toggle().enabled();
+        return super.showWhenUnavailable() && toggle().enabled();
     }
 
     @Override

@@ -76,7 +76,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.EMBASSY.enabled() && market.getFactionId().equals("player");
+        return super.isAvailableToBuild() && Setting.EMBASSY.enabled() && market.getFactionId().equals("player");
     }
 
     @Override
@@ -86,7 +86,7 @@ public class Embassy extends BaseIndustry implements EconomyTickListener, NewDay
     }
 
     public boolean showWhenUnavailable() {
-        return Setting.EMBASSY.enabled();
+        return super.showWhenUnavailable() && Setting.EMBASSY.enabled();
     }
 
     private void monthlyRepIncrease() {

@@ -6,6 +6,10 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 public abstract class SubIndustry implements SubIndustryAPI {
     public static final float BASE_COST = 50000;
     public static final float BASE_BUILD_TIME = 31;
@@ -110,6 +114,43 @@ public abstract class SubIndustry implements SubIndustryAPI {
     @Override
     public void unapply() {
 
+    }
+
+    @Override
+    public void preApplyToOther(Industry ind) {
+
+    }
+
+    @Override
+    public void applyToOther(Industry ind) {
+
+    }
+
+    @Override
+    public void unapplyFromOther(Industry ind) {
+
+    }
+
+    // the host's own BaseIndustry mod ids, BaseIndustry.getModId is protected
+    protected String modId() {
+        return "ind_" + industry.getSpec().getId();
+    }
+
+    protected String modId(int index) {
+        return modId() + "_" + index;
+    }
+
+    private static final Set<String> LOADED_TEXTURES = new HashSet<>();
+
+    // variant sprites are not preloaded, load each once per session before it is shown
+    public static void ensureTexture(String image) {
+        if (image == null || !LOADED_TEXTURES.add(image)) return;
+
+        try {
+            Global.getSettings().loadTexture(image);
+        } catch (IOException e) {
+            Global.getLogger(SubIndustry.class).error("Could not load image " + image);
+        }
     }
 
     public boolean isInit(){

@@ -21,6 +21,12 @@ public interface SubIndustryAPI {
 
     void unapply();
 
+    void preApplyToOther(Industry ind);
+
+    void applyToOther(Industry ind);
+
+    void unapplyFromOther(Industry ind);
+
     boolean isBase();
 
     float getCost();

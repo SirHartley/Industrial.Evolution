@@ -327,7 +327,7 @@ public class ShuttleNetwork {
 
             if (market.hasIndustry(Ids.EMBASSY)) getRoute(ShuttleRoute.Kind.DIPLOMAT, anchor, null, random).chancePerDay = DIPLOMAT_CHANCE;
 
-            if (market.hasIndustry(Industries.MINING) || market.hasIndustry(Ids.SWITCHABLE_MINING)) {
+            if (hasMining(market)) {
                 ShuttleTarget target = findMiningTarget(location, primary);
                 if (target != null) {
                     ShuttleRoute route = getRoute(ShuttleRoute.Kind.MINING, anchor, null, random);
@@ -712,6 +712,12 @@ public class ShuttleNetwork {
         }
 
         return !market.isHidden() || ShuttleFactionRepo.isPirate(market.getFaction());
+    }
+
+    // vanilla mining or any mod tier that carries the vanilla tag
+    private static boolean hasMining(MarketAPI market) {
+        for (Industry ind : market.getIndustries()) if (ind.getSpec().hasTag(Industries.MINING)) return true;
+        return false;
     }
 
     private static boolean isPortDisrupted(MarketAPI market) {

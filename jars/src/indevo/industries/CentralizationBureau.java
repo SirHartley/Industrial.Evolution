@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.*;
 import com.fs.starfarer.api.campaign.listeners.ColonyOtherFactorsListener;
+import com.fs.starfarer.api.campaign.listeners.IndustryApplyListener;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
@@ -64,7 +65,7 @@ public class CentralizationBureau extends BaseIndustry {
         for (Industry ind : market.getIndustries()) unmodify(ind);
     }
 
-    // also called by CentralizationBureauApplyPatch after every industry apply, so the apply order does not matter
+    // also called by BureauApplyListener after every industry apply, so the apply order does not matter
     public void applyBonus(Industry ind) {
         unmodify(ind);
 
@@ -242,7 +243,7 @@ public class CentralizationBureau extends BaseIndustry {
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.ADINFRA.enabled();
+        return super.showWhenUnavailable() && Setting.ADINFRA.enabled();
     }
 
     private boolean isOnlyInfraInSystem() {
@@ -458,6 +459,21 @@ public class CentralizationBureau extends BaseIndustry {
         }
 
         return marketAPISet;
+    }
+
+    public static class BureauApplyListener implements IndustryApplyListener {
+        public void reportIndustryAboutToBeApplied(Industry ind) {
+        }
+
+        public void reportIndustryApplied(Industry ind) {
+            if (ind instanceof CentralizationBureau) return;
+
+            MarketAPI market = ind.getMarket();
+            if (market == null) return;
+
+            Industry bureau = market.getIndustry(Ids.ADINFRA);
+            if (bureau instanceof CentralizationBureau) ((CentralizationBureau) bureau).applyBonus(ind);
+        }
     }
 
     //register this in mod plugin

@@ -1,24 +1,28 @@
 # Changeling industries (governments, specialized mining and refining)
 
-Covers the switchable industries that replace vanilla Population & Infrastructure, Mining and Refining with a selectable variant ("sub industry"), plus the hullmods, listeners and immigration plugin the government variants use. Read it before touching a government, a mining or refining specialization, or the switch dialog. It does not cover Privateer raids that feed Managed Democracy; see [Privateer](PRIVATEER.md).
+Covers governments and mining or refining specializations: a selectable variant ("sub industry") stored on the market and applied on top of the host industry, plus the hullmods, listeners and immigration plugin the government variants use. Read it before touching a government, a mining or refining specialization, or the switch dialog. It does not cover Privateer raids that feed Managed Democracy; see [Privateer](PRIVATEER.md).
 
-Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
+Checked against Starsector 0.98.5a and IE dev (AOTD compat rework, 2026-11-21). Recheck engine facts after a game update.
 
 ## Overview
 
-`IndEvo_SwitchablePopulation`, `IndEvo_SwitchableMining` and `IndEvo_SwitchableRefining` subclass the vanilla industries and return the vanilla id from `getId()` (`population`, `mining`, `refining`), so every `market.getIndustry("mining")` lookup still finds them. Each holds one `SubIndustryAPI` (`current`) picked from a static list of `SubIndustryData`; the industry delegates `apply`, image, name and description to it. The player switches variant through an industry option ("Change government...", "Change Specialization...") that opens `ChangelingIndustryDialogueDelegate`; the first switch on a vanilla industry removes it and adds the switchable one. Governments lock 7 days after a non-base, non-Anchorage pick and are only offered up to colony size `IndEvo_GovernmentMaxSize`.
+IE never replaces the host industry. A government is the market condition `IndEvo_government` (`GovernmentCondition`), which holds the variant object, the lock timer and the overrides it set. A specialization is a market memory key (`$IndEvo_miningFocus`, `$IndEvo_refiningFocus`) read by `Specialization`. One `IndustryApplyListener` (`ChangelingApplyListener`) applies both as deltas around the host's own apply, so the host stays whatever the game has: vanilla, ToT's population, SoP's capital, any VoK mining or refining tier. The player switches variant through an industry option ("Change government...", "Change Specialization...") that opens `ChangelingIndustryDialogueDelegate`. Governments lock 7 days after a non-base, non-Anchorage pick and are only offered up to colony size `IndEvo_GovernmentMaxSize`.
 
 ## Files
 
 | File | Owner / role |
 |---|---|
-| `indevo/industries/changeling/industry/SwitchableIndustryAPI.java` | Contract for switchables: `getIndustryList`, `setCurrent`, `getCurrent`, `canChange` |
-| `indevo/industries/changeling/industry/SubIndustryAPI.java` | Contract for one variant: apply/unapply, image, cost, build time, availability, pather interest, tooltip hook |
-| `indevo/industries/changeling/industry/SubIndustry.java` | Base variant. Defaults: cost 50000, build time 31, always available, pather interest `Float.MAX_VALUE` (means "use parent") |
+| `indevo/industries/changeling/industry/ChangelingTarget.java` | Contract the dialog switches through: `getOptions`, `getCurrentId`, `setCurrent` |
+| `indevo/industries/changeling/industry/SubIndustryAPI.java` | Contract for one variant: `apply`/`unapply` on the host, `preApplyToOther`/`applyToOther`/`unapplyFromOther` on every industry of the market, image, cost, availability, pather interest, tooltip hook |
+| `indevo/industries/changeling/industry/SubIndustry.java` | Base variant. Defaults: cost 50000, build time 31, always available, pather interest `Float.MAX_VALUE` (means "use the host"). `modId()`/`modId(i)` give the host's own `BaseIndustry` mod ids; `ensureTexture` loads a variant sprite once per session |
 | `indevo/industries/changeling/industry/SubIndustryDataAPI.java`, `SubIndustryData.java` | List entry (id, name, sprite, description id, cost); `newInstance()` builds the variant |
-| `indevo/industries/changeling/industry/mining/SwitchableMining.java` | Mining switchable, 5 variants, `applySupplyAndStandardDemandWithModifiers` |
-| `indevo/industries/changeling/industry/refining/SwitchableRefining.java` | Refining switchable, 3 variants |
-| `indevo/industries/changeling/industry/population/SwitchablePopulation.java` | Government switchable: variant list, 7 day lock, LARP mode, size limit, tooltip |
+| `indevo/industries/changeling/industry/Specialization.java` | `MINING` and `REFINING` targets: memory key, host tag, delta key `<id>_IndEvo_specialized`, name and image override on the vanilla host |
+| `indevo/industries/changeling/industry/mining/MiningSpecializations.java` | Mining variant list, `applyOutputDeltas` |
+| `indevo/industries/changeling/industry/refining/RefiningSpecializations.java` | Refining variant list, `applyOutputDeltas` |
+| `indevo/industries/changeling/industry/population/Governments.java` | Government variant list, `get(id)` |
+| `indevo/industries/changeling/conditions/GovernmentCondition.java` | Condition `IndEvo_government` (hidden, no icon): current variant, 7 day lock, `set`, `canChange`, overrides, population tooltip parts, pather interest lookup |
+| `indevo/industries/changeling/listener/ChangelingApplyListener.java` | `IndustryApplyListener` that applies specializations and the government |
+| `indevo/industries/changeling/patches/GovernmentPatherInterestPatch.java` | PatchLib redirect: the government's pather interest stands in for the population's in `LuddicPathBaseManager.getLuddicPathMarketInterest` |
 | `.../population/UnderworldSubIndustry.java` | Underworld Governance: inverted stability to income, illegal output +1, extorts trader cargo into storage |
 | `.../population/RuralPolitySubIndustry.java` | Rural Polity: tag based upkeep and stability, farming and light industry extra output; inner `RuralPolityTooltipAdder`, `RuralPolityImageChanger` |
 | `.../population/HiddenArcologiesSubIndustry.java` | Hidden Arcology: suppresses surface conditions, -2 output, -30% access, x2 ground defense |
@@ -29,8 +33,8 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | `.../population/MonasticOrderSubIndustry.java` | Monastic Order. Not in the variant list (dormant) |
 | `.../population/ResortSubIndustry.java` | Resort Planet stub. Not in the variant list (dormant) |
 | `.../population/Concept` | Plain text design notes, not code |
-| `indevo/industries/changeling/dialogue/ChangelingIndustryDialogueDelegate.java` | Variant picker (`CustomDialogDelegate`); charges credits, replaces vanilla industry, moves item/core/improvement |
-| `indevo/industries/changeling/plugins/ChangelingPopulationOptionProvider.java`, `ChangelingMiningOptionProvider.java`, `ChangelingRefiningOptionProvider.java` | Industry option that opens the picker |
+| `indevo/industries/changeling/dialogue/ChangelingIndustryDialogueDelegate.java` | Variant picker (`CustomDialogDelegate`) over a `ChangelingTarget`; hides the current variant, charges credits |
+| `indevo/industries/changeling/plugins/ChangelingPopulationOptionProvider.java`, `ChangelingMiningOptionProvider.java`, `ChangelingRefiningOptionProvider.java` | Industry option that opens the picker; tooltip section on the host (Governance Type, Specialized Mine/Refinery) |
 | `indevo/industries/changeling/plugins/CorporateGovernanceCampaignPlugin.java` | `pickImmigrationPlugin`: Corporate markets get `CorpoImmigrationPlugin` |
 | `indevo/industries/changeling/plugins/CorpoImmigrationPlugin.java` | `CoreImmigrationPluginImpl` copy that can shrink a market and blocks growth on `IndEvo_CorpoGov_MaxSize` |
 | `indevo/industries/changeling/hullmods/HandBuiltHullmod.java` | `IndEvo_handBuilt`: random stat multipliers per fleet member |
@@ -46,14 +50,16 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_SwitchablePopulation`, `IndEvo_SwitchableMining`, `IndEvo_SwitchableRefining` | `data/campaign/industries.csv:51-53`; ids in `indevo/ids/Ids.java:79-81` |
-| Variant ids | `base_population_and_infrastructure`, `underworld`, `rural`, `hidden`, `outpost`, `helldivers`, `warhammer`, `corpos` (dormant `monks`, `resort`) | `SwitchablePopulation.java:34-127` |
-| Variant ids | `base_mining`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining` | `SwitchableMining.java:22-83` |
-| Variant ids | `base_refining`, `ore_refining`, `rare_refining` | `SwitchableRefining.java:19-80` |
+| Condition | `IndEvo_government` (`showIcon` false, tag `hide_in_codex`, order 20.5, removed on decivilization) | `data/campaign/market_conditions.csv` |
+| Memory key | `$IndEvo_miningFocus`, `$IndEvo_refiningFocus` (market, variant id, unset for base) | `Specialization.java:20-21` |
+| Mod key | `<host id>_IndEvo_specialized` on the host's supply and demand | `Specialization.java` |
+| Variant ids | `base_population_and_infrastructure`, `underworld`, `rural`, `hidden`, `outpost`, `helldivers`, `warhammer`, `corpos` (dormant `monks`, `resort`) | `Governments.java` |
+| Variant ids | `base_mining`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining` | `MiningSpecializations.java` |
+| Variant ids | `base_refining`, `ore_refining`, `rare_refining` | `RefiningSpecializations.java` |
 | Descriptions | `IndEvo_pop_*`, `IndEvo_*_mining`, `IndEvo_*_refining` (CUSTOM; text1 = description, text2 = short effect) | `data/strings/descriptions.csv:32-49` |
 | Sprites | category `IndEvo`: `pop_*`, `ore_mining`, `rare_mining`, `volatile_mining`, `organics_mining`, `ore_refining`, `rare_ore_refining` | `data/config/settings.json:104-121` |
 | Setting | `IndEvo_GovernmentLarpMode` (all governments act as vanilla), `IndEvo_GovernmentMaxSize` (default 3) | `data/config/LunaSettings.csv:112-113` |
-| Setting | `IndEvo_SwitchableMining`, `IndEvo_SwitchableRefining` (show the option) | `data/config/LunaSettings.csv:107-108` |
+| Setting | `IndEvo_SwitchableMining`, `IndEvo_SwitchableRefining` (show the option; ids kept from the old industries) | `data/config/LunaSettings.csv:116-117` |
 | Config CSV | `IndEvo_ruralList` (planet types blocked for Rural), `IndEvo_arcologiesList` (blocked for Hidden Arcology), `IndEvo_arcologiesCondList` (conditions suppressed) | `data/config/settings.json:21-23`, `data/config/indEvo/*.csv` |
 | Hullmod | `IndEvo_handBuilt`, `IndEvo_hellpods` | `data/hullmods/hull_mods.csv:14-15` |
 | Memory key | `$IndEvo_HandBuiltMemoryRepo` (sector) | `HandBuiltEffectMemoryRepo.java:10` |
@@ -63,36 +69,42 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:450-458`) registers, transient and deduped by class: the three option providers, `RuralPolityTooltipAdder`, `RuralPolityImageChanger`, `MarineLossAmplifcationHullmodEffectListener`. `ManagedDemocracyNexerelinListenerPlugin` only if `nexerelin` is enabled (`ModPlugin.java:474`).
-- `ModPlugin.setScriptsIfNeeded()` registers `CorporateGovernanceCampaignPlugin` every load (`ModPlugin.java:498`). `BaseCampaignPlugin` is transient with a null id (`api/campaign/BaseCampaignPlugin.java:31-37` in the knowledge base).
+- `ModPlugin.setListenersIfNeeded()` registers, transient and deduped by class: `ChangelingApplyListener`, the three option providers, `RuralPolityTooltipAdder`, `RuralPolityImageChanger`, `MarineLossAmplifcationHullmodEffectListener`. `ManagedDemocracyNexerelinListenerPlugin` only if `nexerelin` is enabled.
+- `ModPlugin.setScriptsIfNeeded()` registers `CorporateGovernanceCampaignPlugin` every load. `BaseCampaignPlugin` is transient with a null id (`api/campaign/BaseCampaignPlugin.java:31-37` in the knowledge base).
 - The other tooltip adders (`HelldiversTooltipAdder`, `WarhammerTooltipAdder`, `CorpoPolityTooltipAdder`) register themselves from their variant's `apply()`.
 - `HelldiversSubIndustry` and `WarhammerSubIndustry` add themselves as persistent listeners in `apply()` and remove themselves in `unapply()`. `ShipProductionSummaryMessageHandler.getInstanceOrRegister()` adds a persistent listener on first use.
-- Nothing adds a switchable to a market at game start. The first switch on a vanilla industry replaces it: `ChangelingIndustryDialogueDelegate.customDialogConfirm()` (`:140-188`).
+- `GovernmentPatherInterestPatch` is found by PatchLib from the jar, no registration.
 
-Switch chain: `Changeling*OptionProvider.optionSelected -> ChangelingIndustryDialogueDelegate -> customDialogConfirm -> (vanilla: market.removeIndustry + addIndustry(IndEvo_Switchable*)) -> SwitchableIndustryAPI.setCurrent(newInstance, false) -> credits -= SubIndustryData.cost`.
+Switch chain: `Changeling*OptionProvider.optionSelected -> ChangelingIndustryDialogueDelegate -> customDialogConfirm -> ChangelingTarget.setCurrent -> (GovernmentCondition.set | Specialization.setCurrent) -> market.reapplyIndustries() -> credits -= SubIndustryData.cost`.
 
-Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `SwitchableX.apply -> current.init/apply -> (variant calls superApply() for vanilla behaviour)`.
+Apply chain, per industry, from `Market.reapplyIndustries` and `BaseIndustry.reapply()`: `host.unapply -> reportIndustryAboutToBeApplied (pop: gov.unapply; every industry: gov.preApplyToOther) -> host.apply -> reportIndustryApplied (specialization deltas; pop: overrides + gov.apply; every industry: gov.applyToOther)`.
 
 ## Flow
 
-### Switchable shell
+### Condition and listener
 
-- `getId()` returns the vanilla id (`SwitchableMining.java:165`, `SwitchableRefining.java:140`, `SwitchablePopulation.java:191`). `Market.getIndustry` and `hasIndustry` match on `getId()` (`obf/campaign/econ/Market.java:200-218` in the knowledge base). The delegate finds the new industry by `getSpec().getId()` for that reason (`ChangelingIndustryDialogueDelegate.java:160-166`).
-- `setCurrent` throws `IllegalArgumentException` if the variant id is not in the list; it unapplies the old variant first (`SwitchablePopulation.java:161-180`).
-- Mining and refining are not buildable directly (`isAvailableToBuild` false); they exist only by replacement.
-- `canInstallItem` in the delegate re-slots the special item only if the item spec params list the vanilla id and `ItemEffectsRepo` reports no unmet requirement; otherwise the item goes to storage (`:176-197`).
+- The listener fires for every industry apply in the sector, also for some tooltips and build menu previews (javadoc on `IndustryApplyListener`). Variants must be idempotent: every mod is keyed, and anything conditional is unmodified when the condition is false.
+- `gov.unapply()` runs in the pop's `aboutToBeApplied`, so it may only touch market and pop level mods. Per industry effects live in `preApplyToOther` (before that industry's apply, for `getSupplyBonusFromOther` and other inputs its apply reads) and `applyToOther` (after it, for anything that reads its fresh output). `unapplyFromOther` runs only when the government changes.
+- `GovernmentCondition.set` unapplies the old variant from the pop and every industry, clears its overrides, then adds or removes the condition (base removes it) and reapplies the market. Switching between two non-base variants keeps `daysPassed`; going to base resets it.
+- Name and image overrides go on the pop only when its spec id is `population` (not the SoP capital) and the current override is null or the one the condition set last. Specializations do the same on the vanilla `mining` and `refining` hosts only.
+- LARP mode (`IndEvo_GovernmentLarpMode`): names, images and descriptions stay, effects are skipped and removed.
+- Images: vanilla `PopulationAndInfrastructure.getCurrentImage` (small and large sizes) and `Mining.getCurrentImage` (gas giant, small size) skip `imageOverride`. `ChangelingImagePatch` (`@After getCurrentImage` on every `BaseIndustry` subtype, most derived call only) returns the override again when it is the one the condition or specialization set.
+- Tooltip: `ChangelingTooltipPatch` redirects two calls in `BaseIndustry.createTooltip`. `getDescriptionOverride()` returns the variant's description text1 for a government pop or a specialized vanilla host (same as the old Switchable plugins); `addRightAfterDescriptionSection` is followed by the government's `addRightAfterDescription` unless LARP. The Governance Type section stays in `ChangelingPopulationOptionProvider.addToIndustryTooltip`, which vanilla calls right after `addPostDemandSection`.
+- Pather interest has no market hook: `LuddicPathBaseManager.getLuddicPathMarketInterest` sums `ind.getPatherInterest()`. `GovernmentPatherInterestPatch` redirects that one call for the pop and returns the variant's value unless it is above 1e8. Other callers of `getPatherInterest()` see the vanilla pop value.
 
 ### Mining and refining
 
-- Mining variants call `applySupplyAndStandardDemandWithModifiers(ind, ore, rareOre, organics, volatiles)` which adds a flat `_IndEvo_specialized` supply mod per commodity, then the vanilla demand and heavy machinery deficit (`SwitchableMining.java:85-102`). Ore: +2/-2/-2/-2. Transplutonics: -3/+2/-3/-3. Volatiles: -3/-3/-3/+2. Organics: -3/-3/+2/-3.
-- Refining variants call vanilla `Refining.apply()` then shift metals and transplutonics supply and demand by +-2 (`SwitchableRefining.java:38-79`).
-- Option providers show only on player markets and only while the matching setting is on (`ChangelingMiningOptionProvider.java:39-46`, `ChangelingRefiningOptionProvider.java:39-46`).
+- The deltas apply to every industry whose spec carries the `mining` or `refining` tag (vanilla and every VoK tier), only while it is functional. The host keeps its own demand and deficit logic.
+- Mining variants add a flat `_IndEvo_specialized` supply mod per commodity (`MiningSpecializations.applyOutputDeltas`). Ore: +2/-2/-2/-2. Transplutonics: -3/+2/-3/-3. Volatiles: -3/-3/-3/+2. Organics: -3/-3/+2/-3.
+- Refining variants shift metals and transplutonics supply, and ore and rare ore demand, by +-2 (`RefiningSpecializations.applyOutputDeltas`).
+- `Specialization.removeDeltas` drops the key from every supply and demand, and the `ind_sb` supply bonus a positive `supply()` call left on a commodity that has nothing else.
+- Option providers show on any tagged host on player markets, only while the matching setting is on.
 
 ### Governments
 
-- `SwitchablePopulation.apply()` clears supply and demand, then runs `superApply()` (vanilla) in LARP mode or `current.apply()` otherwise (`:142-159`). Most variants call `superApply()` first and add their changes; Underworld rebuilds the vanilla pop apply by hand (`UnderworldSubIndustry.java:172-318`).
-- Lock: `advance()` counts days for a non-base, non-Anchorage variant; at `DAYS_TO_LOCK = 7` it sets `locked` and posts a message (`:235-257`). `canChange()` is dev mode or (size <= `IndEvo_GovernmentMaxSize` and not locked) (`:268-270`). `ChangelingPopulationOptionProvider.isSuitable` offers the switch on a vanilla population or a `SwitchablePopulation` that `canChange()`.
-- `getPatherInterest()` uses the variant value unless it is above 1e8 (the `SubIndustry` default) (`:284-289`). Rural returns -10; Managed Democracy and Monastic return minus the market's total interest from other industries.
+- Every variant runs after the host pop applied and writes deltas. Corporate and Underworld re-set the pop's base demand and supply and its `modId(3)` income mult and `_ms` base stability under the host's own keys; ToT's scaling sits on its own keys and stays on top. Underworld also drops the domestic goods stability bonus (`modId(0)`) and recomputes the luxury one; the host's own import upkeep, mismanagement and comm relay code stays.
+- Lock: `GovernmentCondition.advance()` counts days for a non-Anchorage variant; at `DAYS_TO_LOCK = 7` it sets `locked` and posts a message. `canChange(market)` is dev mode or (size <= `IndEvo_GovernmentMaxSize` and not locked). `ChangelingPopulationOptionProvider.isSuitable` offers the switch on a player `population` that `canChange`.
+- Pather interest: the variant value replaces the pop's unless it is above 1e8 (the `SubIndustry` default), see the patch above. Rural returns -10; Managed Democracy and Monastic return minus the market's total interest from other industries.
 - Availability per variant (`isAvailableToBuild` / `getUnavailableReason`):
 
 | Variant | Cost | Rule |
@@ -105,9 +117,9 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 | Forge World | 150000 | `very_hot`, planet, not gas giant (`WarhammerSubIndustry.java:187-189`) |
 | Corporate | 50000 | always |
 
-- Underworld: income mult `5/stability` above 5, `1.2^(5-stability)` below (`UnderworldSubIndustry.java:321-333`); every day (`IntervalUtil(10,10)` seconds) takes 5% of each commodity stack from trader, smuggler and scavenger fleets in the system into storage, once per fleet (`:97-141`).
-- Rural: `industrial` tag x2 upkeep and -3 stability, `rural` tag x0.5 upkeep and +1 stability and +2 growth, -1 stability per non-`rural` special item and per AI core; Farming gets +1 output, organics and (free port) drugs; Light Industry gets hand weapons and supplies (`RuralPolitySubIndustry.java:163-195`). `RuralPolityImageChanger` cycles `rural_polities_1..5.png` (`:290-309`).
-- Hidden Arcology: suppresses every condition in `IndEvo_arcologiesCondList` and re-applies the suppression in `SwitchablePopulation.setSpecialItem` for the item heat condition (`SwitchablePopulation.java:216-220`).
+- Underworld: base stability 2, income mult `5/stability` above 5, `1.2^(5-stability)` below; +1 output on every industry that makes an illegal commodity on its own; every day (`IntervalUtil(10,10)` seconds) takes 5% of each commodity stack from trader, smuggler and scavenger fleets in the system into storage, once per fleet (`:97-141`).
+- Rural: `industrial` tag x2 upkeep and -3 stability, `rural` tag x0.5 upkeep and +1 stability and +2 growth, -1 stability per non-`rural` special item and per AI core; Farming gets +1 output, organics and (free port) drugs from its food minus ToT's `aotd_toolbox_food_prod` flat mod; Light Industry gets hand weapons and supplies. The farming and light industry output is set after that industry applied. `RuralPolityImageChanger` cycles `rural_polities_1..5.png` (`:290-309`).
+- Hidden Arcology: suppresses every condition in `IndEvo_arcologiesCondList` on each apply; the list holds `hot` and `very_hot`, so the fusion lamp heat condition stays suppressed too. The -2 output is a `getSupplyBonusFromOther` mod set before each industry applies.
 - Managed Democracy: extra patrols by size: 1 light, plus 1 medium above size 3, plus 1 light and 1 heavy above size 4 (`HelldiversSubIndustry.java:312-314`); `correctStability()` adds a flat mod to clamp stability to 3..7 (`HelldiversSubIndustry.java:396-401`); `RaidMod` entries add income percent for raids, bombardments, Privateer raids (`PrivateerBase.java:194,203`) and Nexerelin captures; `reportEconomyTick` adds 3 XP per tick to marines stored here; `onNewDay` (via `TimeTracker`) gives destroyers in storage `IndEvo_hellpods` after 62 days.
 - Forge World: stability +1 while metals and transplutonics demand is met, -1 on a shortage (`WarhammerSubIndustry.java:130-138`); +2000 income per ship hull supplied, +5000 to `Stats.CUSTOM_PRODUCTION_MOD` per hull (`WarhammerSubIndustry.java:174-184`); month end: unrest +1 on any deficit (cap 5), monthly DP budget `size - 2`, 30% chance to build a known hull with `getSuppliesToRecover() <= budget` into storage with `IndEvo_handBuilt` (`:211-257`). Adds `pollution` once locked on habitable worlds.
 - Corporate: base stability 0, +1 stability per 20000 net income (max 10), base income x1.3, military upkeep x3, disruption capped at 62 days, full industry slots once locked, growth -20 and -1 per 20000 income (`CorporateGovernanceSubIndustry.java:95-217`). `CorpoImmigrationPlugin` shrinks the market when weight drops below the size minimum (size > 3) and skips growth when tagged `IndEvo_CorpoGov_MaxSize` (`CorpoImmigrationPlugin.java:44-136`).
@@ -119,11 +131,11 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 
 ## Contracts
 
-- Save data: the switchable stores `current` (an anonymous inner class instance of `SwitchableX$1$1` style) in the save. Reordering or removing entries in the static `industryList` changes those class names and breaks old saves (inferred from Java anonymous class naming).
-- Governments persist state in the variant object: `locked`, `daysPassed` (on the industry), `stolenGoodsList`, `raidMods`, `daysToApplicationForFleetMember`, `currentDpBudget`.
+- Save data: `GovernmentCondition` is not transient, so the condition plugin and its variant object are saved with the market. Base is never stored (the condition is removed). Specializations store only the variant id in memory. Saves from before this rework that hold `IndEvo_Switchable*` industries do not load (save break on dev).
+- Governments persist state in the condition (`locked`, `daysPassed`, last overrides) and the variant object (`stolenGoodsList`, `raidMods`, `daysToApplicationForFleetMember`, `currentDpBudget`, Rural image).
 - Persistent listener dedupe: `ListenerManager.addListener` stores into an `ObjectRepository` that ignores an instance already present (`obf/campaign/ListenerManager.java:29-35`, `obf/_common/util/container/repo/ObjectRepository.java:87-90`), so repeated `addListener(this)` from `apply()` is safe.
 - `market.addImmigrationModifier` keeps a persistent `LinkedHashSet` (`obf/campaign/econ/Market.java:98`); the variant object is saved with the market.
-- Other features read the current government by `instanceof` on `getCurrent()`: Privateer (`PrivateerBase.java:71`, `PrivateerBaseRaidIntel.java:76`).
+- Other features read the current government with `GovernmentCondition.getGovernment(market) instanceof X`: Privateer (`PrivateerBase.java:71`, `PrivateerBaseRaidIntel.java:76`), the Nexerelin listener, `CorporateGovernanceCampaignPlugin`.
 - Rural, Forge World, Corporate and Monastic rules key on industry spec tags `industrial`, `rural`, `military` from `data/campaign/industries.csv`; Managed Democracy uses `MiscIE.isMilitary`. `ModPlugin.addTypePrefaceToIndustrySpecs` only shows those tags in descriptions (`ModPlugin.java:250`). See [Economy](../core/ECONOMY.md).
 - Storage access goes through `MiscIE.getStorageCargo`; see [Utils](../core/UTILS.md). Setting reads: [Settings](../core/SETTINGS.md).
 
@@ -131,16 +143,14 @@ Apply chain: `SwitchableX.init -> setCurrent(list[0])` on first init, then `Swit
 
 | Item | State |
 |---|---|
-| `MonasticOrderSubIndustry`, `ResortSubIndustry` | Dormant: commented out of `SwitchablePopulation.industryList` (`:94-99`, `:114-119`). Monastic `isAvailableToBuild` returns dev mode only; its build check `iterIndex != lastIterInMonth` (`:134`) runs on every tick but the last |
+| `MonasticOrderSubIndustry`, `ResortSubIndustry` | Dormant: not in `Governments.LIST`, still on the old `apply()` loops. Monastic `isAvailableToBuild` returns dev mode only; its build check `iterIndex != lastIterInMonth` (`:134`) runs on every tick but the last |
 | `Concept` file | Design notes only |
-| `UnderworldSubIndustry.increaseFleetSize` | Empty, body commented out (`:143-145`) |
 | `RuralPolitySubIndustry.fixClosest` | Debug helper, only referenced from a comment |
 | Forge World without spaceport | Suspected: `return` in the unrest branch also skips ship building (`:213`) |
-| Underworld mismanagement unmodify | Key mismatch `modId + "_mm"` vs `"_" + modId + "_mm"` (`:378-385`) |
-| `_ms` stability cleanup | Checks `mod.desc`, which is "Base value", so it never matches (`UnderworldSubIndustry.java:335`, `CorporateGovernanceSubIndustry.java:206`) |
+| Decivilization | Removes the condition without `unapply`, so a Forge World or Managed Democracy listener stays registered (inferred, not tested) |
 | `HandBuiltHullmod` | Repo entries are never pruned, one per hand built ship; ships built before 4.2.a keep their 5 stored effects |
 | Changelog_todo | "Choose a government popup on colony establishment", "add some more info/tt/notifications to governments" |
 
 ## Maintenance
 
-Update this doc when a variant, its numbers, its availability rule or the switch flow changes, or when another feature starts reading `getCurrent()`. Privateer raid logic belongs in [Privateer](PRIVATEER.md); storage helpers in [Utils](../core/UTILS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when a variant, its numbers, its availability rule or the switch flow changes, or when another feature starts reading the current government. Privateer raid logic belongs in [Privateer](PRIVATEER.md); storage helpers in [Utils](../core/UTILS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).

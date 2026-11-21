@@ -544,6 +544,8 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
 
     @Override
     public boolean isAvailableToBuild() {
+        if (!super.isAvailableToBuild()) return false;
+
         boolean canBuild = false;
         boolean hasOrbital = false;
 
@@ -560,6 +562,6 @@ public class ArtilleryStation extends BaseIndustry implements FleetEventListener
 
     @Override
     public boolean showWhenUnavailable() {
-        return market.hasCondition(ArtilleryStationCondition.ID);
+        return super.showWhenUnavailable() && market.hasCondition(ArtilleryStationCondition.ID);
     }
 }

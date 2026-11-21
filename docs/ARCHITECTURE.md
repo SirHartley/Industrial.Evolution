@@ -25,7 +25,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | Industries | [ACADEMY](industries/ACADEMY.md) | Officer and admin training, Galatia Academy market | `industries/academy` |
 | | [ARTILLERY](industries/ARTILLERY.md) | Artillery stations, vision (watchtowers, lighthouses, searchlights, drone nets), campaign projectiles | `industries/artillery` |
 | | [ASSEMBLER](industries/ASSEMBLER.md) | Variable manufactories and the commodity forge (VPC items) | `industries/assembler` |
-| | [CHANGELING](industries/CHANGELING.md) | Switchable population (governments), mining and refining | `industries/changeling` |
+| | [CHANGELING](industries/CHANGELING.md) | Governments (market condition) and mining or refining specializations, applied by an industry apply listener | `industries/changeling` |
 | | [COURIER_PORT](industries/COURIER_PORT.md) | Shipping contracts between colonies | `industries/courierport` |
 | | [DERELICTS](industries/DERELICTS.md) | Ruins, ancient lab, hull deconstructor, hull forge, rift generator, forge templates | `industries/derelicts` |
 | | [EMBASSY](industries/EMBASSY.md) | Ambassadors and faction relations | `industries/embassy` |
@@ -82,7 +82,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | A storage or submarket wrong or not removed | `IndustrySubmarkets` ([SUBMARKETS](core/SUBMARKETS.md)) -> feature doc |
 | Parts, rare parts, supercomputer income | `ResourceConditionApplicator -> ResourceCondition.apply` ([ECONOMY](core/ECONOMY.md)) |
 | A ruin turns into the wrong structure | `$IndEvo_ruinsIndustryId` -> `RuinsManager` ([DERELICTS](industries/DERELICTS.md)) |
-| `getIndustry("population" / "mining" / "refining")` returns an IE class | Switchables return the vanilla id ([contract](#industries-and-markets)) |
+| Government or specialization not applied | `ChangelingApplyListener` -> `GovernmentCondition` / `Specialization` ([CHANGELING](industries/CHANGELING.md#condition-and-listener)) |
 | Detachment AI | `Behaviour.changeBehaviourAndUpdateAI -> DetachmentAI` ([SPLIT_FLEET](abilities/SPLIT_FLEET.md)) |
 | Artillery not firing | `CampaignAttackScript -> EyeIndicatorScript / WatchtowerEntityPlugin / LighthouseEntityPlugin / SearchlightEntityPlugin / DroneNetScript -> ArtilleryStationScript` ([ARTILLERY](industries/ARTILLERY.md)) |
 | Meteor shower or rogue asteroid spawn | `MeteorSwarmManager.reportEconomyTick -> spawnShower -> <Type>SwarmSpawner`, or `-> spawnRogue -> RogueAsteroidSpawner` ([METEOR](exploration/METEOR.md)) |
@@ -133,7 +133,7 @@ When adding a listener, add its `register()` call here in the feature's group an
 
 ### Patches
 
-PatchLib patches change vanilla code where the API has no hook. Each lives in a `patches` package of the feature that owns it; the feature doc describes the behaviour. Rules for writing them: the `patchlib` skill. Never target `BaseIndustry`: PatchLib 1.0.3 notes that patching it breaks with Ashes of the Domain. Never patch another mod's classes; where another mod replaces a vanilla screen, IE's patches only have to stay crash free there. Reflection inside a patch (`getField`, `getMethod`, `hasField`, `hasMethod`) takes a `FieldQuerySpec` or `MethodQuerySpec` built once into a `private static final` field of the patch class, never the `String` overloads (deprecated in the PatchLib release after 1.0.3, slower).
+PatchLib patches change vanilla code where the API has no hook. Each lives in a `patches` package of the feature that owns it; the feature doc describes the behaviour. Rules for writing them: the `patchlib` skill. `BaseIndustry` targets were avoided after PatchLib 1.0.3 notes on Ashes of the Domain; Philipp allowed them again (2026-11-21), and IE runs with AOTD and its `BaseIndustry` patches in the 0.98.5a smoke. Never patch another mod's classes; where another mod replaces a vanilla screen, IE's patches only have to stay crash free there. Reflection inside a patch (`getField`, `getMethod`, `hasField`, `hasMethod`) takes a `FieldQuerySpec` or `MethodQuerySpec` built once into a `private static final` field of the patch class, never the `String` overloads (deprecated in the PatchLib release after 1.0.3, slower).
 
 | Patch | Target | Kind | Feature doc |
 |---|---|---|---|
@@ -141,8 +141,10 @@ PatchLib patches change vanilla code where the API has no hook. Each lives in a 
 | `industries/privateer/patches/PrivateerIndustrySlotPatch` | `Misc.getNumIndustries` (API) | `@After` | [PRIVATEER](industries/PRIVATEER.md#contracts) |
 | `industries/patches/CommerceBalancePatch` | vanilla `TradeCenter` (API): six methods, `IMPROVE_BONUS` reads | `@Before`, `@After`, `@RedirectFieldRead` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#commerce-balance-patches-commerce) |
 | `abilities/skills/patches/MicromanagementRemoteItemPatch` | `StarfarerSettings` `(String) -> boolean` call in the industry option menu constructor (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred) | `@RedirectMethodCall` | [SKILLS](abilities/SKILLS.md#flow) |
+| `industries/changeling/patches/GovernmentPatherInterestPatch` | `Industry.getPatherInterest()` call in `LuddicPathBaseManager.getLuddicPathMarketInterest` (API) | `@RedirectMethodCall` | [CHANGELING](industries/CHANGELING.md#condition-and-listener) |
+| `industries/changeling/patches/ChangelingImagePatch` | `getCurrentImage()` on every `BaseIndustry` subtype (API impl), filtered to overrides the changeling set | `@After` | [CHANGELING](industries/CHANGELING.md#condition-and-listener) |
+| `industries/changeling/patches/ChangelingTooltipPatch` | `getDescriptionOverride()` and `addRightAfterDescriptionSection` calls in `BaseIndustry.createTooltip` (API impl) | `@RedirectMethodCall` | [CHANGELING](industries/CHANGELING.md#condition-and-listener) |
 | `industries/orbitalworks/patches/OrbitalWorksRemovedPatch` | `BaseIndustry.notifyBeingRemoved(mode, forUpgrade)` (API impl), filtered to `orbitalworks` | `@After` | [ORBITAL_WORKS_SLOT](industries/ORBITAL_WORKS_SLOT.md#flow) |
-| `industries/patches/CentralizationBureauApplyPatch` | `Industry.apply()` (API), every implementing class | `@After` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#centralization-bureau-indevo_adinfra) |
 | `industries/patches/DealmakerHolosuitePatch` | `ItemEffectsRepo.DEALMAKER_INCOME_PERCENT_BONUS` reads in `BaseInstallableItemEffect` subclasses (API) | `@RedirectFieldRead` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md#commerce-balance-patches-commerce) |
 | `industries/senate/patches/FastBuildPickerRowPatch` | build menu row (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, picked by `getSortBuildTime`): label `create` call in `sizeChanged`, `renderImpl` | `@RedirectMethodCall`, `@After` | [SENATE](industries/SENATE.md#build-time-display) |
 | `industries/senate/patches/FastBuildQueuedIndustryPatch` | industry card (obf `com.fs.starfarer.campaign.ui.marketinfo`, inferred, picked by `addCostTimeLabels`): `IndustrySpecAPI.getBuildTime` call in `addCostTimeLabels` | `@RedirectMethodCall` | [SENATE](industries/SENATE.md#build-time-display) |
@@ -168,7 +170,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 - Saved: fields of persistent listeners (`getInstanceOrRegister`), saved scripts (`TimeTracker`, feature scripts added with `addScript`), intel, industries and conditions on markets, custom entities and their plugins, memory values, tags.
 - Not saved: transient listeners (`register()`), campaign plugins, `SessionTransientMemory` (whitelist sets, VPC commodity and package tables).
-- Renaming or moving a saved class, or changing the type of a saved field, breaks old saves. Changeling government variants are anonymous classes in static lists; reordering those lists breaks saves (inferred, see [CHANGELING](industries/CHANGELING.md)).
+- Renaming or moving a saved class, or changing the type of a saved field, breaks old saves. Government variants are saved inside the `IndEvo_government` condition; renaming a variant class breaks saves ([CHANGELING](industries/CHANGELING.md#contracts)).
 - `TimeTracker` stores time passed in market tags (`<ident><days>`), so those tags are save data.
 - `ModPlugin.beforeGameSave()` strips untouched `IndEvo_Mine` entities to keep saves small and restores them in `afterGameSave()`. `restoreRemovedEntities()` returns early when `IndEvo_Enable_minefields` is off, which leaves any stripped mines out ([MINEFIELDS](exploration/MINEFIELDS.md)).
 
@@ -228,7 +230,8 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 ### Industries and markets
 
-- Switchable population, mining and refining return the vanilla id from `getId()`. `Market.getIndustry` and `hasIndustry` match on `getId()`, so vanilla and other mods get the IE class for `population`, `mining` and `refining`.
+- IE never replaces `population`, `mining` or `refining`. Governments and specializations sit on the market and are applied as deltas by `ChangelingApplyListener` ([CHANGELING](industries/CHANGELING.md)).
+- Buildable IE industries start `isAvailableToBuild()` and `showWhenUnavailable()` from `super` (vanilla: no build on `MARKET_NO_INDUSTRIES_ALLOWED` markets, needs `population`), then add their own checks. Never buildable industries (`Ruins`, `RuinedInfrastructure`, forge template users, rift generator) return false; `ChamelionIndustry` asks the target plugin.
 - `IndustrySpec` objects are shared by every instance of an industry. Never write per market values onto one. `Ruins` (per market upgrade), forge template users and the rift generator (no downgrade) return an `IndustrySpecView` (`indevo/industries/derelicts/utils`) from `getSpec()` ([DERELICTS](industries/DERELICTS.md)).
 - IE costs and income go through `BillingHelper` ([UTILS](core/UTILS.md#billinghelper)): own monthly report lines, and `canAfford` then `chargeNow` for dialog purchases. Never write vanilla report nodes or subtract credits directly. Loot and refunds add credits directly.
 - `BaseIndustry.buildTime` (protected) is read by reflection from `RelicBuildTimeReductionButtonAdder` and read and written from `Edict_FastBuild`.
@@ -246,7 +249,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 | From | Uses | Where |
 |---|---|---|
-| Privateer | Current changeling government; `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
+| Privateer | Current government (`GovernmentCondition.getGovernment`); `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | RAT settlements | Parent industry code: `Academy`, `ReverseEngineering`, Salvage Yards and Courier panels, `Museum` and `RestorationDocks` static helpers, Requisitions Center submarket, `VariableAssembler` deposits, `AmbassadorPersonManager`, `PetShop` (`HabitatPetShop`, `planCenter`) and the Pets panel | [RAT_SETTLEMENTS](industries/RAT_SETTLEMENTS.md) |
 | Courier port | Contracts allowed and billed with a RAT Courier Office | `ShippingManager.java:44`, `:101` |
