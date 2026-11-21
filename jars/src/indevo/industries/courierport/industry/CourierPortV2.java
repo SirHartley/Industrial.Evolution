@@ -32,12 +32,12 @@ public class CourierPortV2 extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.PRIVATEPORT.enabled();
+        return super.isAvailableToBuild() && Setting.PRIVATEPORT.enabled();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.PRIVATEPORT.enabled();
+        return super.showWhenUnavailable() && Setting.PRIVATEPORT.enabled();
     }
 
     @Override

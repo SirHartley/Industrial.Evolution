@@ -67,7 +67,7 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.SENATE.enabled();
+        return super.showWhenUnavailable() && Setting.SENATE.enabled();
     }
 
     @Override

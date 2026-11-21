@@ -96,12 +96,12 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.DRYDOCK.enabled();
+        return super.isAvailableToBuild() && Setting.DRYDOCK.enabled();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.DRYDOCK.enabled();
+        return super.showWhenUnavailable() && Setting.DRYDOCK.enabled();
     }
 
     public void reportEconomyTick(int iterIndex) {

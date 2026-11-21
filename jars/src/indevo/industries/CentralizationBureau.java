@@ -243,7 +243,7 @@ public class CentralizationBureau extends BaseIndustry {
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.ADINFRA.enabled();
+        return super.showWhenUnavailable() && Setting.ADINFRA.enabled();
     }
 
     private boolean isOnlyInfraInSystem() {

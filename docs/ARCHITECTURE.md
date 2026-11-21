@@ -228,6 +228,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 ### Industries and markets
 
 - Switchable population, mining and refining return the vanilla id from `getId()`. `Market.getIndustry` and `hasIndustry` match on `getId()`, so vanilla and other mods get the IE class for `population`, `mining` and `refining`.
+- Buildable IE industries start `isAvailableToBuild()` and `showWhenUnavailable()` from `super` (vanilla: no build on `MARKET_NO_INDUSTRIES_ALLOWED` markets, needs `population`), then add their own checks. Never buildable industries (specialized mining and refining, `Ruins`, `RuinedInfrastructure`, forge template users, rift generator) return false; `ChamelionIndustry` asks the target plugin.
 - `IndustrySpec` objects are shared by every instance of an industry. Never write per market values onto one. `Ruins` (per market upgrade), forge template users and the rift generator (no downgrade) return an `IndustrySpecView` (`indevo/industries/derelicts/utils`) from `getSpec()` ([DERELICTS](industries/DERELICTS.md)).
 - IE costs and income go through `BillingHelper` ([UTILS](core/UTILS.md#billinghelper)): own monthly report lines, and `canAfford` then `chargeNow` for dialog purchases. Never write vanilla report nodes or subtract credits directly. Loot and refunds add credits directly.
 - `BaseIndustry.buildTime` (protected) is read by reflection from `RelicBuildTimeReductionButtonAdder` and read and written from `Edict_FastBuild`.

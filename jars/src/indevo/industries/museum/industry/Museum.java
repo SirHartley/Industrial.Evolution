@@ -144,7 +144,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.MUSEUM_ENABLED.enabled();
+        return super.showWhenUnavailable() && Setting.MUSEUM_ENABLED.enabled();
     }
 
     public void setFlyParades(boolean flyParades) {

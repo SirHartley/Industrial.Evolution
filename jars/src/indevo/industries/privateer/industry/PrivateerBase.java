@@ -119,7 +119,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.PIRATEHAVEN.enabled();
+        return super.showWhenUnavailable() && Setting.PIRATEHAVEN.enabled();
     }
 
     @Override

@@ -212,12 +212,12 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.ACADEMY.enabled();
+        return super.isAvailableToBuild() && Setting.ACADEMY.enabled();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.ACADEMY.enabled();
+        return super.showWhenUnavailable() && Setting.ACADEMY.enabled();
     }
 
     //officers in training tooltip

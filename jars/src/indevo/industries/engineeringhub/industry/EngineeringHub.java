@@ -64,7 +64,7 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.ENGHUB.enabled();
+        return super.showWhenUnavailable() && Setting.ENGHUB.enabled();
     }
 
     @Override

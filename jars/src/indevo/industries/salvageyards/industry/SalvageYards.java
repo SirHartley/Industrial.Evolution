@@ -488,7 +488,7 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.SCRAPYARD.enabled();
+        return super.showWhenUnavailable() && Setting.SCRAPYARD.enabled();
     }
 
     private boolean isOnlyInstanceInSystem() {
