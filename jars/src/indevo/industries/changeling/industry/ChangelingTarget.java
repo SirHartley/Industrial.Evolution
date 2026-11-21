@@ -12,9 +12,7 @@ public interface ChangelingTarget {
 
     void setCurrent(MarketAPI market, SubIndustryData data);
 
-    String getTitle();
-
-    String getSubTitle(Industry industry);
+    String getTitle(Industry industry);
 
     // text behind the ? icon of the picker, null for no icon
     String getHelp();

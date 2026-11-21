@@ -57,13 +57,8 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
         }
 
         @Override
-        public String getTitle() {
-            return "Change government";
-        }
-
-        @Override
-        public String getSubTitle(Industry industry) {
-            return industry.getMarket().getName();
+        public String getTitle(Industry industry) {
+            return "Change government on " + industry.getMarket().getName();
         }
 
         @Override

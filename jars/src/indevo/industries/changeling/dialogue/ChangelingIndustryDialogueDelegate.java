@@ -18,6 +18,7 @@ import indevo.industries.compatibility.AotdManager;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.ui.Ui;
 import indevo.utils.ui.UiButtons;
+import indevo.utils.ui.UiData;
 import indevo.utils.ui.UiFrame;
 import indevo.utils.ui.UiHost;
 import indevo.utils.ui.UiImages;
@@ -42,6 +43,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
     static final float TILE_GAP = 8f;
     static final float TILE_PAD = 8f;
     static final float ART_X = 4f;
+    static final float HEAD_Y = 4f;
     static final float ART_Y = 22f;
     static final float ART_W = 190f;
     static final float ART_H = 95f;
@@ -53,8 +55,6 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
     static final float FACT_PITCH = 18f;
     static final float FACT_LABEL_W = 90f;
     static final float LORE_GAP = 10f;
-    static final float FOOTER_GAP = 12f;
-    static final float FOOTER_H = 17f;
     static final float TIP_W = 400f;
 
     private final Industry industry;
@@ -176,7 +176,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
 
     private void build(CustomPanelAPI p, float w, float h) {
         String help = target.getHelp();
-        UiFrame.title(p, w, target.getTitle(), target.getSubTitle(industry), help == null ? null : t -> t.addPara(help, 0f));
+        UiFrame.title(p, w, target.getTitle(industry), null, help == null ? null : t -> t.addPara(help, 0f));
 
         for (int i = 0; i < options.size(); i++) {
             tile(p, GRID_X + (i % PER_ROW) * (TILE_W + TILE_GAP), GRID_Y + (i / PER_ROW) * (TILE_H + TILE_GAP), options.get(i));
@@ -184,11 +184,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
 
         Option shown = option(selected);
         float cardY = cardY();
-        float footerY = Math.min(cardY + tallestCard(w) + FOOTER_GAP, h - FOOTER_H);
-        if (shown != null) card(p, cardY, w, footerY - FOOTER_GAP - cardY, shown);
-
-        String credits = Ui.num(Global.getSector().getPlayerFleet().getCargo().getCredits().get());
-        Ui.runs(p, 0f, footerY, 300f, Ui.INS15, Ui.gray(), Ui.LEFT, "Credits: " + credits, new String[]{credits}, new Color[]{Ui.hl()});
+        if (shown != null) card(p, cardY, w, Math.min(tallestCard(w), h - cardY), shown);
     }
 
     private void tile(CustomPanelAPI p, float x, float y, Option o) {
@@ -203,7 +199,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
         });
 
         Color name = picked ? Ui.bright() : o.research != null ? Ui.gray() : why != null ? Ui.neg() : Ui.base();
-        Ui.text(tile, TILE_PAD, 3f, tw, o.data.name, name);
+        Ui.heading(tile, ART_X, HEAD_Y, ART_W, o.data.name, Ui.LEFT, name, Ui.dark());
 
         if (o.research != null) UiImages.grey(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite);
         else UiImages.img(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite, null, why == null ? 1f : DIM);
@@ -230,9 +226,11 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
         Ui.heading(p, rx, y, half, "Effects", Ui.LEFT);
 
         float top = y + CARD_TOP;
-        float fy = top;
-        if (o.current) fy = fact(p, fy, half, "Status", "Current", Ui.text());
-        else fy = fact(p, fy, half, "Cost", Ui.credits(o.cost), o.afford ? Ui.hl() : Ui.neg());
+        float fy = top + UiData.COST_ROW_H;
+        float vw = half - FACT_LABEL_W;
+        Ui.textIn(p, 0f, top, FACT_LABEL_W, UiData.COST_ROW_H, o.current ? "Status" : "Cost", Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
+        if (o.current) Ui.textIn(p, FACT_LABEL_W, top, vw, UiData.COST_ROW_H, "Current", Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        else UiData.cost(p, FACT_LABEL_W, top, vw, UiImages.creditsSprite(), Ui.credits(o.cost), Ui.credits(Global.getSector().getPlayerFleet().getCargo().getCredits().get()), o.afford, UiData.COST_ICON);
         if (o.data.requires != null) fy = fact(p, fy, half, "Requires", o.data.requires, o.blocked != null ? Ui.neg() : Ui.text());
         if (o.permanence != null) fy = fact(p, fy, half, "Permanent", o.permanence, Ui.text());
 
@@ -272,7 +270,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
         float tallest = 0f;
         for (Option o : options) {
             int facts = 1 + (o.data.requires != null ? 1 : 0) + (o.permanence != null ? 1 : 0);
-            float left = facts * FACT_PITCH + LORE_GAP + Ui.wrapHeight(o.lore, Ui.INS15, half);
+            float left = UiData.COST_ROW_H + (facts - 1) * FACT_PITCH + LORE_GAP + Ui.wrapHeight(o.lore, Ui.INS15, half);
             tallest = Math.max(tallest, CARD_TOP + Math.max(left, EffectLines.height(o.effects)));
         }
 
@@ -280,6 +278,6 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
     }
 
     private float height(float w) {
-        return UiFrame.height(cardY() + tallestCard(w) + FOOTER_GAP + FOOTER_H + UiFrame.DIALOG_PAD_H);
+        return UiFrame.height(cardY() + tallestCard(w) + UiFrame.DIALOG_PAD_H);
     }
 }

@@ -162,13 +162,8 @@ public class Specialization implements ChangelingTarget {
     }
 
     @Override
-    public String getTitle() {
-        return "Change specialization";
-    }
-
-    @Override
-    public String getSubTitle(Industry industry) {
-        return industry.getSpec().getName() + ", " + industry.getMarket().getName();
+    public String getTitle(Industry industry) {
+        return "Change " + industry.getSpec().getName() + " specialization on " + industry.getMarket().getName();
     }
 
     @Override
