@@ -113,8 +113,8 @@ IndEvo_ReqCenter,[Industries] Requisitions Centre,Boolean,TRUE,,Allow constructi
 IndEvo_EngHub,[Industries] Engineering Hub,Boolean,TRUE,,Allow construction of the Engineering Hub. Default on.,,,Industries
 IndEvo_PrivatePort,[Industries] Courier Port,Boolean,TRUE,,Allow construction of the Courier Port. Default on. NPC placement needs a new game.,,,Industries
 IndEvo_pirateHaven,[Industries] Privateer Base,Boolean,TRUE,,Allow construction of the Privateer Base. Default on.,,,Industries
-IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Allow construction of Specialized Refining. Default on.,,,Industries
-IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Allow construction of Specialized Mining. Default on.,,,Industries
+IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Allow refining specializations. Default on.,,,Industries
+IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Allow mining specializations. Default on.,,,Industries
 IndEvo_museum_enabled,[Industries] Museum,Boolean,TRUE,,Allow construction of the Museum. Default on.,,,Industries
 ,,,,,,,,
 IndEvo_header_Governance,Governance,Header,Governance,,,,,Industries

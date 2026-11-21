@@ -19,6 +19,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.industries.changeling.hullmods.Hellpods;
+import indevo.industries.changeling.conditions.GovernmentCondition;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.helper.MiscIE;
@@ -106,8 +107,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         }
 
         public boolean isSuitable(Industry ind) {
-            Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
-            boolean isTarget = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof HelldiversSubIndustry;
+            boolean isTarget = GovernmentCondition.getGovernment(ind.getMarket()) instanceof HelldiversSubIndustry;
             return !Setting.GOVERNMENT_LARP_MODE.enabled() && isTarget;
         }
 
@@ -300,13 +300,11 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
 
     @Override
     public void apply() {
-        ((SwitchablePopulation) industry).superApply();
-
         HelldiversTooltipAdder.register();
-        Global.getSector().getListenerManager().addListener(this);
+        if (!Global.getSector().getListenerManager().hasListener(this)) Global.getSector().getListenerManager().addListener(this);
         correctStability();
 
-        String modID = ((SwitchablePopulation) industry).getModId();
+        String modID = modId();
 
         int size = market.getSize();
         market.getStats().getDynamic().getMod(Stats.PATROL_NUM_LIGHT_MOD).modifyFlat(modID, market.getSize() > 4 ? 2 : 1);
@@ -314,7 +312,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         if (size > 4) market.getStats().getDynamic().getMod(Stats.PATROL_NUM_HEAVY_MOD).modifyFlat(modID, 1);
 
 
-        market.getIncomeMult().modifyPercent(((SwitchablePopulation) industry).getModId(), -INCOME_RED, getName());
+        market.getIncomeMult().modifyPercent(modId(), -INCOME_RED, getName());
 
         for (Map.Entry<String, RaidMod> raidModEntry : raidMods.entrySet()){
             if (raidModEntry.getValue().isExpired()) continue;
@@ -328,12 +326,6 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
             market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).modifyFlat(getId(), mod, getName());
         }
 
-        for (Industry ind : market.getIndustries()) {
-            if (MiscIE.isMilitary(ind)) {
-                ind.getUpkeep().modifyMult(getId(), HELLDIVERS_UPKEEP_RED, getName());
-            }
-        }
-
         if (market.isPlayerOwned()) {
             SubmarketPlugin sub = Misc.getLocalResources(market);
 
@@ -345,6 +337,16 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
                 }
             }
         }
+    }
+
+    @Override
+    public void applyToOther(Industry ind) {
+        if (MiscIE.isMilitary(ind)) ind.getUpkeep().modifyMult(getId(), HELLDIVERS_UPKEEP_RED, getName());
+    }
+
+    @Override
+    public void unapplyFromOther(Industry ind) {
+        ind.getUpkeep().unmodify(getId());
     }
 
     @Override
@@ -365,7 +367,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
     @Override
     public void unapply() {
         super.unapply();
-        String id = ((SwitchablePopulation) industry).getModId();
+        String id = modId();
         market.getStability().unmodify(id);
         market.getIncomeMult().unmodify(id);
 
@@ -375,12 +377,6 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(getId());
 
         Global.getSector().getListenerManager().removeListener(this);
-
-        for (Industry ind : market.getIndustries()) {
-            if (MiscIE.isMilitary(ind)) {
-                ind.getUpkeep().unmodify(getId());
-            }
-        }
 
         SubmarketPlugin sub = Misc.getLocalResources(market);
         if (sub instanceof LocalResourcesSubmarketPlugin) {
@@ -397,7 +393,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         int current = market.getStability().getModifiedInt();
         int absDiff = Math.abs(MathUtils.clamp(current, MIN_STAB, MAX_STAB) - current);
         int mod = current > MAX_STAB ? absDiff * -1 : current < MIN_STAB ? absDiff : 0;
-        market.getStability().modifyFlat(((SwitchablePopulation) industry).getModId(), mod, "Base value");
+        market.getStability().modifyFlat(modId(), mod, "Base value");
     }
 
     //negate pather interest
@@ -418,7 +414,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
         for (Industry ind : market.getIndustries()) {
             // Wisp: Fixes an infinite loop with TASC, which _also_ calls getPatherInterest on industries.
             // <https://fractalsoftworks.com/forum/index.php?topic=18011.msg416817#msg416817>
-            if (ind instanceof SwitchablePopulation || ind.getId().equals("BOGGLED_CHAMELEON")) continue;
+            if (ind.getId().equals(Industries.POPULATION) || ind.getId().equals("BOGGLED_CHAMELEON")) continue;
             total += ind.getPatherInterest();
         }
 

@@ -29,3 +29,4 @@ ressourceCondition,IndEvo_ressCond,,,TRUE,indevo.economy.conditions.ResourceCond
 RelayCondition,IndEvo_RelayCondition,,,TRUE,indevo.industries.relay.condition.RelayConditionPlugin,"hidden, technical",graphics/icons/markets/placeholder.png,1000
 RuinfraCond,IndEvo_RuinedInfra,,,,indevo.industries.ruinfra.conditions.DerelictInfrastructureCondition,"hidden, technical",graphics/icons/markets/placeholder.png,1000
 WorldWonderCondition,IndEvo_WorldWonderCondition,,,TRUE,indevo.industries.worldwonder.conditions.WorldWonderCondition,"hidden, technical",graphics/icons/markets/placeholder.png,1000
+Government,IndEvo_government,,,TRUE,indevo.industries.changeling.conditions.GovernmentCondition,The local style of government.,graphics/icons/markets/established_polity.png,20.5

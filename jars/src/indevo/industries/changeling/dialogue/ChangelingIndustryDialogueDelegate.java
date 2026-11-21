@@ -5,7 +5,6 @@ import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
@@ -13,14 +12,11 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.industries.changeling.industry.SwitchableIndustryAPI;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.MiscIE;
+import indevo.industries.changeling.industry.ChangelingTarget;
 import indevo.utils.helper.BillingHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate {
@@ -31,15 +27,15 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
     public static final float ENTRY_WIDTH = WIDTH - 5f; //MUST be even
 
     public Industry industry;
+    public ChangelingTarget target;
     public List<SubIndustryData> subIndustries;
-    public String industryToAdd;
     public SubIndustryData selected = null;
     public List<ButtonAPI> buttons = new ArrayList<>();
 
-    public ChangelingIndustryDialogueDelegate(Industry industry, String baseChangelingIndustryID, List<SubIndustryData> subIndustries) {
+    public ChangelingIndustryDialogueDelegate(Industry industry, ChangelingTarget target) {
         this.industry = industry;
-        this.subIndustries = subIndustries;
-        this.industryToAdd = baseChangelingIndustryID;
+        this.target = target;
+        this.subIndustries = target.getOptions();
     }
 
     public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
@@ -51,11 +47,12 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
 
         buttons.clear();
 
+        String currentId = target.getCurrentId(industry.getMarket());
+
         for (SubIndustryData data : subIndustries) {
             SubIndustry sub = data.newInstance();
 
-            if (industry instanceof SwitchableIndustryAPI && sub.getId().equals(((SwitchableIndustryAPI) industry).getCurrent().getId())) continue;
-            if (!(industry instanceof SwitchableIndustryAPI) && sub.isBase()) continue;
+            if (sub.getId().equals(currentId)) continue;
 
             sub.init(industry);
 
@@ -140,61 +137,11 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
     public void customDialogConfirm() {
         if (selected == null) return;
 
-        //its already a switchable and we just update
-        if (industry instanceof SwitchableIndustryAPI) {
-            SwitchableIndustryAPI swIndustry = (SwitchableIndustryAPI) industry;
+        MarketAPI market = industry.getMarket();
+        if (selected.id.equals(target.getCurrentId(market))) return;
 
-            if (!swIndustry.getCurrent().getId().equals(selected.id)) {
-                swIndustry.setCurrent(selected.newInstance(), false);
-                BillingHelper.chargeNow(selected.cost);
-            }
-        } else {
-            //it's not and we have to replace
-            MarketAPI market = industry.getMarket();
-            market.removeIndustry(industry.getId(), null, false);
-            market.addIndustry(industryToAdd);
-            ModPlugin.log("adding " + industryToAdd + " to " + market.getName());
-
-            Industry switchable = null;
-
-            for (Industry industry : market.getIndustries()) {
-                //the switchables return a fake id on .getId() so we gotta check the spec
-                if (industry.getSpec().getId().equals(industryToAdd)) {
-                    switchable = industry;
-                    break;
-                }
-            }
-
-            if (switchable == null) {
-                ModPlugin.log("could not find switchable on planet, returning");
-                return;
-            }
-
-            //refund or transfer items
-            SpecialItemData specialItemData = industry.getSpecialItem();
-
-            if (specialItemData != null && canInstallItem(switchable, specialItemData.getId())) {
-                switchable.setSpecialItem(specialItemData);
-            } else if (specialItemData != null) MiscIE.getStorageCargo(market).addSpecial(specialItemData, 1);
-
-            switchable.setAICoreId(industry.getAICoreId());
-            if (switchable.canImprove()) switchable.setImproved(industry.isImproved());
-
-            if (switchable instanceof SwitchableIndustryAPI) {
-                ((SwitchableIndustryAPI) switchable).setCurrent(selected.newInstance(), false);
-                BillingHelper.chargeNow(selected.cost);
-            } else throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");
-        }
-    }
-
-    public boolean canInstallItem(Industry industry, String itemID) {
-        SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(itemID);
-
-        //check if it's applicable to the industry
-        boolean isApplicableToIndustry = Arrays.asList(spec.getParams().replaceAll("\\s", "").split(",")).contains(industry.getId());
-        //check if it has unmet requirements on the market
-        return isApplicableToIndustry && ItemEffectsRepo.ITEM_EFFECTS.get(itemID).getUnmetRequirements(industry).isEmpty();
-
+        target.setCurrent(market, selected);
+        BillingHelper.chargeNow(selected.cost);
     }
 
     public void customDialogCancel() {
