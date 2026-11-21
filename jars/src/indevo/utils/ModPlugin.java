@@ -434,6 +434,8 @@ public class ModPlugin extends BaseModPlugin {
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ACADEMY_SKILL_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.RIFT_BLOCKED_SYSTEMS_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.RIFT_BLOCKING_ENTITIES_LIST);
     }
 
     private void setListenersIfNeeded() {

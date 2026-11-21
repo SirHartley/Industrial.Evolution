@@ -59,10 +59,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_SalvageDefenderInteraction` | `indevo.industries.artillery.rules` | 1 | `IndEvo_ArtilleryCombatInteraction:377` | [Artillery](../industries/ARTILLERY.md) |
 | `CourierPortDialoguePlugin` | `indevo.industries.courierport.dialogue` | 3 | `IndEvo_OpenShippingPortFromIndustryOption:816` | [Courier port](../industries/COURIER_PORT.md) |
 | `CourierPortIsDisplayInRelay` | `indevo.industries.courierport.dialogue` | 1 | `IndEvo_CommrelayShippingPoint:825` | [Courier port](../industries/COURIER_PORT.md) |
-| `IndEvo_GeneratorAllowedToFire` | `indevo.industries.derelicts.rules` | 6 | `IndEvo_RiftControlMenuPoint:773` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_GeneratorReadyToFire` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftControlMenuPoint:773` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_MoreThanTwoColonies` | `indevo.industries.derelicts.rules` | 2 | `IndEvo_RiftTarget_COLONY:731` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_RiftInit` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftTarget_COLONY_init:755` | [Derelicts](../industries/DERELICTS.md) |
+| `IndEvo_RiftGen` | `indevo.industries.derelicts.rules` | 14 | `IndEvo_RiftTarget_setup:763`, `IndEvo_RiftControlMenuPoint:806` | [Derelicts](../industries/DERELICTS.md#rift-generator-move) |
 | `IndEvo_ShowSalvageYardsPanel` | `indevo.industries.salvageyards.rules` | 3 | `IndEvo_SYCustomProductionPanel_init:564`, `IndEvo_SYMoveDMods_init:565`, `IndEvo_SYMoveSMods_init:566` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
 | `IndEvo_addAmbassadorToCargo` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorConfirm:610` | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_ambFactionMismatch` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorGreetingWar:578` | [Embassy](../industries/EMBASSY.md) |

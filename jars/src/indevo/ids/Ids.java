@@ -25,6 +25,8 @@ public class Ids {
     public static final String ARCOLOGIES_LIST = Global.getSettings().getString("IndEvo_arcologiesList");
     public static final String ARCOLOGIES_COND_LIST = Global.getSettings().getString("IndEvo_arcologiesCondList");
     public static final String ACADEMY_SKILL_LIST = Global.getSettings().getString("IndEvo_academySkillList");
+    public static final String RIFT_BLOCKED_SYSTEMS_LIST = Global.getSettings().getString("IndEvo_riftBlockedSystemsList");
+    public static final String RIFT_BLOCKING_ENTITIES_LIST = Global.getSettings().getString("IndEvo_riftBlockingEntitiesList");
 
     //tags
     public static final String TAG_NEVER_REMOVE_RUINS = "IndEvo_RuinsAlways";

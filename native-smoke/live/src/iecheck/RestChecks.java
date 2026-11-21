@@ -53,7 +53,9 @@ import indevo.ids.ItemIds;
 import indevo.industries.RequisitionCenter;
 import indevo.industries.courierport.ShippingCostCalculator;
 import indevo.industries.derelicts.industry.RiftGenerator;
-import indevo.industries.derelicts.scripts.PlanetMovingScript;
+import indevo.industries.derelicts.RiftRelocator;
+import indevo.industries.derelicts.RiftTargetArea;
+import indevo.industries.derelicts.RiftTargetMode;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.petshop.industry.PetShop;
@@ -418,25 +420,23 @@ public final class RestChecks {
         steps.add(c -> {
             MarketAPI a = c.market("a");
             RiftGenerator rift = (RiftGenerator) a.getIndustry(Ids.RIFTGEN);
-            Vector2f center = Global.getSector().getStarSystem("Askonia").getLocation();
-            List<StarSystemAPI> core = new ArrayList<>();
-            for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-                if (system != a.getStarSystem() && Misc.getDistanceLY(center, system.getLocation()) <= 6f) core.add(system);
-            }
-            c.note("core systems " + core.size());
-            StarSystemAPI last = core.remove(0);
+            RiftTargetArea area = rift.getTargets().getArea(RiftTargetMode.CORE);
+            c.note("core area " + area.systems.size() + " systems");
+            c.expect(!area.isEmpty(), "604 rift generator finds a core area");
+            if (area.isEmpty()) return;
+
+            StarSystemAPI keep = area.systems.get(0);
             List<JumpPointAPI> marks = new ArrayList<>();
-            for (StarSystemAPI system : core) {
-                JumpPointAPI mark = Global.getFactory().createJumpPoint(PlanetMovingScript.ARTIFICIAL_RIFT_ID + "_check_" + system.getId(), "Check rift");
+            for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+                if (system == keep || system == a.getStarSystem()) continue;
+                JumpPointAPI mark = Global.getFactory().createJumpPoint(RiftRelocator.RIFT_ID_PREFIX + "_check_" + system.getId(), "Check rift");
                 system.addEntity(mark);
                 marks.add(mark);
             }
-            Object target = null;
-            for (int i = 0; i < 40; i++) {
-                target = call(MethodType.methodType(StarSystemAPI.class, RiftGenerator.TargetMode.class), RiftGenerator.class, "getTarget", rift, RiftGenerator.TargetMode.CORE);
-            }
-            c.note("target " + target + ", last core system " + last);
-            c.expect(target != null, "604 rift generator picks a target with one core system left");
+
+            RiftTargetArea left = rift.getTargets().getArea(RiftTargetMode.CORE);
+            c.note("core area with rifts everywhere else " + left.systems);
+            c.expect(left.systems.size() == 1 && left.systems.get(0) == keep, "604 rift area keeps the one system without a rift");
             for (JumpPointAPI mark : marks) mark.getContainingLocation().removeEntity(mark);
         });
 

@@ -14,7 +14,7 @@ Staged campaign animations and LunaLib campaign particle renderers. Users: Cruci
 |---|---|---|
 | `animation/CampaignAnimationScript.java` | interface: `addStage(AnimationStage)`, `loadStages()` | `BaseStagedAnimationScript` |
 | `animation/AnimationStage.java` | abstract stage: ctor `(runtime, delayBySeconds)`; `advance(amt)` waits for the delay, calls `runOnce()` once then `run(amt)` each frame until `isDone()` (`timePassed >= runtime`) | Crucible and derelicts animation scripts |
-| `animation/BaseStagedAnimationScript.java` | `EveryFrameScript`; calls `loadStages()` on first advance, advances all stages in parallel, `done` when all stages are done; `runWhilePaused()` false | `derelicts/scripts/WarpEffectAnimationScript`, `crucible/scripts/CrucibleStartupAnimationScript`, `CrucibleMoveAnimationScript` |
+| `animation/BaseStagedAnimationScript.java` | `EveryFrameScript`; calls `loadStages()` on first advance, advances all stages in parallel, `done` when all stages are done; `runWhilePaused()` false | `crucible/scripts/CrucibleStartupAnimationScript`, `CrucibleMoveAnimationScript` |
 | `animation/data/CirclePathData.java` | center, radius, start and end angle; ctor from two points and a radius via `TrigHelper.findTwoPointCircle` | none (dead) |
 | `animation/particles/NebulaParticle.java` | one nebula sprite cell: `advance(amt)`, `getCurrentAlpha()` (0.5 s fade in, `smootherstep` fade out), `isExpired()`; inner `LocationData` (radius, angle, center) with `getLocation()`, `incrementRadius()` | the renderers below, `consumables/entities/SmokeCloudEntityPlugin`, `meteor/renderers/MeteorDebrisRenderer` |
 | `animation/particles/RadialDustCloudEjectionRenderer.java` | `LunaCampaignRenderingPlugin`; spawns particles for `spawnDur` then pushes them out radially; fixed 6 s life (`DURATION`), layer `TERRAIN_6A` | Crucible scripts |
@@ -53,7 +53,7 @@ Two reflection helpers exist. Prefer `StarReflectionUtils` for new code (ambigui
 | Market queries | `isMilitary(industry)` 80, `marketHasMilitary(market, onlyFunctional)` 634, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 616, `getFactionMarkets(faction)` 371 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 473/484 (skips hidden), `getClosestMarketWithIndustry(market, id)` 284, `getClosestPlayerMarketWithIndustryFromSet` 302, `getAiCoreIdNotNull(ind)` 248 (`"none"`) |
 | System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 675/705, `systemHasIndustryExcludeNotFunctional` 689, `getAmountOfIndustryInSystem` 724, `isOnlyInstanceInSystem` 748, `isOnlyInstanceInSystemExcludeMarket` 648 (both count the construction queue) |
 | Economy | `applyDeficitToProduction(ind, index, deficit, commodities...)` 85. Billing and credits: [BillingHelper](#billinghelper) |
-| Planets | `planetHasRings(planet or market)` 439/455 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 45 |
+| Planets | `planetHasRings(planet)` 438 (a `RingBandAPI` with the planet as focus or orbit focus), `getEntitiesInRange(entity, range)` 45 |
 | Sector memory maps | `getMapFromMemory(key)` 320 (sorted copy, creates the key), `storeMapInMemory(map, key)` 340, `getClampedMap` 330, `sortByLargestValue` 349, `addOrIncrement(map, id, by)` 173/183 |
 | Math and lists | `smootherstep(e0, e1, x)` 97, `customLog(base, x)` 344, `getRandomInRange(min, max, random)` 55, `splitList(list or set, perPage)` 194/207, `getDaysOfCurrentMonth()` 242 |
 

@@ -28,6 +28,7 @@ public class AotdManager {
     public static final String TENEBRIAN_NANOFORGE = "aotd_shrouded_nanoforge";
     public static final String TECH_OPTIONS = "data/campaign/aotd_tech_options.csv";
     public static final String INDUSTRY_REWARD = "industry";
+    public static final String MEGASTRUCTURE_KEY = "aotd_megastructure_";
 
     private static Map<String, List<String>> nodesByIndustry = null;
     private static final Map<String, String> nodeNames = new HashMap<>();
@@ -59,6 +60,17 @@ public class AotdManager {
     public static String getMissingResearchReason(String industryId, MarketAPI market) {
         if (isResearched(industryId, market)) return null;
         return "Requires research: " + nodeNames.get(getNodes(industryId).get(0));
+    }
+
+    // vok keeps each megastructure script in the memory of the entity it belongs to
+    public static boolean hasMegastructure(SectorEntityToken entity) {
+        if (!isVokEnabled()) return false;
+
+        for (String key : entity.getMemoryWithoutUpdate().getKeys()) {
+            if (key.contains(MEGASTRUCTURE_KEY)) return true;
+        }
+
+        return false;
     }
 
     public static boolean isObjective(SectorEntityToken entity) {

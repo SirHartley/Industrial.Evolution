@@ -123,6 +123,7 @@ public enum Setting {
     DERELICT_DELIVER_TO_GATHERING("IndEvo_derelictDeliverToGathering", false),
     RG_COOLDOWN_TIME("IndEvo_RG_cooldownTime", 90, 1, 365),
     RG_RANGE("IndEvo_RG_range", 9, 1, 100),
+    RG_PRECISE_COST("IndEvo_RG_preciseCost", 100, 0, 1000),
     RESLAB_AUTO_DELIVER_TO_CLOSEST_DECON("IndEvo_reslab_autoDeliverToClosestDecon", false),
     DECON_IGNORE_WHITELISTS("IndEvo_DeconIgnoreWhitelists", true),
     DECON_ALLOW_NEX_OMEGA("IndEvo_DeconAllowNexOmega", false),

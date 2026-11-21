@@ -1239,26 +1239,6 @@
 		"scaleIconWithZoom":true,
 		"tags":["has_interaction_dialog", "salvageable", "neutrino", "salvor_orbital"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-	},
-
-	"IndEvo_WarpEffect":{
-		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
-		"showNameOnMap":false,
-		"renderCircleIndicator":false, # make clickable,
-		"interactable":false,
-		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.industries.derelicts.entities.WarpEffectPlugin"
-	},
-
-	"IndEvo_WormHoleEffect":{
-		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
-		"showNameOnMap":false,
-		"renderCircleIndicator":false, # make clickable,
-		"interactable":false,
-		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.industries.derelicts.entities.HoleEffectPlugin"
 	}
 }
 
