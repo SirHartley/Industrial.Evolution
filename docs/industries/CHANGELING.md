@@ -111,8 +111,9 @@ Apply chain, per industry, from `Market.reapplyIndustries` and `BaseIndustry.rea
 ### Mining and refining
 
 - The deltas apply to every industry whose spec carries the `mining` or `refining` tag (vanilla and every VoK tier), only while it is functional. The host keeps its own demand and deficit logic.
-- Mining variants add a flat `_IndEvo_specialized` supply mod per commodity (`MiningSpecializations.applyOutputDeltas`). Ore: +2/-2/-2/-2. Transplutonics: -3/+2/-3/-3. Volatiles: -3/-3/-3/+2. Organics: -3/-3/+2/-3.
-- Refining variants shift metals and transplutonics supply, and ore and rare ore demand, by +-2 (`RefiningSpecializations.applyOutputDeltas`).
+- Variants change each line by a percent of what the host left on it after its own apply, written as one flat `_IndEvo_specialized` mod (rounded half away from zero) because the vanilla commodity tooltip only lists flat mods. A line at 0 or below gets nothing, so a focus never makes a commodity the planet does not produce.
+- Mining (`MiningSpecializations.applyOutputDeltas`, ore/rare ore/organics/volatiles): Ore +40/-40/-40/-40. Transplutonics -50/+40/-50/-50. Organics -50/-50/+40/-50. Volatiles -50/-50/-50/+40. On a size 6 colony this is close to the old flat +2 and -2 or -3; small AOTD tier lines now scale instead of dropping to 0.
+- Refining (`RefiningSpecializations.applyOutputDeltas`): focus supply +40%, the other -40%; ore and rare ore demand move by 3/4 of that (+-30%).
 - `Specialization.removeDeltas` drops the key from every supply and demand, and the `ind_sb` supply bonus a positive `supply()` call left on a commodity that has nothing else.
 - Option providers show on any tagged host on player markets, only while the matching setting is on.
 

@@ -36,47 +36,48 @@ public class MiningSpecializations {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applyOutputDeltas(industry, 2, -2, -2, -2);
+                        applyOutputDeltas(industry, 40, -40, -40, -40);
                     }
                 };
             }
-        }.gain("Ore output %s", "+2").cost("Other mining output %s", "-2"));
+        }.gain("Ore output %s", "+40%").cost("Other mining output %s", "-40%"));
 
         add(new SubIndustryData("rare_mining", "Transplutonics Mining", Global.getSettings().getSpriteName("IndEvo", "rare_mining"), "IndEvo_rare_mining", 25000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applyOutputDeltas(industry, -3, 2, -3, -3);
+                        applyOutputDeltas(industry, -50, 40, -50, -50);
                     }
                 };
             }
-        }.gain("Transplutonic ore output %s", "+2").cost("Other mining output %s", "-3"));
+        }.gain("Transplutonic ore output %s", "+40%").cost("Other mining output %s", "-50%"));
 
         add(new SubIndustryData("volatile_mining", "Volatile Extraction", Global.getSettings().getSpriteName("IndEvo", "volatile_mining"), "IndEvo_volatile_mining", 50000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applyOutputDeltas(industry, -3, -3, -3, 2);
+                        applyOutputDeltas(industry, -50, -50, -50, 40);
                     }
                 };
             }
-        }.gain("Volatiles output %s", "+2").cost("Other mining output %s", "-3"));
+        }.gain("Volatiles output %s", "+40%").cost("Other mining output %s", "-50%"));
 
         add(new SubIndustryData("organics_mining", "Organics Extraction", Global.getSettings().getSpriteName("IndEvo", "organics_mining"), "IndEvo_organics_mining", 10000) {
             @Override
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applyOutputDeltas(industry, -3, -3, 2, -3);
+                        applyOutputDeltas(industry, -50, -50, 40, -50);
                     }
                 };
             }
-        }.gain("Organics output %s", "+2").cost("Other mining output %s", "-3"));
+        }.gain("Organics output %s", "+40%").cost("Other mining output %s", "-50%"));
     }};
 
-    public static void applyOutputDeltas(Industry industry, int oreMod, int rareOreMod, int organicsMod, int volatileMod) {
+    // percent of each line, close to the old flat +2 and -2 or -3 on a size 6 colony
+    public static void applyOutputDeltas(Industry industry, float oreMod, float rareOreMod, float organicsMod, float volatileMod) {
         Specialization.addSupply(industry, Commodities.ORE, oreMod);
         Specialization.addSupply(industry, Commodities.RARE_ORE, rareOreMod);
         Specialization.addSupply(industry, Commodities.ORGANICS, organicsMod);
