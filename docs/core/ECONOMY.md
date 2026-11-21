@@ -130,6 +130,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | IE timer speed up (Accelerate, Salvage Yards Accelerate Construction) | 1 per remaining day, halves it | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | Rift Generator recharge (Recharge) | 3 per remaining day, ends the cooldown | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
+| Rift Generator Precise targeting | `IndEvo_RG_preciseCost` (100) per jump | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#rift-generator-move) |
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Express Delivery | 1 per delivery day (60 at vanilla) | fleet cargo | [Custom production Express Delivery](#custom-production-express-delivery) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |

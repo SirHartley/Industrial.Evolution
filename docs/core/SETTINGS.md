@@ -103,6 +103,8 @@ if (!Setting.EMBASSY.enabled()) return;
 | `ARCOLOGIES_LIST` | `IndEvo_arcologiesList` | `hidden_arcologies_blacklist.csv` | [Changeling](../industries/CHANGELING.md) |
 | `ARCOLOGIES_COND_LIST` | `IndEvo_arcologiesCondList` | `hidden_arcologies_supressed_whitelist.csv` | [Changeling](../industries/CHANGELING.md) |
 | `ACADEMY_SKILL_LIST` | `IndEvo_academySkillList` | `academy_admin_skill_whitelist.csv` | [Academy](../industries/ACADEMY.md) |
+| `RIFT_BLOCKED_SYSTEMS_LIST` | `IndEvo_riftBlockedSystemsList` | `rift_blocked_systems.csv` | [Derelicts](../industries/DERELICTS.md) |
+| `RIFT_BLOCKING_ENTITIES_LIST` | `IndEvo_riftBlockingEntitiesList` | `rift_blocking_entities.csv` | [Derelicts](../industries/DERELICTS.md) |
 
 The feature column is the main consumer; the feature doc is the owner of how the list is applied.
 

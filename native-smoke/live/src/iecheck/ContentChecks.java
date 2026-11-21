@@ -25,7 +25,7 @@ import indevo.industries.courierport.ShippingContractMemory;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.industry.AncientLaboratory;
 import indevo.industries.derelicts.industry.Ruins;
-import indevo.industries.derelicts.scripts.PlanetMovingScript;
+import indevo.industries.derelicts.scripts.RiftJumpScript;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.utils.helper.MiscIE;
 
@@ -152,7 +152,8 @@ public final class ContentChecks {
             c.put("target", target.getId());
             c.put("from", planet.getContainingLocation().getId());
             b.addIndustry(Ids.RIFTGEN);
-            Global.getSector().addScript(new PlanetMovingScript(b, target));
+            planet.getMemoryWithoutUpdate().set("$IndEvo_smokeRiftMarker", true);
+            Global.getSector().addScript(new RiftJumpScript(b, target));
             c.days(3f);
         });
         steps.add(c -> {
@@ -164,6 +165,7 @@ public final class ContentChecks {
                 if (terrain.getPlugin() instanceof BaseRingTerrain && ((BaseRingTerrain) terrain.getPlugin()).getRelatedEntity() == b.getPrimaryEntity()) moved = true;
             }
             c.expect(moved, "607 ring terrain moved with the planet");
+            c.expect(b.getPlanetEntity().getMemoryWithoutUpdate().getBoolean("$IndEvo_smokeRiftMarker"), "rift jump keeps the planet object and its memory");
         });
         return steps;
     }

@@ -156,6 +156,7 @@ IndEvo_DerInfraBuildRed,[Derelict Infrastructure] Derelict Infra Cost Reduction,
 IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,Send derelict industry output to the gathering point instead of local storage. Default off.,,,Derelict Industries
 IndEvo_RG_cooldownTime,[Rift Generator] Cooldown,Int,90,,"Recharge time after moving a planet, in days. An alpha core reduces it by 30 days. Default 90.",1,365,Derelict Industries
 IndEvo_RG_range,[Rift Generator] Range,Int,9,,Planet relocation range in light years. A beta core adds 3 light years. Default 9.,1,100,Derelict Industries
+IndEvo_RG_preciseCost,[Rift Generator] Precise Targeting Cost,Int,100,,Relic Components to lock the Generator onto one star system of your choice. Paid once per jump. Default 100.,0,1000,Derelict Industries
 IndEvo_reslab_autoDeliverToClosestDecon,[Derelict Laboratory] Deliver to Nearest Deconstructor,Boolean,FALSE,,Send restored forge templates to the nearest Hull Deconstructor. Default off.,,,Derelict Industries
 IndEvo_DeconIgnoreWhitelists,[Hull Deconstructor] Ignore Whitelists,Boolean,TRUE,,Skip ship whitelist checks. Printed ships and ships with permanent human officers remain excluded. Default on.,,,Derelict Industries
 IndEvo_DeconAllowNexOmega,[Hull Deconstructor] Allow Deconstructing the Nex Omega Merc,Boolean,FALSE,,"Allow deconstruction of Nexerelin mercenary ships, including the Omega ship. Default off.",,,Derelict Industries

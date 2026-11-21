@@ -22,6 +22,8 @@
   "IndEvo_arcologiesList": "data/config/indEvo/hidden_arcologies_blacklist.csv",
   "IndEvo_arcologiesCondList": "data/config/indEvo/hidden_arcologies_supressed_whitelist.csv",
   "IndEvo_academySkillList": "data/config/indEvo/academy_admin_skill_whitelist.csv",
+  "IndEvo_riftBlockedSystemsList": "data/config/indEvo/rift_blocked_systems.csv",
+  "IndEvo_riftBlockingEntitiesList": "data/config/indEvo/rift_blocking_entities.csv",
   "oldstory_csv_path": "data/campaign/stories.csv",
 
   #wheeeeeeeeeeeeeeeeeeeeeeeeee
