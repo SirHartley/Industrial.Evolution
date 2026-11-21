@@ -1,0 +1,10 @@
+id,time_to_make_one,resources_to_make_one
+IndEvo_simulator,120,"advanced_components:8,purified_rare_metal:4,volatiles:4"
+IndEvo_log_core,90,"advanced_components:6,purified_rare_metal:3,refined_metal:3"
+IndEvo_vpc_ultra,75,"advanced_components:6,refined_metal:3,purified_rare_metal:3"
+IndEvo_neurals,75,"drugs:6,organics:4,advanced_components:2"
+IndEvo_drones,60,"advanced_components:5,refined_metal:4,heavy_machinery:3"
+IndEvo_transmitter,60,"advanced_components:5,purified_rare_metal:3,volatiles:2"
+IndEvo_vpc_rare,45,"advanced_components:4,refined_metal:2,purified_rare_metal:2"
+IndEvo_vpc,20,"advanced_components:2,refined_metal:1,purified_rare_metal:1"
+IndEvo_holobench,15,"advanced_components:2,organics:1"
