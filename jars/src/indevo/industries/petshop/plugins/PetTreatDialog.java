@@ -51,7 +51,6 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
     static final String[] COLUMNS = {PET, AGE, LIFE, TREATMENTS};
     static final float[] COLUMN_W = {200f, 80f, 110f, 90f};
     static final Alignment[] COLUMN_ALIGN = {Ui.LEFT, Ui.LEFT, Ui.LEFT, Ui.RIGHT};
-    static final String[] COLUMN_TIPS = {null, null, "An estimate. The real life span can be a little shorter or longer.", "Longevity treatments this pet has had."};
     static final float[] DOWN = {0f, 0f, 8f, 0f, 4f, 5f};
     static final float[] UP = {0f, 5f, 8f, 5f, 4f, 0f};
 
@@ -182,7 +181,7 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
 
         float y = HEAD_Y + Ui.HEADING_H + 4f;
         float lw = hasFilter() ? w - UiScroll.GUTTER : w;
-        if (hasFilter()) y += UiFilter.bar(p, 0f, y, filter, "Name or species", "Filters of this list.", TOGGLES, null, List.of(), this::filtered, this::refresh) + UiFilter.BELOW;
+        if (hasFilter()) y += UiFilter.bar(p, 0f, y, filter, "Name or species", null, TOGGLES, null, List.of(), this::filtered, this::refresh) + UiFilter.BELOW;
         addHead(p, y, lw);
         y += Ui.HEADING_H + 4f;
 
@@ -222,7 +221,6 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
                 refresh();
             }, false));
             head.addComponent(click).inTL(xs[i], 0f);
-            if (COLUMN_TIPS[i] != null) Ui.tooltip(head, click, null, COLUMN_TIPS[i]);
 
             if (!column.equals(sort)) continue;
             float tw = Ui.width(column, Ui.ORB12);

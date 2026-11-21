@@ -180,7 +180,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
             String disposition = Misc.ucFirst(young.sheet.disposition);
             tooltip.addPara("Contains %s, a young %s, %s.", opad, new Color[]{h, h, Academy.COLOURS_BY_PERSONALITY.get(young.sheet.disposition)},
                     young.name, PetCard.species(young), disposition);
-            tooltip.addPara("Raised at an Animal Center. It does not age in the Cryochamber.", opad);
+            tooltip.addPara("It does not age in the Cryochamber.", opad);
             addCostLabel(tooltip, opad, transferHandler, stackSource);
             if (isFleetCargo()) tooltip.addPara("Right-click to open", b, opad);
             else tooltip.addPara("Can only be opened from fleet cargo", n, opad);

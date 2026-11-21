@@ -41,19 +41,19 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     static final String MARKED = "Marked";
     static final String REMEMBERED = "Remembered";
     static final String FAVOURITES = "Favourites";
-    static final List<UiFilter.Item> TOGGLES = List.of(new UiFilter.Item(MARKED, 78f, "Only pets with a marker."),
-            new UiFilter.Item(REMEMBERED, 112f, "The pets that died, newest first. Favourites that died in your other games come last."));
+    static final List<UiFilter.Item> TOGGLES = List.of(new UiFilter.Item(MARKED, 78f),
+            new UiFilter.Item(REMEMBERED, 112f, "The pets that died, also favourites from your other games."));
     static final List<UiFilter.Item> KEYS = List.of(
-            new UiFilter.Item(SORT_SHIP, 60f, "The order of your fleet."),
+            new UiFilter.Item(SORT_SHIP, 60f),
             new UiFilter.Item("Name", 70f),
-            new UiFilter.Item("Hearts", 78f, "Most hearts first."),
+            new UiFilter.Item("Hearts", 78f),
             new UiFilter.Item("Species", 86f),
             new UiFilter.Item("Age", 62f));
     static final List<UiFilter.Item> GONE_KEYS = List.of(
-            new UiFilter.Item("Latest", 76f, "Newest first."),
+            new UiFilter.Item("Latest", 76f),
             new UiFilter.Item("Name", 70f),
             new UiFilter.Item("Species", 86f),
-            new UiFilter.Item("Age", 62f, "Oldest first."));
+            new UiFilter.Item("Age", 62f));
 
     private final PetShop shop;
     private final PetsView view;
@@ -483,21 +483,18 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     private void addHelp(TooltipMakerAPI tooltip) {
         if (view.tab == PetsView.TAB_BEAST) {
-            tooltip.addPara("Bestiary. Every species you owned or saw on offer. It carries over between games.", 0f);
-            tooltip.addPara("A grey species is known from an earlier game only. A species you never saw is a question mark.", 10f);
-            tooltip.addPara("Mutations found lists the highest level of each mutation among your pets of the species in this game.", 10f);
+            tooltip.addPara("Every species you owned or saw on offer. It carries over between games.", 0f);
             return;
         }
         if (view.tab == PetsView.TAB_ADOPT) {
-            tooltip.addPara("Adoption. This Animal Center finds new homes for the pets handed in to it. New pets come at the start of each month.", 0f);
-            tooltip.addPara("Their talents stay Unknown until a heart switches them on. A gene scan reads them before you pay.", 10f);
+            tooltip.addPara("New pets come at the start of each month.", 0f);
+            tooltip.addPara("A gene scan reads their talents before you pay.", 10f);
             tooltip.addPara("Pets on offer have no mutations or flaws.", 10f);
             return;
         }
         if (view.tab == PetsView.TAB_PLAN) {
-            tooltip.addPara("Planner. A planned young stands in for a pet you do not have yet. Set what you want from it, then pick its parents.", 0f);
+            tooltip.addPara("A planned young stands in for a pet you do not have yet.", 0f);
             tooltip.addPara("Chances use known traits only. A planned young counts as a parent with what is wanted from it.", 10f);
-            tooltip.addPara("A plan starts nothing. Open the pairing at an Animal Center to pair them.", 10f);
             return;
         }
 
@@ -551,7 +548,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     private float bar(CustomPanelAPI p, List<UiFilter.Item> keys) {
-        return UiFilter.bar(p, 2f, BODY_Y, view.filter, "Name, species or trait", "Filters and sort order of this list.", TOGGLES, this::toggle, keys, this::filtered, this::refresh);
+        return UiFilter.bar(p, 2f, BODY_Y, view.filter, "Name, species or trait", null, TOGGLES, this::toggle, keys, this::filtered, this::refresh);
     }
 
     // Marked and Remembered exclude each other; each list has its own sort keys

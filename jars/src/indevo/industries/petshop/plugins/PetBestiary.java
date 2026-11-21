@@ -53,11 +53,11 @@ public class PetBestiary {
     static final String CLASS = "Class";
     static final String LIFE_SPAN = "Life span";
     static final String THIS_GAME = "This game";
-    static final List<UiFilter.Item> TOGGLES = List.of(new UiFilter.Item(THIS_GAME, 92f, "Only species seen in this game."));
+    static final List<UiFilter.Item> TOGGLES = List.of(new UiFilter.Item(THIS_GAME, 92f));
     static final List<UiFilter.Item> KEYS = List.of(
             new UiFilter.Item(NAME, 70f),
             new UiFilter.Item(CLASS, 72f),
-            new UiFilter.Item(LIFE_SPAN, 96f, "Longest first."));
+            new UiFilter.Item(LIFE_SPAN, 96f));
 
     private final PetsPanel panel;
     private final PetsView view;
@@ -145,7 +145,7 @@ public class PetBestiary {
         if (view.beasts.isFiltering()) Ui.heading(p, 0f, y, ROW_W, "Species", shown.size() + " of " + all.size());
         else Ui.heading(p, 0f, y, ROW_W, "Species", game + " / " + all.size(), String.valueOf(game));
         y += Ui.HEADING_H + 4f;
-        y += UiFilter.bar(p, 2f, y, view.beasts, "Name or class", "Filters and sort order of this list.", TOGGLES, null, KEYS, panel::filtered, panel::refresh)
+        y += UiFilter.bar(p, 2f, y, view.beasts, "Name or class", null, TOGGLES, null, KEYS, panel::filtered, panel::refresh)
                 + UiFilter.BELOW;
 
         UiScroll.Column list = UiScroll.list(p, 0f, y, PetsPanel.LIST_W, h - y, view.scroll, PetsView.BEASTS);
@@ -202,7 +202,6 @@ public class PetBestiary {
         if (e.seen() == Seen.NEVER) {
             name(p, w, "Unknown", Ui.bright());
             unknown(p, 0f, IDENT_Y, PetCard.IDENT);
-            Ui.text(p, PetCard.GRID_X, IDENT_Y, w - PetCard.GRID_X, "Not seen yet.", Ui.gray());
             return;
         }
 
@@ -238,7 +237,7 @@ public class PetBestiary {
         Pet root = treeRoot(pets);
         ButtonAPI tree = UiButtons.button(p, 0f, h - PetCard.BUTTON_H, PetCard.TREE_W, PetCard.BUTTON_H, "Family tree", root != null ? UiButtons.Kind.STD : UiButtons.Kind.OFF,
                 CutStyle.TL_BR, root != null ? () -> panel.showSpecies(root) : null);
-        Ui.tooltip(p, tree, "Family tree", root != null ? "The Full view of the tree with this species." : "No pet of this species in this game yet.");
+        if (root == null) Ui.tooltip(p, tree, "Family tree", "No pet of this species in this game yet.");
     }
 
     private static void name(CustomPanelAPI p, float w, String name, Color c) {

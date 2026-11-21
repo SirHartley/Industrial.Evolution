@@ -600,7 +600,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
             cargo.add(pet.id);
             refresh();
         });
-        Ui.tooltip(p, cargoButton, "Cargo", "Puts the young into a Cryochamber in your fleet's cargo. It does not age there. Open it from the cargo to give it a ship or the menagerie, or sell it.");
+        Ui.tooltip(p, cargoButton, "Cargo", "It does not age there.");
 
         String where = ship != null ? ship.getShipName() + ", " + PetCard.shipClass(ship) : inCargo ? "Cryochamber, fleet cargo" : "Pet storage, " + shop.getMarket().getName();
         Ui.text(p, 8f, PLACE_Y + 30f, CARD_W - 16f, Ui.fit(where, Ui.INS15, CARD_W - 16f), Ui.gray());

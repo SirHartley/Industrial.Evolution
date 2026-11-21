@@ -224,7 +224,7 @@ public class PetTree {
                 view.treeCard = null;
             }
             moved();
-        }, "Every family of a species side by side, the pets with no family at the right.");
+        });
         if (!view.treeFull) {
             wideToggle(p, x - TOGGLE_GAP - WIDE_W, y);
             if (missing) noMatch(p, fx, y, x - TOGGLE_GAP - WIDE_W);
@@ -264,7 +264,7 @@ public class PetTree {
             view.treeSmall = !view.treeSmall;
             if (view.treeSmall) setWide(false);
             moved();
-        }, "Portraits only. Name, hearts and traits are on the hover.");
+        });
         wideToggle(p, smallX - WIDE_GAP - WIDE_W, y);
         if (missing) noMatch(p, fx, y, smallX - WIDE_GAP - WIDE_W);
     }
@@ -283,7 +283,7 @@ public class PetTree {
             setWide(!wide());
             if (wide()) view.treeSmall = false;
             moved();
-        }, "Wider tiles, so longer names fit.");
+        });
     }
 
     // the tile size of the Family tree and the Planner, kept per game
@@ -315,9 +315,8 @@ public class PetTree {
         Ui.textIn(p, x + SPECIES_COUNT_X, y, w - SPECIES_COUNT_X - 8f, UiFilter.H, String.valueOf(count), Ui.ORB12, countColor, Ui.LEFT, new String[0], new Color[0]);
     }
 
-    private static void toggle(CustomPanelAPI p, float x, float y, float w, String label, boolean on, Runnable action, String tip) {
-        ButtonAPI button = UiButtons.area(p, x, y, w, UiFilter.H, label, on, true, null, Ui.CENTER, action);
-        Ui.tooltip(p, button, null, tip);
+    private static void toggle(CustomPanelAPI p, float x, float y, float w, String label, boolean on, Runnable action) {
+        UiButtons.area(p, x, y, w, UiFilter.H, label, on, true, null, Ui.CENTER, action);
     }
 
     private void moved() {
