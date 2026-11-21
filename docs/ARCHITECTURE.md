@@ -274,7 +274,8 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 ### Shared cross-file constraints
 
 - `PlayerSettings` is the only reader for LunaLib fields; `MiscIE.getCSVSetFromMemory` the only reader for whitelists ([SETTINGS](core/SETTINGS.md)).
-- Imports from Nexerelin, RAT and Shadowyards must sit behind `isModEnabled` checks so the classes load lazily ([COMPATIBILITY](core/COMPATIBILITY.md)).
+- Imports from Nexerelin, RAT and Shadowyards must sit behind `isModEnabled` checks so the classes load lazily ([COMPATIBILITY](core/COMPATIBILITY.md)). Ashes of the Domain classes are imported by `indevo/industries/compatibility/AotdManager.java` only, inside its nested `Vok` class.
+- Every buildable IE industry checks `AotdManager.isResearched(this)` in `isAvailableToBuild()` and returns `AotdManager.getMissingResearchReason(this)` first in `getUnavailableReason()`; without Vaults of Knowledge both pass.
 - Check [UTILS](core/UTILS.md) before adding a helper; `MiscIE` already holds most market, cargo and memory helpers.
 
 ## Dead or dormant
@@ -288,7 +289,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Wormhole complex (`IndEvo_Warphouse`) | CSV row and item commented out | [WAREHOUSES](industries/WAREHOUSES.md) |
 | `ArtilleryStationReplacer` | Never matches: checks `contains("artillery")` against `IndEvo_Artillery_*` ids | [ARTILLERY](industries/ARTILLERY.md) |
 | `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
-| `compatibility/TechTree`, `ModUpdater` | No references | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md), [UTILS](core/UTILS.md) |
+| `ModUpdater` | No references | [UTILS](core/UTILS.md) |
 | `devActions()` | Disabled (`&& false`, `ModPlugin.java:151`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.

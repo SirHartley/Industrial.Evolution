@@ -32,6 +32,14 @@ Fixed - IE industries can no longer be built on colonies that allow no industrie
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 
+Ashes of the Domain
+Added - Research tree: IE industries, specializations and governments are unlocked by research
+Added - IE Ship Components count in the AOTD economy
+Added - Tenebrian Nanoforge works like the other nanoforges with Ship Components (stronger than Pristine)
+Added - Macro-Industrial Complex accepts IE colony items
+Fixed - Derelict Watchtowers can be taken over again with Theory of Toolbox
+Fixed - Objectives are found again with Theory of Toolbox (Shuttle Traffic, detachments, orbit focus)
+
 RAT Settlements
 Added - Consulate: slowly raises relations with the planet owner
 Added - Requisition Office: imported weapons and consumable missiles

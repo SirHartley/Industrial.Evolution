@@ -50,7 +50,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 | `indevo/industries/patches/CommerceBalancePatch.java` | PatchLib hooks on vanilla `TradeCenter` for `IndEvo_CommerceBalanceChanges` |
 | `indevo/industries/patches/DealmakerHolosuitePatch.java` | PatchLib redirect of the Dealmaker Holosuite income bonus for the same setting |
 | `indevo/industries/SharedSubmarketUser.java`, `SharedSubmarketUserAPI.java` | Base class and interface for industries that add and filter the `IndEvo_SharedStore` submarket |
-| `indevo/industries/compatibility/TechTree.java` | Dead, see Known issues |
+| `indevo/industries/compatibility/AotdManager.java`, `ResearchUnlockIndustry.java` | Ashes of the Domain research gate, objective lookups, research unlock stand ins. See [Compatibility](../core/COMPATIBILITY.md#ashes-of-the-domain) |
 
 ## Data and ids
 
@@ -150,7 +150,6 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 | `RestorationDocks.aiCoreBonusMult` | only reset by beta and none branches; alpha or gamma after beta keeps 0.85 |
 | `RequisitionCenter.apply` | `addListener(this)` with no listener interface; no effect |
 | Bureau | `Changelog_todo:61`: "Cent Bureau should really run off a condition" |
-| `TechTree` | no reference; Cryo_but_better compat; `researchSaved.get` unboxing NPEs for unknown ids |
 
 ## Maintenance
 

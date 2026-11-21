@@ -50,11 +50,27 @@ The `shaderLib` and `lunalib` checks are redundant while both are hard dependenc
 | Better Colonies | Optional, data | AI industry spawn weights for IE industries | `data/config/BetterColonyConfig/bc_autospindustries.csv` |
 | Version Checker | Optional, data | Update check (GitHub raw master file, thread 18011) | `IndEvo.version`, `data/config/version/version_files.csv` |
 
+## Ashes of the Domain
+
+Theory of Toolbox (`aotd_theory_of_toolbox`), Vaults of Knowledge (`aotd_vok`), Seats of Power (`aotd_sop`), all optional. Plan, findings and asks for AOTD: `AOTD_COMPAT.md` in the project files. Only `indevo/industries/compatibility/AotdManager.java` imports AOTD classes, inside its nested `Vok` class; VoK is compile only (`lib/Vok.jar`, VoK 5.0.6, not shipped). IE never patches AOTD.
+
+| Piece | Kind | What | Where |
+|---|---|---|---|
+| Research tree | VoK, data + code | 27 IE nodes in `data/campaign/aotd_tech_options.csv` (`modId` `IndEvo`, own tree in VoK's mod list), merged by VoK on `id`. Rewards are IE industries plus 13 never built `IndEvo_unlock_*` rows (`ResearchUnlockIndustry`) for specializations and governments; Advanced and up also cost Relic Components. Icons under `ui_icons_tech_tree` in `settings.json`, placeholders cut from the industry images (`graphics/icons/aotd/`) | `AotdManager.loadNodes` reads IE's own rows |
+| Research gate | VoK, code | `AotdManager.isResearched(industryId, market)`: true without VoK, outside the campaign, for ids no IE node rewards, nodes researched from start, factions VoK does not track; else VoK's `isAvailableForThisMarket` (player research on player markets, faction research on NPC markets). Every buildable IE industry and the specialization / government dialog (`SubIndustryData.getUnlockId`) ask it | `isAvailableToBuild` / `getUnavailableReason` of each industry, `ChangelingIndustryDialogueDelegate` |
+| Variants never replace the host | ToT, VoK, SoP | Governments are a market condition and specializations market memory, applied by an `IndustryApplyListener`; ToT's pop plugin, SoP's capital and VoK's tiers stay. Specializations run on any industry tagged `mining` / `refining` | [Changeling](../industries/CHANGELING.md) |
+| Ship parts | ToT, data | `IndEvo_parts` row in `data/campaign/aotd_econ_sheet.csv` (supply mult 8, demand 0.7, like heavy machinery), merged by ToT on `commodityId` | |
+| Tenebrian Nanoforge | VoK, id only | `aotd_shrouded_nanoforge` cancels its +6 on parts supply and lowers parts demand by 3 | `indevo/economy/conditions/ResourceCondition.java` |
+| Objectives | ToT, id only | ToT swaps the `objective` tag for `aotd_objective`; shuttle maintenance, detachment targets and orbit focus check both | `AotdManager.isObjective`, `getObjectives` |
+| Watchtower take control | ToT, rules | ToT row `aotd_cob_dissable_control` disables `COB_takeControl` on every objective. `IndEvo_watchtower_aotdOpenDialog` (`$tag:IndEvo_watchtower`, `$tag:aotd_objective`, beats ToT's open row by score) runs the vanilla open flow, then `FireBest IndEvo_WatchtowerTakeControl` turns it back on unless a vanilla or IE block applies, so rule load order does not matter | `data/campaign/rules.csv` |
+| Macro Industrial Complex | VoK, data | 9 IE colony items in `data/campaign/macro_industrial_complex.csv`, priced by use; VoK loads the list, nothing reads it yet | |
+| Centralization Bureau | data | 20 AOTD industries on the bureau whitelist | [Small industries](../industries/SMALL_INDUSTRIES.md) |
+| Military relays | SoP, read by the other mod | SoP `AoTDRelay extends indevo.industries.relay.industry.MilitaryRelay` and swaps IE's relay plugins: never move or rename `MilitaryRelay` | |
+
 ## Dead or excluded integrations
 
 | Item | State |
 |---|---|
-| `indevo/industries/compatibility/TechTree.java:11` | Checks `Cryo_but_better`; class has no reference (dead) |
 | `indevo/other/YourMod_PetName_PetHullmod.java:31`, `:48` | Checks `indEvo`, IE's id is `IndEvo` and the check is case sensitive, so the template never runs as written; unregistered. See [Misc](MISC.md) |
 | `indevo/exploration/distress/hullmods/GhostShip.java:15`, `:16` | Old MagicLib packages (`data.scripts.plugins.MagicTrailPlugin`, `data.scripts.util.MagicRender`); folder excluded in `IndEvo.iml` |
 | `indevo/WIP/converters/scripts/IndEvo_TakeoverScriptWithNex.java`, `PlayerFactionSetupNag.java` | Nexerelin imports, unguarded; excluded. See [WIP](WIP.md) |
