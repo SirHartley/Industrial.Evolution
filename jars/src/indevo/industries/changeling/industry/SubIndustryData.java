@@ -4,9 +4,9 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
-public abstract class SubIndustryData implements SubIndustryDataAPI {
-    public static final float BASE_COST = 50000;
+public class SubIndustryData implements SubIndustryDataAPI {
     public static final float BASE_BUILD_TIME = 31;
     public static final String UNLOCK_PREFIX = "IndEvo_unlock_";
 
@@ -19,20 +19,20 @@ public abstract class SubIndustryData implements SubIndustryDataAPI {
     public final List<EffectLine> effects = new ArrayList<>();
     public String requires;
 
-    public SubIndustryData(String id, String name, String imageName, String descriptionID) {
-        this.id = id;
-        this.imageName = imageName;
-        this.name = name;
-        this.descriptionID = descriptionID;
-        this.cost = BASE_COST;
-    }
+    private final Function<SubIndustryData, SubIndustry> factory;
 
-    public SubIndustryData(String id, String name, String imageName, String descriptionID, float cost) {
+    public SubIndustryData(String id, String name, String imageName, String descriptionID, float cost, Function<SubIndustryData, SubIndustry> factory) {
         this.id = id;
         this.imageName = imageName;
         this.name = name;
         this.descriptionID = descriptionID;
         this.cost = cost;
+        this.factory = factory;
+    }
+
+    @Override
+    public SubIndustry newInstance() {
+        return factory.apply(this);
     }
 
     public SubIndustryData gain(String text, String... highlights) {
