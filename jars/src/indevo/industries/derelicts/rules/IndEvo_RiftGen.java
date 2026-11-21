@@ -29,6 +29,7 @@ import java.util.Map;
 public class IndEvo_RiftGen extends BaseCommandPlugin {
 
     public static final String PRECISE_PICK_OPTION = "IndEvo_RiftTarget_PRECISE_pick";
+    public static final String PRECISE_INIT_OPTION = "IndEvo_RiftTarget_PRECISE_init";
     public static final String PRECISE_LORE = "The targeting array can hold a single system steady, but only after its Domain era focusing lattice has been rebuilt from scratch.";
 
     @Override
@@ -131,6 +132,7 @@ public class IndEvo_RiftGen extends BaseCommandPlugin {
     private static void showPick(InteractionDialogAPI dialog, RiftGenerator gen, StarSystemAPI system) {
         String distance = Misc.getRoundedValueMaxOneAfterDecimal(RiftPrecisePicker.getDistanceLY(gen.getMarket(), system));
         dialog.getTextPanel().addPara("The targeting array locks onto the %s, %s light years away.", Misc.getHighlightColor(), system.getNameWithLowercaseType(), distance);
+        if (dialog.getOptionPanel().hasOption(PRECISE_INIT_OPTION)) dialog.setOptionColor(PRECISE_INIT_OPTION, Misc.getPositiveHighlightColor());
     }
 
     private static void confirmPrecise(InteractionDialogAPI dialog, Map<String, MemoryAPI> memoryMap, RiftGenerator gen, StarSystemAPI system) {

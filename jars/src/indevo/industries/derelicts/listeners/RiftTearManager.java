@@ -16,21 +16,16 @@ public class RiftTearManager implements NewDayListener {
 
     private final List<Tear> tears = new ArrayList<>();
 
+    // counted like the generator's recharge, one per new day
     private static class Tear {
         private final JumpPointAPI rift;
         private final List<JumpPointAPI> entrances;
-        private final long opened;
-        private final int days;
+        private int daysLeft;
 
-        private Tear(JumpPointAPI rift, List<JumpPointAPI> entrances, long opened, int days) {
+        private Tear(JumpPointAPI rift, List<JumpPointAPI> entrances, int daysLeft) {
             this.rift = rift;
             this.entrances = entrances;
-            this.opened = opened;
-            this.days = days;
-        }
-
-        private int getDaysLeft() {
-            return days - (int) Global.getSector().getClock().getElapsedDaysSince(opened);
+            this.daysLeft = daysLeft;
         }
     }
 
@@ -45,20 +40,21 @@ public class RiftTearManager implements NewDayListener {
     }
 
     public void open(JumpPointAPI rift, List<JumpPointAPI> entrances, int days) {
-        Tear tear = new Tear(rift, new ArrayList<>(entrances), Global.getSector().getClock().getTimestamp(), Math.max(days, 1));
+        Tear tear = new Tear(rift, new ArrayList<>(entrances), Math.max(days, 1));
         tears.add(tear);
         rename(tear);
     }
 
     public int getDaysLeft(SectorEntityToken rift) {
-        for (Tear tear : tears) if (tear.rift == rift) return tear.getDaysLeft();
+        for (Tear tear : tears) if (tear.rift == rift) return tear.daysLeft;
         return -1;
     }
 
     @Override
     public void onNewDay() {
         for (Tear tear : new ArrayList<>(tears)) {
-            if (tear.getDaysLeft() > 0) {
+            tear.daysLeft--;
+            if (tear.daysLeft > 0) {
                 rename(tear);
                 continue;
             }
@@ -69,7 +65,7 @@ public class RiftTearManager implements NewDayListener {
     }
 
     private static void rename(Tear tear) {
-        int days = tear.getDaysLeft();
+        int days = tear.daysLeft;
         String name = RiftRelocator.RIFT_NAME + " (closes in " + days + (days == 1 ? " day)" : " days)");
         tear.rift.setName(name);
         for (JumpPointAPI entrance : tear.entrances) entrance.setName(name);
