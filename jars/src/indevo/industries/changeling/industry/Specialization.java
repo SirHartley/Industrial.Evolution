@@ -130,6 +130,31 @@ public class Specialization implements ChangelingTarget {
     }
 
     @Override
+    public String getTitle() {
+        return "Change specialization";
+    }
+
+    @Override
+    public String getSubTitle(Industry industry) {
+        return industry.getSpec().getName() + ", " + industry.getMarket().getName();
+    }
+
+    @Override
+    public String getHelp() {
+        return null;
+    }
+
+    @Override
+    public String getPermanence(SubIndustryData data) {
+        return null;
+    }
+
+    @Override
+    public List<EffectLine> getEffects(SubIndustryData data) {
+        return data.effects;
+    }
+
+    @Override
     public void setCurrent(MarketAPI market, SubIndustryData data) {
         if (get(data.id) == null) throw new IllegalArgumentException("Unknown " + tag + " specialization " + data.id);
 

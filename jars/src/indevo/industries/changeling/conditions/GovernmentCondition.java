@@ -5,17 +5,19 @@ import com.fs.starfarer.api.campaign.comm.CommMessageAPI;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
+import com.fs.starfarer.api.characters.MarketConditionSpecAPI;
 import com.fs.starfarer.api.impl.campaign.econ.BaseMarketConditionPlugin;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
-import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.changeling.dialogue.EffectLines;
 import indevo.industries.changeling.industry.ChangelingTarget;
+import indevo.industries.changeling.industry.EffectLine;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryAPI;
 import indevo.industries.changeling.industry.SubIndustryData;
@@ -23,6 +25,7 @@ import indevo.industries.changeling.industry.population.Governments;
 import indevo.industries.changeling.industry.population.OutpostSubIndustry;
 import indevo.utils.helper.StringHelper;
 
+import java.util.Collections;
 import java.util.List;
 
 public class GovernmentCondition extends BaseMarketConditionPlugin {
@@ -51,6 +54,34 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
         @Override
         public void setCurrent(MarketAPI market, SubIndustryData data) {
             set(market, data);
+        }
+
+        @Override
+        public String getTitle() {
+            return "Change government";
+        }
+
+        @Override
+        public String getSubTitle(Industry industry) {
+            return industry.getMarket().getName();
+        }
+
+        @Override
+        public String getHelp() {
+            return "A government can be changed until colony size " + Setting.GOVERNMENT_MAX_SIZE.intValue() + ". It becomes permanent " + DAYS_TO_LOCK
+                    + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK) + " after it is set. An Anchorage can always be changed.";
+        }
+
+        // the base government removes the condition, so it never locks
+        @Override
+        public String getPermanence(SubIndustryData data) {
+            if (Governments.BASE_ID.equals(data.id)) return null;
+            return "outpost".equals(data.id) ? "never" : "after " + DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK);
+        }
+
+        @Override
+        public List<EffectLine> getEffects(SubIndustryData data) {
+            return Setting.GOVERNMENT_LARP_MODE.enabled() ? Collections.emptyList() : data.effects;
         }
     };
 
@@ -209,14 +240,19 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
         return gov == null ? null : gov.getDescription().getText1();
     }
 
-    public static void addRightAfterDescription(TooltipMakerAPI tooltip, Industry ind, Industry.IndustryTooltipMode mode) {
-        if (Setting.GOVERNMENT_LARP_MODE.enabled() || !Industries.POPULATION.equals(ind.getId())) return;
+    // hover keeps the vanilla size line, the lore shows once expanded or where the tooltip can not expand
+    public static String getDescriptionOverride(Industry ind, boolean expanded) {
+        String lore = getDescriptionOverride(ind);
+        if (lore == null || expanded || !ind.isTooltipExpandable()) return lore;
 
-        SubIndustryAPI gov = getGovernment(ind.getMarket());
-        if (gov == null) return;
+        MarketAPI market = ind.getMarket();
+        MarketConditionSpecAPI size = Global.getSettings().getMarketConditionSpec("population_" + market.getSize());
+        return size == null ? lore : size.getDesc().replace("$marketName", market.getName()).replace("$MarketName", market.getName());
+    }
 
-        gov.init(ind);
-        gov.addRightAfterDescription(tooltip, mode);
+    // read by ChangelingTooltipPatch for isTooltipExpandable of the governed population
+    public static boolean isExpandable(Industry ind) {
+        return !Setting.GOVERNMENT_LARP_MODE.enabled() && ind.getMarket() != null && Industries.POPULATION.equals(ind.getId()) && getGovernment(ind.getMarket()) != null;
     }
 
     public static boolean isOwnImage(Industry ind) {
@@ -224,47 +260,28 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
         return cond != null && cond.appliedImage != null && ind instanceof BaseIndustry base && cond.appliedImage.equals(base.getImageOverride());
     }
 
-    // governance section on the population tooltip, the population plugin is never replaced
-    public static void addGovernanceSection(TooltipMakerAPI tooltip, Industry pop) {
+    // government section on the population tooltip: ongoing effects always, the effect lines once expanded
+    public static void addGovernanceSection(TooltipMakerAPI tooltip, Industry pop, float width, boolean expanded) {
         MarketAPI market = pop.getMarket();
-        SubIndustryAPI gov = getGovernment(market);
-        if (gov == null && !market.isPlayerOwned()) return;
-
-        float opad = 10f;
-        tooltip.addSectionHeading("Governance Type", Alignment.MID, opad);
-
-        if (gov == null || Setting.GOVERNMENT_LARP_MODE.enabled()) {
-            SubIndustryData base = Governments.get(Governments.BASE_ID);
-            tooltip.addPara(Global.getSettings().getDescription(base.descriptionID, Description.Type.CUSTOM).getText2(), opad);
-        } else {
-            tooltip.addPara(gov.getDescription().getText2(), opad);
-        }
-
-        if (!canChange(market) || !market.isPlayerOwned()) return;
-
-        addLockInfo(tooltip, market);
-        tooltip.addPara("%s", opad, Misc.getPositiveHighlightColor(), "Click to change government type.");
-    }
-
-    public static void addLockInfo(TooltipMakerAPI tooltip, MarketAPI market) {
-        if (!canChange(market)) return;
-
-        float opad = 10f;
-        SubIndustryAPI gov = getGovernment(market);
         GovernmentCondition cond = get(market);
+        if (cond == null || cond.current == null || Setting.GOVERNMENT_LARP_MODE.enabled()) return;
 
-        if (gov instanceof OutpostSubIndustry) {
-            tooltip.addPara("An Anchorage can always be changed to a different government style.", opad);
-            return;
-        }
+        SubIndustryAPI gov = cond.current;
+        gov.init(pop);
 
-        tooltip.addPara("Changing the government style is only possible until %s and becomes permanent after %s.", opad, Misc.getHighlightColor(),
-                "colony size " + Setting.GOVERNMENT_MAX_SIZE.intValue(),
-                DAYS_TO_LOCK + " " + StringHelper.getDayOrDays(DAYS_TO_LOCK));
+        boolean full = expanded || !pop.isTooltipExpandable();
+        String warning = gov.getWarning();
+        int days = cond.locked || gov instanceof OutpostSubIndustry ? 0 : (int) Math.ceil(DAYS_TO_LOCK - cond.daysPassed);
+        if (!full && warning == null && days <= 0 && !gov.hasOngoing()) return;
 
-        if (gov != null && cond != null && !cond.locked) {
-            int daysRemaining = (int) Math.ceil(DAYS_TO_LOCK - cond.daysPassed);
-            tooltip.addPara("Days until permanent: %s", opad, Misc.getHighlightColor(), daysRemaining + " " + StringHelper.getDayOrDays(daysRemaining));
-        }
+        float opad = 10f;
+        float w = width - 10f;
+        tooltip.addSectionHeading("Government", Alignment.MID, opad);
+
+        SubIndustryData data = Governments.get(gov.getId());
+        if (full && data != null) EffectLines.add(tooltip, w, data.effects, opad);
+        if (warning != null) tooltip.addPara(warning, Misc.getNegativeHighlightColor(), opad);
+        if (days > 0) tooltip.addPara("Permanent in %s", opad, Misc.getHighlightColor(), days + " " + StringHelper.getDayOrDays(days));
+        gov.addOngoing(tooltip, w);
     }
 }

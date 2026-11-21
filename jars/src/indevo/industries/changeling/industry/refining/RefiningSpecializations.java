@@ -41,7 +41,7 @@ public class RefiningSpecializations {
                     }
                 };
             }
-        });
+        }.gain("Metals output %s", "+2").cost("Transplutonics output %s", "-2"));
 
         add(new SubIndustryData("rare_refining", "Transplutonics Refinery", Global.getSettings().getSpriteName("IndEvo", "rare_ore_refining"), "IndEvo_rare_refining", 25000) {
             @Override
@@ -53,7 +53,7 @@ public class RefiningSpecializations {
                     }
                 };
             }
-        });
+        }.gain("Transplutonics output %s", "+2").cost("Metals output %s", "-2"));
     }};
 
     public static void applyOutputDeltas(Industry industry, int transplutonicsMod, int metalMod) {

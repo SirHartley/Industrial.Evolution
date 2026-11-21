@@ -214,36 +214,46 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
     }
 
     @Override
-    public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
-        super.addRightAfterDescription(tooltip, mode);
+    public boolean hasOngoing() {
+        return true;
+    }
 
+    @Override
+    public void addOngoing(TooltipMakerAPI tooltip, float width) {
         float opad = 10f;
-
         int size = market.getSize();
 
         int small = size > 4 ? 2 : 1;
         int med = size > 3 ? 1 : 0;
         int large = size > 4 ? 1 : 0;
 
-        tooltip.addSectionHeading("Extra patriotic patrols", Alignment.MID, opad);
-        tooltip.addPara(market.getFaction().getFleetTypeName(FleetTypes.PATROL_SMALL) + ": " + small + (small > 1 ? " fleets" : " fleet"), opad);
-        if (med > 0) tooltip.addPara(market.getFaction().getFleetTypeName(FleetTypes.PATROL_MEDIUM) + ": " + med + " fleet", opad);
-        if (large > 0) tooltip.addPara(market.getFaction().getFleetTypeName(FleetTypes.PATROL_LARGE) + ": " + large + " fleet", opad);
+        FactionAPI faction = market.getFaction();
+        StringBuilder patrols = new StringBuilder("Extra patrols: %s " + faction.getFleetTypeName(FleetTypes.PATROL_SMALL) + (small > 1 ? "s" : ""));
+        List<String> counts = new ArrayList<>(List.of("" + small));
+        if (med > 0) {
+            patrols.append(", %s ").append(faction.getFleetTypeName(FleetTypes.PATROL_MEDIUM));
+            counts.add("" + med);
+        }
+        if (large > 0) {
+            patrols.append(", %s ").append(faction.getFleetTypeName(FleetTypes.PATROL_LARGE));
+            counts.add("" + large);
+        }
+        tooltip.addPara(patrols.toString(), opad, Misc.getHighlightColor(), counts.toArray(new String[0]));
 
-        //add list of ships and timings
-
-        tooltip.addSectionHeading("Hellpod installation progress", Alignment.MID, opad);
-        tooltip.addPara("Destroyers stored here will be refit with a rapid orbital deployment system, increasing marine effectiveness and casualties.", Misc.getGrayColor(), opad);
-        tooltip.beginTable(market.getFaction(), 20f, "Ship", 270f, "Days remaining", 120f);
+        tooltip.addPara("Hellpod installation progress", opad);
+        tooltip.beginTable(faction, 20f, "Ship", 270f, "Days remaining", 120f);
 
         int i = 0;
         int max = 10;
 
-        MiscIE.getStorageCargo(market).initMothballedShips(market.getFactionId());
-        List<FleetMemberAPI> membersInStorage = MiscIE.getStorageCargo(market).getMothballedShips().getMembersListCopy();
         Map<FleetMemberAPI, Integer> validMembersWithRefitTime = new LinkedHashMap<>();
-
-        for (FleetMemberAPI m : membersInStorage) if(daysToApplicationForFleetMember.containsKey(m.getId())) validMembersWithRefitTime.put(m, daysToApplicationForFleetMember.get(m.getId()));
+        CargoAPI storage = MiscIE.getStorageCargo(market);
+        if (storage != null) {
+            storage.initMothballedShips(market.getFactionId());
+            for (FleetMemberAPI m : storage.getMothballedShips().getMembersListCopy()) {
+                if (daysToApplicationForFleetMember.containsKey(m.getId())) validMembersWithRefitTime.put(m, daysToApplicationForFleetMember.get(m.getId()));
+            }
+        }
 
         for (Map.Entry<FleetMemberAPI, Integer > e : validMembersWithRefitTime.entrySet()) {
             tooltip.addRow(e.getKey().getHullSpec().getNameWithDesignationWithDashClass(), e.getValue() +" "+ StringHelper.getDayOrDays(e.getValue()));
@@ -251,8 +261,7 @@ s3: +1 small patrol, s4: +1 med patrol, s5: +1 large patrol
             if (i == max) break;
         }
 
-        //add the table to the tooltip
-        tooltip.addTable("Add Destroyers to storage to have them refit.", validMembersWithRefitTime.size() - 10, opad);
+        tooltip.addTable("Add Destroyers to storage to have them refit.", validMembersWithRefitTime.size() - 10, 6f);
     }
 
     //repeat raids in 3 months don't do anything

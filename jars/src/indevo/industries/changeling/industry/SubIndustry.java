@@ -158,7 +158,17 @@ public abstract class SubIndustry implements SubIndustryAPI {
     }
 
     @Override
-    public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
+    public String getWarning() {
+        return null;
+    }
+
+    @Override
+    public boolean hasOngoing() {
+        return false;
+    }
+
+    @Override
+    public void addOngoing(TooltipMakerAPI tooltip, float width) {
 
     }
 }

@@ -1,7 +1,6 @@
 package indevo.industries.changeling.plugins;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
@@ -69,14 +68,13 @@ public class ChangelingPopulationOptionProvider extends BaseIndustryOptionProvid
     @Override
     public void optionSelected(IndustryOptionData opt, DialogCreatorUI ui) {
         if (opt.id == CUSTOM_PLUGIN) {
-            CustomDialogDelegate delegate = new ChangelingIndustryDialogueDelegate(opt.ind, GovernmentCondition.TARGET);
-            ui.showDialog(ChangelingIndustryDialogueDelegate.WIDTH, ChangelingIndustryDialogueDelegate.HEIGHT, delegate);
+            ChangelingIndustryDialogueDelegate.show(ui, opt.ind, GovernmentCondition.TARGET);
         }
     }
 
     @Override
     public void addToIndustryTooltip(Industry ind, Industry.IndustryTooltipMode mode, TooltipMakerAPI tooltip, float width, boolean expanded) {
         if (!ind.getId().equals(Industries.POPULATION) || ind.getMarket() == null) return;
-        GovernmentCondition.addGovernanceSection(tooltip, ind);
+        GovernmentCondition.addGovernanceSection(tooltip, ind, width, expanded);
     }
 }

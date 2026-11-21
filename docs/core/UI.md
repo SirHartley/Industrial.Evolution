@@ -4,7 +4,7 @@ Shared builder for IE custom panels in `jars/src/indevo/utils/ui/`. Read it befo
 
 Checked against Starsector 0.98a-RC8. Paths below are relative to `jars/src/indevo/utils/ui/`; `obf/` and `api/` paths point into the `starsector-knowledge` skill.
 
-Reference implementation: the Academy panel (`industries/academy/plugins/AcademyPanelDelegate.java`, `AcademyDetail.java`, `AcademyView.java`; [Academy](../industries/ACADEMY.md#panel)). The detachment panel, Salvage Yards, Courier Port, Senate Edict, Ancient Laboratory, Engineering Hub and Research panels are built the same way; their feature docs own the content.
+Reference implementation: the Academy panel (`industries/academy/plugins/AcademyPanelDelegate.java`, `AcademyDetail.java`, `AcademyView.java`; [Academy](../industries/ACADEMY.md#panel)). The detachment panel, Salvage Yards, Courier Port, Senate Edict, Ancient Laboratory, Engineering Hub and Research panels and the government and specialization picker are built the same way; their feature docs own the content.
 
 The helpers mirror the mockup board kit (`kit.py`): a board line `text(58,7,140,name,'ins15',GRAY)` becomes `Ui.text(row, 58, 7, 140, name, Ui.gray())`.
 
