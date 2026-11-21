@@ -202,8 +202,9 @@ public class GovernmentCondition extends BaseMarketConditionPlugin {
     }
 
     // the population plugin is never replaced, ChangelingTooltipPatch puts the government's text into its tooltip
+    // the sop capital reports id population but keeps its own name, image and description
     public static String getDescriptionOverride(Industry ind) {
-        if (!Industries.POPULATION.equals(ind.getId())) return null;
+        if (ind.getSpec() == null || !Industries.POPULATION.equals(ind.getSpec().getId())) return null;
         SubIndustryAPI gov = getGovernment(ind.getMarket());
         return gov == null ? null : gov.getDescription().getText1();
     }
