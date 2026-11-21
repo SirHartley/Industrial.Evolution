@@ -425,18 +425,18 @@ public final class RestChecks {
             c.expect(!area.isEmpty(), "604 rift generator finds a core area");
             if (area.isEmpty()) return;
 
-            StarSystemAPI keep = area.systems.get(0);
             List<JumpPointAPI> marks = new ArrayList<>();
             for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-                if (system == keep || system == a.getStarSystem()) continue;
+                if (system == a.getStarSystem()) continue;
                 JumpPointAPI mark = Global.getFactory().createJumpPoint(RiftRelocator.RIFT_ID_PREFIX + "_check_" + system.getId(), "Check rift");
+                mark.addTag(RiftRelocator.RIFT_TAG);
                 system.addEntity(mark);
                 marks.add(mark);
             }
 
-            RiftTargetArea left = rift.getTargets().getArea(RiftTargetMode.CORE);
-            c.note("core area with rifts everywhere else " + left.systems);
-            c.expect(left.systems.size() == 1 && left.systems.get(0) == keep, "604 rift area keeps the one system without a rift");
+            RiftTargetArea again = rift.getTargets().getArea(RiftTargetMode.CORE);
+            c.note("core area with a tear everywhere " + again.systems.size() + " systems");
+            c.expect(again.systems.equals(area.systems), "604 a tear in a star system does not block it as a target");
             for (JumpPointAPI mark : marks) mark.getContainingLocation().removeEntity(mark);
         });
 

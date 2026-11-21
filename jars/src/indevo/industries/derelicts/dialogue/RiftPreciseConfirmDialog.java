@@ -36,7 +36,7 @@ public class RiftPreciseConfirmDialog extends RelicConfirmDialog {
 
     @Override
     protected void addDescription(TooltipMakerAPI info) {
-        info.addPara("The planet jumps to the %s. The Generator then recharges as usual.", 10f, Misc.getHighlightColor(), target.getNameWithLowercaseType());
+        info.addPara("The planet jumps to the %s.", 10f, Misc.getHighlightColor(), target.getNameWithLowercaseType());
     }
 
     @Override

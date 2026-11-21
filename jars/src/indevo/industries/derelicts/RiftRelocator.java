@@ -10,6 +10,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.campaign.CircularOrbitPointDown;
+import indevo.industries.derelicts.listeners.RiftTearManager;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -24,7 +26,7 @@ public class RiftRelocator {
     public static final String RIFT_ID_PREFIX = "IndEvo_planet_replacer";
     public static final String RIFT_TAG = "IndEvo_artificialRift";
     public static final String RIFT_NAME = "Artificial Hyperspace Tear";
-    public static final String RIFT_DESC_ID = "IndEvo_JumpRift";
+    public static final String TEMPORARY_RIFT_DESC_ID = "IndEvo_JumpRiftTemporary";
     public static final String ORIGINAL_ORBIT_KEY = "$IndEvo_original_planet_orbit";
 
     private static final float RIFT_RADIUS = 50f;
@@ -35,11 +37,12 @@ public class RiftRelocator {
     private static final float MAX_PERIOD = 100000f;
     private static final float ORBIT_UNITS_PER_DAY = 20f;
     private static final int MAX_DEPTH = 8;
+    private static final float PERIOD_MATCH = 0.01f;
 
     private RiftRelocator() {
     }
 
-    public static void relocate(MarketAPI market, StarSystemAPI target) {
+    public static void relocate(MarketAPI market, StarSystemAPI target, int tearDays) {
         PlanetAPI planet = market.getPlanetEntity();
         StarSystemAPI origin = market.getStarSystem();
         if (planet == null || origin == null || target == null || origin == target)
@@ -50,16 +53,17 @@ public class RiftRelocator {
         collect(planet, market, getChildren(origin), movers, stayers, 0);
 
         JumpPointAPI rift = createRift(origin, planet);
-        redirectHyperspaceJumpPoints(planet, rift);
+        List<JumpPointAPI> entrances = redirectHyperspaceJumpPoints(planet, rift);
         for (SectorEntityToken e : stayers) {
             if (e.isPlayerFleet()) e.setOrbit(null);
             else refocus(e, rift);
         }
 
+        float oldPeriod = planet.getCircularOrbitPeriod();
         float oldRadius = Math.max(planet.getCircularOrbitRadius(), MIN_ORBIT);
         float wanted = getOriginalOrbit(planet);
         float newRadius = findFreeOrbit(target, getExtent(planet, getChildren(origin), 0), wanted);
-        float period = getPeriod(planet.getCircularOrbitPeriod(), oldRadius, newRadius);
+        float period = getPeriod(oldPeriod, oldRadius, newRadius);
         float angle = planet.getCircularOrbitAngle();
 
         EconomyAPI economy = Global.getSector().getEconomy();
@@ -73,20 +77,48 @@ public class RiftRelocator {
         }
 
         planet.setCircularOrbit(target.getCenter(), angle, newRadius, period);
+        syncPeriod(planet, movers, oldPeriod);
         economy.addMarket(market, false);
 
         rift.addDestination(new JumpPointAPI.JumpDestination(planet, "the " + target.getName()));
+        RiftTearManager.getInstanceOrRegister().open(rift, entrances, tearDays);
         log.info("moved " + market.getId() + " from " + origin.getId() + " to " + target.getId() + " with " + movers.size() + " orbiters, orbit " + newRadius);
     }
 
-    public static int countRifts(StarSystemAPI system) {
-        int count = 0;
-        for (SectorEntityToken e : system.getJumpPoints()) if (isRift(e)) count++;
-        return count;
-    }
+    // moons and other stayers go back to the star at their current distance, the magnetic field goes with the tear
+    public static void closeTear(JumpPointAPI rift, List<JumpPointAPI> entrances) {
+        for (JumpPointAPI entrance : entrances) {
+            entrance.removeDestination(rift);
+            if (entrance.getDestinations().isEmpty() && entrance.getContainingLocation() != null)
+                entrance.getContainingLocation().removeEntity(entrance);
+        }
 
-    public static boolean isRift(SectorEntityToken entity) {
-        return entity.hasTag(RIFT_TAG) || entity.getId().startsWith(RIFT_ID_PREFIX);
+        LocationAPI location = rift.getContainingLocation();
+        if (location == null) {
+            log.warn("tear " + rift.getId() + " was already removed");
+            return;
+        }
+
+        SectorEntityToken center = location instanceof StarSystemAPI system ? system.getCenter() : null;
+        float riftRadius = Math.max(rift.getCircularOrbitRadius(), MIN_ORBIT);
+        for (SectorEntityToken e : getOrbiters(rift)) {
+            if (e instanceof CampaignTerrainAPI terrain && terrain.getPlugin() instanceof MagneticFieldTerrainPlugin) {
+                location.removeEntity(e);
+                continue;
+            }
+
+            if (center == null) {
+                e.setOrbit(null);
+                continue;
+            }
+
+            float radius = Misc.getDistance(center.getLocation(), e.getLocation());
+            float angle = Misc.getAngleInDegrees(center.getLocation(), e.getLocation());
+            e.setCircularOrbit(center, angle, radius, getPeriod(rift.getCircularOrbitPeriod(), riftRadius, Math.max(radius, MIN_ORBIT)));
+        }
+
+        location.removeEntity(rift);
+        log.info("closed tear " + rift.getId() + " in " + location.getId());
     }
 
     public static List<SectorEntityToken> getOrbiters(SectorEntityToken focus) {
@@ -161,7 +193,7 @@ public class RiftRelocator {
         rift.setRadius(RIFT_RADIUS);
         rift.setAutoCreateEntranceFromHyperspace(false);
         rift.setAutogenJumpPointNameInHyper(RIFT_NAME);
-        rift.setCustomDescriptionId(RIFT_DESC_ID);
+        rift.setCustomDescriptionId(TEMPORARY_RIFT_DESC_ID);
 
         if (planet.getOrbitFocus() != null) {
             rift.setCircularOrbit(planet.getOrbitFocus(), planet.getCircularOrbitAngle(), planet.getCircularOrbitRadius(), planet.getCircularOrbitPeriod());
@@ -191,7 +223,8 @@ public class RiftRelocator {
         field.setCircularOrbit(rift, 0, 0, 100);
     }
 
-    private static void redirectHyperspaceJumpPoints(PlanetAPI planet, JumpPointAPI rift) {
+    private static List<JumpPointAPI> redirectHyperspaceJumpPoints(PlanetAPI planet, JumpPointAPI rift) {
+        List<JumpPointAPI> redirected = new ArrayList<>();
         for (SectorEntityToken e : Global.getSector().getHyperspace().getEntitiesWithTag(Tags.JUMP_POINT)) {
             if (!(e instanceof JumpPointAPI jumpPoint)) continue;
 
@@ -206,6 +239,25 @@ public class RiftRelocator {
             jumpPoint.addDestination(new JumpPointAPI.JumpDestination(rift, RIFT_NAME));
             jumpPoint.setName(RIFT_NAME);
             jumpPoint.setStandardWormholeToNothingVisual();
+            redirected.add(jumpPoint);
+        }
+
+        return redirected;
+    }
+
+    // stellar mirrors and shades orbit at the planet's period to keep facing the star
+    private static void syncPeriod(PlanetAPI planet, List<SectorEntityToken> movers, float oldPeriod) {
+        if (oldPeriod <= 0f) return;
+
+        float period = planet.getCircularOrbitPeriod();
+        for (SectorEntityToken e : movers) {
+            if (e.getOrbitFocus() != planet || Math.abs(e.getCircularOrbitPeriod() - oldPeriod) > PERIOD_MATCH) continue;
+
+            float angle = e.getCircularOrbitAngle();
+            float radius = e.getCircularOrbitRadius();
+            if (e.getOrbit() instanceof CircularOrbitPointDown) e.setCircularOrbitPointingDown(planet, angle, radius, period);
+            else if (e.getOrbit() instanceof CircularOrbitWithSpinAPI spin) e.setCircularOrbitWithSpin(planet, angle, radius, period, spin.getSpinVel(), spin.getSpinVel());
+            else e.setCircularOrbit(planet, angle, radius, period);
         }
     }
 

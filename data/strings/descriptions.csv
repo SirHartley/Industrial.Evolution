@@ -1,6 +1,7 @@
 id,type,text1,text2,text3,notes
 #Entities,,,,,
 IndEvo_JumpRift,CUSTOM,"A massive rip in the fabric of space leading to hyperspace. It was created by firing the Rift Generator, moving the planet that once stood here to a different star system.",,,
+IndEvo_JumpRiftTemporary,CUSTOM,"A massive rip in the fabric of space leading to hyperspace. It was created by firing the Rift Generator, moving the planet that once stood here to a different star system. It is unstable and will close on its own.",,,
 IndEvo_arsenalStation,CUSTOM,"An abandoned arsenal station, built to outlast whatever weapons a long dead enemy would have brought to bear. A cursory scan indicates that it has been cold and dead for tens of cycles at the very least, possibly hundreds. Closer inspection may yield salvage.",,,
 IndEvo_orbitalLaboratory,CUSTOM,"An abandoned orbital laboratory. Stations like this were built to keep experimental tech away from prying eyes. A cursory scan indicates that it has been cold and dead for tens of cycles at the very least, possibly hundreds. Closer inspection may yield salvage.",,,
 IndEvo_Watchtower,CUSTOM,"This automated remnant of old Domain system defence transmits targetting data to nearby artillery. The encrypted target data is inaccessible to the controlling faction, and does not expose the actual position of the observed fleet.",,,
