@@ -36,7 +36,7 @@ public class MiningSpecializations {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applyOutputDeltas(industry, 2, -2, -2, -2);
+                        applyOutputDeltas(industry, 40, -40, -40, -40);
                     }
                 };
             }
@@ -47,7 +47,7 @@ public class MiningSpecializations {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applyOutputDeltas(industry, -3, 2, -3, -3);
+                        applyOutputDeltas(industry, -50, 40, -50, -50);
                     }
                 };
             }
@@ -58,7 +58,7 @@ public class MiningSpecializations {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applyOutputDeltas(industry, -3, -3, -3, 2);
+                        applyOutputDeltas(industry, -50, -50, -50, 40);
                     }
                 };
             }
@@ -69,14 +69,15 @@ public class MiningSpecializations {
             public SubIndustry newInstance() {
                 return new SubIndustry(this) {
                     public void apply() {
-                        applyOutputDeltas(industry, -3, -3, 2, -3);
+                        applyOutputDeltas(industry, -50, -50, 40, -50);
                     }
                 };
             }
         });
     }};
 
-    public static void applyOutputDeltas(Industry industry, int oreMod, int rareOreMod, int organicsMod, int volatileMod) {
+    // percent of each line, close to the old flat +2 and -2 or -3 on a size 6 colony
+    public static void applyOutputDeltas(Industry industry, float oreMod, float rareOreMod, float organicsMod, float volatileMod) {
         Specialization.addSupply(industry, Commodities.ORE, oreMod);
         Specialization.addSupply(industry, Commodities.RARE_ORE, rareOreMod);
         Specialization.addSupply(industry, Commodities.ORGANICS, organicsMod);

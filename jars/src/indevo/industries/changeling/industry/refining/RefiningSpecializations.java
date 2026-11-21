@@ -37,7 +37,7 @@ public class RefiningSpecializations {
                 return new SubIndustry(this) {
                     @Override
                     public void apply() {
-                        applyOutputDeltas(industry, -2, 2);
+                        applyOutputDeltas(industry, -40, 40);
                     }
                 };
             }
@@ -49,17 +49,18 @@ public class RefiningSpecializations {
                 return new SubIndustry(this) {
                     @Override
                     public void apply() {
-                        applyOutputDeltas(industry, 2, -2);
+                        applyOutputDeltas(industry, 40, -40);
                     }
                 };
             }
         });
     }};
 
-    public static void applyOutputDeltas(Industry industry, int transplutonicsMod, int metalMod) {
+    // percent of each line, ore demand moves by 3/4 of its output so a size 6 colony matches the old flat +-2
+    public static void applyOutputDeltas(Industry industry, float transplutonicsMod, float metalMod) {
         Specialization.addSupply(industry, Commodities.RARE_METALS, transplutonicsMod);
         Specialization.addSupply(industry, Commodities.METALS, metalMod);
-        Specialization.addDemand(industry, Commodities.RARE_ORE, transplutonicsMod);
-        Specialization.addDemand(industry, Commodities.ORE, metalMod);
+        Specialization.addDemand(industry, Commodities.RARE_ORE, transplutonicsMod * 0.75f);
+        Specialization.addDemand(industry, Commodities.ORE, metalMod * 0.75f);
     }
 }
