@@ -2,7 +2,7 @@
 
 Covers the "Dismantle the warning beacon" option on warning beacons and the two rule commands behind it. Read it when the beacon dialog or beacon removal misbehaves. It does not cover placing IE beacons with the consumable beacon item; see [Consumables](../items/CONSUMABLES.md).
 
-Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts after a game update.
+Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`; option panel facts against 0.98.5a-RC7. Recheck engine facts after a game update.
 
 ## Overview
 
@@ -35,13 +35,14 @@ Order: `OpenInteractionDialog rules -> dialog shown -> BeaconDialogueListener ad
 ## Flow
 
 1. `IndEvo_beacon_OpenDialogCustom` (`$tag:warning_beacon`, `$tag:IndEvo_beacon`) shows "placed here by your fleet" with `beaconLeave`. Vanilla beacons use vanilla rules.
-2. The listener removes `beaconLeave` if present, adds "Dismantle the warning beacon", re-adds "Leave" (`BeaconDialogueListener.java:28`).
+2. The listener removes `beaconLeave` if present, rebuilds the remaining options, adds "Dismantle the warning beacon", re-adds "Leave" with its Escape shortcut (`BeaconDialogueListener.java:29`).
 3. `IndEvo_beacon_destroyConfirm` asks for confirmation (Confirm -> `IndEvo_beacon_destroyLeave`).
 4. `IndEvo_beacon_destroyLeave` runs `IndEvo_RemoveCurrentInteractionTarget` then `DismissDialog`.
 
 ## Contracts
 
 - `reportShowInteractionDialog` is sent after the dialog is created and shown (`obf/campaign/CampaignState.java:2316`); the listener relies on the opening rules having added `beaconLeave` by then (inferred from the call order, not traced into the dialog constructor).
+- `OptionPanelAPI.removeOption` re-anchors the neighbours but keeps the removed button as the anchor for the next `addOption`; removing the last option and adding one throws "May only anchor on siblings" (0.98.5a-RC7 option panel `removeOption`/`addOption`, translation of obfuscated code). `restoreSavedOptions(getSavedOptionList())` clears and re-adds, which resets the anchor, but drops shortcuts, so the listener sets Escape on "Leave" again.
 - The in-system check is only `isInHyperspace()`; beacons inside star systems never get the option.
 - Intel removal matches `WarningBeaconIntel.getMapLocation(null) == target`; vanilla returns the beacon itself there (`api/impl/campaign/intel/misc/WarningBeaconIntel.java:175`, hyperspace remap branch disabled with `&& false`).
 - `IndEvo_RemoveCurrentInteractionTarget` fades any target, not only beacons; keep it on beacon rules only.
