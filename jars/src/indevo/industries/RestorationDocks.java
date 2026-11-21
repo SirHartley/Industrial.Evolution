@@ -27,6 +27,7 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.industries.compatibility.AotdManager;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
@@ -96,7 +97,13 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Setting.DRYDOCK.enabled();
+        return super.isAvailableToBuild() && Setting.DRYDOCK.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override

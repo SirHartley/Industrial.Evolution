@@ -1,0 +1,45 @@
+"id","name","tier","timeToResearch","reqToResearchFirst","itemReqToResearch","iconId","rewards","columnNumber","rowNumber","isResearchedFromStart","otherReq","tags","modId"
+"IndEvo_research_colony_annexes","Colony Annexes","0","0","none","","IndEvo_research_colony_annexes","IndEvo_Warehouse:industry
+IndEvo_PetStore:industry","0","5","true","","","IndEvo"
+"IndEvo_research_modular_assembly","Modular Assembly","1","35","IndEvo_research_colony_annexes","research_databank:6","IndEvo_research_modular_assembly","IndEvo_AdAssem:industry","0","0","false","","","IndEvo"
+"IndEvo_research_adaptive_manufacturing","Adaptive Manufacturing","2","60","IndEvo_research_modular_assembly","research_databank:11,IndEvo_rare_parts:45","IndEvo_research_adaptive_manufacturing","IndEvo_AdManuf:industry","0","0","false","","","IndEvo"
+"IndEvo_research_forge_overclocking","Forge Overclocking","2","45","IndEvo_research_modular_assembly","research_databank:9,IndEvo_rare_parts:40","IndEvo_research_forge_overclocking","IndEvo_ComForge:industry","0","1","false","","","IndEvo"
+"IndEvo_research_ship_breaking","Ship Breaking","2","50","IndEvo_research_colony_annexes","research_databank:9,IndEvo_rare_parts:40","IndEvo_research_ship_breaking","IndEvo_ScrapYard:industry","0","2","false","","","IndEvo"
+"IndEvo_research_shackled_computation","Shackled Computation","3","75","IndEvo_research_adaptive_manufacturing","research_databank:14,IndEvo_rare_parts:60","IndEvo_research_shackled_computation","IndEvo_SupCom:industry","0","0","false","","","IndEvo"
+"IndEvo_research_focused_extraction","Focused Extraction","1","25","IndEvo_research_colony_annexes","research_databank:3","IndEvo_research_focused_extraction","IndEvo_unlock_ore_mining:industry
+IndEvo_unlock_organics_mining:industry","0","3","false","","","IndEvo"
+"IndEvo_research_focused_refining","Focused Refining","1","25","IndEvo_research_colony_annexes","research_databank:3","IndEvo_research_focused_refining","IndEvo_unlock_ore_refining:industry","0","4","false","","","IndEvo"
+"IndEvo_research_deep_extraction","Deep Extraction","2","45","IndEvo_research_focused_extraction","research_databank:7,IndEvo_rare_parts:30","IndEvo_research_deep_extraction","IndEvo_unlock_rare_mining:industry
+IndEvo_unlock_volatile_mining:industry","0","3","false","","","IndEvo"
+"IndEvo_research_rare_metal_refining","Rare Metal Refining","2","45","IndEvo_research_focused_refining","research_databank:5,IndEvo_rare_parts:20","IndEvo_research_rare_metal_refining","IndEvo_unlock_rare_refining:industry","0","4","false","","","IndEvo"
+"IndEvo_research_private_couriers","Private Couriers","1","30","IndEvo_research_colony_annexes","research_databank:5","IndEvo_research_private_couriers","IndEvo_PrivatePort:industry","0","5","false","","","IndEvo"
+"IndEvo_research_central_planning","Central Planning","3","60","IndEvo_research_private_couriers,IndEvo_research_ship_procurement","research_databank:13,IndEvo_rare_parts:55","IndEvo_research_central_planning","IndEvo_AdInfra:industry","0","5","false","","","IndEvo"
+"IndEvo_research_relay_networks","Relay Networks","1","30","IndEvo_research_colony_annexes","research_databank:5","IndEvo_research_relay_networks","IndEvo_ComArray:industry","0","6","false","","","IndEvo"
+"IndEvo_research_letters_of_marque","Letters of Marque","2","55","IndEvo_research_colony_annexes","research_databank:9,IndEvo_rare_parts:40","IndEvo_research_letters_of_marque","IndEvo_pirateHaven:industry","0","7","false","","","IndEvo"
+"IndEvo_research_interstellar_comms","Interstellar Comms","3","50","IndEvo_research_relay_networks","research_databank:10,IndEvo_rare_parts:40","IndEvo_research_interstellar_comms","IndEvo_IntArray:industry","0","6","false","","","IndEvo"
+"IndEvo_research_orbital_artillery","Orbital Artillery","4","80","IndEvo_research_interstellar_comms","research_databank:22,IndEvo_rare_parts:90","IndEvo_research_orbital_artillery","IndEvo_Artillery_mortar:industry
+IndEvo_Artillery_missile:industry
+IndEvo_Artillery_railgun:industry","0","6","false","","","IndEvo"
+"IndEvo_research_ship_procurement","Ship Procurement","1","25","IndEvo_research_colony_annexes","research_databank:4","IndEvo_research_ship_procurement","IndEvo_ReqCenter:industry","0","8","false","","","IndEvo"
+"IndEvo_research_hull_restoration","Hull Restoration","2","40","IndEvo_research_colony_annexes","research_databank:8,IndEvo_rare_parts:35","IndEvo_research_hull_restoration","IndEvo_dryDock:industry","0","8","false","","","IndEvo"
+"IndEvo_research_reverse_engineering","Reverse Engineering","3","85","IndEvo_research_hull_restoration,IndEvo_research_ship_breaking","research_databank:16,IndEvo_rare_parts:65","IndEvo_research_reverse_engineering","IndEvo_EngHub:industry","0","8","false","","","IndEvo"
+"IndEvo_research_charter_reform","Charter Reform","1","30","IndEvo_research_colony_annexes","research_databank:6","IndEvo_research_charter_reform","IndEvo_unlock_outpost:industry
+IndEvo_unlock_underworld:industry
+IndEvo_unlock_corpos:industry","0","9","false","","","IndEvo"
+"IndEvo_research_planetary_doctrine","Planetary Doctrine","2","40","IndEvo_research_charter_reform","research_databank:9,IndEvo_rare_parts:40","IndEvo_research_planetary_doctrine","IndEvo_unlock_rural:industry
+IndEvo_unlock_helldivers:industry","0","9","false","","","IndEvo"
+"IndEvo_research_planetary_restructuring","Planetary Restructuring","3","60","IndEvo_research_planetary_doctrine","research_databank:12,IndEvo_rare_parts:50","IndEvo_research_planetary_restructuring","IndEvo_unlock_hidden:industry
+IndEvo_unlock_warhammer:industry","0","9","false","","","IndEvo"
+"IndEvo_research_cultural_heritage","Cultural Heritage","1","20","IndEvo_research_colony_annexes","research_databank:3","IndEvo_research_cultural_heritage","IndEvo_Museum:industry","0","10","false","","","IndEvo"
+"IndEvo_research_diplomatic_corps","Diplomatic Corps","2","25","IndEvo_research_colony_annexes","research_databank:4,IndEvo_rare_parts:20","IndEvo_research_diplomatic_corps","IndEvo_embassy:industry","0","11","false","","","IndEvo"
+"IndEvo_research_statecraft","Statecraft","3","60","IndEvo_research_diplomatic_corps","research_databank:12,IndEvo_rare_parts:50","IndEvo_research_statecraft","IndEvo_senate:industry
+IndEvo_Academy:industry","0","11","false","","","IndEvo"
+"IndEvo_research_monumental_architecture","Monumental Architecture","2","25","IndEvo_research_cultural_heritage","research_databank:4,IndEvo_rare_parts:20","IndEvo_research_monumental_architecture","IndEvo_LightPalace:industry
+IndEvo_DarkPalace:industry
+IndEvo_Memorial:industry
+IndEvo_LeisureOrbitals:industry
+IndEvo_Megachurch:industry","0","10","false","","","IndEvo"
+"IndEvo_research_planetary_sculpting","Planetary Sculpting","3","30","IndEvo_research_monumental_architecture","research_databank:4,IndEvo_rare_parts:20","IndEvo_research_planetary_sculpting","IndEvo_IcePalace:industry
+IndEvo_LavaFortress:industry
+IndEvo_LifeTree:industry
+IndEvo_CloudPainter:industry","0","10","false","","","IndEvo"

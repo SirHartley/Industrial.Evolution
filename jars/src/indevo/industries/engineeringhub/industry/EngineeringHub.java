@@ -18,6 +18,7 @@ import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.engineeringhub.ReverseEngineering;
 import indevo.industries.engineeringhub.memory.RecoveredHullmods;
 import indevo.items.installable.BlueprintInstallableItemPlugin;
@@ -59,7 +60,13 @@ public class EngineeringHub extends SharedSubmarketUser implements NewDayListene
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.ENGHUB.enabled() && super.isAvailableToBuild();
+        return Setting.ENGHUB.enabled() && super.isAvailableToBuild() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override

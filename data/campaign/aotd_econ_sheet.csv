@@ -1,0 +1,2 @@
+commodityId,supplyEconUnitMult,demandEconUnitMult,calculationScript,internalCut,externalCut,econUnitMult
+IndEvo_parts,8,0.7,,0.03,0.09,1.0

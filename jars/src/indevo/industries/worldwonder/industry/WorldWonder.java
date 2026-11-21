@@ -14,6 +14,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.petshop.plugins.PetMemorial;
 
 import java.awt.*;
@@ -91,6 +92,17 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
     @Override
     public boolean canInstallAICores() {
         return false;
+    }
+
+    @Override
+    public boolean isAvailableToBuild() {
+        return super.isAvailableToBuild() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override

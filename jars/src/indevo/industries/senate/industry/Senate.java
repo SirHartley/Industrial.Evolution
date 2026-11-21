@@ -11,6 +11,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.senate.EdictHelper;
 import indevo.utils.helper.MiscIE;
 import org.lwjgl.util.vector.Vector2f;
@@ -42,11 +43,14 @@ public class Senate extends BaseIndustry {
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.SENATE.enabled() && MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild();
+        return Setting.SENATE.enabled() && MiscIE.isOnlyInstanceInSystemExcludeMarket(getId(), market.getStarSystem(), market, market.getFaction()) && super.isAvailableToBuild() && AotdManager.isResearched(this);
     }
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!super.isAvailableToBuild()) {
             return super.getUnavailableReason();
         }

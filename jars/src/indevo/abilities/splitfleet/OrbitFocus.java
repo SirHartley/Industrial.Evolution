@@ -11,6 +11,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.*;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
+import indevo.industries.compatibility.AotdManager;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
 import org.lazywizard.lazylib.VectorUtils;
@@ -105,7 +106,7 @@ public class OrbitFocus {
         Map<Float, SectorEntityToken> distanceMap = new TreeMap<>();
 
         for (SectorEntityToken entity : system.getAllEntities()) {
-            if (!entity.isStar() && entity instanceof PlanetAPI || entity instanceof JumpPointAPI || entity.hasTag(Tags.STATION) || entity.hasTag(Tags.GATE) || entity.hasTag(Tags.OBJECTIVE)) {
+            if (!entity.isStar() && entity instanceof PlanetAPI || entity instanceof JumpPointAPI || entity.hasTag(Tags.STATION) || entity.hasTag(Tags.GATE) || AotdManager.isObjective(entity)) {
                 distanceMap.put(Misc.getDistance(entity, toToken), entity);
             }
         }

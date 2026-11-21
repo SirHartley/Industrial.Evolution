@@ -26,6 +26,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.industries.compatibility.AotdManager;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
@@ -368,11 +369,14 @@ public class Supercomputer extends SharedSubmarketUser implements EconomyTickLis
             return false;
         }
 
-        return super.isAvailableToBuild();
+        return super.isAvailableToBuild() && AotdManager.isResearched(this);
     }
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (hascond(Conditions.HOT) || hascond(Conditions.VERY_HOT)) {
             return "This planet is too hot for a Supercomputer.";
         } else if (this.market.getPrimaryEntity().hasTag("station")) {

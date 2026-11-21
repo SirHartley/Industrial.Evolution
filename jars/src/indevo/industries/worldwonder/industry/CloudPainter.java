@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Conditions;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.utils.helper.MiscIE;
 
 import java.io.IOException;
@@ -43,6 +44,9 @@ public class CloudPainter extends WorldWonder {
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!(market.getPrimaryEntity() instanceof PlanetAPI)) return "Can not be built on stations";
         if (market.hasCondition(Conditions.NO_ATMOSPHERE)) return "Requires an atmosphere";
         return super.getUnavailableReason();

@@ -27,6 +27,7 @@ import indevo.config.Setting;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.industries.compatibility.AotdManager;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
@@ -212,7 +213,13 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Setting.ACADEMY.enabled();
+        return super.isAvailableToBuild() && Setting.ACADEMY.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override

@@ -25,6 +25,7 @@ import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.museum.data.MuseumConstants;
 import indevo.industries.museum.data.ParadeFleetProfile;
 import indevo.submarkets.IndustrySubmarkets;
@@ -139,7 +140,13 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Setting.MUSEUM_ENABLED.enabled();
+        return super.isAvailableToBuild() && Setting.MUSEUM_ENABLED.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override

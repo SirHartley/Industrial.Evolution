@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.ChangelingTarget;
+import indevo.industries.compatibility.AotdManager;
 import indevo.utils.helper.BillingHelper;
 
 import java.awt.*;
@@ -59,7 +60,8 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             int buildTime = Math.round(sub.getBuildTime());
             float cost = sub.getCost();
             boolean canAfford = BillingHelper.canAfford(cost);
-            boolean canBuild = sub.isAvailableToBuild();
+            String research = AotdManager.getMissingResearchReason(data.getUnlockId(), industry.getMarket());
+            boolean canBuild = research == null && sub.isAvailableToBuild();
 
             Color baseColor = Misc.getButtonTextColor();
             Color bgColour = Misc.getDarkPlayerColor();
@@ -85,7 +87,7 @@ public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate 
             if (canAfford && canBuild) textPanel.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
             else textPanel.addSectionHeading(" " + sub.getName(), Color.WHITE, Misc.getGrayColor(), Alignment.LMID, 0f);
             textPanel.addPara(sub.getDescription().getText2(), opad);
-            if (!canBuild) textPanel.addPara(sub.getUnavailableReason(), Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
+            if (!canBuild) textPanel.addPara(research != null ? research : sub.getUnavailableReason(), Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
             else textPanel.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
 
             //adjust panel height

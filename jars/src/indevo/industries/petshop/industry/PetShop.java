@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.listener.PetStatusManager;
@@ -412,7 +413,13 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Setting.PETS.enabled();
+        return super.isAvailableToBuild() && Setting.PETS.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override
