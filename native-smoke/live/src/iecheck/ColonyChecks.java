@@ -151,7 +151,10 @@ public final class ColonyChecks {
             c.expect(ruralInterest < baseInterest - 5f, "rural polity lowers pather interest through the patch (" + baseInterest + " -> " + ruralInterest + ")");
             government(b, "base_population_and_infrastructure");
 
+            boolean ownOre = !b.hasCondition(Conditions.ORE_MODERATE);
+            if (ownOre) b.addCondition(Conditions.ORE_MODERATE);
             b.addIndustry(Industries.MINING);
+            b.reapplyConditions();
             b.reapplyIndustries();
             Industry mining = b.getIndustry(Industries.MINING);
             String key = Specialization.getModId(mining);
@@ -175,6 +178,8 @@ public final class ColonyChecks {
             c.expect(!leftover, "base mining removes the malus on lines the mine does not produce");
             c.expect(mining.getSpec().getName().equals(mining.getCurrentName()), "base mining clears the name override (" + mining.getCurrentName() + ")");
             b.removeIndustry(Industries.MINING, null, false);
+            if (ownOre) b.removeCondition(Conditions.ORE_MODERATE);
+            b.reapplyConditions();
         });
         steps.add(c -> {
             MarketAPI a = c.market("a");
