@@ -32,5 +32,14 @@
     <orderEntry type="library" name="commons-compiler" level="application" />
     <orderEntry type="library" name="src" level="application" />
     <orderEntry type="library" name="SHI" level="application" />
+    <orderEntry type="module-library">
+      <library name="Vok">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/Vok.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
