@@ -1,7 +1,6 @@
 package indevo.industries.changeling.plugins;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.CustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
@@ -68,8 +67,7 @@ public class ChangelingMiningOptionProvider extends BaseIndustryOptionProvider {
     @Override
     public void optionSelected(IndustryOptionData opt, DialogCreatorUI ui) {
         if (opt.id == CUSTOM_PLUGIN) {
-            CustomDialogDelegate delegate = new ChangelingIndustryDialogueDelegate(opt.ind, Specialization.MINING);
-            ui.showDialog(ChangelingIndustryDialogueDelegate.WIDTH, ChangelingIndustryDialogueDelegate.HEIGHT, delegate);
+            ChangelingIndustryDialogueDelegate.show(ui, opt.ind, Specialization.MINING);
         }
     }
 

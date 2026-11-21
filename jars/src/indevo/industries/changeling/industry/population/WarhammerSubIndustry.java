@@ -198,10 +198,8 @@ x can only be built on very hot worlds
     }
 
     @Override
-    public void addRightAfterDescription(TooltipMakerAPI tooltip, Industry.IndustryTooltipMode mode) {
-        super.addRightAfterDescription(tooltip, mode);
-        if (hasDeficit(industry))
-            tooltip.addPara("Unrest is building due to shortages.", Misc.getNegativeHighlightColor(), 10f);
+    public String getWarning() {
+        return hasDeficit(industry) ? "Unrest is building due to shortages." : null;
     }
 
     @Override

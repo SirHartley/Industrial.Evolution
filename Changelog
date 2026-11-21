@@ -196,6 +196,10 @@ Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 
 Governments
 Adjusted - Population & Infrastructure stays vanilla, the government sits on the colony (works with mods that change it)
+Adjusted - Change government dialog: picture tiles and a card for the picked government
+Adjusted - Population tooltip: ongoing government effects on hover, effect list and lore on F1
+Adjusted - Extorted goods of Underworld Governance show as cargo icons
+Adjusted - Long rule texts replaced with short gain and cost lines
 Fixed - Permanent governments can no longer be changed
 Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
 Fixed - Managed Democracy size cap no longer stays after a government change
@@ -206,6 +210,7 @@ Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
 Specialized Industries
 Adjusted - Mining and Refining keep their own industry when specialized
 Adjusted - Modded Mining and Refining tiers can now be specialized (Ashes of the Domain)
+Adjusted - Change specialization dialog uses the new government dialog layout
 
 Courier Port
 Adjusted - Contracts are now managed in one panel with a contract list and a step by step editor
