@@ -321,6 +321,7 @@ Fixed - Income bonus no longer stays after removal
 Fixed - Crash in the build menu on colonies without a planet
 
 Centralization Bureau
+Added - Ashes of the Domain farming, mining, refining, light and heavy industry tiers now count
 Adjusted - Military Base and High Command now count for each other, like Heavy Industry and Orbital Works
 Fixed - Bonus now applies right away to newly built, upgraded or restored industries
 Fixed - Heavy Industry and Orbital Works on different colonies now properly get the bonus
