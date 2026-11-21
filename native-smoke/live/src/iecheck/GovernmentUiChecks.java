@@ -12,7 +12,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.conditions.GovernmentCondition;
 import indevo.industries.changeling.dialogue.ChangelingIndustryDialogueDelegate;
+import indevo.industries.changeling.dialogue.EffectLines;
 import indevo.industries.changeling.industry.ChangelingTarget;
+import indevo.industries.changeling.industry.EffectLine;
 import indevo.industries.changeling.industry.Specialization;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.industry.population.Governments;
@@ -114,8 +116,13 @@ public final class GovernmentUiChecks {
             String hover = GovernmentCondition.getDescriptionOverride(popA, false);
             c.expect(hover != null && hover.contains(a.getName()) && !hover.equals(lore), "hover keeps the vanilla size line (" + hover + ")");
             c.expect(lore != null && lore.equals(GovernmentCondition.getDescriptionOverride(popA, true)), "F1 shows the government lore");
+            float room = TIP_W - 10f - EffectLines.TEXT_X;
             for (SubIndustryData data : Governments.LIST) {
                 if (!Governments.BASE_ID.equals(data.id)) c.expect(!data.effects.isEmpty(), data.name + " has effect lines");
+                for (EffectLine line : data.effects) {
+                    float w = Global.getSettings().computeStringWidth(line.shown(), indevo.utils.ui.Ui.INS15);
+                    c.expect(w <= room, data.name + " line fits the tooltip: '" + line.shown() + "' " + Math.round(w) + " of " + Math.round(room));
+                }
             }
 
             String plain = tooltip(popB, false);
@@ -144,10 +151,12 @@ public final class GovernmentUiChecks {
             String hover = tooltip(popB, false);
             c.note("managed democracy hover: " + hover.replace('\n', '|'));
             c.expect(hover.contains("Extra patrols: 1 ") && hover.contains("Hellpod installation progress"), "managed democracy hover shows patrols and the refit table");
-            c.expect(hover.contains("Hammerhead") && hover.contains("Enforcer"), "stored destroyers are in the refit table");
+            // table rows are no LabelAPI children, the F1 line counts the same list
+            String full = tooltip(popB, true);
+            c.expect(full.contains("Hellpod installation progress: 2 ships"), "both stored destroyers are on the refit list");
             c.expect(hover.contains("Permanent in "), "hover shows the days until permanent");
             c.expect(!hover.contains("Stability never falls below"), "managed democracy hover has no effect lines");
-            c.expect(tooltip(popB, true).contains("Stability never falls below"), "managed democracy F1 has the effect lines");
+            c.expect(full.contains("Stability never falls below"), "managed democracy F1 has the effect lines");
         });
         shot(steps, "gov-tip-helldivers", c -> tooltips(c, "b"));
         steps.add(c -> ColonyChecks.government(c.market("b"), "warhammer"));

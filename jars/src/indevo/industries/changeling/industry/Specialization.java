@@ -9,6 +9,9 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.loading.Description;
+import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.ui.TooltipMakerAPI;
+import com.fs.starfarer.api.util.Misc;
 import indevo.industries.changeling.industry.mining.MiningSpecializations;
 import indevo.industries.changeling.industry.refining.RefiningSpecializations;
 
@@ -20,6 +23,7 @@ public class Specialization implements ChangelingTarget {
 
     public static final String MOD_SUFFIX = "_IndEvo_specialized";
     public static final String DESC = "Specialized Extraction";
+    public static final float IMAGE_HEIGHT = 95f;
 
     public static final Specialization MINING = new Specialization("mining", Industries.MINING, "$IndEvo_miningFocus", MiningSpecializations.BASE_ID, MiningSpecializations.LIST,
             Arrays.asList(Commodities.ORE, Commodities.RARE_ORE, Commodities.ORGANICS, Commodities.VOLATILES));
@@ -101,6 +105,26 @@ public class Specialization implements ChangelingTarget {
     public static boolean isOwnImage(Industry ind) {
         Specialization spec = getFor(ind);
         return spec != null && ind instanceof BaseIndustry base && base.getImageOverride() != null && spec.isOwnImage(base.getImageOverride());
+    }
+
+    // only the vanilla host takes the variant's name and image, so a modded tier shows them here
+    public void addTooltipSection(Industry ind, TooltipMakerAPI tooltip, float width, String heading) {
+        if (ind.getMarket() == null || !appliesTo(ind) || !isSpecialized(ind.getMarket())) return;
+        SubIndustryData data = getData(ind.getMarket());
+        String text = Global.getSettings().getDescription(data.descriptionID, Description.Type.CUSTOM).getText2();
+        float opad = 10f;
+
+        tooltip.addSectionHeading(heading, Alignment.MID, opad);
+        if (vanillaId.equals(ind.getSpec().getId())) {
+            tooltip.addPara(text, opad);
+            return;
+        }
+
+        SubIndustry.ensureTexture(data.imageName);
+        TooltipMakerAPI side = tooltip.beginImageWithText(data.imageName, IMAGE_HEIGHT, width, false);
+        side.addPara(data.name, Misc.getHighlightColor(), 0f);
+        side.addPara(text, 4f);
+        tooltip.addImageWithText(opad);
     }
 
     public static Specialization getFor(Industry ind) {

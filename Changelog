@@ -209,7 +209,7 @@ Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
 
 Specialized Industries
 Adjusted - Mining and Refining keep their own industry when specialized
-Adjusted - Modded Mining and Refining tiers can now be specialized (Ashes of the Domain)
+Adjusted - Modded Mining and Refining tiers can now be specialized, their tooltip shows the variant (Ashes of the Domain)
 Adjusted - Change specialization dialog uses the new government dialog layout
 Adjusted - Specializations now scale output by percent (was flat +2, -2 or -3)
 
@@ -247,6 +247,7 @@ Fixed - Two ruins in one system no longer roll the same derelict industry
 Fixed - Crash in Hull Forge and Ancient Laboratory after losing the last colony
 Fixed - Old Industrial Ruins no longer offer another colony's derelict industry
 Fixed - Ruins added mid-campaign now properly get a derelict industry
+Fixed - Ruins known from bought or salvaged survey data now show their scan results on a visit
 Fixed - NPC ruins upgrades no longer restart over and over (Nexerelin)
 Fixed - Old Industrial Ruins tooltip now unlocks its Codex entry
 Fixed - 5 charge Forge Templates now show their hull and price
