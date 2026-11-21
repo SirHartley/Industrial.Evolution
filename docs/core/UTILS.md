@@ -31,7 +31,7 @@ Renderers keep the sprite in a `transient` field and fetch it lazily in `render`
 | `helper/MiscIE.java` | General campaign helpers, table below |
 | `helper/BillingHelper.java` | Monthly report lines and immediate credit charges, section below |
 | `helper/RelicHelper.java` | Relic Component payments for colony side sinks: `getName()`, `getAvailable(market)` (colony storage through `MiscIE.getStorageCargo`, so RAT settlement storage counts, plus fleet cargo; `market` null means fleet cargo only), `canAfford(market, amount)`, `take(market, amount)` (storage first, throws when short, call `canAfford` first), `addCostLine(info, market, cost, pad)` (`Cost: X Relic Components (Available: Y)`, cost green or red). Users: [Economy](ECONOMY.md#relic-speed-up) relic speed up and refit build in (`RelicBuildInPatch`), Tech Mining Boost Extraction, the Senate Edict, Academy, Ancient Laboratory, Salvage Yards and Engineering Hub panels, Orbital Works slot, the kit's relic cost rows (`UiData`) |
-| `helper/StringHelper.java` | String lookup and token substitution, table below |
+| `helper/StringHelper.java` | Number and grammar formatting, table below |
 | `helper/TrigHelper.java` | Geometry, table below |
 | `helper/Circle.java` | `center`, `radius`; `getPointForAngle(angle)`, `getAngleForPoint(point)` (strict `atan2`: `Misc.getAngleInDegrees` reads a lookup table that is off by up to about 0.06 degrees, hundreds of su on the rogue asteroid arcs of radius 150000 to 400000) |
 | `helper/CircularArc.java` | `Circle` plus normalized `startAngle`, `endAngle`; travel direction is the short way round (`getAngleTravelDir()` 1 or -1) |
@@ -84,18 +84,13 @@ Users: Academy (storage; training on NPC markets is `chargeNow`, own markets tra
 
 ### StringHelper
 
-Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/strings/strings.json:2`.
+Adapted from Histidine (Nexerelin). Player text lives in the code; there is no string lookup.
 
 | Methods | Notes |
 |---|---|
-| `getString(category, id[, ucFirst])`, `getString(id[, ucFirst])` | Missing key logs a warning and returns `"[INVALID]" + id` |
-| `substituteToken(s, token, replace[, ucFormToo])`, `substituteTokens(s, map or pair list)` | `replaceAll` with the `$` escaped |
-| `getStringAndSubstituteToken(...)`, `getStringAndSubstituteTokens(...)` | Lookup plus substitution |
-| `substituteFactionTokens(s, faction)`, `getFactionHighlights(faction)`, `getFactionShortName(faction)`, `addFactionNameTokensCustom(tokens, prefix, faction)`, `factionIdListToFactionNameList` | Faction name tokens `$faction`, `$theFaction` and capitalized forms |
-| `getFleetAssignmentString(id, target[, missionType])` | Category `indEvo_fleetAssignments` |
-| `getShipOrFleet(fleet)`, `getDayOrDays(n)`, `getHeOrShe`, `getHimOrHer`, `writeStringCollection(strings[, and, oxford])` | Grammar helpers |
 | `getAbsPercentString(f, oneMinus)`, `getFloatToIntStrx100(f)`, `getRepIntTooltipPair(faction)` | Number formatting |
-| `ucFirstIgnore$`, `lcFirst` (keeps a leading acronym: "CR recovery"), `flattenToAscii`, constant `HR` | Misc |
+| `getDayOrDays(n)`, `getHeOrShe(person)`, `getHimOrHer(gender)` | Grammar helpers |
+| `lcFirst` | Keeps a leading acronym: "CR recovery" |
 
 ### TrigHelper
 
