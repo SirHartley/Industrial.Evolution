@@ -8,6 +8,7 @@ import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.ids.Stats;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
@@ -65,7 +66,7 @@ x•	increase military upkeep by x3
 
         public boolean isSuitable(Industry ind) {
             boolean isCorpo = GovernmentCondition.getGovernment(ind.getMarket()) instanceof CorporateGovernanceSubIndustry;
-            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isCorpo;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isCorpo && !Industries.POPULATION.equals(ind.getId());
         }
 
         @Override

@@ -131,9 +131,9 @@ public abstract class SubIndustry implements SubIndustryAPI {
 
     }
 
-    // the host's own BaseIndustry mod ids, BaseIndustry.getModId is protected
+    // the host's own BaseIndustry mod ids, BaseIndustry.getModId is protected; the sop capital keys by getId (population), not its spec id
     protected String modId() {
-        return "ind_" + industry.getSpec().getId();
+        return "ind_" + industry.getId();
     }
 
     protected String modId(int index) {
