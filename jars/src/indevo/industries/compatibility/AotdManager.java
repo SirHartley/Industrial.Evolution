@@ -44,9 +44,9 @@ public class AotdManager {
         return ind == null || isResearched(ind.getId(), ind.getMarket());
     }
 
-    // true without vok, outside the campaign, or when no ie node rewards this id
+    // true without vok, outside the campaign, on markets the player does not own, or when no ie node rewards this id
     public static boolean isResearched(String industryId, MarketAPI market) {
-        if (!isVokEnabled() || Global.getCurrentState() != GameState.CAMPAIGN) return true;
+        if (!isVokEnabled() || Global.getCurrentState() != GameState.CAMPAIGN || market == null || !market.isPlayerOwned()) return true;
 
         List<String> nodes = getNodes(industryId);
         return nodes.isEmpty() || Vok.isAnyAvailable(nodes, market);
@@ -104,10 +104,9 @@ public class AotdManager {
     }
 
     private static class Vok {
-        // a faction vok does not track (pirates, hidden factions) is never gated
         static boolean isAnyAvailable(List<String> nodes, MarketAPI market) {
             AoTDMainResearchManager manager = AoTDMainResearchManager.loadData();
-            if (manager == null || market == null || manager.getSpecificFactionManager(market.getFaction()) == null) return true;
+            if (manager == null || manager.getSpecificFactionManager(market.getFaction()) == null) return true;
 
             for (String node : nodes) {
                 if (manager.isAvailableForThisMarket(node, market)) return true;
