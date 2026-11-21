@@ -31,10 +31,10 @@ public class IndEvo_PaperClipFactory extends BaseIndustry {
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "aCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "aCoreEffect", "$aCoreHighlights", coreHighlights);
+        boolean shortForm = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP;
+        String pre = shortForm ? "Alpha-level AI core. " : "Alpha-level AI core currently assigned. ";
+        String coreHighlights = "total repaired D-Mod amount";
+        String effect = "Increases the " + coreHighlights + " by %s, decreases upkeep by %s while no ship is being repaired.";
         String[] highlightString = new String[]{Integer.toString(ALPHA_CORE_BONUS_REPAIR), IndEvo_StringHelper.getAbsPercentString(ALPHA_CORE_UPKEEP_RED_MULT, true), coreHighlights};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -51,10 +51,10 @@ public class IndEvo_PaperClipFactory extends BaseIndustry {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "bCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "bCoreEffect", "$bCoreHighlights", coreHighlights);
+        boolean shortForm = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP;
+        String pre = shortForm ? "Beta-level AI core. " : "Beta-level AI core currently assigned. ";
+        String coreHighlights = "the least damaged ships";
+        String effect = "Reduces the repair cost by %s, changes behaviour to prioritize " + coreHighlights + ".";
         String[] highlightString = new String[]{IndEvo_StringHelper.getAbsPercentString(BETA_CORE_COST_RED_MULT, true), coreHighlights};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -71,10 +71,10 @@ public class IndEvo_PaperClipFactory extends BaseIndustry {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = IndEvo_StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String coreHighlights = IndEvo_StringHelper.getString(getId(), "gCoreHighlights");
-        String effect = IndEvo_StringHelper.getStringAndSubstituteToken(getId(), "gCoreEffect", "$gCoreHighlights", coreHighlights);
+        boolean shortForm = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP;
+        String pre = shortForm ? "Gamma-level AI core. " : "Gamma-level AI core currently assigned. ";
+        String coreHighlights = "D-Mod per ship";
+        String effect = "Caps the repairs to %s " + coreHighlights + " per month.";
         String[] highlightString = new String[]{Integer.toString(GAMMA_CORE_MAX_REPAIR), coreHighlights};
 
 

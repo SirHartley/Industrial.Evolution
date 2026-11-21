@@ -15,7 +15,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | File | Owner / role |
 |---|---|
 | `indevo/WIP/converters/conditions/IndEvo_LogCoreCond.java` | Market condition: while a Logistics Core is installed, rolls each month for takeover with chance `0.07 * monthsWithActiveCore` (instant for a market named `davemode`); takeover moves the market to `IndEvo_converters`, stores a `ColonyRestorationPackage` (faction, comm board, admin, free port, player owned) in `$IndEvo_ColonyRestObj`, installs a gamma AI admin, zeroes all supply and demand, starts `IndEvo_ConverterWarManager` (`$IndEvo_ActiveConverterWar`). `resetColonyToOriginalState` reverses it |
-| `indevo/WIP/converters/industry/IndEvo_PaperClipFactory.java` | Empty industry; comments describe paperclip output growing with the core, takeover fleets and saturation bombing as the cure |
+| `indevo/WIP/converters/industry/IndEvo_PaperClipFactory.java` | Empty industry; AI core descriptions are the Restoration Docks text, inlined; comments describe paperclip output growing with the core, takeover fleets and saturation bombing as the cure |
 | `indevo/WIP/converters/listeners/IndEvo_ConverterWarManager.java` | Empty `onNewDay()`; long comment with the spread design (outposts, hubs, invasions, Transmat reward) |
 | `indevo/WIP/converters/listeners/ConverterRepRestetter.java` | Monthly reset of every faction's relation to `IndEvo_converters` to -1 |
 | `indevo/WIP/converters/scripts/IndEvo_TakeoverScript.java` | Vanilla market transfer: entities, station fleets, submarkets, reapply |
