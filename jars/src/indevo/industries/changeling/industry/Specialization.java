@@ -6,11 +6,13 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.loading.Description;
 import indevo.industries.changeling.industry.mining.MiningSpecializations;
 import indevo.industries.changeling.industry.refining.RefiningSpecializations;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,8 +21,10 @@ public class Specialization implements ChangelingTarget {
     public static final String MOD_SUFFIX = "_IndEvo_specialized";
     public static final String DESC = "Specialized Extraction";
 
-    public static final Specialization MINING = new Specialization("mining", Industries.MINING, "$IndEvo_miningFocus", MiningSpecializations.BASE_ID, MiningSpecializations.LIST);
-    public static final Specialization REFINING = new Specialization("refining", Industries.REFINING, "$IndEvo_refiningFocus", RefiningSpecializations.BASE_ID, RefiningSpecializations.LIST);
+    public static final Specialization MINING = new Specialization("mining", Industries.MINING, "$IndEvo_miningFocus", MiningSpecializations.BASE_ID, MiningSpecializations.LIST,
+            Arrays.asList(Commodities.ORE, Commodities.RARE_ORE, Commodities.ORGANICS, Commodities.VOLATILES));
+    public static final Specialization REFINING = new Specialization("refining", Industries.REFINING, "$IndEvo_refiningFocus", RefiningSpecializations.BASE_ID, RefiningSpecializations.LIST,
+            Arrays.asList(Commodities.METALS, Commodities.RARE_METALS, Commodities.ORE, Commodities.RARE_ORE));
     public static final List<Specialization> ALL = Arrays.asList(MINING, REFINING);
 
     public final String tag;
@@ -28,13 +32,15 @@ public class Specialization implements ChangelingTarget {
     public final String memKey;
     public final String baseId;
     public final List<SubIndustryData> list;
+    public final List<String> commodities;
 
-    public Specialization(String tag, String vanillaId, String memKey, String baseId, List<SubIndustryData> list) {
+    public Specialization(String tag, String vanillaId, String memKey, String baseId, List<SubIndustryData> list, List<String> commodities) {
         this.tag = tag;
         this.vanillaId = vanillaId;
         this.memKey = memKey;
         this.baseId = baseId;
         this.list = list;
+        this.commodities = commodities;
     }
 
     public static String getModId(Industry ind) {
@@ -50,10 +56,21 @@ public class Specialization implements ChangelingTarget {
     }
 
     // a positive supply() call also writes ind_sb, drop it when nothing else is left on that commodity
+    // getAllSupply and getAllDemand skip lines at 0 or below, where a malus on an unproduced commodity sits
     public static void removeDeltas(Industry ind) {
         String key = getModId(ind);
+        Specialization spec = getFor(ind);
 
-        for (MutableCommodityQuantity q : ind.getAllSupply()) {
+        List<MutableCommodityQuantity> supply = new ArrayList<>(ind.getAllSupply());
+        List<MutableCommodityQuantity> demand = new ArrayList<>(ind.getAllDemand());
+        if (spec != null) {
+            for (String id : spec.commodities) {
+                supply.add(ind.getSupply(id));
+                demand.add(ind.getDemand(id));
+            }
+        }
+
+        for (MutableCommodityQuantity q : supply) {
             MutableStat stat = q.getQuantity();
             if (!stat.getFlatMods().containsKey(key)) continue;
 
@@ -61,7 +78,7 @@ public class Specialization implements ChangelingTarget {
             if (stat.getFlatMods().size() == 1 && stat.getFlatMods().containsKey("ind_sb")) stat.unmodifyFlat("ind_sb");
         }
 
-        for (MutableCommodityQuantity q : ind.getAllDemand()) q.getQuantity().unmodifyFlat(key);
+        for (MutableCommodityQuantity q : demand) q.getQuantity().unmodifyFlat(key);
     }
 
     // only the vanilla host takes the variant's name, image and description, modded tiers keep their own
