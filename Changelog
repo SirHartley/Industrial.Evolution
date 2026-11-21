@@ -209,7 +209,7 @@ Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
 
 Specialized Industries
 Adjusted - Mining and Refining keep their own industry when specialized
-Adjusted - Modded Mining and Refining tiers can now be specialized (Ashes of the Domain)
+Adjusted - Modded Mining and Refining tiers can now be specialized, their tooltip shows the variant (Ashes of the Domain)
 Adjusted - Change specialization dialog uses the new government dialog layout
 Adjusted - Specializations now scale output by percent (was flat +2, -2 or -3)
 
