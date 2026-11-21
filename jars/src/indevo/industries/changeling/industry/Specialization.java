@@ -47,12 +47,20 @@ public class Specialization implements ChangelingTarget {
         return ind.getId() + MOD_SUFFIX;
     }
 
-    public static void addSupply(Industry ind, String commodityId, int amount) {
-        ind.supply(getModId(ind), commodityId, amount, DESC);
+    public static void addSupply(Industry ind, String commodityId, float percent) {
+        int amount = getDelta(ind.getSupply(commodityId), percent);
+        if (amount != 0) ind.supply(getModId(ind), commodityId, amount, DESC);
     }
 
-    public static void addDemand(Industry ind, String commodityId, int amount) {
-        if (ind instanceof BaseIndustry) ((BaseIndustry) ind).demand(getModId(ind), commodityId, amount, DESC);
+    public static void addDemand(Industry ind, String commodityId, float percent) {
+        int amount = getDelta(ind.getDemand(commodityId), percent);
+        if (amount != 0 && ind instanceof BaseIndustry) ((BaseIndustry) ind).demand(getModId(ind), commodityId, amount, DESC);
+    }
+
+    // percent of the line the host left, as a flat mod since the vanilla commodity tooltip only lists flat mods
+    private static int getDelta(MutableCommodityQuantity line, float percent) {
+        float delta = Math.max(0f, line.getQuantity().getModifiedValue()) * percent / 100f;
+        return (int) Math.signum(delta) * Math.round(Math.abs(delta));
     }
 
     // a positive supply() call also writes ind_sb, drop it when nothing else is left on that commodity

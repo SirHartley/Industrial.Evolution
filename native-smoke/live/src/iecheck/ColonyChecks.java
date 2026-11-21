@@ -151,13 +151,19 @@ public final class ColonyChecks {
             c.expect(ruralInterest < baseInterest - 5f, "rural polity lowers pather interest through the patch (" + baseInterest + " -> " + ruralInterest + ")");
             government(b, "base_population_and_infrastructure");
 
+            boolean ownOre = !b.hasCondition(Conditions.ORE_MODERATE);
+            if (ownOre) b.addCondition(Conditions.ORE_MODERATE);
             b.addIndustry(Industries.MINING);
+            b.reapplyConditions();
             b.reapplyIndustries();
             Industry mining = b.getIndustry(Industries.MINING);
             String key = Specialization.getModId(mining);
+            float ore = mining.getSupply(Commodities.ORE).getQuantity().getModifiedValue();
+            float volatiles = mining.getSupply(Commodities.VOLATILES).getQuantity().getModifiedValue();
             Specialization.MINING.setCurrent(b, Specialization.MINING.get("ore_mining"));
-            c.near(flatMod(mining.getSupply(Commodities.ORE).getQuantity(), key), 2f, 0.01f, "ore mining adds 2 ore on the vanilla mine");
-            c.near(flatMod(mining.getSupply(Commodities.VOLATILES).getQuantity(), key), -2f, 0.01f, "ore mining takes 2 volatiles");
+            c.near(flatMod(mining.getSupply(Commodities.ORE).getQuantity(), key), Math.round(Math.max(0f, ore) * 0.4f), 0.01f, "ore mining adds 40% ore on the vanilla mine (" + ore + ")");
+            c.near(flatMod(mining.getSupply(Commodities.VOLATILES).getQuantity(), key), -Math.round(Math.max(0f, volatiles) * 0.4f), 0.01f, "ore mining takes 40% volatiles (" + volatiles + ")");
+            c.expect(ore > 0f, "check market mines ore (" + ore + ")");
             c.expect("Ore Mining".equals(mining.getCurrentName()), "specialized mine shows the variant name (" + mining.getCurrentName() + ")");
             c.expect(Specialization.MINING.get("ore_mining").imageName.equals(mining.getCurrentImage()), "specialized mine shows the variant image (" + mining.getCurrentImage() + ")");
             c.expect(Specialization.getDescriptionOverride(mining) != null, "specialized mine tooltip takes the variant description");
@@ -172,6 +178,8 @@ public final class ColonyChecks {
             c.expect(!leftover, "base mining removes the malus on lines the mine does not produce");
             c.expect(mining.getSpec().getName().equals(mining.getCurrentName()), "base mining clears the name override (" + mining.getCurrentName() + ")");
             b.removeIndustry(Industries.MINING, null, false);
+            if (ownOre) b.removeCondition(Conditions.ORE_MODERATE);
+            b.reapplyConditions();
         });
         steps.add(c -> {
             MarketAPI a = c.market("a");
