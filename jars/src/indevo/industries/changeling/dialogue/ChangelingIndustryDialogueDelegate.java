@@ -1,243 +1,285 @@
 package indevo.industries.changeling.dialogue;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.BaseCustomDialogDelegate;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
-import com.fs.starfarer.api.graphics.SpriteAPI;
-import com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo;
-import com.fs.starfarer.api.ui.Alignment;
+import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
+import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
+import indevo.industries.changeling.industry.ChangelingTarget;
+import indevo.industries.changeling.industry.EffectLine;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
-import indevo.industries.changeling.industry.SwitchableIndustryAPI;
-import indevo.utils.ModPlugin;
-import indevo.utils.helper.MiscIE;
+import indevo.industries.compatibility.AotdManager;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.ui.Ui;
+import indevo.utils.ui.UiButtons;
+import indevo.utils.ui.UiFrame;
+import indevo.utils.ui.UiHost;
+import indevo.utils.ui.UiImages;
+import indevo.utils.ui.UiRoot;
+import indevo.utils.ui.UiScroll;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class ChangelingIndustryDialogueDelegate implements CustomDialogDelegate {
-    public static final float WIDTH = 600f;
-    public static final float HEIGHT = Global.getSettings().getScreenHeight() - 300f;
-    public static final float ENTRY_HEIGHT = 84f; //MUST be even
-    public static final float CONTENT_HEIGHT = ENTRY_HEIGHT - 4f;
-    public static final float ENTRY_WIDTH = WIDTH - 5f; //MUST be even
+// variant picker for governments and specializations: picture tiles, the picked variant as a two column card
+public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate {
 
-    public Industry industry;
-    public List<SubIndustryData> subIndustries;
-    public String industryToAdd;
-    public SubIndustryData selected = null;
-    public List<ButtonAPI> buttons = new ArrayList<>();
+    public static final float BOARD_W = 840f;
+    public static final String RESEARCH = "Requires research";
+    public static final String NO_CREDITS = "Not enough credits";
+    static final int PER_ROW = 4;
+    static final float GRID_X = 2f;
+    static final float GRID_Y = 26f;
+    static final float TILE_W = 198f;
+    static final float TILE_H = 142f;
+    static final float TILE_GAP = 8f;
+    static final float TILE_PAD = 8f;
+    static final float ART_X = 4f;
+    static final float ART_Y = 22f;
+    static final float ART_W = 190f;
+    static final float ART_H = 95f;
+    static final float TILE_LINE_Y = 122f;
+    static final float DIM = 0.45f;
+    static final float SECTION_GAP = 20f;
+    static final float COLUMN_GAP = 24f;
+    static final float CARD_TOP = Ui.HEADING_H + 6f;
+    static final float FACT_PITCH = 18f;
+    static final float FACT_LABEL_W = 90f;
+    static final float LORE_GAP = 10f;
+    static final float FOOTER_GAP = 12f;
+    static final float FOOTER_H = 17f;
+    static final float TIP_W = 400f;
 
-    public ChangelingIndustryDialogueDelegate(Industry industry, String baseChangelingIndustryID, List<SubIndustryData> subIndustries) {
-        this.industry = industry;
-        this.subIndustries = subIndustries;
-        this.industryToAdd = baseChangelingIndustryID;
+    private final Industry industry;
+    private final ChangelingTarget target;
+    private final List<Option> options = new ArrayList<>();
+    private final UiScroll.Offsets scroll = new UiScroll.Offsets();
+    private final Runnable onLeave;
+    private String selected;
+    private UiRoot root;
+
+    private static class Option {
+        SubIndustryData data;
+        List<EffectLine> effects;
+        String sprite;
+        String lore;
+        String research;
+        String blocked;
+        String permanence;
+        float cost;
+        boolean afford;
+        boolean current;
+
+        // reason the tile can not be picked, null when it can
+        String why() {
+            if (research != null) return research;
+            if (blocked != null) return blocked;
+            return !current && !afford ? NO_CREDITS : null;
+        }
     }
 
-    public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
-        TooltipMakerAPI panelTooltip = panel.createUIElement(WIDTH, HEIGHT, true);
-        panelTooltip.addSectionHeading("Select a Variant", Alignment.MID, 0f);
+    public ChangelingIndustryDialogueDelegate(Industry industry, ChangelingTarget target, Runnable onLeave) {
+        this.industry = industry;
+        this.target = target;
+        this.onLeave = onLeave;
 
-        float opad = 10f;
-        float spad = 2f;
+        MarketAPI market = industry.getMarket();
+        selected = target.getCurrentId(market);
 
-        buttons.clear();
-
-        for (SubIndustryData data : subIndustries) {
+        for (SubIndustryData data : target.getOptions()) {
             SubIndustry sub = data.newInstance();
-
-            if (industry instanceof SwitchableIndustryAPI && sub.getId().equals(((SwitchableIndustryAPI) industry).getCurrent().getId())) continue;
-            if (!(industry instanceof SwitchableIndustryAPI) && sub.isBase()) continue;
-
             sub.init(industry);
 
-            int buildTime = Math.round(sub.getBuildTime());
-            float cost = sub.getCost();
-            boolean canAfford = BillingHelper.canAfford(cost);
-            boolean canBuild = sub.isAvailableToBuild();
-
-            Color baseColor = Misc.getButtonTextColor();
-            Color bgColour = Misc.getDarkPlayerColor();
-            Color brightColor = Misc.getBrightPlayerColor();
-
-            if (!canAfford) {
-                baseColor = Color.darkGray;
-                bgColour = Color.lightGray;
-                brightColor = Color.gray;
-            }
-
-            CustomPanelAPI subIndustryButtonPanel = panel.createCustomPanel(ENTRY_WIDTH, ENTRY_HEIGHT + 2f, new ButtonReportingCustomPanel(this));
-
-            //image creation
-            String spriteName = sub.getImageName(industry.getMarket());
-            SpriteAPI sprite = Global.getSettings().getSprite(spriteName);
-            float aspectRatio = sprite.getWidth() / sprite.getHeight();
-            float adjustedWidth = Math.min(CONTENT_HEIGHT * aspectRatio, sprite.getWidth());
-            float defaultPadding = (ENTRY_HEIGHT - CONTENT_HEIGHT) / 2;
-
-            //Text creation so we know the total height
-            TooltipMakerAPI textPanel = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH - adjustedWidth - opad - defaultPadding, CONTENT_HEIGHT, false);
-            if (canAfford && canBuild) textPanel.addSectionHeading(" " + sub.getName(), Alignment.LMID, 0f);
-            else textPanel.addSectionHeading(" " + sub.getName(), Color.WHITE, Misc.getGrayColor(), Alignment.LMID, 0f);
-            textPanel.addPara(sub.getDescription().getText2(), opad);
-            if (!canBuild) textPanel.addPara(sub.getUnavailableReason(), Misc.getNegativeHighlightColor(), spad).setAlignment(Alignment.RMID);
-            else textPanel.addPara("Cost: %s", spad, canAfford ? Misc.getPositiveHighlightColor() : Misc.getNegativeHighlightColor(), Misc.getDGSCredits(cost)).setAlignment(Alignment.RMID);
-
-            //adjust panel height
-            float baseHeight = textPanel.getHeightSoFar() + 2f + opad;
-            subIndustryButtonPanel.getPosition().setSize(ENTRY_WIDTH, Math.max(ENTRY_HEIGHT, baseHeight));
-
-            //create background button
-            TooltipMakerAPI anchor = subIndustryButtonPanel.createUIElement(ENTRY_WIDTH, baseHeight, false);
-
-            ButtonAPI areaCheckbox = anchor.addAreaCheckbox("", sub.getId(), baseColor, bgColour, brightColor, //new Color(255,255,255,0)
-                    ENTRY_WIDTH,
-                    baseHeight,
-                    0f,
-                    true);
-
-            areaCheckbox.setChecked(selected == data);
-            areaCheckbox.setEnabled(canAfford && canBuild);
-            subIndustryButtonPanel.addUIElement(anchor).inTL(-opad, 0f); //if we don't -opad it kinda does it by its own, no clue why
-
-            //image addition
-            anchor = subIndustryButtonPanel.createUIElement(adjustedWidth, ENTRY_HEIGHT, false);
-            anchor.addImage(spriteName, adjustedWidth, Math.min(CONTENT_HEIGHT, sprite.getHeight()), 0f);
-            subIndustryButtonPanel.addUIElement(anchor).inTL(defaultPadding - opad, defaultPadding);
-
-            TooltipMakerAPI lastPos = anchor;
-
-            //text addition
-            subIndustryButtonPanel.addUIElement(textPanel).rightOfTop(lastPos, opad);
-
-            panelTooltip.addCustom(subIndustryButtonPanel, 0f);
-            buttons.add(areaCheckbox);
+            Option o = new Option();
+            o.data = data;
+            o.effects = target.getEffects(data);
+            o.sprite = sub.getImageName(market);
+            o.lore = Global.getSettings().getDescription(data.descriptionID, Description.Type.CUSTOM).getText1();
+            o.current = data.id.equals(selected);
+            o.research = o.current ? null : AotdManager.getMissingResearchReason(data.getUnlockId(), market);
+            o.blocked = o.current || sub.isAvailableToBuild() ? null : sub.getUnavailableReason();
+            o.permanence = target.getPermanence(data);
+            o.cost = sub.getCost();
+            o.afford = BillingHelper.canAfford(o.cost);
+            SubIndustry.ensureTexture(o.sprite);
+            options.add(o);
         }
-
-        panel.addUIElement(panelTooltip).inTL(0.0F, 0.0F);
     }
 
+    public static void show(DialogCreatorUI ui, Industry industry, ChangelingTarget target) {
+        ChangelingIndustryDialogueDelegate delegate = new ChangelingIndustryDialogueDelegate(industry, target, null);
+        float w = UiFrame.width(BOARD_W);
+        ui.showDialog(w, delegate.height(w), delegate);
+    }
+
+    // opens the picker on its own with the given variant picked (null for the current one), for code and tests
+    public static boolean show(Industry industry, ChangelingTarget target, String picked) {
+        return UiHost.show(industry.getMarket().getPrimaryEntity(), dialog -> {
+            ChangelingIndustryDialogueDelegate delegate = new ChangelingIndustryDialogueDelegate(industry, target, dialog::dismiss);
+            Option o = delegate.option(picked);
+            if (o != null && o.why() == null) delegate.selected = picked;
+            float w = UiFrame.width(BOARD_W);
+            dialog.showCustomDialog(w, delegate.height(w), delegate);
+        });
+    }
+
+    @Override
+    public void createCustomDialog(CustomPanelAPI panel, CustomDialogCallback callback) {
+        root = new UiRoot(panel, scroll, this::build);
+        root.refresh();
+    }
+
+    @Override
     public boolean hasCancelButton() {
         return true;
     }
 
+    @Override
     public String getConfirmText() {
         return "Confirm";
     }
 
+    @Override
     public String getCancelText() {
         return "Cancel";
     }
 
+    // the host confirm can not be disabled, so only a tile that can be picked is ever selected
+    @Override
     public void customDialogConfirm() {
-        if (selected == null) return;
-
-        //its already a switchable and we just update
-        if (industry instanceof SwitchableIndustryAPI) {
-            SwitchableIndustryAPI swIndustry = (SwitchableIndustryAPI) industry;
-
-            if (!swIndustry.getCurrent().getId().equals(selected.id)) {
-                swIndustry.setCurrent(selected.newInstance(), false);
-                BillingHelper.chargeNow(selected.cost);
-            }
-        } else {
-            //it's not and we have to replace
-            MarketAPI market = industry.getMarket();
-            market.removeIndustry(industry.getId(), null, false);
-            market.addIndustry(industryToAdd);
-            ModPlugin.log("adding " + industryToAdd + " to " + market.getName());
-
-            Industry switchable = null;
-
-            for (Industry industry : market.getIndustries()) {
-                //the switchables return a fake id on .getId() so we gotta check the spec
-                if (industry.getSpec().getId().equals(industryToAdd)) {
-                    switchable = industry;
-                    break;
-                }
-            }
-
-            if (switchable == null) {
-                ModPlugin.log("could not find switchable on planet, returning");
-                return;
-            }
-
-            //refund or transfer items
-            SpecialItemData specialItemData = industry.getSpecialItem();
-
-            if (specialItemData != null && canInstallItem(switchable, specialItemData.getId())) {
-                switchable.setSpecialItem(specialItemData);
-            } else if (specialItemData != null) MiscIE.getStorageCargo(market).addSpecial(specialItemData, 1);
-
-            switchable.setAICoreId(industry.getAICoreId());
-            if (switchable.canImprove()) switchable.setImproved(industry.isImproved());
-
-            if (switchable instanceof SwitchableIndustryAPI) {
-                ((SwitchableIndustryAPI) switchable).setCurrent(selected.newInstance(), false);
-                BillingHelper.chargeNow(selected.cost);
-            } else throw new IllegalArgumentException("non-switchable industry passed to switchable industry dialogue delegate");
-        }
+        confirm();
+        if (onLeave != null) onLeave.run();
     }
 
-    public boolean canInstallItem(Industry industry, String itemID) {
-        SpecialItemSpecAPI spec = Global.getSettings().getSpecialItemSpec(itemID);
+    private void confirm() {
+        Option o = option(selected);
+        if (o == null || o.current || o.why() != null) return;
 
-        //check if it's applicable to the industry
-        boolean isApplicableToIndustry = Arrays.asList(spec.getParams().replaceAll("\\s", "").split(",")).contains(industry.getId());
-        //check if it has unmet requirements on the market
-        return isApplicableToIndustry && ItemEffectsRepo.ITEM_EFFECTS.get(itemID).getUnmetRequirements(industry).isEmpty();
+        MarketAPI market = industry.getMarket();
+        if (o.data.id.equals(target.getCurrentId(market)) || !BillingHelper.canAfford(o.cost)) return;
 
+        target.setCurrent(market, o.data);
+        BillingHelper.chargeNow(o.cost);
     }
 
+    @Override
     public void customDialogCancel() {
+        if (onLeave != null) onLeave.run();
     }
 
-    public CustomUIPanelPlugin getCustomPanelPlugin() {
+    private void build(CustomPanelAPI p, float w, float h) {
+        String help = target.getHelp();
+        UiFrame.title(p, w, target.getTitle(), target.getSubTitle(industry), help == null ? null : t -> t.addPara(help, 0f));
+
+        for (int i = 0; i < options.size(); i++) {
+            tile(p, GRID_X + (i % PER_ROW) * (TILE_W + TILE_GAP), GRID_Y + (i / PER_ROW) * (TILE_H + TILE_GAP), options.get(i));
+        }
+
+        Option shown = option(selected);
+        float cardY = cardY();
+        float footerY = Math.min(cardY + tallestCard(w) + FOOTER_GAP, h - FOOTER_H);
+        if (shown != null) card(p, cardY, w, footerY - FOOTER_GAP - cardY, shown);
+
+        String credits = Ui.num(Global.getSector().getPlayerFleet().getCargo().getCredits().get());
+        Ui.runs(p, 0f, footerY, 300f, Ui.INS15, Ui.gray(), Ui.LEFT, "Credits: " + credits, new String[]{credits}, new Color[]{Ui.hl()});
+    }
+
+    private void tile(CustomPanelAPI p, float x, float y, Option o) {
+        String why = o.why();
+        boolean picked = o.data.id.equals(selected);
+        float tw = TILE_W - 2f * TILE_PAD;
+
+        CustomPanelAPI tile = Ui.panel(p, x, y, TILE_W, TILE_H);
+        ButtonAPI area = UiButtons.area(tile, 0f, 0f, TILE_W, TILE_H, null, picked, why == null, null, Ui.CENTER, () -> {
+            selected = o.data.id;
+            root.refresh();
+        });
+
+        Color name = picked ? Ui.bright() : o.research != null ? Ui.gray() : why != null ? Ui.neg() : Ui.base();
+        Ui.text(tile, TILE_PAD, 3f, tw, o.data.name, name);
+
+        if (o.research != null) UiImages.grey(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite);
+        else UiImages.img(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite, null, why == null ? 1f : DIM);
+
+        if (o.current) Ui.text(tile, TILE_PAD, TILE_LINE_Y, tw, "Current", Ui.gray(), Ui.RIGHT);
+        else if (o.research != null) Ui.text(tile, TILE_PAD, TILE_LINE_Y, tw, RESEARCH, Ui.gray());
+        else if (o.blocked != null) Ui.text(tile, TILE_PAD, TILE_LINE_Y, tw, o.blocked, Ui.neg());
+        else Ui.text(tile, TILE_PAD, TILE_LINE_Y, tw, Ui.credits(o.cost), o.afford ? Ui.hl() : Ui.neg(), Ui.RIGHT);
+
+        if (why != null) Ui.tooltip(tile, area, TIP_W, TooltipMakerAPI.TooltipLocation.RIGHT, t -> tileTip(t, o));
+    }
+
+    private void tileTip(TooltipMakerAPI t, Option o) {
+        t.addPara(o.data.name, Ui.hl(), 0f);
+        t.addPara(o.why(), o.research != null ? Ui.gray() : Ui.neg(), 10f);
+        EffectLines.add(t, TIP_W - 10f, o.effects, 10f);
+        t.addPara("Cost: %s", 10f, o.afford ? Ui.hl() : Ui.neg(), Ui.credits(o.cost));
+    }
+
+    private void card(CustomPanelAPI p, float y, float w, float maxH, Option o) {
+        float half = half(w);
+        float rx = half + COLUMN_GAP;
+        Ui.heading(p, 0f, y, half, o.data.name, Ui.LEFT);
+        Ui.heading(p, rx, y, half, "Effects", Ui.LEFT);
+
+        float top = y + CARD_TOP;
+        float fy = top;
+        if (o.current) fy = fact(p, fy, half, "Status", "Current", Ui.text());
+        else fy = fact(p, fy, half, "Cost", Ui.credits(o.cost), o.afford ? Ui.hl() : Ui.neg());
+        if (o.data.requires != null) fy = fact(p, fy, half, "Requires", o.data.requires, o.blocked != null ? Ui.neg() : Ui.text());
+        if (o.permanence != null) fy = fact(p, fy, half, "Permanent", o.permanence, Ui.text());
+
+        // the window is sized for the full lore, it is only cut where the screen is too small for that
+        float room = y + maxH - fy - LORE_GAP;
+        int lines = Math.max(1, (int) Math.floor((room + 1f) / Ui.wrapHeight("Ag", Ui.INS15, half)));
+        String lore = Ui.lines(o.lore, Ui.INS15, half, lines);
+        LabelAPI label = Ui.wrap(p, 0f, fy + LORE_GAP, half, lore, Ui.gray());
+        if (!lore.equals(o.lore)) Ui.tooltip(p, label, null, o.lore);
+
+        EffectLines.draw(p, rx, top, half, o.effects);
+    }
+
+    private float fact(CustomPanelAPI p, float y, float w, String label, String value, Color c) {
+        Ui.text(p, 0f, y, FACT_LABEL_W, label, Ui.gray());
+        Ui.text(p, FACT_LABEL_W, y, w - FACT_LABEL_W, value, c);
+        return y + FACT_PITCH;
+    }
+
+    private Option option(String id) {
+        for (Option o : options) if (o.data.id.equals(id)) return o;
         return null;
     }
 
-    public void reportButtonPressed(Object id) {
-        if (id instanceof String) {
-            for (SubIndustryData sub : subIndustries) {
-                if (sub.id.equals(id)) {
-                    selected = sub;
-                    break;
-                }
-            }
-        }
-
-        boolean anyChecked = false;
-
-        for (ButtonAPI button : buttons) {
-            if (button.isChecked() && button.getCustomData() != id) {
-                button.setChecked(false);
-            }
-
-            if (button.isChecked()) anyChecked = true;
-        }
-
-        if (!anyChecked) selected = null;
+    private static float half(float w) {
+        return (float) Math.floor((w - COLUMN_GAP) / 2f);
     }
 
-    public static class ButtonReportingCustomPanel extends BaseCustomUIPanelPlugin {
-        public ChangelingIndustryDialogueDelegate delegate;
+    private float cardY() {
+        int rows = (options.size() + PER_ROW - 1) / PER_ROW;
+        return GRID_Y + rows * (TILE_H + TILE_GAP) - TILE_GAP + SECTION_GAP;
+    }
 
-        public ButtonReportingCustomPanel(ChangelingIndustryDialogueDelegate delegate) {
-            this.delegate = delegate;
+    // one height for every card, so nothing moves when another tile is picked
+    private float tallestCard(float w) {
+        float half = half(w);
+        float tallest = 0f;
+        for (Option o : options) {
+            int facts = 1 + (o.data.requires != null ? 1 : 0) + (o.permanence != null ? 1 : 0);
+            float left = facts * FACT_PITCH + LORE_GAP + Ui.wrapHeight(o.lore, Ui.INS15, half);
+            tallest = Math.max(tallest, CARD_TOP + Math.max(left, EffectLines.height(o.effects)));
         }
 
-        @Override
-        public void buttonPressed(Object buttonId) {
-            super.buttonPressed(buttonId);
-            delegate.reportButtonPressed(buttonId);
-        }
+        return tallest;
+    }
+
+    private float height(float w) {
+        return UiFrame.height(cardY() + tallestCard(w) + FOOTER_GAP + FOOTER_H + UiFrame.DIALOG_PAD_H);
     }
 }

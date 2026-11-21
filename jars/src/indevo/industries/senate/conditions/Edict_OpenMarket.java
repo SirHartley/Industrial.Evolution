@@ -1,13 +1,15 @@
 package indevo.industries.senate.conditions;
 
+import indevo.industries.senate.EdictEffect;
+
+import java.util.ArrayList;
+import java.util.List;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
-import com.fs.starfarer.api.util.Misc;
 
 
 /*Edict:	Substance Legalization
@@ -64,14 +66,16 @@ public class Edict_OpenMarket extends BaseEdict {
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
         if (market.hasIndustry(Industries.COMMERCE)) {
-            tooltip.addPara("%s on this colony already runs an open market, so this Edict has no effect here.", pad, Misc.getHighlightColor(), "Commerce");
-            return;
+            effects.add(EdictEffect.neutral("Open market", "already run by Commerce"));
+            return effects;
         }
 
-        tooltip.addPara("Adds an %s to trade on.", pad, Misc.getPositiveHighlightColor(), "open market");
-        tooltip.addPara("Stability %s.", 3f, Misc.getNegativeHighlightColor(), "reduced by " + Math.round(STABILITY_PELANTY));
+        effects.add(EdictEffect.good("Open market", "added"));
+        effects.add(stability(market, -Math.round(STABILITY_PELANTY)));
+        return effects;
     }
 
     @Override

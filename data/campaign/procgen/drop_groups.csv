@@ -3,6 +3,8 @@ item_IndEvo_log_core,indEvo_tech_addition,7
 item_IndEvo_neurals,indEvo_tech_addition,7
 item_IndEvo_transmitter,indEvo_tech_addition,7
 item_IndEvo_simulator,indEvo_tech_addition,7
+item_IndEvo_holobench,indEvo_tech_addition,7
+item_IndEvo_drones,indEvo_tech_addition,7
 "item_IndEvo_ForgeTemplate:{tags:[rare_bp, !no_drop], charges:1}",indEvo_tech_addition,15
 "item_IndEvo_ForgeTemplate:{tags:[rare_bp, !no_drop], charges:2}",indEvo_tech_addition,5
 item_:{tags:[IndEvo_FT]},indEvo_tech_addition,20
@@ -37,6 +39,10 @@ drugs,indEvo_weapons,1
 IndEvo_parts,indEvo_weapons,1
 ,,
 IndEvo_parts,extended,10
+,,
+IndEvo_rare_parts,IndEvo_droneNest,10
+heavy_machinery,IndEvo_droneNest_machinery,10
+metals,IndEvo_droneNest_metals,10
 ,,
 item_IndEvo_consumable_nanites,indEvo_consumables,8
 item_IndEvo_consumable_locator,indEvo_consumables,6
@@ -76,6 +82,8 @@ item_IndEvo_log_core,indEvo_tech_event,1
 item_IndEvo_neurals,indEvo_tech_event,1
 item_IndEvo_transmitter,indEvo_tech_event,1
 item_IndEvo_simulator,indEvo_tech_event,1
+item_IndEvo_holobench,indEvo_tech_event,1
+item_IndEvo_drones,indEvo_tech_event,1
 "item_IndEvo_ForgeTemplate:{tags:[rare_bp, !no_drop], charges:2}",indEvo_tech_event,1
 item_IndEvo_vpc_rare:{tier:rare},indEvo_tech_event,1
 item_IndEvo_vpc_ultra:{tier:ultra},indEvo_tech_event,0.25
@@ -88,6 +96,9 @@ nothing,indEvo_pets_normal,25
 "item_:{tags:[IndEvo_PetBox], p:{tier:uncommon}}",indEvo_pets_rare,2
 "item_:{tags:[IndEvo_PetBox], p:{tier:rare}}",indEvo_pets_rare,1
 nothing,indEvo_pets_rare,2
+,,
+item_IndEvo_LongevitySyringe,indEvo_petLongevity,1
+nothing,indEvo_petLongevity,4
 ,,
 "item_:{tags:[IndEvo_PetBox], p:{tier:common}}",indEvo_pets_low,6
 "item_:{tags:[IndEvo_PetBox], p:{tier:uncommon}}",indEvo_pets_low,2

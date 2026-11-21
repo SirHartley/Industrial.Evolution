@@ -17,7 +17,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.OrbitFocus;
-import indevo.abilities.splitfleet.dialogue.DetachmentDialoguePlugin;
+import indevo.abilities.splitfleet.dialogue.DetachmentDialogPlugin;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour.FleetBehaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
@@ -81,7 +81,7 @@ public class DetachmentAI implements EveryFrameScript {
         }
     }
 
-    //opened from a sector script, not from inside the fleet's own advance; DetachmentDialoguePlugin.init ends the trade run
+    //opened from a sector script, not from inside the fleet's own advance; DetachmentDialogPlugin.init ends the trade run
     public static class OpenTradeDialogScript implements EveryFrameScript {
         protected CampaignFleetAPI fleet;
         protected boolean done = false;
@@ -111,7 +111,7 @@ public class DetachmentAI implements EveryFrameScript {
             CampaignUIAPI ui = Global.getSector().getCampaignUI();
             if (ui.isShowingDialog() || ui.isShowingMenu() || Global.getSector().getPlayerFleet().getBattle() != null) return;
 
-            done = ui.showInteractionDialog(new DetachmentDialoguePlugin(), fleet);
+            done = ui.showInteractionDialog(new DetachmentDialogPlugin(), fleet);
         }
     }
 

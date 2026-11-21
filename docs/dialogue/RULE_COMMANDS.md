@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-The engine resolves the first word of a rules condition or script line to a `CommandPlugin` class by simple name, searched in the `ruleCommandPackages` list of `settings.json` (skill `docs/concepts/rules-engine.md:9`; vanilla list at game `data/config/settings.json:1040`). IE adds 15 packages. `indevo/dialogue/rules/` holds the commands that several features share: colony option menu checks, market checks, the embassy war check, and the impoverished spacer fine.
+The engine resolves the first word of a rules condition or script line to a `CommandPlugin` class by simple name, searched in the `ruleCommandPackages` list of `settings.json` (skill `docs/concepts/rules-engine.md:9`; vanilla list at game `data/config/settings.json:1040`). IE adds 16 packages. `indevo/dialogue/rules/` holds the commands that several features share: colony option menu checks, market checks, the embassy war check, and the impoverished spacer fine.
 
 ## Files
 
@@ -24,7 +24,7 @@ The engine resolves the first word of a rules condition or script line to a `Com
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `ruleCommandPackages` (15 IE packages) | `data/config/settings.json:30` to `:46` |
+| Setting | `ruleCommandPackages` (16 IE packages) | `data/config/settings.json:30` to `:47` |
 | Memory, fleet | `$IndEvo_stolen_credit_amt`, `$IndEvo_poor_spacer` | `indevo/exploration/salvage/specials/CreditStashSpecial.java:103`, `:118` (see [Salvage](../exploration/SALVAGE.md)) |
 | Option ids | `IndEvo_PaySpacerFine`, `IndEvo_NoPaySpacerFine` | `IndEvo_AddSpacerFineMenuPoint.OPTION_PAY`, rules |
 | Rules | `IndEvo_ImpoverishedSpacerGreeting` (`:474`), `IndEvo_PaySpacerFine` (`:493`), `IndEvo_NoPaySpacerFine` (`:511`) | `data/campaign/rules.csv` |
@@ -59,14 +59,8 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_SalvageDefenderInteraction` | `indevo.industries.artillery.rules` | 1 | `IndEvo_ArtilleryCombatInteraction:377` | [Artillery](../industries/ARTILLERY.md) |
 | `CourierPortDialoguePlugin` | `indevo.industries.courierport.dialogue` | 3 | `IndEvo_OpenShippingPortFromIndustryOption:816` | [Courier port](../industries/COURIER_PORT.md) |
 | `CourierPortIsDisplayInRelay` | `indevo.industries.courierport.dialogue` | 1 | `IndEvo_CommrelayShippingPoint:825` | [Courier port](../industries/COURIER_PORT.md) |
-| `IndEvo_GeneratorAllowedToFire` | `indevo.industries.derelicts.rules` | 6 | `IndEvo_RiftControlMenuPoint:773` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_GeneratorReadyToFire` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftControlMenuPoint:773` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_MoreThanTwoColonies` | `indevo.industries.derelicts.rules` | 2 | `IndEvo_RiftTarget_COLONY:731` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_RiftInit` | `indevo.industries.derelicts.rules` | 4 | `IndEvo_RiftTarget_COLONY_init:755` | [Derelicts](../industries/DERELICTS.md) |
-| `IndEvo_InitSYCustomProductionDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYCustomProductionPanel_init:564` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_InitSYMoveDModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveDMods_init:565` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_SYTransferOption` | `indevo.industries.salvageyards.rules` | 2 | `IndEvo_SYMoveDMods:560`, `IndEvo_SYMoveSMods:561` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
-| `IndEvo_InitSYMoveSModDiag` | `indevo.industries.salvageyards.rules` | 1 | `IndEvo_SYMoveSMods_init:566` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
+| `IndEvo_RiftGen` | `indevo.industries.derelicts.rules` | 14 | `IndEvo_RiftTarget_setup:763`, `IndEvo_RiftControlMenuPoint:806` | [Derelicts](../industries/DERELICTS.md#rift-generator-move) |
+| `IndEvo_ShowSalvageYardsPanel` | `indevo.industries.salvageyards.rules` | 3 | `IndEvo_SYCustomProductionPanel_init:564`, `IndEvo_SYMoveDMods_init:565`, `IndEvo_SYMoveSMods_init:566` | [Salvage yards](../industries/SALVAGE_YARDS.md) |
 | `IndEvo_addAmbassadorToCargo` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorConfirm:610` | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_ambFactionMismatch` | `indevo.industries.embassy.rules` | 2 | `IndEvo_ambassadorGreetingWar:578` | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_ambassadorRemoval` | `indevo.industries.embassy.rules` | 1 | `IndEvo_ambassadorRemovalConfirm:662` | [Embassy](../industries/EMBASSY.md) |
@@ -80,6 +74,8 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_playerHasFreeEmbassyNoCargo` | `indevo.industries.embassy.rules` | 0 | | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_OpenEdictPanel` | `indevo.industries.senate.rules` | 1 | `IndEvo_openEdictPanel:714` | [Senate](../industries/SENATE.md) |
 | `IndEvo_systemHasSenate` | `indevo.industries.senate.rules` | 4 | `IndEvo_SenateMenuPoint:698` | [Senate](../industries/SENATE.md) |
+| `IndEvo_PetDockingLine` | `indevo.industries.petshop.rules` | 1 | `IndEvo_petDockingLine:900` | [Pets](../industries/PETS.md#lines) |
+| `IndEvo_PetTreatment` | `indevo.industries.petshop.rules` | 2 | `IndEvo_nomiosLongevityOption:902` | [Pets](../industries/PETS.md#longevity) |
 | `IndEvo_ShowAcademyPanel` | `indevo.industries.academy.rules` | 2 | `IndEvo_IntitiateAcademyMenu:726` | [Academy](../industries/ACADEMY.md) |
 | `IndEvo_InitPersonalityTransferMenu` | `indevo.industries.academy.rules.WIP` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Academy](../industries/ACADEMY.md) |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere` | `indevo.other` | 0 | not in packages, unresolvable from rules | [Misc](../core/MISC.md) |
@@ -116,6 +112,7 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | 840 to 851 | (no header) survey stories | `oldstory_` | [Survey stories](../exploration/SURVEY_STORIES.md) |
 | 853 to 859 | `# Ghost ship interaction rules` | `indevo_ghostShip` | [Distress](../exploration/DISTRESS.md) |
 | 860 to 884 | `# Custom production express delivery` | `IndEvo_cpc` | [Economy](../core/ECONOMY.md#custom-production-express-delivery) |
+| 899 to 900 | `# Pets` | `IndEvo_petDockingLine` | [Pets](../industries/PETS.md#lines) |
 
 ### Colony options menu
 

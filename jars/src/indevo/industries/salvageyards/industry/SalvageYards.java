@@ -28,6 +28,8 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
+import indevo.industries.compatibility.AotdManager;
+import indevo.industries.salvageyards.memory.WreckRegistry;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -36,6 +38,8 @@ import org.apache.log4j.Logger;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+
+import static indevo.items.installable.SpecialItemEffectsRepo.SALVAGE_DRONES_SP_SHARE;
 
 public class SalvageYards extends SharedSubmarketUser implements FleetEventListener, EconomyTickListener, NewDayListener {
 
@@ -59,6 +63,9 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     private boolean hasFinishedIntelArchive = false;
 
     private float outputDecayMult = 0.5F;
+
+    // created on first use, yards without the item save nothing
+    private WreckRegistry wreckRegistry = null;
 
     public void apply() {
         //Global.getLogger(SalvageYards.class).info("UPDATING SALVAGE YARDS: market " + market.getName() + " hasSystem" + (market.getStarSystem() != null ? market.getStarSystem().getName() : false));
@@ -226,6 +233,36 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
     public void reportBattleOccurred(CampaignFleetAPI fleet, CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (fleet != null && fleet.getFleetData() != null && isFunctional())
             availableSalvagePoints += Math.round(Misc.getSnapshotFPLost(fleet));
+    }
+
+    public boolean hasSalvageDrones() {
+        return isFunctional() && special != null && ItemIds.SALVAGE_DRONES.equals(special.getId());
+    }
+
+    public WreckRegistry getWreckRegistry() {
+        if (wreckRegistry == null) wreckRegistry = new WreckRegistry();
+        return wreckRegistry;
+    }
+
+    public int getAvailableSalvagePoints() {
+        return availableSalvagePoints;
+    }
+
+    public void spendSalvagePoints(int amount) {
+        if (amount > availableSalvagePoints) throw new IllegalStateException("Salvage Yards on " + market.getName() + " spend " + amount + " salvage units but have " + availableSalvagePoints);
+        availableSalvagePoints -= amount;
+    }
+
+    // battles in this system already pay out through the per fleet listener
+    public void reportBattleInDroneRange(BattleAPI battle, boolean sameSystem) {
+        getWreckRegistry().recordLosses(battle);
+        if (sameSystem) return;
+
+        float fpLost = 0f;
+        for (CampaignFleetAPI fleet : battle.getSnapshotSideOne()) fpLost += Misc.getSnapshotFPLost(fleet);
+        for (CampaignFleetAPI fleet : battle.getSnapshotSideTwo()) fpLost += Misc.getSnapshotFPLost(fleet);
+
+        availableSalvagePoints += Math.round(fpLost * SALVAGE_DRONES_SP_SHARE);
     }
 
     private static final int WEAPON_SP_MONTH_LIMIT = 50;
@@ -433,6 +470,12 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
                     tooltip.addPara("There are %s salvage units available, %s are needed per additional output.",
                             opad, Misc.getHighlightColor(), new String[]{"" + availableSalvagePoints, "" + outputSalvagePointValue});
                 }
+
+                if (hasSalvageDrones()) {
+                    WreckRegistry registry = getWreckRegistry();
+                    tooltip.addPara("Wreck Registry: %s hulls, %s weapons, %s fighter wings.", opad, Misc.getHighlightColor(),
+                            "" + registry.getTotalHulls(), "" + registry.getTotalWeapons(), "" + registry.getTotalWings());
+                }
             }
         }
     }
@@ -441,12 +484,12 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.SCRAPYARD.enabled() && isOnlyInstanceInSystem() && super.isAvailableToBuild();
+        return Setting.SCRAPYARD.enabled() && isOnlyInstanceInSystem() && super.isAvailableToBuild() && AotdManager.isResearched(this);
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.SCRAPYARD.enabled();
+        return super.showWhenUnavailable() && Setting.SCRAPYARD.enabled();
     }
 
     private boolean isOnlyInstanceInSystem() {
@@ -455,6 +498,9 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!isOnlyInstanceInSystem()) {
             return "There can only be one Salvage Yard in a star system.";
         } else {

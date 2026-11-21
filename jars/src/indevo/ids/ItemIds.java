@@ -46,11 +46,11 @@ public class ItemIds {
     public static final String NANITES = "IndEvo_nanites";
     public static final String SALVAGE_DRONES = "IndEvo_drones";
     public static final String SIMULATOR = "IndEvo_simulator";
+    public static final String HOLOBENCH = "IndEvo_holobench";
 
     public static final String ALPHA = "IndEvo_alpha_core";
     public static final String BETA = "IndEvo_beta_core";
     public static final String GAMMA = "IndEvo_gamma_core";
-    public static final String RELIC_SPECIAL_ITEM = "IndEvo_relicSpecialItem";
 
     //Forge Template
     public static final String FORGETEMPLATE = "IndEvo_ForgeTemplate";
@@ -62,6 +62,7 @@ public class ItemIds {
 
     //pets
     public static final String PET_CHAMBER = "IndEvo_PetBox";
+    public static final String LONGEVITY_SYRINGE = "IndEvo_LongevitySyringe";
 
     public static SpecialItemData convertAICoreToSpecial(String aiCoreId) {
         if (aiCoreId == null) return null;

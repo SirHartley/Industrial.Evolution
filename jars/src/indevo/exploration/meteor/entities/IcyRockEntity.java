@@ -6,6 +6,7 @@ import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcOnOrbitLossMovement;
 import indevo.exploration.meteor.movement.MeteorMovementModuleAPI;
+import indevo.exploration.meteor.rogue.RogueAsteroidSpawner;
 import indevo.exploration.meteor.renderers.MeteorDebrisRenderer;
 import indevo.exploration.meteor.scripts.IceroidImpact;
 import indevo.utils.ModPlugin;
@@ -47,6 +48,7 @@ public class IcyRockEntity extends MeteorEntity {
             MeteorMovementModuleAPI newMovement = new ArcOnOrbitLossMovement(movement.getArc(), movement.getVelocity());
             SectorEntityToken asteroid = MeteorFactory.spawn(entity.getContainingLocation(), new MeteorEntity.MeteorData(size, newMovement), MeteorSwarmManager.MeteroidShowerType.ICEROID);
             asteroid.addTag("IndEvo_IceEntourage_" + entity.getId());
+            if (entity.hasTag(RogueAsteroidSpawner.TAG_ROGUE_ROCK)) asteroid.addTag(RogueAsteroidSpawner.TAG_ROGUE_ROCK);
 
             asteroid.setCircularOrbit(entity, spawnAngle, distanceFromEntity, orbitDur);
         }

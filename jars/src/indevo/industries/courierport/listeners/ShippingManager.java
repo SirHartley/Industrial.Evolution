@@ -11,6 +11,7 @@ import indevo.ids.Ids;
 import indevo.industries.courierport.ShippingCargoManager;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingContractMemory;
+import indevo.industries.ratsettlement.RatSettlements;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
@@ -40,7 +41,7 @@ public class ShippingManager implements NewDayListener {
     public void onNewDay() {
         List<ShippingContract> contractListCopy = new ArrayList<>(ShippingContractMemory.getContractList());
 
-        boolean allowed = false;
+        boolean allowed = RatSettlements.hasFunctionalFacility(Ids.RAT_COURIER);
         for (MarketAPI m : Misc.getPlayerMarkets(true)) {
             if (m.hasIndustry(Ids.PORT) && m.getIndustry(Ids.PORT).isFunctional()) {
                 allowed = true;
@@ -91,10 +92,14 @@ public class ShippingManager implements NewDayListener {
 
     public static void chargePlayer(float amt, Shipment container) {
         MarketAPI m = getClosestPort(container);
-        // onNewDay only ships while the player owns a port, so getClosestPort always finds one
-        if (m == null) throw new IllegalStateException("no courier port to bill contract " + container.contract.name);
+        if (m != null) {
+            BillingHelper.charge(m.getIndustry(Ids.PORT), "shipping", "Shipping contracts", amt);
+            return;
+        }
 
-        BillingHelper.charge(m.getIndustry(Ids.PORT), "shipping", "Shipping contracts", amt);
+        // onNewDay only ships while the player owns a port or a rat settlement Courier Office
+        if (!RatSettlements.hasFunctionalFacility(Ids.RAT_COURIER)) throw new IllegalStateException("no courier port to bill contract " + container.contract.name);
+        BillingHelper.charge(RatSettlements.getSettlementMarket(), Ids.RAT_COURIER, "shipping", "Shipping contracts", amt);
     }
 
     public static MarketAPI getClosestPort(Shipment container) {

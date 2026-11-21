@@ -19,7 +19,6 @@ public class OutpostSubIndustry extends SubIndustry {
 
     @Override
     public void apply() {
-        ((SwitchablePopulation) industry).superApply();
         if (Misc.getMaxMarketSize(market) > MAX_MARKET_SIZE){
             int maxSize = Misc.getMaxMarketSize(market);
             int mod = MAX_MARKET_SIZE - maxSize;

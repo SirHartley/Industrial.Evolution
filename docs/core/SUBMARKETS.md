@@ -56,9 +56,9 @@ Feature submarkets with their plugin outside this package:
 | `IndEvo_SharedStore` | any `SharedSubmarketUserAPI` industry | yes | moved |
 | `IndEvo_WarehouseStorage_1` to `_5` | `IndEvo_Warehouse` | yes | moved |
 
-- Add: owner `advance()` -> `IndustrySubmarkets.ensure(this, id)` (`:46`) -> `market.addSubmarket(id)` while the industry is functional; the engine skips an id already present (`obf/campaign/econ/Market.java:505`), so the per frame call is cheap. Callers: `RestorationDocks.java:73`, `RequisitionCenter.java:42`, `HullDeconstructor.java:74`, `EngineeringHub.java:79`, `SharedSubmarketUser.java:13` (shared storage for every subclass), `CommodityForge.java:77`, `PetShop.java:176` (while `IndEvo_pets` is on, `remove` otherwise), `Museum.java:128` (while player owned).
+- Add: owner `advance()` -> `IndustrySubmarkets.ensure(this, id)` (`:46`) -> `market.addSubmarket(id)` while the industry is functional; the engine skips an id already present (`obf/campaign/econ/Market.java:505`), so the per frame call is cheap. Callers: `RestorationDocks.java:73`, `RequisitionCenter.java:42`, `HullDeconstructor.java:74`, `EngineeringHub.java:79`, `SharedSubmarketUser.java:13` (shared storage for every subclass), `CommodityForge.java:77`, `PetShop.java:146` (while `IndEvo_pets` is on, `remove` otherwise), `Museum.java:128` (while player owned).
 - Ownership loss: `ensure` for a player only id on a market that is no longer player owned calls `remove` instead. Museum checks ownership itself first and runs its own `notifyBeingRemoved` (parades).
-- Remove: owner `notifyBeingRemoved(mode, forUpgrade)` -> `IndustrySubmarkets.release(this)` (`:55`) -> `remove` for every id the industry owns that no other industry on the market owns. The leaving industry is still in the market's list at that point (`Market.java:259-270`), so it is skipped by identity. Callers: `RestorationDocks.java:79`, `RequisitionCenter.java:48`, `SharedSubmarketUser.java:19` (decon, eng hub and shared storage), `CommodityForge.java:83`, `PetShop.java:183`, `Museum.java:351`.
+- Remove: owner `notifyBeingRemoved(mode, forUpgrade)` -> `IndustrySubmarkets.release(this)` (`:55`) -> `remove` for every id the industry owns that no other industry on the market owns. The leaving industry is still in the market's list at that point (`Market.java:259-270`), so it is skipped by identity. Callers: `RestorationDocks.java:79`, `RequisitionCenter.java:48`, `SharedSubmarketUser.java:19` (decon, eng hub and shared storage), `CommodityForge.java:83`, `PetShop.java:153`, `Museum.java:420`.
 - `remove(market, id)` (`:66`): for cargo keeping ids moves cargo and mothballed ships to `MiscIE.getStorage(market)` and unlocks it, then `market.removeSubmarket(id)`. Warehouses call it for their player driven removal (`Warehouses.java:159`) and drop their data only when it returns true.
 - Load: `ModPlugin.onGameLoad` -> `IndustrySubmarkets.removeOrphans()` (`:75`) removes every registered submarket whose market has no owner industry.
 
@@ -83,7 +83,7 @@ Max weapon tier by standing (`getMaxTier`): <0.5 -> 0, <0.7 -> 1, <0.9 -> 2, els
 
 ### Whitelist checks (Decon, RE)
 
-`updateCargoPrePlayerInteraction` rebuilds `allowedShips` and `restrictedShips` from `MiscIE.getCSVSetFromMemory`, `getPrismBossShips()`, `getVayraBossShips()` -> `isIllegalOnSubmarket(member)` returns `restricted || notAllowed || printed` (RE also `getResearchValue <= 0`). Dev mode allows everything. Ignore whitelist settings skip the lists. Decon refuses Nexerelin merc ships (`nex_mercBuff` buff) unless `IndEvo_DeconAllowNexOmega`.
+`updateCargoPrePlayerInteraction` rebuilds `allowedShips` and `restrictedShips` from `MiscIE.getCSVSetFromMemory`, `getPrismBossShips()`, `getVayraBossShips()` (RE through its static `getAllowedHulls` / `getRestrictedHulls`, shared with the Wreck Registry) -> `isIllegalOnSubmarket(member)` returns `restricted || notAllowed || printed` (RE also `getResearchValue <= 0`). Dev mode allows everything. Ignore whitelist settings skip the lists. Decon refuses Nexerelin merc ships (`nex_mercBuff` buff) unless `IndEvo_DeconAllowNexOmega`.
 
 ## Contracts
 

@@ -257,6 +257,40 @@ public class ResearchProjectTemplateRepo {
             }
         });
 
+        put(Ids.PROJ_LONGEVITY, new ResearchProject(Ids.PROJ_LONGEVITY, "Project Methuselah", 50, true) {
+
+            @Override
+            public boolean display() {
+                return Setting.PETS.enabled();
+            }
+
+            @Override
+            public CargoAPI getRewards() {
+                CargoAPI c = Global.getFactory().createCargo(true);
+                c.addSpecial(new SpecialItemData(ItemIds.LONGEVITY_SYRINGE, null), 1);
+
+                return c;
+            }
+
+            @Override
+            public List<RequiredItem> getRequiredItems() {
+                List<RequiredItem> list = new ArrayList<>();
+                list.add(new RequiredItem(ItemIds.RARE_PARTS, CargoAPI.CargoItemType.RESOURCES, 1f));
+
+                return list;
+            }
+
+            @Override
+            public String getLongDesc() {
+                return "An ongoing project of the biology department, rebuilding a pre-Collapse cell repair formula for animals. Each round of relic components pays for the equipment that makes one more Longevity Syringe.";
+            }
+
+            @Override
+            public String getShortDesc() {
+                return "The department cat has outlived four professors. We would like to know why.";
+            }
+        });
+
         put(Ids.PROJ_SNOWBLIND, new ResearchProject(Ids.PROJ_SNOWBLIND,
                 "Project Snowblind", 4, false) {
 
@@ -457,12 +491,12 @@ public class ResearchProjectTemplateRepo {
 
                 List<SalvageEntityGenDataSpec.DropData> dropRandom = new ArrayList<>();
 
-                dropRandom.add(DropDataCreator.createDropData(Drops.AI_CORES2, 3));
-                dropRandom.add(DropDataCreator.createDropData(Drops.AI_CORES3, 2));
-                dropRandom.add(DropDataCreator.createDropData("blueprints_low", 4));
-                dropRandom.add(DropDataCreator.createDropData("indEvo_tech", 4));
-                dropRandom.add(DropDataCreator.createDropData(Drops.ANY_HULLMOD_MEDIUM, 4));
-                dropRandom.add(DropDataCreator.createDropData("rare_tech_low", 1));
+                dropRandom.add(DropDataCreator.createPaidDropData(Drops.AI_CORES2, 3));
+                dropRandom.add(DropDataCreator.createPaidDropData(Drops.AI_CORES3, 2));
+                dropRandom.add(DropDataCreator.createPaidDropData("blueprints_low", 4));
+                dropRandom.add(DropDataCreator.createPaidDropData("indEvo_tech", 4));
+                dropRandom.add(DropDataCreator.createPaidDropData(Drops.ANY_HULLMOD_MEDIUM, 4));
+                dropRandom.add(DropDataCreator.createPaidDropData("rare_tech_low", 1));
 
                 //create 5 rolls and return the best
 
@@ -525,7 +559,7 @@ public class ResearchProjectTemplateRepo {
                 List<Random> randomList = getRandomForProj(Ids.PROJ_TRANSISTOR); //Anti-save-scum
 
                 List<SalvageEntityGenDataSpec.DropData> dropRandom = new ArrayList<>();
-                dropRandom.add(DropDataCreator.createDropData("indEvo_missiles_always", 5));
+                dropRandom.add(DropDataCreator.createPaidDropData("indEvo_missiles_always", 5));
                 Random random = randomList.get(0);
 
                 return SalvageEntity.generateSalvage(random, 1f, 1f, 1f, 1f, null, dropRandom);
@@ -562,7 +596,7 @@ public class ResearchProjectTemplateRepo {
                 List<Random> randomList = getRandomForProj(Ids.PROJ_TRANSISTOR); //Anti-save-scum
 
                 List<SalvageEntityGenDataSpec.DropData> dropRandom = new ArrayList<>();
-                dropRandom.add(DropDataCreator.createDropData("indEvo_consumables_always", 5));
+                dropRandom.add(DropDataCreator.createPaidDropData("indEvo_consumables_always", 5));
                 Random random = randomList.get(0);
 
                 return SalvageEntity.generateSalvage(random, 1f, 1f, 1f, 1f, null, dropRandom);

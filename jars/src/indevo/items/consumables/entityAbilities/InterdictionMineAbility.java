@@ -17,6 +17,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Pings;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.scripts.DroneNetScript;
 
 import java.awt.*;
 
@@ -243,6 +244,7 @@ public class InterdictionMineAbility extends BaseDurationAbility {
         custom.setInFraction(0.1f);
         custom.setNum(1);
         Global.getSector().addPing(entity, custom);
+        DroneNetScript.reportBlast(entity.getContainingLocation(), entity.getLocation(), range);
 
         for (CampaignFleetAPI other : entity.getContainingLocation().getFleets()) {
             if (other == entity) continue;

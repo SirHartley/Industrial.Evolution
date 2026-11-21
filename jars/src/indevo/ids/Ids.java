@@ -25,6 +25,8 @@ public class Ids {
     public static final String ARCOLOGIES_LIST = Global.getSettings().getString("IndEvo_arcologiesList");
     public static final String ARCOLOGIES_COND_LIST = Global.getSettings().getString("IndEvo_arcologiesCondList");
     public static final String ACADEMY_SKILL_LIST = Global.getSettings().getString("IndEvo_academySkillList");
+    public static final String RIFT_BLOCKED_SYSTEMS_LIST = Global.getSettings().getString("IndEvo_riftBlockedSystemsList");
+    public static final String RIFT_BLOCKING_ENTITIES_LIST = Global.getSettings().getString("IndEvo_riftBlockingEntitiesList");
 
     //tags
     public static final String TAG_NEVER_REMOVE_RUINS = "IndEvo_RuinsAlways";
@@ -34,7 +36,10 @@ public class Ids {
     public static final String TAG_WATCHTOWER = "IndEvo_watchtower";
     public static final String TAG_SYSTEM_HAS_ARTILLERY = "IndEvo_SystemHasArtillery";
     public static final String MEM_SYSTEM_DISABLE_WATCHTOWERS = "$IndEvo_SystemDisableWatchtowers";
+    public static final String MEM_SYSTEM_ARTILLERY_VISION = "$IndEvo_artilleryVision";
     public static final String TAG_YEETOPULT = "IndEvo_yeetopult";
+    // a pet commands the ship, never an officer of the fleet
+    public static final String TAG_PET_CAPTAIN = "IndEvo_pet_captain";
 
     //Submarkets
     public static final String REPSTORAGE = "IndEvo_RepairStorage";
@@ -76,15 +81,24 @@ public class Ids {
     public static final String ARTILLERY_MORTAR = "IndEvo_Artillery_mortar";
     public static final String ARTILLERY_MISSILE = "IndEvo_Artillery_missile";
     public static final String ARTILLERY_RAILGUN = "IndEvo_Artillery_railgun";
-    public static final String SWITCHABLE_MINING = "IndEvo_SwitchableMining";
-    public static final String SWITCHABLE_REFINING = "IndEvo_SwitchableRefining";
-    public static final String SWITCHABLE_POPULATION = "IndEvo_SwitchablePopulation";
     public static final String PET_STORE = "IndEvo_PetStore";
     public static final String MUSEUM = "IndEvo_Museum";
     public static final String WAREHOUSES = "IndEvo_Warehouse";
     public static final String WARPHOUSE = "IndEvo_Warphouse";
 
     public static final String COMMERCE = "commerce";
+
+    //rat settlement facilities, saved in rat slots, never rename
+    public static final String RAT_REQUISITION = "IndEvo_rat_requisition";
+    public static final String RAT_COURIER = "IndEvo_rat_courier";
+    public static final String RAT_RESTORATION = "IndEvo_rat_restoration";
+    public static final String RAT_CONSULATE = "IndEvo_rat_consulate";
+    public static final String RAT_GANTRY = "IndEvo_rat_gantry";
+    public static final String RAT_ANNEX = "IndEvo_rat_annex";
+    public static final String RAT_QUARTERS = "IndEvo_rat_quarters";
+    public static final String RAT_HABITAT = "IndEvo_rat_habitat";
+    public static final String RAT_FABRICATOR = "IndEvo_rat_fabricator";
+    public static final String RAT_EXHIBITION = "IndEvo_rat_exhibition";
 
     //conditions
     public static final String COND_RUINS = "IndEvo_RuinsCondition";
@@ -95,6 +109,7 @@ public class Ids {
     public static final String COND_LOG_CORE = "IndEvo_LogCoreCond";
     public static final String COND_MINERING = "IndEvo_mineFieldCondition";
     public static final String COND_WORLD_WONDER = "IndEvo_WorldWonderCondition";
+    public static final String MEMORIAL = "IndEvo_Memorial";
     public static final String COND_PLAGUE = "IndEvo_engineered_plague";
     public static final String COND_PARADE = "IndEvo_Parade";
 
@@ -130,7 +145,6 @@ public class Ids {
     public static final String ARSENAL_ENTITY = "IndEvo_arsenalStation";
     public static final String LAB_ENTITY = "IndEvo_orbitalLaboratory";
     public static final String GACHA_STATION = "IndEvo_GachaStation";
-    public static final String PET_SHOP_ENTITY = "IndEvo_PetShop";
     public static final String ABANDONED_PETSHOP_ENTITY = "IndEvo_abandonedPetCenter";
 
     //skills
@@ -177,6 +191,7 @@ public class Ids {
     public static final String PROJ_MORGANA = "indevo_proj_morgana";
     public static final String PROJ_MJOLNIR = "indevo_proj_mjolnir";
     public static final String PROJ_REFORGE = "indevo_proj_reforge";
+    public static final String PROJ_LONGEVITY = "indevo_proj_longevity";
 
     //id
     //IndEvo_cryoartillery

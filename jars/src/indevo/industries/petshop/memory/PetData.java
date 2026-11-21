@@ -1,15 +1,25 @@
 package indevo.industries.petshop.memory;
 
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PetData {
     public static final String TAG_NO_SELL = "no_sell";
     public static final String TAG_NO_DROP = "no_drop";
     public static final String TAG_SPECIES_PREFIX = "c_";
+    public static final String BODY_PREFIX = "b_";
+    public static final String PACE_FAST = "fast";
+    public static final String PACE_MEDIUM = "medium";
+    public static final String PACE_SLOW = "slow";
+    public static final String PACE_HAMSTER = "hamster";
+    public static final float FAST_UNDER_DAYS = 1800f;
+    public static final float MEDIUM_UNDER_DAYS = 3000f;
 
     public String id;
     public String species;
@@ -23,8 +33,14 @@ public class PetData {
     public List<String> foodCommodities;
     public float foodPerMonth;
     public float rarity;
+    public String body;
+    public String pace;
+    // talent roll weight per trait id, a missing talent weighs 1
+    public Map<String, Float> talentWeights;
+    // from pet_morphs.csv, filled by PetDataRepo
+    public final List<PetDataRepo.Look> looks = new ArrayList<>();
 
-    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity) {
+    public PetData(String id, String species, float value, float maxLife, List<String> tags, String desc, String naturalDeath, String icon, String hullmod, List<String> foodCommodities, float foodPerMonth, float rarity, String body, String pace, Map<String, Float> talentWeights) {
         this.id = id;
         this.species = species;
         this.value = value;
@@ -37,6 +53,41 @@ public class PetData {
         this.foodCommodities = foodCommodities;
         this.foodPerMonth = foodPerMonth;
         this.rarity = rarity;
+        this.body = body;
+        this.pace = pace == null || pace.isEmpty() ? paceFor(maxLife) : pace;
+        this.talentWeights = talentWeights;
+    }
+
+    // a blank pace column follows the life span
+    public static String paceFor(float maxLife) {
+        if (maxLife < FAST_UNDER_DAYS) return PACE_FAST;
+        if (maxLife < MEDIUM_UNDER_DAYS) return PACE_MEDIUM;
+        return PACE_SLOW;
+    }
+
+    // what a Treat want takes: the first food that is not Supplies, null when it eats only Supplies
+    public PetDataRepo.Look getLook(String id) {
+        if (id == null) return null;
+        for (PetDataRepo.Look look : looks) if (look.id().equals(id)) return look;
+        return null;
+    }
+
+    public String getFavouriteFood() {
+        for (String food : foodCommodities) if (!Commodities.SUPPLIES.equals(food)) return food;
+        return null;
+    }
+
+    public float getTalentWeight(String traitId) {
+        return talentWeights.getOrDefault(traitId, 1f);
+    }
+
+    public boolean isHamster() {
+        return PACE_HAMSTER.equals(pace);
+    }
+
+    // [Rare] and [Epic] in getRarityDesc
+    public boolean isRare() {
+        return rarity > 0f && rarity <= 0.4f;
     }
 
     public boolean isNoSell() {
@@ -47,12 +98,12 @@ public class PetData {
         return tags.contains(TAG_NO_DROP);
     }
 
-    public String getAnimalClass() {
+    public String getClassTag() {
         for (String tag : tags) {
-            if (tag.startsWith(TAG_SPECIES_PREFIX)) return tag.substring(TAG_SPECIES_PREFIX.length());
+            if (tag.startsWith(TAG_SPECIES_PREFIX)) return tag;
         }
 
-        return "alien";
+        return TAG_SPECIES_PREFIX + "alien";
     }
 
     public Pair<String, Color> getRarityDesc(){

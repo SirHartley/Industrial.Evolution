@@ -8,11 +8,10 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.config.Setting;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 import indevo.ids.Ids;
-import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
-
-import java.io.IOException;
+import indevo.industries.petshop.plugins.PetsDialogPlugin;
+import indevo.industries.petshop.plugins.PetsView;
 
 public class PetManagementAbilityPlugin extends BaseDurationAbility {
 
@@ -33,18 +32,12 @@ public class PetManagementAbilityPlugin extends BaseDurationAbility {
 
         if (ResearchProjectTemplateRepo.RESEARCH_PROJECTS.get(Ids.PROJ_NAVI).getProgress().redeemed) PetDataRepo.get("fairy").tags.remove(PetData.TAG_NO_SELL);
 
-        for (PetData data : PetDataRepo.getAll()) {
-            try {
-                Global.getSettings().loadTexture(data.icon);
-            } catch (IOException e) {
-                throw new IllegalStateException("IndEvo pet " + data.id + " icon " + data.icon + " failed to load", e);
-            }
-        }
+        PetDataRepo.loadTextures();
     }
 
     @Override
     protected void activateImpl() {
-        Global.getSector().getCampaignUI().showInteractionDialog(new PetShopDialogPlugin(null), Global.getSector().getPlayerFleet());
+        PetsDialogPlugin.show(null, new PetsView());
     }
 
     @Override

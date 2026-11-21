@@ -23,7 +23,7 @@ import java.util.List;
 
 public class OrbitalWorksSlotPanelDelegate extends ButtonReportingDialogueDelegate {
 
-    public static final int COST_PER_DP = 20;
+    public static final int COST_PER_DP = 10;
 
     private static final float OPAD = 10f;
     private static final float PAD = 3f;

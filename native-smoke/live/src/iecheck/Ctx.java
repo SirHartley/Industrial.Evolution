@@ -15,7 +15,8 @@ public final class Ctx {
     long waitStart = 0L;
     int waitFrames = 0;
     long waitUntil = 0L;
-    private int keys = 0;
+    // static so key names stay unique over a quickLoad, the runner answers each name once
+    private static int keys = 0;
     boolean reload = false;
     boolean keepDialog = false;
     java.util.function.BooleanSupplier until = null;

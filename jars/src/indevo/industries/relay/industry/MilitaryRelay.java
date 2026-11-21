@@ -20,6 +20,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.relay.condition.RelayConditionPlugin;
 import indevo.industries.relay.listener.RelayNetworkBrain;
 import indevo.industries.relay.plugins.NetworkEntry;
@@ -308,11 +309,11 @@ public class MilitaryRelay extends MilitaryBase {
     public boolean isAvailableToBuild() {
         boolean setting = toggle().enabled();
         boolean hasMBOrHC = isFunctionAllowed();
-        return super.isAvailableToBuild() && setting && hasMBOrHC;
+        return super.isAvailableToBuild() && setting && hasMBOrHC && AotdManager.isResearched(this);
     }
 
     public boolean showWhenUnavailable() {
-        return toggle().enabled();
+        return super.showWhenUnavailable() && toggle().enabled();
     }
 
     @Override
@@ -322,6 +323,9 @@ public class MilitaryRelay extends MilitaryBase {
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!isFunctionAllowed()) {
             return "Requires a Military Base or High Command in the star system.";
         }

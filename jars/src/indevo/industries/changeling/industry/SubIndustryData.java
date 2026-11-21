@@ -2,9 +2,13 @@ package indevo.industries.changeling.industry;
 
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class SubIndustryData implements SubIndustryDataAPI {
     public static final float BASE_COST = 50000;
     public static final float BASE_BUILD_TIME = 31;
+    public static final String UNLOCK_PREFIX = "IndEvo_unlock_";
 
     public String id;
     public String imageName;
@@ -12,6 +16,8 @@ public abstract class SubIndustryData implements SubIndustryDataAPI {
     public String descriptionID;
     public float cost;
     public float buildTime = BASE_BUILD_TIME;
+    public final List<EffectLine> effects = new ArrayList<>();
+    public String requires;
 
     public SubIndustryData(String id, String name, String imageName, String descriptionID) {
         this.id = id;
@@ -29,8 +35,28 @@ public abstract class SubIndustryData implements SubIndustryDataAPI {
         this.cost = cost;
     }
 
+    public SubIndustryData gain(String text, String... highlights) {
+        effects.add(new EffectLine(true, text, highlights));
+        return this;
+    }
+
+    public SubIndustryData cost(String text, String... highlights) {
+        effects.add(new EffectLine(false, text, highlights));
+        return this;
+    }
+
+    public SubIndustryData requires(String text) {
+        requires = text;
+        return this;
+    }
+
     @Override
     public String getImageName(MarketAPI market) {
         return imageName;
+    }
+
+    // the never built industry that ashes of the domain research rewards for this variant
+    public String getUnlockId() {
+        return UNLOCK_PREFIX + id;
     }
 }

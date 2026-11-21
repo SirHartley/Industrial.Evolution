@@ -17,7 +17,8 @@ public class Circle {
         return MathUtils.getPointOnCircumference(center, radius, angle);
     }
 
+    // strict atan2, the fast lookup is off by up to about 0.06 degrees, hundreds of su on a rogue asteroid path
     public float getAngleForPoint(Vector2f point){
-        return Misc.getAngleInDegrees(center, point);
+        return Misc.getAngleInDegreesStrict(center, point);
     }
 }

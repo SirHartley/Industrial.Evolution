@@ -22,7 +22,6 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.ids.Ids;
-import indevo.industries.derelicts.scripts.PlanetMovingScript;
 import indevo.utils.ModPlugin;
 import indevo.utils.memory.SessionTransientMemory;
 import org.apache.log4j.Logger;
@@ -437,36 +436,13 @@ public class MiscIE {
     }
 
     public static boolean planetHasRings(PlanetAPI planet) {
-        boolean hasRings = false;
-        List<SectorEntityToken> tokenList = PlanetMovingScript.getEntitiesWithOrbitTarget(planet);
-        if (tokenList != null) {
+        if (planet == null || planet.getContainingLocation() == null) return false;
 
-            for (SectorEntityToken t : PlanetMovingScript.getEntitiesWithOrbitTarget(planet)) {
-                if (t instanceof RingBandAPI) {
-                    hasRings = true;
-                    break;
-                }
-            }
+        for (SectorEntityToken t : planet.getContainingLocation().getAllEntities()) {
+            if (t instanceof RingBandAPI band && (band.getFocus() == planet || band.getOrbitFocus() == planet)) return true;
         }
 
-        return hasRings;
-    }
-
-    public static boolean planetHasRings(MarketAPI market) {
-        PlanetAPI planet = market.getPlanetEntity();
-        boolean hasRings = false;
-        List<SectorEntityToken> tokenList = PlanetMovingScript.getEntitiesWithOrbitTarget(planet);
-        if (tokenList != null) {
-
-            for (SectorEntityToken t : PlanetMovingScript.getEntitiesWithOrbitTarget(planet)) {
-                if (t instanceof RingBandAPI) {
-                    hasRings = true;
-                    break;
-                }
-            }
-        }
-
-        return hasRings;
+        return false;
     }
 
     //excluding salvageMarket

@@ -24,6 +24,7 @@ import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.intel.DetachmentIntel;
 import indevo.abilities.splitfleet.intel.RecoverableShipIntel;
 import indevo.abilities.splitfleet.salvageSpecials.OfficerAndShipRecoverySpecial;
+import indevo.ids.Ids;
 import indevo.utils.helper.MiscIE;
 import org.apache.log4j.Logger;
 import org.lazywizard.lazylib.MathUtils;
@@ -268,7 +269,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
         float orbitDays = orbitRadius * MathUtils.getRandomNumberInRange(0.7f, 1.3f);
         ship.setCircularOrbit(focus, (float) MathUtils.getRandomNumberInRange(0f, 360f), orbitRadius, orbitDays);
 
-        PersonAPI captain = (member.getCaptain() != null && !member.getCaptain().isDefault() && !member.getCaptain().isAICore()) ? member.getCaptain() : null;
+        PersonAPI captain = (member.getCaptain() != null && !member.getCaptain().isDefault() && !member.getCaptain().isAICore() && !member.getCaptain().hasTag(Ids.TAG_PET_CAPTAIN)) ? member.getCaptain() : null;
         OfficerAndShipRecoverySpecial.OfficerAndShipRecoverySpecialData specialData = new OfficerAndShipRecoverySpecial.OfficerAndShipRecoverySpecialData(captain, member, condition);
         if (extraCargo != null && !extraCargo.isEmpty()) BaseSalvageSpecial.addExtraSalvage(ship, extraCargo);
         Misc.setSalvageSpecial(ship, specialData);

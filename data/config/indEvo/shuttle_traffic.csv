@@ -1,0 +1,8 @@
+id,hullId,weight,small
+# Civilian craft for shuttle traffic. Other mods add rows with their own id. small marks craft that fly supply hops.
+shuttlepod,shuttlepod,10,TRUE
+kite,kite,4,TRUE
+hermes,hermes,2,FALSE
+mudskipper,mudskipper,2,FALSE
+shepherd,shepherd,1,FALSE
+ox,ox,1,FALSE

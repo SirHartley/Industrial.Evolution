@@ -8,6 +8,7 @@ package indevo.industries.senate.conditions;
 		Min. Runtime:	1M/market size, auto-end
 */
 
+import indevo.industries.senate.EdictEffect;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketConditionAPI;
@@ -88,6 +89,11 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
     }
 
     @Override
+    public boolean endsOnItsOwn() {
+        return true;
+    }
+
+    @Override
     public int getFinishUnrest(MarketAPI market) {
         return (int) Math.ceil(market.getSize() / 3.0);
     }
@@ -98,13 +104,13 @@ public class Edict_Cleanse extends BaseEdict implements MarketImmigrationModifie
     }
 
     @Override
-    public void addEffectText(TooltipMakerAPI tooltip, MarketAPI market, float pad) {
-        Color neg = Misc.getNegativeHighlightColor();
-
-        tooltip.addPara("%s", pad, Misc.getPositiveHighlightColor(), "All subpopulations will be removed on completion.");
-        tooltip.addPara("Colony income is %s to fund the cleanse.", 3f, neg, "reduced by " + Math.round((1 - income_penalty) * 100) + "%");
-        tooltip.addPara("Colony growth is %s.", 3f, neg, "reduced by " + market.getSize());
-        tooltip.addPara("Stability %s for the duration of this.", 3f, neg, "reduced by " + (market.getSize() - 1));
+    public List<EdictEffect> getEffects(MarketAPI market) {
+        List<EdictEffect> effects = new ArrayList<>();
+        effects.add(EdictEffect.good("Subpopulations", "removed at the end"));
+        effects.add(EdictEffect.bad("Income", percent(-(1 - income_penalty))));
+        effects.add(EdictEffect.bad("Population growth", signed(-market.getSize())));
+        effects.add(stability(market, -(market.getSize() - 1)));
+        return effects;
     }
 
     @Override

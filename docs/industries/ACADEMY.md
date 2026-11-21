@@ -6,7 +6,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 
 ## Overview
 
-The Academy stores officers and admins taken out of the player fleet, trains one officer and one admin at a time, and spawns extra hireable officers and admins on its market. Officer training moves the personality one or two steps along `timid -> cautious -> steady -> aggressive -> reckless`; admin training adds one random admin skill. NPC Academies charge a training fee and a monthly storage fee; player Academies only charge reduced salaries. IE also creates a hidden market `IndEvo_academyMarket` on the vanilla Galatia Academy station so the same panel works there. All interaction runs through one custom panel (`AcademyPanelDelegate`); rules.csv only adds the entry options.
+The Academy stores officers and admins taken out of the player fleet, trains one officer and one admin at a time, and spawns extra hireable officers and admins on its market. Officer training moves the personality one or two steps along `timid -> cautious -> steady -> aggressive -> reckless`; admin training adds one random admin skill. NPC Academies charge a training fee and a monthly storage fee; player Academies only charge reduced salaries. IE also creates a hidden market `IndEvo_academyMarket` on the vanilla Galatia Academy station so the same panel works there. All interaction runs through one custom panel (`AcademyPanelDelegate`, built with the [UI kit](../core/UI.md)); rules.csv only adds the entry options.
 
 ## Files
 
@@ -14,10 +14,10 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 |---|---|
 | `indevo/industries/academy/industry/Academy.java` | Industry plugin. Owns training state (`officerInTraining`, `officerTrainingTarget`, `adminInTraining`, day counters, `currentDirection`), both storage lists, fees, spawn rolls, officer quality mods, AI core effects. `NewDayListener` + `EconomyTickListener`. Nested `TrainingSpeedUp` (`RelicSpeedUpTarget` for the officer or admin timer, `getTrainingSpeedUp(admin)`) |
 | `indevo/industries/academy/plugins/AcademyOptionProvider.java` | Industry "Visit the Academy..." button; opens `AcademyDialogPlugin` standalone |
-| `plugins/AcademyDialogPlugin.java` | Panel host: `InteractionDialogPlugin`, `EscapeBlockingDialoguePluginAPI`. Standalone (closes the dialog) or rules mode (returns to the rule dialog). Switches between panel, training popup, admin training confirmation (`showAdminTraining`) and the relic speed up dialog (`showRelicDialog`), handles ESC |
-| `plugins/AcademyPanelDelegate.java` | The panel: tabs, `HelpIcon` with fees and rules, training slot, person rows, buttons with tooltips. Sizes as constants |
-| `plugins/AcademyTrainingPopupDelegate.java` | Officer training popup: five personality squares, summary, confirm |
-| `plugins/AcademyAdminTrainingDialog.java` | Admin training confirmation: interaction dialog with effect, time, cost and `Train` / `Cancel` options |
+| `plugins/AcademyDialogPlugin.java` | Panel host: `InteractionDialogPlugin`, `EscapeBlockingDialoguePluginAPI`. Standalone (closes the dialog) or rules mode (returns to the rule dialog), handles ESC. Static `show(market, view)` opens the panel for code and tests |
+| `plugins/AcademyView.java` | View state: tab (`admins`), selected person id, selected personality rung, scroll offsets (`LIST`, `DETAIL`) |
+| `plugins/AcademyPanelDelegate.java` | The panel: header, tabs, list column (training strip, groups, rows), selection, help tooltip. Reference implementation of the UI kit |
+| `plugins/AcademyDetail.java` | Detail column per selection: officer with personality ladder, administrator, trainee with Accelerate and Abort |
 | `indevo/industries/academy/rules/IndEvo_ShowAcademyPanel.java` | Rule command `IndEvo_ShowAcademyPanel <returnOption>`: finds the Academy market (Galatia station maps to `Ids.ACADEMY_MARKET_ID`), opens `AcademyDialogPlugin` in rules mode |
 | `rules/WIP/IndEvo_InitPersonalityTransferMenu.java` | Excluded WIP (see below) |
 
@@ -37,6 +37,8 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 | Person memory | `$IndEvo_wasTrainedLevel` (personality steps used) | `Academy.addTrainedSteps()` |
 | Person memory | `$ome_adminTier` incremented, `$ome_hireable`, `$ome_isAdmin` read | `Academy.java:457`, `:734` (vanilla `OfficerManagerEvent` keys) |
 | Rules | `IndEvo_AcademyBaseMenu`, `IndEvo_AcademyBaseMenu_GA`, `IndEvo_AcademyBaseColonyOptionMenu`, `IndEvo_IntitiateAcademyMenu`, `IndEvo_IntitiateAcademyMenu_GA` | `data/campaign/rules.csv`, block `# Academy` to `#END Academy` |
+| Item | `IndEvo_holobench` (`ItemIds.HOLOBENCH`, Holobench, shown by its item name Neural Interface), params `IndEvo_Academy` | `data/campaign/special_items.csv`, effect text `HolobenchEffect`; [Installables](../items/INSTALLABLES.md) |
+| Person memory | `$mentored` (vanilla `Misc.MENTORED`) set by the Holobench | `Academy.trainOfficerInTraining()` |
 | Sprite | `IndEvo/trainingdone` | `data/config/settings.json`, completion message icon |
 
 ## Registration and lifecycle
@@ -63,23 +65,32 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 
 ### Panel
 
-`AcademyPanelDelegate`, shown with `InteractionDialogAPI.showCustomDialog()` at `getWidth()` x `getHeight()`: `min(1104, screen width - 100)` and `min(850, screen height - 100)` for the whole dialog, minus the 20 x 55 px the custom dialog adds for its frame and button row (translation of obfuscated code, `obf/ui/newui/super.java:52-53`).
+`AcademyPanelDelegate`, a custom dialog of board size 1104 x 780 (`UiFrame.width/height`: `min(board, screen - 100)`, content 1084 x 725 at 1600 x 900, 1084 x 613 at 1280 x 768). Both tabs use the same size, so a tab switch rebuilds in place. Every click changes `AcademyView` and rebuilds the body (`UiRoot.refresh()`); list and detail keep their scroll offsets. Layout is absolute ([UI](../core/UI.md#layout-contract)): detail column 295 wide at the right edge, the list takes the rest.
 
-- Title heading with a `HelpIcon` in the top right corner: training cost and time, step limit and storage fees per tab and market owner.
-- Tabs `Officers n / max` and `Administrators n / max`, credits on the right.
-- In training: the person of the active tab with target, days left and a bar, a paused note when the Academy is not functional or the market is hostile, `Abort to fleet` (disabled without a free slot) and `Abort to storage`. No refund. `Accelerate` left of them: dismisses the panel and opens the shared `RelicSpeedUpDialog` for the timer of the active tab; Confirm, Cancel and ESC reopen the panel on the next frame. Disabled while its 60 day cooldown runs or with 1 day or less left; the tooltip shows effect, cost and lore. Halves the days left for 1 Relic Component per remaining day, paid from the Academy market's storage, then fleet cargo. See [Economy](../core/ECONOMY.md#relic-speed-up).
-- Rows: fleet officers (`getFleetOfficers()`, unremovable ones left out) or staff admins (`getStaffAdmins()`) first, then stored ones, each by level or admin skill count. Header `Name - In fleet`, `On staff` or `Stored here`. Square assignment box (portrait size) left of the portrait: commanded ship icon (`getCommandedShip()`, `addShipList`) or governed market (`getGovernedMarket()`, `showPlanetInfo`, faction crest for markets without a planet), its name below in one line of `VICTOR_10`, cut with `...` when too long; else `Unassigned` in the box. Skill icons with name tooltips, elite skills framed. `Train` (green, as the Courier Port confirm) plus `Store` or `Retrieve`.
-- Every button is disabled with the reason from `Academy` as tooltip (`getOfficerTrainBlocker()`, `getAdminTrainBlocker()`, `getOfficerSlotBlocker()`, `getAdminSlotBlocker()`); enabled ones show cost and time. Store on a governing admin warns that the player takes over.
-- Officer `Train` dismisses the panel and opens `AcademyTrainingPopupDelegate`: five square tiles in ladder order, each an area checkbox with a bar and name in the personality colour (`Academy.COLOURS_BY_PERSONALITY`, half brightness when out of reach), then days and fee for reachable ones (fee in the negative colour when not affordable), `Current`, `Needs an alpha core` or `Out of reach`. Reachable and affordable tiles are selectable, the nearest is preselected. Below: current to target with days and fee, and the target's vanilla description. Confirm (`Train`) calls `setOfficerForTraining(person, targetId)`.
-- Admin `Train` opens `AcademyAdminTrainingDialog` over the panel with `CampaignUIAPI.showInteractionDialogFromCargo` (`showConfirmDialog` returns false while an interaction dialog is up, translation of obfuscated code `CampaignState.showConfirmDialog`): admin portrait, effect, time and cost, options `Train` and `Cancel` (also ESC). `Train` calls `setAdminInTraining(person)`; on dismiss the panel rebuilds (`AcademyPanelDelegate.refresh()`). The Academy plugin stops claiming ESC while it is open.
-- Popups: Confirm, Cancel and ESC reopen the panel on the next frame (`AcademyDialogPlugin.showPanelNextFrame()`); the custom dialog slot is only free after the dismiss. ESC and Return close the panel. Scroll position is kept across rebuilds and popups.
-- Tooltip elements indent their first item by 5 px (`StandardTooltipV2Expandable.addCustom`, translation of obfuscated code); elements placed by absolute position subtract `TOOLTIP_INSET`.
+- Header: title `<Academy name>  <market>` with the `?` help (training cost and time, step limits, Holobench, storage fees, abort loss; per tab and market owner). Tabs `Officers n / max` and `Administrators n / max` (210 x 24, top cut). Right side: credits; on the Officers tab also the installed Holobench and Alpha Core with tooltips (left out when they would reach the tabs).
+- List column, one scroll list (`AcademyView.LIST`): `In training` with one strip row or one grey line, `In fleet` / `On staff` (`getFleetOfficers()`, unremovable ones left out, or `getStaffAdmins()`), `Stored here` (heading note: the storage fee on an NPC market, the reserve drills XP on the Officers tab with the Holobench). Groups sorted by level or admin skill count; an empty group keeps its heading and one grey line. Rows are 50 high and select on click.
+  - Officer row: portrait, name, level, personality in its colour with 5 pips, skill icons from `SKILL_X`, 60 px right of the pips (up to 8 at 28 px, else two rows of 20 px icons and `+N` with the rest as tooltip; elite framed), salary per month, and at the right end the commanded ship as sprite only (name and class in its tooltip), a dashed box with the tooltip `Unassigned`, or nothing for stored officers.
+  - Administrator row: portrait, name, `n of 2 skills`, two skill slots (dashed when empty), governed colony (planet, name, `Size n · <system>`), `Unassigned` or `In storage / draws 10% of salary`; salary per month right (10% while stored).
+  - Person names fit 24 characters (162 px column in rows and the training strip); longer ones end in an ellipsis with the full name as tooltip.
+  - A colony name too long for its line wraps to the second line and drops the class or size line (`Ui.nameLines`); the size line falls back to the system name when both do not fit.
+  - Training strip: portrait, name, level, from and to personality (admins: learns one random skill), progress bar `Day d of t` (standard bar colour, the vanilla warning colour while paused), `Done on <date>` or `Paused: <reason>` in red, days left and steps.
+- Selection: `AcademyView.selected` (person id). None or unknown picks the trainee, else the first row. Selecting resets the detail scroll.
+- Detail column (`AcademyDetail`): the information scrolls (`AcademyView.DETAIL`), the action block (fee, Train, Store or Retrieve; Accelerate and Abort for the trainee) is pinned at the bottom and never scrolls.
+  - Officer: portrait, grid Level, Personality, Salary, Steps used, then ship, `Unassigned` or `Stored here`; stored with the Holobench: `Reserve drills` with `+20,000 XP per month`, `None, max level` or `None, mercenary` (`getDrillsRow()`); `Personality training` ladder of 5 rungs in ladder order, each with a colour strip: current (highlight frame, `Current`), reachable (days and fee, fee red when short; click selects), `Needs an alpha core` or `Out of reach` (disabled). The nearest affordable rung is preselected. Every rung has its vanilla personality description as tooltip. No skills list: the column row shows them. Pinned at the bottom: Duration, `Leaves the fleet until` or `Done on` date and Fee (with a selected rung), `Train` (green) and `Store` or `Retrieve`. Train calls `setOfficerForTraining(person, rung)` at once.
+  - Administrator: portrait, grid Skills, Salary, Governs (planet and size), `Stored here / draws 10% of salary` when stored; `Administrator training` with Gains, no skills list (the column row shows them); pinned at the bottom: Duration, `Away until` (only when trainable), Fee, `Train` (`setAdminInTraining`), `Store` or `Retrieve`; a governing administrator gets the highlight line `Storing them makes you governor of X.`
+  - Trainee: info grid, `In training` with from and to and the bar (paused reason below), Days left, Done on, Fee paid, `Mentored on completion` (officers); `Accelerate`: cost in Relic Components with stock, `Days left` as the old value struck through and the new one (`UiData.change`), one click button (`UiButtons.relic`: green, relic icon and cost; `RelicSpeedUpDialog.apply`), tooltip from `RelicSpeedUpDialog.addTooltip` with lore; `Abort`: `Abort to fleet` and `Abort to storage` (red pair), no refund (stated in their tooltips).
+  - Fee: `Free own Academy` on player markets, else credits with the player's stock.
+- Blocked buttons are grey with the reason in red below (reserved line): `getOfficerTrainBlocker()`, `getAdminTrainBlocker()`, `Not enough credits.` for the picked rung, `getOfficerSlotBlocker()` / `getAdminSlotBlocker()` for Retrieve and Abort to fleet; Accelerate `Unavailable for another N days.`, `Too few days left.`, `Not enough Relic Components.`. Store tooltips state the storage cost and the governor takeover.
+- Personality colours are `Academy.COLOURS_BY_PERSONALITY` blended 40% towards white (`getPersonalityColor()`); the raw blue and red are too dark on the panel background.
+- ESC and Return close the panel (standalone) or return to the rule dialog.
+- Test entry: `AcademyDialogPlugin.show(market, new AcademyView(admins, personId, rungId))`.
 
 ### Officer training
 
-- Steps: the distance on the personality ladder (`getPersonalitySteps()`). An officer has one lifetime step, two with an alpha core (`getMaxOfficerSteps()`); `$IndEvo_wasTrainedLevel` counts the steps used (`getOfficerStepsLeft()`). One training may use all steps left at once.
+- Steps: the distance on the personality ladder (`getPersonalitySteps()`). An officer has one lifetime step, two with an alpha core; a Holobench adds one, so up to 3 (`getMaxOfficerSteps(alpha)`, current state `getMaxOfficerSteps()`); `$IndEvo_wasTrainedLevel` counts the steps used (`getOfficerStepsLeft()`). One training may use all steps left at once.
 - `setOfficerForTraining(person, targetId)` checks that no officer is training, the officer is removable, the target is 1 to steps left away and the fee is affordable, then removes the officer from fleet and ship command or from storage, stores the target in `officerTrainingTarget` and charges the fee. Fee and days are per step: `getOfficerTrainingFee(steps)` (`IndEvo_personalityTrainingCost` per step, 0 on player markets), `getOfficerTrainingDays(steps)` (`IndEvo_personalityTrainingDayCount` + 1 - AI core reduction, per step). The fee is taken at once with `BillingHelper.chargeNow` ([BillingHelper](../core/UTILS.md#billinghelper)).
 - `trainOfficerInTraining()` runs daily if functional and the market faction is not hostile to the player. After `getCurrentOfficerTrainingDays()` it sets the target personality, adds the steps to `$IndEvo_wasTrainedLevel`, puts the officer into storage and sends a `MessageIntel`. Dev mode finishes on the next day.
+- Holobench installed at completion (`hasHolobench()`): the officer leaves mentored (`Misc.setMentored`, vanilla `$mentored`), the message says so. Vanilla reads the flag for skill picks per level, 6 instead of 4 (`api/impl/campaign/OfficerLevelupPluginImpl.java:137`, `:200`); vanilla only sets it from the officer screen Mentor button for a story point (translation of obfuscated code, `obf/coreui/ooo0.java:983`). Already mentored officers are left alone.
 - Saves from before `officerTrainingTarget` have it null; `getOfficerTrainingTarget()` then takes one step in `currentDirection`.
 
 ### Admin training
@@ -91,7 +102,7 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 ### Storage and fees
 
 - `storeOfficer`/`returnOfficer`, `storeAdmin`/`returnAdmin` move people between fleet or character data and the lists. Storing an admin who governs a player market sets the player as admin there (`storeAdmin()`, `:471`). Retrieval checks officer or admin capacity (dev mode skips the admin check); blocked Retrieve buttons explain the capacity limit.
-- `reportEconomyTick()` on the last iteration of the month (`economyIterPerMonth - 1`) charges full officer salary, 10% admin salary and, on NPC markets, `IndEvo_monthlyAIStorageCost` per stored person (`:132`), on the "Personnel storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)).
+- `reportEconomyTick()` on the last iteration of the month (`economyIterPerMonth - 1`) charges full officer salary (`Academy.getBaseSalary`: level pay and mercenary mult, no populated system or inactive mult; also the hire price and every salary shown), 10% admin salary and, on NPC markets, `IndEvo_monthlyAIStorageCost` per stored person (`:132`), on the "Personnel storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)).
 
 ### Hireable spawns and officer quality
 
@@ -102,18 +113,25 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 
 | Core | Effect | Where |
 |---|---|---|
-| Alpha | officers get a second personality step, usable at once | `getMaxOfficerSteps()` |
+| Alpha | officers get a second personality step, usable at once (three with a Holobench) | `getMaxOfficerSteps()` |
 | Beta | training days -31 (`betacoreReduction`) | `applyAICoreToIncomeAndUpkeep()`, `:866` |
 | Gamma | upkeep x0.9 | same |
 
+### Holobench
+
+Installable item `IndEvo_holobench`, vanilla slot through `GenericSpecialItemPlugin` params (`BaseIndustry.wantsToUseSpecialItem`). The effect class only adds the description; the Academy reads `special` itself. Effects: one more lifetime personality step (Officer training), and mentoring on officer training (above).
+
+Reserve drills: `reportEconomyMonthEnd()` gives every officer in this Academy's storage `HOLOBENCH_MONTHLY_XP` (20000, `SpecialItemEffectsRepo`) while the Academy is functional, has the Holobench and its market is not hostile. The XP goes through a throwaway `OfficerDataAPI` (`FactoryAPI.createOfficerData`) so vanilla clamps at max level and skips mercenaries (translation of obfuscated code, `obf/rpg/OfficerData.java:56-64`). No message, the officer is not in the fleet. Skill picks are made by the vanilla level up screen when picks are empty (translation of obfuscated code, `obf/coreui/B.java:70`). The officer in training gets none. At `officerXPRequiredMult` 4, level 2 takes about 3 months, level 5 about 23 months. The officers tab help lists it while installed.
+
 ## Contracts
 
-- Storage help lists the monthly fee per person and the salary charged while stored. Abort tooltips state the loss of the training fee and progress.
+- Storage help lists the monthly fee per person and the salary charged while stored. The help and the Abort section state the loss of the training fee and progress.
 
 - All Academy state is plain fields on the industry instance and persists with the market. Stored `PersonAPI` objects exist only in those lists; removing the industry loses them (inferred: `notifyBeingRemoved` is not overridden).
 - `Stats.OFFICER_PROB_MOD` on a market is read by vanilla `OfficerManagerEvent` (`api/impl/campaign/events/OfficerManagerEvent.java:118`). `Stats.OFFICER_MAX_LEVEL_MOD` is read from person stats by `FleetFactoryV3` (`api/impl/campaign/fleets/FleetFactoryV3.java:1050`); no read of the market level mod was found in `api/impl` or `obf`, so the max level mult likely has no effect (inferred).
 - `Academy.COLOURS_BY_PERSONALITY` order is the personality ladder; [Pets](PETS.md) also use its key set for pet dispositions. Keys are personality ids: look up with `PersonalityAPI.getId()`, never the display name, which translations change (`data/characters/personalities.csv` `name` column).
 - `ListenerManager.addListener` dedupes by instance and drops transient listeners on save (`obf/campaign/ListenerManager.java:29`, `obf/_common/util/container/repo/ObjectRepository.java:87`), so re-adding in every `apply()` is safe.
+- A small RAT settlement version of this industry exists (Officer Quarters: an embedded `QuartersAcademy`, `ownedByPlayer()` true, `spawnsHireables()` false); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
 

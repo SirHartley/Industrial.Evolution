@@ -3,6 +3,7 @@ package indevo.industries.salvageyards.intel;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import com.fs.starfarer.api.characters.MutableCharacterStatsAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.DModManager;
@@ -26,16 +27,16 @@ import indevo.config.Setting;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.ids.Ids;
-import indevo.industries.salvageyards.rules.IndEvo_InitSYCustomProductionDiag;
+import indevo.industries.salvageyards.memory.WreckRegistry;
+import indevo.industries.salvageyards.memory.YardsProductionData;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
 import indevo.utils.timers.NewDayListener;
 
 import java.awt.*;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.List;
+import java.util.*;
 
 import static indevo.utils.helper.StringHelper.getDayOrDays;
 
@@ -56,13 +57,13 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
     boolean isDone = false;
     protected Random genRandom = new Random();
     protected MarketAPI market;
-    protected IndEvo_InitSYCustomProductionDiag.YardsProductionData data;
+    protected YardsProductionData data;
     protected CargoAPI tooltipCargo;
     protected long relicSpeedUpTimestamp = 0L;
 
     private Stage currentStage;
 
-    public YardsCustomProductionIntel(MarketAPI deliverToMarket, IndEvo_InitSYCustomProductionDiag.YardsProductionData data) {
+    public YardsCustomProductionIntel(MarketAPI deliverToMarket, YardsProductionData data) {
         this.market = deliverToMarket;
         this.data = data;
     }
@@ -228,6 +229,14 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         return market;
     }
 
+    public YardsProductionData getData() {
+        return data;
+    }
+
+    public boolean isWaiting() {
+        return currentStage == Stage.WAITING;
+    }
+
     @Override
     public String getSpeedUpId() {
         return "yardsOrder";
@@ -319,27 +328,46 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
         }
     }
 
-    protected CargoAPI convertProdToCargo(IndEvo_InitSYCustomProductionDiag.YardsProductionData prod) {
+    protected CargoAPI convertProdToCargo(YardsProductionData prod) {
         CargoAPI cargo = Global.getFactory().createCargo(true);
         cargo.initMothballedShips(Global.getSector().getPlayerFaction().getId());
 
+        Map<String, List<WreckRegistry.WreckFit>> fits = new HashMap<>();
+        if (prod.registryOrder != null) {
+            for (WreckRegistry.WreckFit fit : prod.registryOrder.fits) fits.computeIfAbsent(fit.getHullId(), k -> new ArrayList<>()).add(fit);
+        }
+
+        MutableCharacterStatsAPI stats = Global.getSector().getPlayerStats();
+
         for (Map.Entry<String, Integer> e : prod.productionList.entrySet()) {
             int count = e.getValue();
+            List<WreckRegistry.WreckFit> hullFits = fits.getOrDefault(e.getKey(), new ArrayList<>());
 
             for (int i = 0; i < count; i++) {
-                String var = ForgeTemplateItemPlugin.getValidVariantIdForHullId(e.getKey());
-                FleetMemberAPI member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, var);
+                FleetMemberAPI member;
+                if (i < hullFits.size()) member = hullFits.get(i).createMember(stats);
+                else member = Global.getFactory().createFleetMember(FleetMemberType.SHIP, ForgeTemplateItemPlugin.getValidVariantIdForHullId(e.getKey()));
+
                 DModManager.addDMods(member, false, data.getAverageDModAmount(), genRandom);
 
                 cargo.getMothballedShips().addFleetMember(member);
             }
         }
 
+        addRegistryParts(cargo, prod);
+
         return cargo;
     }
 
+    private void addRegistryParts(CargoAPI cargo, YardsProductionData prod) {
+        if (prod.registryOrder == null) return;
+
+        for (Map.Entry<String, Integer> e : prod.registryOrder.weapons.entrySet()) cargo.addWeapons(e.getKey(), e.getValue());
+        for (Map.Entry<String, Integer> e : prod.registryOrder.wings.entrySet()) cargo.addFighters(e.getKey(), e.getValue());
+    }
+
     //alex did it like this, fuck do I know why, I'll just do my own thing
-    protected CargoAPI convertProdToCargoForTooltip(IndEvo_InitSYCustomProductionDiag.YardsProductionData prod) {
+    protected CargoAPI convertProdToCargoForTooltip(YardsProductionData prod) {
         CargoAPI cargo = Global.getFactory().createCargo(true);
         cargo.initMothballedShips(Global.getSector().getPlayerFaction().getId());
 
@@ -378,6 +406,8 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
             cargo.getMothballedShips().addFleetMember(member);
         }
 
+        addRegistryParts(cargo, prod);
+
         return cargo;
     }
 
@@ -395,6 +425,11 @@ public class YardsCustomProductionIntel extends BaseIntelPlugin implements NewDa
             info.addPara("Ship hulls:", opad);
             info.showShips(tooltipCargo.getMothballedShips().getMembersListCopy(), 20, true,
                     currentStage == YardsCustomProductionIntel.Stage.WAITING, opad);
+        }
+
+        if (!tooltipCargo.getStacksCopy().isEmpty()) {
+            info.addPara("Weapons and fighter wings:", opad);
+            info.showCargo(tooltipCargo, 20, true, opad);
         }
     }
 }

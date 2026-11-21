@@ -33,7 +33,8 @@ public class YourMod_PetName_PetHullmod extends BaseHullMod {
         Pet pet = PetStatusManager.getInstance().getPet(stats.getVariant());
         if (pet == null) return;
 
-        float effectFract = pet.getEffectFract(); //this is the effect fraction, it reaches 100% after a year of assignment
+        // 0 under 1 heart or while unsettled, 1 from 1 heart, more for a hamster or a nest
+        float effectFract = pet.getEffectFract();
         String name = pet.name + " the " + pet.getData().species;
 
         //Your effects go here

@@ -38,12 +38,10 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
 
     @Override
     public void apply() {
-        ((SwitchablePopulation) industry).superApply();
-        applyGlobalOutputReduction(SUPPLY_REDUCTION);
-
         market.getAccessibilityMod().modifyFlat(getId(), -ACCESS_RED, getName());
         market.getStats().getDynamic().getMod(Stats.GROUND_DEFENSES_MOD).modifyMult(getId(), 1f + DEFENCE_BONUS, getName());
 
+        market.removeImmigrationModifier(this);
         market.addImmigrationModifier(this);
 
         Set<String> supressedConditionIDs = MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
@@ -56,11 +54,6 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
     public void unapply(){
         if (industry == null) return;
 
-        for (Industry ind : market.getIndustries()){
-            ind.getSupplyBonusFromOther().unmodify(getId());
-            ind.getDemandReductionFromOther().unmodify(getId());
-        }
-
         market.removeImmigrationModifier(this);
 
         market.getAccessibilityMod().unmodify(getId());
@@ -72,11 +65,16 @@ public class HiddenArcologiesSubIndustry extends SubIndustry implements MarketIm
         }
     }
 
-    public void applyGlobalOutputReduction(int amt){
-        for (Industry ind : market.getIndustries()){
-            ind.getSupplyBonusFromOther().modifyFlat(getId(), -amt);
-            ind.getDemandReductionFromOther().modifyFlat(getId(), amt);
-        }
+    @Override
+    public void preApplyToOther(Industry ind) {
+        ind.getSupplyBonusFromOther().modifyFlat(getId(), -SUPPLY_REDUCTION);
+        ind.getDemandReductionFromOther().modifyFlat(getId(), SUPPLY_REDUCTION);
+    }
+
+    @Override
+    public void unapplyFromOther(Industry ind) {
+        ind.getSupplyBonusFromOther().unmodify(getId());
+        ind.getDemandReductionFromOther().unmodify(getId());
     }
 
     @Override

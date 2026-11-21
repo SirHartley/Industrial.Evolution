@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.LabelAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.utils.helper.RelicHelper;
@@ -17,7 +18,9 @@ public abstract class RelicConfirmDialog extends BaseCustomDialogDelegate {
     public static final float WIDTH = 450f;
 
     private static final float OPAD = 10f;
+    private static final float BUTTON_W = 150f;
     private static final float BUTTON_H = 25f;
+    private static final float TOOLTIP_INSET = 5f;
     private static final float COUNTER_PAD = 4f;
 
     protected final MarketAPI market;
@@ -51,23 +54,38 @@ public abstract class RelicConfirmDialog extends BaseCustomDialogDelegate {
         info.setParaFontDefault();
     }
 
-    public static void addCounter(TooltipMakerAPI info, MarketAPI market, float pad) {
+    public static LabelAPI addCounter(TooltipMakerAPI info, MarketAPI market, float pad) {
         info.setParaSmallInsignia();
-        info.addPara(RelicHelper.getName() + ": %s", pad, Misc.getGrayColor(), Misc.getHighlightColor(), RelicHelper.getAvailable(market) + "");
+        LabelAPI label = info.addPara(RelicHelper.getName() + ": %s", pad, Misc.getGrayColor(), Misc.getHighlightColor(), RelicHelper.getAvailable(market) + "");
         info.setParaFontDefault();
+        return label;
+    }
+
+    private static String getCounterText(MarketAPI market) {
+        return RelicHelper.getName() + ": " + RelicHelper.getAvailable(market);
     }
 
     public void show(DialogCreatorUI ui) {
-        ui.showDialog(WIDTH, getHeight(), this);
+        float w = getWidth();
+        ui.showDialog(w, getHeight(w), this);
     }
 
     public void show(InteractionDialogAPI dialog) {
-        dialog.showCustomDialog(WIDTH, getHeight(), this);
+        float w = getWidth();
+        dialog.showCustomDialog(w, getHeight(w), this);
     }
 
-    public float getHeight() {
-        CustomPanelAPI scratch = Global.getSettings().createCustom(WIDTH, 1000f, null);
-        TooltipMakerAPI info = scratch.createUIElement(WIDTH, 1000f, false);
+    // the dialog right aligns its 150 px buttons 10 px apart and 10 px from its edge, the counter must end 10 px left of them
+    public float getWidth() {
+        TooltipMakerAPI scratch = Global.getSettings().createCustom(WIDTH, BUTTON_H, null).createUIElement(WIDTH, BUTTON_H, false);
+        LabelAPI counter = addCounter(scratch, market, 0f);
+        float needed = TOOLTIP_INSET + counter.computeTextWidth(getCounterText(market)) + getButtonCount() * (BUTTON_W + OPAD);
+        return Math.max(WIDTH, (float) Math.ceil(needed));
+    }
+
+    public float getHeight(float width) {
+        CustomPanelAPI scratch = Global.getSettings().createCustom(width, 1000f, null);
+        TooltipMakerAPI info = scratch.createUIElement(width, 1000f, false);
         addBody(info);
         return info.getHeightSoFar() + OPAD;
     }
@@ -82,15 +100,20 @@ public abstract class RelicConfirmDialog extends BaseCustomDialogDelegate {
         this.callback = callback;
         this.open = true;
 
+        float w = panel.getPosition().getWidth();
         float h = panel.getPosition().getHeight();
-        TooltipMakerAPI info = panel.createUIElement(WIDTH, h, false);
+        TooltipMakerAPI info = panel.createUIElement(w, h, false);
         addBody(info);
         panel.addUIElement(info).inTL(0f, 0f);
 
         // the dialog puts its buttons in a row below this panel, the counter goes left of them like the vanilla story point dialog
-        TooltipMakerAPI counter = panel.createUIElement(WIDTH / 2f, BUTTON_H, false);
+        TooltipMakerAPI counter = panel.createUIElement(w - getButtonCount() * (BUTTON_W + OPAD), BUTTON_H, false);
         addCounter(counter, market, COUNTER_PAD);
         panel.addUIElement(counter).inBL(0f, -(OPAD + BUTTON_H));
+    }
+
+    private int getButtonCount() {
+        return canPay ? 2 : 1;
     }
 
     public boolean isOpen() {

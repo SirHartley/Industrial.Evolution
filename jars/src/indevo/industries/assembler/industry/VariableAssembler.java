@@ -13,6 +13,7 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.items.VPCItemPlugin;
 import indevo.items.installable.NamedItemSlotPlugin;
 import indevo.items.memory.VPCCommodityRepo.Commodity;
@@ -165,11 +166,17 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.ADASSEM.enabled();
+        return super.isAvailableToBuild() && Setting.ADASSEM.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     public boolean showWhenUnavailable() {
-        return Setting.ADASSEM.enabled();
+        return super.showWhenUnavailable() && Setting.ADASSEM.enabled();
     }
 
     private void applyOutputReduction() {

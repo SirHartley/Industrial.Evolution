@@ -26,6 +26,9 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
+import indevo.ids.ItemIds;
+import indevo.industries.compatibility.AotdManager;
+import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
@@ -144,6 +147,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         unmodifyOfficerQualityIncrease();
     }
 
+    // base pay without the populated system and inactive mults, the pay before 0.98.5a
+    public static float getBaseSalary(PersonAPI person) {
+        return Misc.getOfficerSalary(person, Misc.isMercenary(person), false, false);
+    }
+
     public static Academy get(MarketAPI market) {
         return market != null && market.hasIndustry(Ids.ACADEMY) ? (Academy) market.getIndustry(Ids.ACADEMY) : null;
     }
@@ -160,7 +168,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public void onNewDay() {
 
         if (isFunctional()) {
-            if (!market.getId().equals(Ids.ACADEMY_MARKET_ID)) {
+            if (spawnsHireables()) {
                 //spawn officers/admins if the market has none:
                 if (!marketHasHireableOfficer(false) && getRandomBoolean(Setting.DAILY_OFFICER_SPAWN_CHANCE.value())) {
                     createHireablePerson(false);
@@ -178,6 +186,15 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         }
     }
 
+    protected boolean spawnsHireables() {
+        return !market.getId().equals(Ids.ACADEMY_MARKET_ID);
+    }
+
+    // player rules for fees and training; the rat settlement Officer Quarters is never player owned but counts
+    public boolean ownedByPlayer() {
+        return market.isPlayerOwned();
+    }
+
     public void reportEconomyTick(int iterIndex) {
         int lastIterInMonth = (int) Global.getSettings().getFloat("economyIterPerMonth") - 1;
 
@@ -188,17 +205,26 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     @Override
     public void reportEconomyMonthEnd() {
+        if (!isFunctional() || !hasHolobench() || market.getFaction().isHostileTo(Global.getSector().getPlayerFaction())) return;
 
+        // officer data wrapper only for the xp clamp and merc check, the level up ui makes the picks on return
+        for (PersonAPI person : officerStorage) Global.getFactory().createOfficerData(person).addXP(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP);
     }
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.ACADEMY.enabled();
+        return super.isAvailableToBuild() && Setting.ACADEMY.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.ACADEMY.enabled();
+        return super.showWhenUnavailable() && Setting.ACADEMY.enabled();
     }
 
     //officers in training tooltip
@@ -218,7 +244,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         tooltip.addPara("Officers in storage: %s", opad, hl, new String[]{getOfficerStorage().size() + ""});
         tooltip.addPara("Administrators in storage: %s", spad, hl, new String[]{getAdminStorage().size() + ""});
 
-        if (!market.isPlayerOwned()) {
+        if (!ownedByPlayer()) {
             tooltip.addPara("Monthly salary cost: %s, storage fees: %s", opad, hl, new String[]{Misc.getDGSCredits(calculateSalaryStorageCost()), Misc.getDGSCredits(calculateFeeStorageCost())});
         } else {
             tooltip.addPara("Monthly salary cost: %s, no storage fee.", opad, hl, new String[]{Misc.getDGSCredits(calculateSalaryStorageCost())});
@@ -259,7 +285,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         float totalCost = 0;
 
         for (PersonAPI person : getOfficerStorage()) {
-            totalCost += Misc.getOfficerSalary(person);
+            totalCost += getBaseSalary(person);
         }
 
         for (PersonAPI person : getAdminStorage()) {
@@ -270,7 +296,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     private float calculateFeeStorageCost() {
-        if (!market.isPlayerOwned()) {
+        if (!ownedByPlayer()) {
             int personAmount = +getAdminStorage().size() + getOfficerStorage().size();
             return Setting.MONTHLY_AI_STORAGE_COST.value() * personAmount;
         }
@@ -279,11 +305,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     }
 
     public float getOfficerTrainingFee(int steps) {
-        return market.isPlayerOwned() ? 0f : steps * Setting.PERSONALITY_TRAINING_COST.intValue();
+        return ownedByPlayer() ? 0f : steps * Setting.PERSONALITY_TRAINING_COST.intValue();
     }
 
     public float getAdminTrainingFee() {
-        return market.isPlayerOwned() ? 0f : Setting.ADMIN_TRAINING_COST.intValue();
+        return ownedByPlayer() ? 0f : Setting.ADMIN_TRAINING_COST.intValue();
     }
 
     private void chargeTraining(float amount) {
@@ -455,7 +481,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
     public String getOfficerTrainBlocker(PersonAPI person) {
         if (officerInTraining != null) return "Another officer is in training.";
         if (getOfficerStepsLeft(person) == 0) {
-            return !hasAlphaCore() && getTrainedSteps(person) < 2 ? "No training steps left. An alpha core allows a second step." : "No training steps left.";
+            return !hasAlphaCore() && getTrainedSteps(person) < getMaxOfficerSteps(true) ? "No training steps left. An alpha core allows more." : "No training steps left.";
         }
         if (!BillingHelper.canAfford(getOfficerTrainingFee(1))) return "Not enough credits.";
         return null;
@@ -554,7 +580,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     public static boolean personHasSkill(PersonAPI person, SkillSpecAPI skill) {
         for (MutableCharacterStatsAPI.SkillLevelAPI skillLevelAPI : person.getStats().getSkillsCopy()) {
-            if (skillLevelAPI.getSkill() == skill) {
+            if (skillLevelAPI.getSkill() == skill && skillLevelAPI.getLevel() > 0f) {
                 return true;
             }
         }
@@ -572,8 +598,22 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return Commodities.ALPHA_CORE.equals(getAICoreId());
     }
 
+    public boolean hasHolobench() {
+        return special != null && ItemIds.HOLOBENCH.equals(special.getId());
+    }
+
     public int getMaxOfficerSteps() {
-        return hasAlphaCore() ? 2 : 1;
+        return getMaxOfficerSteps(hasAlphaCore());
+    }
+
+    public int getMaxOfficerSteps(boolean alpha) {
+        return 1 + (alpha ? 1 : 0) + (hasHolobench() ? 1 : 0);
+    }
+
+    public static String getStepCountText(int steps) {
+        String[] words = {"no", "one", "two", "three", "four"};
+        String count = steps >= 0 && steps < words.length ? words[steps] : steps + "";
+        return count + (steps == 1 ? " personality step" : " personality steps");
     }
 
     public int getTrainedSteps(PersonAPI person) {
@@ -655,6 +695,9 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
             addTrainedSteps(officerInTraining, steps);
         }
 
+        boolean mentored = hasHolobench() && !Misc.isMentored(officerInTraining);
+        if (mentored) Misc.setMentored(officerInTraining, true);
+
         PersonalityAPI newPersonality = officerInTraining.getPersonalityAPI();
 
         moveOfficerInTrainingToStorage();
@@ -663,6 +706,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         MessageIntel intel = new MessageIntel("An officer has finished training at %s.",
                 Misc.getTextColor(), new String[]{(market.getName())}, market.getFaction().getBrightUIColor());
         intel.addLine("Personality changed from %s to %s.", Misc.getTextColor(), new String[]{oldPersonality.getDisplayName(), newPersonality.getDisplayName()}, COLOURS_BY_PERSONALITY.get(oldPersonality.getId()), COLOURS_BY_PERSONALITY.get(newPersonality.getId()));
+        if (mentored) intel.addLine("The Holobench left them %s.", Misc.getTextColor(), new String[]{"mentored"}, Misc.getHighlightColor());
         intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
         intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "trainingdone"));
         Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, market);
@@ -851,7 +895,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         person.setFaction(Factions.INDEPENDENT);
         person.setPostId(Ranks.POST_OFFICER_FOR_HIRE);
 
-        int salary = (int) Misc.getOfficerSalary(person);
+        int salary = (int) getBaseSalary(person);
 
         return new OfficerManagerEvent.AvailableOfficer(person, market.getId(), person.getStats().getLevel() * 2000, salary);
     }
@@ -873,10 +917,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
             CommoditySpecAPI coreSpec = Global.getSettings().getCommoditySpec(aiCoreId);
             TooltipMakerAPI text = tooltip.beginImageWithText(coreSpec.getIconName(), 48.0F);
-            text.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{"two personality steps"});
+            text.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{getStepCountText(getMaxOfficerSteps(true))});
             tooltip.addImageWithText(opad);
         } else {
-            tooltip.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{"two personality steps"});
+            tooltip.addPara(pre + "Officers can train up to %s, at once or one after the other.", 0.0F, highlight, new String[]{getStepCountText(getMaxOfficerSteps(true))});
         }
     }
 

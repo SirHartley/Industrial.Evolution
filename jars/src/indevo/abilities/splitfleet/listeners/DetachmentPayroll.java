@@ -2,6 +2,8 @@ package indevo.abilities.splitfleet.listeners;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MonthlyReport;
 import com.fs.starfarer.api.campaign.econ.MonthlyReport.FDNode;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
@@ -13,6 +15,7 @@ import com.fs.starfarer.api.impl.campaign.tutorial.TutorialMissionIntel;
 import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
+import indevo.ids.Ids;
 
 // bills detachment crew, marines and officers into the vanilla fleet payroll nodes, same rates as CoreScript.reportEconomyTick
 public class DetachmentPayroll implements EconomyTickListener {
@@ -47,11 +50,11 @@ public class DetachmentPayroll implements EconomyTickListener {
             FDNode officersNode = getNode(report, fleetNode, MonthlyReport.OFFICERS, "Officer payroll");
             for (FleetMemberAPI member : detachment.getFleetData().getMembersListCopy()) {
                 PersonAPI officer = member.getCaptain();
-                if (officer == null || officer.isDefault() || officer.isAICore() || officer.isPlayer()) continue;
+                if (officer == null || officer.isDefault() || officer.isAICore() || officer.isPlayer() || officer.hasTag(Ids.TAG_PET_CAPTAIN)) continue;
 
                 FDNode oNode = report.getNode(officersNode, officer.getId());
                 oNode.name = officer.getNameString() + " (" + detachment.getName() + ")";
-                oNode.upkeep += Misc.getOfficerSalary(officer) * f;
+                oNode.upkeep += getSalary(officer, detachment.getContainingLocation()) * f;
             }
         }
     }
@@ -70,5 +73,19 @@ public class DetachmentPayroll implements EconomyTickListener {
 
     @Override
     public void reportEconomyMonthEnd() {
+    }
+
+    // vanilla officer pay (Misc.getOfficerSalary(officer, true)); its populated system check reads the current location, here the detachment's own
+    public static float getSalary(PersonAPI officer, LocationAPI where) {
+        float pay = Misc.getOfficerSalary(officer, Misc.isMercenary(officer), false, true);
+        if (Misc.isOfficerActive(officer) && isPopulated(where)) pay *= Global.getSettings().getFloat("officerSalaryMultInPopulatedSystems");
+        return pay;
+    }
+
+    // Misc.isInCivilizedSpace for any location
+    private static boolean isPopulated(LocationAPI where) {
+        if (where == null) return false;
+        for (MarketAPI market : Misc.getMarketsInLocation(where)) if (!market.isHidden() && market.isInEconomy()) return true;
+        return false;
     }
 }

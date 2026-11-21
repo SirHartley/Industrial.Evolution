@@ -36,6 +36,6 @@ public class DirectionReticuleRenderer extends BaseReticuleRenderer {
 
     @Override
     protected float getGuideLineEndPadding() {
-        return 0f;
+        return size * 0.5f;
     }
 }

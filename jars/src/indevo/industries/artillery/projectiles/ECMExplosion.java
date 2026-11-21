@@ -16,6 +16,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.industries.artillery.scripts.DroneNetScript;
 import indevo.utils.helper.MiscIE;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -112,6 +113,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
         if (explosion) {
             spawnExplosion(EXPLOSION_SIZE);
             explosion = false;
+            DroneNetScript.reportBlast(entity.getContainingLocation(), entity.getLocation(), rad);
 
             for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, rad)) {
                 interdictTarget(f);

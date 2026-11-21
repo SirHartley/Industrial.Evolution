@@ -788,29 +788,6 @@
 		"pluginClass":"indevo.industries.artillery.entities.ArtilleryStationEntityPlugin"
 	},
 
-	"IndEvo_PetShop":{
-		"defaultName":"Animal Centre", # used if name=null in addCustomEntity()
-		"defaultRadius":40, # used if radius<0 in addCustomEntity()
-		"customDescriptionId":"IndEvo_AnimalCenter",
-		"icon":"graphics/icons/IndEvo_station4.png",
-		"nameInText":"animal centre",
-		"shortName":"animal centre",
-		"iconWidth":20,
-		"iconHeight":20,
-		"sprite":"graphics/stations/IndEvo_station_05.png",
-		"spriteWidth":40,
-		"spriteHeight":40,
-		"renderShadow":false, #true,
-		"useLightColor":true,
-		"showInCampaign":true,
-		"showIconOnMap":true,
-		"showNameOnMap":false,
-		"scaleNameWithZoom":false,
-		"scaleIconWithZoom":true,
-		"tags":["IndEvo_PetShop"],
-		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-	},
-
 	"IndEvo_DestroyedArtilleryStation":{
 		"defaultName":"Destroyed Artillery Station", # used if name=null in addCustomEntity()
 		"defaultRadius":50, # used if radius<0 in addCustomEntity()
@@ -908,6 +885,107 @@
 		"tags":["objective", "story_critical", "IndEvo_watchtower"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 		"pluginClass":"indevo.industries.artillery.entities.WatchtowerEntityPlugin"
+	},
+
+	"IndEvo_Lighthouse":{
+		"defaultName":"Lighthouse", # used if name=null in addCustomEntity()
+		"defaultRadius":35, # used if radius<0 in addCustomEntity(),
+		"nameInText":"lighthouse",
+		"shortName":"lighthouse",
+		"aOrAn":"a",
+		"isOrAre":"is",
+		"customDescriptionId":"IndEvo_Watchtower",
+		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
+		"icon":"graphics/icons/IndEvo_station1.png",
+		"iconWidth":10,
+		"iconHeight":10,
+		"sprite":"graphics/stations/IndEvo_station_03.png",
+		"spriteWidth":30,
+		"spriteHeight":30,
+		"renderShadow":false, #true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":true,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"tags":["objective", "story_critical", "IndEvo_watchtower", "IndEvo_lighthouse"],
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"indevo.industries.artillery.entities.LighthouseEntityPlugin"
+	},
+
+	"IndEvo_Searchlight":{
+		"defaultName":"Searchlight Tower", # used if name=null in addCustomEntity()
+		"defaultRadius":35, # used if radius<0 in addCustomEntity(),
+		"nameInText":"searchlight tower",
+		"shortName":"tower",
+		"aOrAn":"a",
+		"isOrAre":"is",
+		"customDescriptionId":"IndEvo_Watchtower",
+		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
+		"icon":"graphics/icons/IndEvo_station1.png",
+		"iconWidth":10,
+		"iconHeight":10,
+		"sprite":"graphics/stations/IndEvo_station_03.png",
+		"spriteWidth":30,
+		"spriteHeight":30,
+		"renderShadow":false, #true,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":true,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"tags":["objective", "story_critical", "IndEvo_watchtower", "IndEvo_searchlight"],
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+		"pluginClass":"indevo.industries.artillery.entities.SearchlightEntityPlugin"
+	},
+
+	"IndEvo_DroneNest":{
+		"defaultName":"Drone Nest", # used if name=null in addCustomEntity()
+		"defaultRadius":35, # used if radius<0 in addCustomEntity(),
+		"nameInText":"drone nest",
+		"shortName":"nest",
+		"aOrAn":"a",
+		"isOrAre":"is",
+		"customDescriptionId":"IndEvo_DroneNest",
+		"interactionImage":"graphics/illustrations/orbital_construction.jpg",
+		"icon":"graphics/icons/IndEvo_station1.png",
+		"iconWidth":10,
+		"iconHeight":10,
+		"sprite":"graphics/stations/IndEvo_station_03.png",
+		"spriteWidth":30,
+		"spriteHeight":30,
+		"renderShadow":false,
+		"useLightColor":true,
+		"showInCampaign":true,
+		"showIconOnMap":true,
+		"showNameOnMap":false,
+		"scaleNameWithZoom":false,
+		"scaleIconWithZoom":true,
+		"tags":["IndEvo_droneNest", "has_interaction_dialog"],
+		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
+	},
+
+	"IndEvo_SpotterDrone":{
+		"defaultName":"Spotter Drone", # used if name=null in addCustomEntity()
+		"defaultRadius":12, # used if radius<0 in addCustomEntity(),
+		"nameInText":"spotter drone",
+		"shortName":"drone",
+		"aOrAn":"a",
+		"isOrAre":"is",
+		"sprite":"graphics/ships/derelict/derelict_picket.png",
+		"spriteWidth":24,
+		"spriteHeight":21,
+		"renderShadow":false,
+		"useLightColor":false,
+		"showInCampaign":true,
+		"showIconOnMap":false,
+		"showNameOnMap":false,
+		"renderCircleIndicator":false,
+		"interactable":false,
+		"tags":["IndEvo_spotterDrone", "expires"],
+		"layers":[FLEETS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
 	},
 
 	"IndEvo_Eye":{
@@ -1161,26 +1239,6 @@
 		"scaleIconWithZoom":true,
 		"tags":["has_interaction_dialog", "salvageable", "neutrino", "salvor_orbital"],
 		"layers":[STATIONS], # what layer(s) to render in. See CampaignEngineLayers.java for possible values
-	},
-
-	"IndEvo_WarpEffect":{
-		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
-		"showNameOnMap":false,
-		"renderCircleIndicator":false, # make clickable,
-		"interactable":false,
-		"layers":[ABOVE], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.industries.derelicts.entities.WarpEffectPlugin"
-	},
-
-	"IndEvo_WormHoleEffect":{
-		"showInCampaign":true, # show in campaign layer
-		"showIconOnMap":false,
-		"showNameOnMap":false,
-		"renderCircleIndicator":false, # make clickable,
-		"interactable":false,
-		"layers":[TERRAIN_1], # what layer(s) to render in. See CampaignEngineLayers.java for possible values,
-		"pluginClass":"indevo.industries.derelicts.entities.HoleEffectPlugin"
 	}
 }
 

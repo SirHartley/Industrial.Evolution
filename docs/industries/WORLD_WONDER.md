@@ -12,7 +12,7 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 
 | File | Owner / role |
 |---|---|
-| `indevo/industries/worldwonder/industry/WorldWonder.java` | Base plugin for all rows. Immigration (`modifyIncoming`), system tag and condition spread (`apply`), unrest (`reportEconomyMonthEnd`), story point (`finishBuildingOrUpgrading`), alternate image (`getCurrentImage`, `getAlternateImagePath`) |
+| `indevo/industries/worldwonder/industry/WorldWonder.java` | Base plugin for all rows. Immigration (`modifyIncoming`), system tag and condition spread (`apply`), unrest (`reportEconomyMonthEnd`), story point (`finishBuildingOrUpgrading`), alternate image (`getCurrentImage`, `getAlternateImagePath`), the pet section of the Memorial (`remembers`, [Memorial](#memorial)) |
 | `indevo/industries/worldwonder/industry/IcePalace.java` | Build check: planet with `cold` or `very_cold` |
 | `indevo/industries/worldwonder/industry/LavaFortress.java` | Build check: planet with `very_hot` |
 | `indevo/industries/worldwonder/industry/WorldTree.java` | Build check: `habitable` planet whose type is in the tree list; suppresses `inimical_biosphere`; name "Eggdrasil" when the market name contains "egg" |
@@ -63,6 +63,10 @@ Chain: `WorldWonder.apply -> system tag IndEvo_hasWonder -> addCondition(IndEvo_
 - `reportEconomyMonthEnd`: `RecentUnrest.add(-1)` when the penalty is above 0.
 - `finishBuildingOrUpgrading`: player market without `$IndEvo_hasAwardedSP` gets 1 story point and the flag. One point per market, not per wonder.
 - `getCurrentImage`: alternate image when `isAlternateVisual` or the memory flag is set and `getAlternateImagePath()` resolves `getSpriteName("IndEvo", spec.getData())`; a missing key throws, which is caught and returns null.
+
+### Memorial
+
+- `IndEvo_Memorial` (`Ids.MEMORIAL`) has no plugin of its own: `WorldWonder.remembers()` checks the id, so Memorials already in saves get it. While it is functional and player owned, `IndEvo_pets` is on and a pet has died, the tooltip is 420 wide (`PetMemorial.TOOLTIP_W`), expandable with F1, with a solid background (`setBgAlpha(1f)` in `createTooltip`), and `addPostDemandSection` adds the Remembered section after the Population growth bonus line (`PetMemorial.addSection`, [Pets](PETS.md#memorial)). `createTooltip` keeps the F1 state in a transient field (Museum pattern).
 
 ### Cloud Painter
 

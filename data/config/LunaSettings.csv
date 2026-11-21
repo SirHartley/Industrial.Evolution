@@ -6,10 +6,12 @@ IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,
 IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Enable artillery stations and watchtowers. Disabling prevents construction and stops existing stations from firing. Default on. Placement needs a new game.,,,Quick Settings
 IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Enable planetary minefields. Existing mines stop hitting fleets when disabled. Default on. Placement needs a new game.,,,Quick Settings
 IndEvo_meteor_enabled,[Meteor Swarms] Spawn Meteor Swarms,Boolean,TRUE,,Allow new meteor swarms to spawn. Default on.,,,Quick Settings
+IndEvo_fog_enabled,[Fog] Fog Weather,Boolean,TRUE,,"Allow fog to roll into systems near you: sometimes a whole system for about a month, sometimes a local bank for several months. Sensors are nearly useless inside. Fog that already exists runs out when disabled. Default on.",,,Quick Settings
 IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Enable pets, Animal Centers, pet management, Project Navi and abandoned pet stations. Default on. Placement needs a new game.",,,Quick Settings
 IndEvo_header1,General,Header,General,,,,,Quick Settings
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,"Limit Commerce to one per faction per system, reduce its improvement bonus, and replace the player alpha core income bonus with a 25%% tariff reduction. Disable to restore vanilla Commerce; re-docking may be needed. Default on.",,,Quick Settings
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,Ships per row in most ship selection dialogs. Default 8.,1,100,Quick Settings
+IndEvo_shuttleTraffic,[General] Shuttle Traffic,Int,80,,Most small craft in flight in your current system. Craft that serve fleets fly on top: up to a quarter of this. Visual only. 0 turns shuttle traffic and escape pods off. Default 80.,0,120,Quick Settings
 IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Meteor shower chance per economy tick. 0.02 = 2%% per tick, with 10 ticks per month. Default 0.02.",0.001,0.1,Quick Settings
 IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,Artillery spawn multiplier. Higher values add more stations; 1 places them in roughly 5-10%% of systems. Default 1. Needs a new game.,0,100,Quick Settings
 IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Additional custom stations as a fraction of the normal station count. 0.2 = 20%% more stations. Default 0.2. Needs a new game.,0,2,Quick Settings
@@ -29,6 +31,11 @@ IndEvo_consumables_addToMarkets,[Consumable Items] Add to markets,Boolean,TRUE,,
 IndEvo_consumables_addToFleets,[Consumable Items] Drop from combat,Boolean,TRUE,,Drop consumable items after fleet battles. Default on.,,,Exploration & Items
 IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,TRUE,,Offer consumable research at the Galatia Academy. Default on.,,,Exploration & Items
 ,,,,,,,,
+IndEvo_header_pets,Pets,Header,Pets,,,,,Exploration & Items
+IndEvo_petLineDays,[Pets] Days Between Pet Lines,Int,14,,"Minimum days between two short lines about what your pets are up to: a message in flight, or a line in the market text when you dock. 0 turns them off. Default 14.",0,90,Exploration & Items
+IndEvo_petMotion,[Pets] Pet Animations,Boolean,TRUE,,"Petting a pet in the Pets panel makes its portrait grow and turn and throws hearts. Off keeps the panel still. Default on.",,,Exploration & Items
+IndEvo_petLongevityCycles,[Pets] Cycles per Longevity Syringe,Int,2,,"Cycles of life one Longevity Syringe gives a pet. Hamsters always gain 1 cycle. Default 2.",1,10,Exploration & Items
+,,,,,,,,
 IndEvo_header_meteor,Meteor Swarms,Header,Meteor Swarms,,,,,Meteor Swarms
 IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,"Spawn meteor showers immediately, without an advance intel warning. Default off.",,,Meteor Swarms
 IndEvo_meteor_minIntensity,[Meteor Swarms] Minimum Intensity,Double,1,,Minimum swarm intensity. Default 1.,1,5,Meteor Swarms
@@ -45,6 +52,7 @@ IndEvo_meteor_maxDistanceFromSun,[Meteor Swarms] Max Distance From Star,Double,1
 IndEvo_meteor_minDistanceFromSun,[Meteor Swarms] Min Distance From Star,Double,3000,,"Minimum swarm path distance from the system center before adding half the shower width, in game units. Default 3000.",100,26000,Meteor Swarms
 IndEvo_meteor_maxAngle,[Meteor Swarms] Maximum Path Half-Angle,Double,80,,"Maximum half-angle of the swarm path, in degrees. Default 80.",1,360,Meteor Swarms
 IndEvo_meteor_minAngle,[Meteor Swarms] Minimum Path Half-Angle,Double,50,,"Minimum half-angle of the swarm path, in degrees. Default 50.",1,360,Meteor Swarms
+IndEvo_meteor_rogueChancePerEconomyTick,[Meteor Swarms] Rogue Asteroid Chance,Double,0.1,,"Chance per economy tick that a small group of rogue asteroids crosses the current system without warning, inhabited systems included. 0.1 = 10%% per tick, with 10 ticks per month. 0 turns rogue asteroids off. Default 0.1.",0,0.3,Meteor Swarms
 ,,,,,,,,
 IndEvo_header4,Minefields,Header,Minefields,,,,,Minefields
 IndEvo_minefields_disclaimer,,Text,Tip: You can disable minefields temporarily with an interdiction pulse.,,,,,Minefields
@@ -66,14 +74,20 @@ IndEvo_Artillery_minCooldown,[Artillery] Min Cooldown,Double,15,,Minimum seconds
 IndEvo_Artillery_maxCooldown,[Artillery] Max Cooldown,Double,17,,Maximum seconds before firing at the same fleet again. Default 17.,1,100,Artillery
 IndEvo_Artillery_cooldownNPCMult,[Artillery] NPC Cooldown Mult,Double,2,,Cooldown multiplier against NPC fleets. Higher values mean fewer shots. Default 2.,1,100,Artillery
 IndEvo_Artillery_minRange,[Artillery] Min Range,Double,500,,Minimum targeting distance in game units. Closer fleets are safe. Default 500.,1,1000,Artillery
-IndEvo_Artillery_maxRange,[Artillery] Max Range,Double,12000,,Maximum targeting distance in game units. 12000 = 6 map cells; improving the station adds 4000. Default 12000.,2,100000,Artillery
 IndEvo_Artillery_WatchtowerRange,[Artillery] Watchtower Range,Double,4000,,Watchtower detection range in game units. Artillery needs a watchtower or hostile fleet to spot its target. Default 4000.,1,10000,Artillery
+IndEvo_Artillery_visionWeight_lighthouse,[Artillery] Vision: Lighthouse Weight,Double,1,,Chance weight for a derelict artillery system to be guarded by lighthouses. 0 means never. Default 1. Needs a new game.,0,10,Artillery
+IndEvo_Artillery_visionWeight_drones,[Artillery] Vision: Drone Net Weight,Double,1,,Chance weight for a derelict artillery system to be guarded by a drone net. 0 means never. Default 1. Needs a new game.,0,10,Artillery
+IndEvo_Artillery_visionWeight_searchlight,[Artillery] Vision: Searchlight Weight,Double,1,,Chance weight for a derelict artillery system to be guarded by searchlight towers. 0 means never. Default 1. Needs a new game.,0,10,Artillery
+IndEvo_Artillery_lighthouse_beamLength,[Lighthouse] Beam Length,Double,6000,,Lighthouse beam length in game units. A fleet inside a beam is spotted within seconds and faster closer to the lighthouse. Default 6000.,1000,20000,Artillery
+IndEvo_Artillery_lighthouse_beamWidth,[Lighthouse] Beam Width,Double,20,,Lighthouse beam width in degrees. Default 20.,5,90,Artillery
+IndEvo_Artillery_lighthouse_turnTime,[Lighthouse] Turn Time,Double,225,,Seconds for one full turn of a lighthouse. Lower values sweep faster. Default 225.,10,600,Artillery
+IndEvo_Artillery_drone_coneLength,[Drone Net] Cone Length,Double,1800,,Spotter drone vision cone length in game units. Going dark shortens it. Default 1800.,500,10000,Artillery
 IndEvo_Artillery_defense_FP2,[Artillery] Defence Fleet FP,Double,70,,Base fleet points of artillery defenders. Default 70.,1,1000,Artillery
 IndEvo_Artillery_mortar_projectilesPerShot,[Mortar Artillery] Projectiles per Shot,Int,8,,Shells per mortar volley. Default 8.,1,30,Artillery
 IndEvo_Artillery_mortar_projectilesImpactTime,[Mortar Artillery] Time to Impact,Double,5,,Seconds before mortar shells hit. Higher values give more time to dodge. Default 5.,1,60,Artillery
 IndEvo_Artillery_mortar_explosionSize,[Mortar Artillery] Explosion Radius,Double,300,,Mortar explosion radius in game units. Default 300.,1,1000,Artillery
 IndEvo_Artillery_railgun_projectilesPerShot,[Railgun Artillery] Projectiles per Shot,Int,3,,Projectiles per railgun volley. Increase shot spread when adding projectiles. Default 3.,1,30,Artillery
-IndEvo_Artillery_railgun_projectilesImpactTime,[Railgun Artillery] Time to Impact,Double,1.5,,Base impact delay in seconds. The first projectile adds 1-2 seconds; later projectiles arrive roughly one second apart. Default 1.5.,0.5,60,Artillery
+IndEvo_Artillery_railgun_projectilesImpactTime,[Railgun Artillery] Time to Impact,Double,1.5,,Warning before the first shot is half this value plus 0.5-1 seconds; later shots follow roughly half a second apart. Default 1.5.,0.5,60,Artillery
 IndEvo_Artillery_railgun_shotFuzzMult,[Railgun Artillery] Shot Spread,Double,0.4,,Railgun shot spread. Higher values reduce accuracy. Default 0.4.,0,2,Artillery
 IndEvo_Artillery_missile_projectilesPerShot,[Missile Artillery] Projectiles per Shot,Int,4,,Missiles per launch. Use an even number. Default 4.,1,30,Artillery
 IndEvo_Artillery_missile_projectilesImpactTime,[Missile Artillery] Time to Impact,Double,8,,"Missile impact delay in seconds, randomly varied by 20%% in either direction. Default 8.",1,60,Artillery
@@ -99,8 +113,8 @@ IndEvo_ReqCenter,[Industries] Requisitions Centre,Boolean,TRUE,,Allow constructi
 IndEvo_EngHub,[Industries] Engineering Hub,Boolean,TRUE,,Allow construction of the Engineering Hub. Default on.,,,Industries
 IndEvo_PrivatePort,[Industries] Courier Port,Boolean,TRUE,,Allow construction of the Courier Port. Default on. NPC placement needs a new game.,,,Industries
 IndEvo_pirateHaven,[Industries] Privateer Base,Boolean,TRUE,,Allow construction of the Privateer Base. Default on.,,,Industries
-IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Allow construction of Specialized Refining. Default on.,,,Industries
-IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Allow construction of Specialized Mining. Default on.,,,Industries
+IndEvo_SwitchableRefining,[Industries] Specialized Refining,Boolean,TRUE,,Allow refining specializations. Default on.,,,Industries
+IndEvo_SwitchableMining,[Industries] Specialized Mining,Boolean,TRUE,,Allow mining specializations. Default on.,,,Industries
 IndEvo_museum_enabled,[Industries] Museum,Boolean,TRUE,,Allow construction of the Museum. Default on.,,,Industries
 ,,,,,,,,
 IndEvo_header_Governance,Governance,Header,Governance,,,,,Industries
@@ -120,7 +134,7 @@ IndEvo_beta_core_runtime,[Supercomputer] Core Runtime [Beta],Int,279,,Core lifet
 IndEvo_gamma_core_runtime,[Supercomputer] Core Runtime [Gamma],Int,93,,Core lifetime in days. Use multiples of 31 for correct tooltip values. Default 93.,31,3100,Production
 ,,,,,,,,
 IndEvo_header_sy,Salvage Yards,Header,Salvage Yards,,,,,Production
-IndEvo_RarePartsAmountPerFP,[Salvage Yards] Relic Components per FP,Int,2,,Required Relic Components per FP for zero D-Mods. Default 2.,1,10,Production
+IndEvo_RarePartsAmountPerDP,[Salvage Yards] Relic Components per DP,Int,2,,Required Relic Components per deployment point for zero D-Mods. Default 2.,1,10,Production
 IndEvo_SYBaseDMods,[Salvage Yards] Base D-Mod Amount,Int,5,,Base D-Mod count on ships built via the Yards. Default 5.,1,10,Production
 IndEvo_SYPartValueMult,[Salvage Yards] Ship Component Value Mult,Double,1.2,,Ship component value multiplier for the Salvage Yards budget. Default 1.2.,0.1,5,Production
 IndEvo_SYHullDeliveryTime,[Salvage Yards] Delivery Time,Int,60,,Ship order delivery time in days. Applies to new orders. Default 60.,1,365,Production
@@ -142,6 +156,7 @@ IndEvo_DerInfraBuildRed,[Derelict Infrastructure] Derelict Infra Cost Reduction,
 IndEvo_derelictDeliverToGathering,[Derelict Industries] Deliver to Gathering Point,Boolean,FALSE,,Send derelict industry output to the gathering point instead of local storage. Default off.,,,Derelict Industries
 IndEvo_RG_cooldownTime,[Rift Generator] Cooldown,Int,90,,"Recharge time after moving a planet, in days. An alpha core reduces it by 30 days. Default 90.",1,365,Derelict Industries
 IndEvo_RG_range,[Rift Generator] Range,Int,9,,Planet relocation range in light years. A beta core adds 3 light years. Default 9.,1,100,Derelict Industries
+IndEvo_RG_preciseCost,[Rift Generator] Precise Targeting Cost,Int,100,,Relic Components to lock the Generator onto one star system of your choice. Paid once per jump. Default 100.,0,1000,Derelict Industries
 IndEvo_reslab_autoDeliverToClosestDecon,[Derelict Laboratory] Deliver to Nearest Deconstructor,Boolean,FALSE,,Send restored forge templates to the nearest Hull Deconstructor. Default off.,,,Derelict Industries
 IndEvo_DeconIgnoreWhitelists,[Hull Deconstructor] Ignore Whitelists,Boolean,TRUE,,Skip ship whitelist checks. Printed ships and ships with permanent human officers remain excluded. Default on.,,,Derelict Industries
 IndEvo_DeconAllowNexOmega,[Hull Deconstructor] Allow Deconstructing the Nex Omega Merc,Boolean,FALSE,,"Allow deconstruction of Nexerelin mercenary ships, including the Omega ship. Default off.",,,Derelict Industries
