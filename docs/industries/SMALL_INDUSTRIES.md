@@ -23,7 +23,6 @@ Every IE row of `data/campaign/industries.csv` (plugin column, paths relative to
 | `IndEvo_EngHub` | 42 | `engineeringhub/industry/EngineeringHub` | [Engineering Hub](ENGINEERING_HUB.md) |
 | `IndEvo_PrivatePort` | 45 | `courierport/industry/CourierPortV2` | [Courier Port](COURIER_PORT.md) |
 | `IndEvo_pirateHaven` | 48 | `privateer/industry/PrivateerBase` | [Privateer](PRIVATEER.md) |
-| `IndEvo_SwitchableRefining`, `IndEvo_SwitchableMining`, `IndEvo_SwitchablePopulation` | 51-53 | `changeling/industry/...` | [Changeling](CHANGELING.md) |
 | `IndEvo_PetStore` | 54 | `petshop/industry/PetShop` | [Pets](PETS.md) |
 | `IndEvo_Museum` | 55 | `museum/industry/Museum` | [Museum](MUSEUM.md) |
 | `IndEvo_Warehouse`, `#IndEvo_Warphouse` (commented) | 58, 61 | `warehouses/industry/Warehouses` | [Warehouses](WAREHOUSES.md) |

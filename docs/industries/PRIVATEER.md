@@ -85,7 +85,7 @@ Cargo goes to local storage, or to the gathering point when the setting is on or
 
 ### Helldivers variant
 
-If the population industry is `SwitchablePopulation` running `HelldiversSubIndustry`, names change ("Democratic Liberation Base", "Democratic Liberation Force") and raid results call `HelldiversSubIndustry.reportPrivateerBaseRaidFinished` (`PrivateerBase.java:210-222`). See [Changeling](CHANGELING.md).
+If the market's government is `HelldiversSubIndustry` (`GovernmentCondition.getGovernment`), names change ("Democratic Liberation Base", "Democratic Liberation Force") and raid results call `HelldiversSubIndustry.reportPrivateerBaseRaidFinished` (`PrivateerBase.java:210-222`). See [Changeling](CHANGELING.md).
 
 ### AI cores
 

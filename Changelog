@@ -186,12 +186,17 @@ Adjusted - VPC commodities and outputs moved to data/config/indEvo/vpc_commoditi
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 
 Governments
+Adjusted - Now a colony condition, Population & Infrastructure stays vanilla (works with mods that change it)
 Fixed - Permanent governments can no longer be changed
 Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
 Fixed - Managed Democracy size cap no longer stays after a government change
 Fixed - Forge World stability now follows metals and transplutonics, not luxuries
 Fixed - Rural Polity bonuses now end when leaving it or closing the free port
 Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
+
+Specialized Industries
+Adjusted - Mining and Refining keep their own industry when specialized
+Adjusted - Modded Mining and Refining tiers can now be specialized (Ashes of the Domain)
 
 Courier Port
 Adjusted - Contracts are now managed in one panel with a contract list and a step by step editor
