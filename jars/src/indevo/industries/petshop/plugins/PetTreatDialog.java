@@ -51,7 +51,7 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
     static final String[] COLUMNS = {PET, AGE, LIFE, TREATMENTS};
     static final float[] COLUMN_W = {200f, 80f, 110f, 90f};
     static final Alignment[] COLUMN_ALIGN = {Ui.LEFT, Ui.LEFT, Ui.LEFT, Ui.RIGHT};
-    static final String[] COLUMN_TIPS = {null, null, "An estimate. Nobody knows how long a pet really has.", "Longevity treatments this pet has had."};
+    static final String[] COLUMN_TIPS = {null, null, "An estimate. The real life span can be a little shorter or longer.", "Longevity treatments this pet has had."};
     static final float[] DOWN = {0f, 0f, 8f, 0f, 4f, 5f};
     static final float[] UP = {0f, 5f, 8f, 5f, 4f, 0f};
 
@@ -65,7 +65,7 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
     static final String NOMIOS_IN = "An attendant in grey shows you to a room that smells of nothing at all. A slate on the table lists what a treatment requires. "
             + "Nobody says what the materials are for.";
     static final String NOMIOS_DONE = "The attendant takes %1$s and the materials through a door without a handle. Some time later the door opens again "
-            + "and %1$s is returned to you. The materials are not mentioned again.";
+            + "and %1$s is returned to you.";
     static final String NOMIOS_BYE = "\"We look forward to your next visit, Captain.\"";
     static final String NOMIOS_CANCEL = "The attendant inclines their head. The slate goes dark.";
 

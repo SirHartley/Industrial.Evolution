@@ -47,7 +47,7 @@ IndEvo_pl_amb_float_2,ambient,b_float,content,,hyperspace,%s hung over the navig
 IndEvo_pl_amb_blob_1,ambient,b_blob,content,,,%s spent the shift on the deck above the reactor. The crew steps around it.
 IndEvo_pl_amb_blob_2,ambient,b_blob,content,,,%s ate a spare bolt from the repair tray. The engineers have stopped leaving them out.
 IndEvo_pl_amb_machine_1,ambient,b_machine,content,,,%s logged another full patrol of the lower decks.
-IndEvo_pl_amb_machine_2,ambient,b_machine,content,,,%s took the spare charging port in the shuttle bay. The shuttle waited.
+IndEvo_pl_amb_machine_2,ambient,b_machine,content,,,"%s took the spare charging port in the shuttle bay, so the shuttle charged last."
 IndEvo_pl_amb_jar,ambient,b_jar,content,,hyperspace,%s turned a deep blue during the jump and stayed that way for an hour.
 IndEvo_pl_amb_coil,ambient,b_coil,content,,,%s shorted the lights in the cargo bay again.
 IndEvo_pl_amb_human_1,ambient,b_human,content,,,%s told the deck crew another story about a raid nobody can find a record of.
@@ -55,7 +55,7 @@ IndEvo_pl_amb_human_2,ambient,b_human,content,,,%s has been giving the gunnery c
 IndEvo_pl_amb_cyberparrot,ambient,cyberparrot,content,,,%s has learned to imitate the proximity alarm.
 IndEvo_pl_amb_hampter,ambient,hampter,content,,,%s filled its cheeks with ration crackers and hid them inside the comm console.
 IndEvo_pl_amb_swearingcrab,ambient,swearingcrab,content,,,%s taught the deck crew a new word. The comms officer has asked them not to use it on open channels.
-IndEvo_pl_amb_salvageraven,ambient,salvageraven,content,,,%s brought back a data chip from the salvage tray. Nobody knows which wreck it came from.
+IndEvo_pl_amb_salvageraven,ambient,salvageraven,content,,,%s brought back a data chip that matches no wreck in the salvage log.
 IndEvo_pl_amb_hullchicken,ambient,hullchicken,content,,,%s laid an egg in the spare parts locker.
 IndEvo_pl_amb_roomba,ambient,giganticcats_roomba,content,,,%s cleaned the bridge deck twice before the morning shift came on.
 IndEvo_pl_amb_hungry,ambient,any,hungry,,,The stores hold nothing %s will eat.
@@ -176,7 +176,7 @@ IndEvo_pl_want_shore_2,want_shore_leave,any,,,,The crew says %s needs to get off
 IndEvo_pl_want_along_1,want_come_along,any,,,,%s watches every survey team leave. It wants to come along.
 IndEvo_pl_want_along_2,want_come_along,any,,,,%s got into the salvage crew's gear again. It wants to come along.
 IndEvo_pl_find_1,scavenger,any,,,,%s fussed over one sealed panel until the salvage crew cut it open. There was more behind it.
-IndEvo_pl_find_2,scavenger,any,,,,The salvage crew followed %s back into a section they had marked as cleared. It was not.
+IndEvo_pl_find_2,scavenger,any,,,,The salvage crew followed %s back into a section they had marked as cleared and found a sealed locker.
 IndEvo_pl_find_fourleg,scavenger,b_fourleg,,,,%s would not stop scratching at one bulkhead. The crew cut it open to keep the peace.
 IndEvo_pl_find_wings,scavenger,b_wings,,,,%s flew back out of the wreck with something shiny. The crew went in after the rest.
 IndEvo_pl_find_water,scavenger,b_water,,,,%s kept circling one side of its tank until the crew checked that side of the wreck.
@@ -192,7 +192,7 @@ IndEvo_pl_jump_machine,jump,b_machine,,,,%s logged the jump coordinates on its o
 IndEvo_pl_jump_float,jump,b_float,,,,%s drifted up to the ceiling during the jump and stayed there.
 IndEvo_pl_jump_blob,jump,b_blob,,,,%s went flat for the jump and took an hour to round out again.
 IndEvo_pl_fight_1,fight,any,,,,The crew found %s at the damage control station once the guns went quiet.
-IndEvo_pl_fight_2,fight,any,,,,%s stayed with the crew through the whole engagement. Nobody sent it below.
+IndEvo_pl_fight_2,fight,any,,,,%s stayed with the crew through the whole engagement.
 IndEvo_pl_fight_timid,fight,any,,timid,,%s spent the battle in the deepest compartment it could find and came out last.
 IndEvo_pl_fight_reckless,fight,any,,reckless,,%s was on the bridge when the battle ended. It looked as if it had given the orders.
 IndEvo_pl_fight_fourleg,fight,b_fourleg,,aggressive,,%s paced the gun deck corridor long after the guns went quiet.
