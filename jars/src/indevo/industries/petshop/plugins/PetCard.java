@@ -536,8 +536,8 @@ public class PetCard {
                     panel.refresh();
                 } : null);
         if (older.isEmpty()) Ui.bottomTooltip(p, box, "To cargo", "A young in a Cryochamber does not age and can be sold.");
-        else if (older.size() > 3) bottomTip(p, box, "To cargo", "Only a young under a week old goes into a Cryochamber. %s of the selected pets are older.", String.valueOf(older.size()));
-        else bottomTip(p, box, "To cargo", "Only a young under a week old goes into a Cryochamber. " + nameList(older.size()) + (older.size() == 1 ? " is older." : " are older."), older.toArray(new String[0]));
+        else if (older.size() > 3) bottomTip(p, box, "To cargo", "Only young under a week fit into a Cryochamber. %s of the selected pets are older.", String.valueOf(older.size()));
+        else bottomTip(p, box, "To cargo", "Only young under a week fit into a Cryochamber. " + nameList(older.size()) + (older.size() == 1 ? " is older." : " are older."), older.toArray(new String[0]));
 
         float fee = pets.size() * PetConstants.REHOME_FEE;
         String feeText = Misc.getDGSCredits(fee);
@@ -746,7 +746,7 @@ public class PetCard {
             PetStatusManager.getInstance().toChamber(pet);
             panel.refresh();
         });
-        Ui.tooltip(p, box, "To cargo", "A Cryochamber in the fleet cargo. It does not age there.", "Only a young under a week old goes into a Cryochamber.");
+        Ui.tooltip(p, box, "To cargo", "A Cryochamber in the fleet cargo. It does not age there.", "Only young under a week fit into a Cryochamber.");
         return x;
     }
 
