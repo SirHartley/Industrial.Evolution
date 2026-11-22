@@ -456,6 +456,14 @@ public final class Ui {
         });
     }
 
+    // bottom row buttons: below them the tooltip runs under the dialog's own buttons, which draw over the panel
+    public static void bottomTooltip(CustomPanelAPI p, UIComponentAPI target, String title, String... lines) {
+        tooltip(p, target, TOOLTIP_W, TooltipMakerAPI.TooltipLocation.ABOVE, t -> {
+            t.setBgAlpha(1f);
+            textTip(t, title, lines);
+        });
+    }
+
     private static void textTip(TooltipMakerAPI t, String title, String... lines) {
         float pad = 0f;
         if (title != null) {

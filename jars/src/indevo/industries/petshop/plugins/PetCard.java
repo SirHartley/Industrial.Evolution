@@ -562,7 +562,7 @@ public class PetCard {
         String cost = Ui.credits(price);
         ButtonAPI button = UiButtons.button(p, w - ADOPT_W, y, ADOPT_W, BUTTON_H, "Adopt", afford ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, CutStyle.TL_BR,
                 UiImages.creditsSprite(), cost, afford ? null : Ui.neg(), Ui.ORB12, afford ? () -> panel.popup(PetPlaceDialog.adopt(offer, shop)) : null);
-        if (!afford) Ui.tooltip(p, button, "Adopt", "Adopting " + offer.name + " costs " + cost + ". You have " + Ui.credits(credits) + ".");
+        if (!afford) Ui.bottomTooltip(p, button, "Adopt", "Adopting " + offer.name + " costs " + cost + ". You have " + Ui.credits(credits) + ".");
     }
 
     static String goneLine(Pet pet) {
@@ -1172,8 +1172,8 @@ public class PetCard {
         ButtonAPI rehome = UiButtons.button(p, w - 2f * BUTTON_W - 6f, y, BUTTON_W, BUTTON_H, "Rehome", blocked ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
                 blocked ? null : () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Rehome %s for a fee of %s?", 0f,
                         new Color[]{hl, hl}, pet.name, fee), () -> shop.rehome(pet))));
-        if (held != null) Ui.tooltip(p, rehome, "Rehome", held);
-        else if (broke) Ui.tooltip(p, rehome, "Rehome", "Rehoming costs " + fee + ". You have " + Misc.getDGSCredits(credits) + ".");
+        if (held != null) Ui.bottomTooltip(p, rehome, "Rehome", held);
+        else if (broke) Ui.bottomTooltip(p, rehome, "Rehome", "Rehoming costs " + fee + ". You have " + Misc.getDGSCredits(credits) + ".");
 
         euthanizeButton(p, w - BUTTON_W, y, BUTTON_W, pet, held);
     }
@@ -1233,7 +1233,7 @@ public class PetCard {
     private void euthanizeButton(CustomPanelAPI p, float x, float y, float w, Pet pet, String held) {
         ButtonAPI button = UiButtons.button(p, x, y, w, BUTTON_H, "Euthanize", held != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
                 held != null ? null : () -> euthanize(pet));
-        if (held != null) Ui.tooltip(p, button, "Euthanize", held);
+        if (held != null) Ui.bottomTooltip(p, button, "Euthanize", held);
     }
 
     private void euthanize(Pet pet) {

@@ -96,6 +96,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `thead(p, x, y, w, labels, xs, ws, aligns)` | Table header strip with orb12 column labels |
 | `tooltip(p, target, title, lines...)` | Text tooltip below any panel, label or button (title in highlight, lines 10 px apart); buttons show it while disabled |
 | `solidTooltip(p, target, title, lines...)` | Same with a solid background (`setBgAlpha(1)`); use it where the tooltip opens over busy content, the default 0.85 lets it show through |
+| `bottomTooltip(p, target, title, lines...)` | Solid and above the target, for buttons on a dialog panel's bottom row: below them the tooltip runs under the dialog's own buttons (Return), which draw over the panel |
 | `tooltip(p, target, width, loc, content)` | Same with free content |
 
 ### UiButtons
