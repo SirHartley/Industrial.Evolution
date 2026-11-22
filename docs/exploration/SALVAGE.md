@@ -78,6 +78,8 @@ Order: `onNewGameAfterEconomyLoad -> DerelictStationPlacer.init -> IndEvo_Salvag
 | `IndEvo_abandonedPetCenter` | nothing 30, item choice 2, credit stash 2, rumors 10, vanilla ship recovery (civilian) 8, vanilla transmitter trap 5 |
 | Weapons, supply and equipment caches (all sizes) | nothing 30 plus vanilla creators (sleeper pods, ship recovery, cargo manifest, transmitter trap); IE extras: fuel 20 (supply cache), rumors 10 and credit stash 2 (equipment caches) |
 
+Every vanilla ship recovery weight above is multiplied by `Misc.getDerelictRecoverableFraction()` (1 in normal mode, `ext_derelictShipRecoverableFraction` in Survival mode), as vanilla `SalvageSpecialAssigner` does for its own tables.
+
 Factions: recoverable ships from vanilla `getNearbyFactions` (remnant systems: Tri-Tachyon, Hegemony, independent); trap fleets pirates, remnants in suppressed or resurgent remnant systems.
 
 ### Specials
