@@ -125,12 +125,9 @@ public class DetachmentPanel extends BaseCustomDialogDelegate {
     private void addHelp(TooltipMakerAPI tooltip) {
         float pad = 10f;
         tooltip.addPara("Split off part of your fleet into a detachment. You remain in control of your main force, while the detachment follows the mode you set.", 0f);
-        tooltip.addPara("Send: the ships and cargo you pick leave. Take: you keep the ships and cargo you pick, everything else leaves. Your flagship always stays with you.", pad);
-        tooltip.addPara("A detachment uses supplies and fuel like your fleet. Out of supplies it goes %s, out of fuel outside hyperspace it is %s. Meet it and move supplies or fuel over.", pad,
+        tooltip.addPara("A Detachment that runs out of supplies goes %s. Running out of fuel will cause it to become %s.", pad,
                 Misc.getNegativeHighlightColor(), "dormant", "stranded");
-        tooltip.addPara("Auto-recall brings it back when supplies drop below %s days. Officers in a detachment draw their salary.", pad,
-                Misc.getHighlightColor(), (int) DetachmentAI.AUTO_RECALL_DAYS + "");
-        tooltip.addPara("Transport stores all ships and cargo at the target planet's storage.", pad);
+        tooltip.addPara("Officers and crew in a detachment draw their salary.", pad);
     }
 
     void setMode(int num, FleetBehaviour mode) {
