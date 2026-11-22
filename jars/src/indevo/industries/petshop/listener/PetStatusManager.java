@@ -130,7 +130,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private float daysSinceLine = 0f;
     private float lineRoll = 0f;
     private float wantGapDays = 0f;
-    // species seen on offer at an Animal Center; null in saves from before the bestiary
+    // species seen on offer at an Animal Center or in a pet box tooltip; null in saves from before the bestiary
     private Set<String> offered = new HashSet<>();
     // pet popups hide the dialog text, so reports wait for the outermost to close and go to the dialog under it
     private transient List<Note> held = null;
@@ -548,6 +548,11 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         Set<String> seen = new HashSet<>();
         for (Pet pet : pets) if (pet.sheet != null && pet.sheet.look != null) seen.add(pet.sheet.look);
         return seen;
+    }
+
+    public void seeSpecies(String typeId) {
+        if (offered == null) offered = new HashSet<>();
+        if (offered.add(typeId)) seeAll();
     }
 
     public void seeOffers(List<Pet> offers) {

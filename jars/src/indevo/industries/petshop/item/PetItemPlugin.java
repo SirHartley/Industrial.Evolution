@@ -1,5 +1,6 @@
 package indevo.industries.petshop.item;
 
+import com.fs.starfarer.api.GameState;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
@@ -186,6 +187,9 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
             else tooltip.addPara("Can only be opened from fleet cargo", n, opad);
             return;
         }
+
+        // the codex shows item tooltips outside a campaign too
+        if (this.pet != null && Global.getCurrentState() == GameState.CAMPAIGN) PetStatusManager.getInstance().seeSpecies(this.pet.id);
 
         Pair<String, Color> rpair = pet.getRarityDesc();
 
