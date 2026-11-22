@@ -278,6 +278,7 @@ Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices
 | Feature | Survival mode factor | Doc |
 |---|---|---|
 | Hull Forge print cost | `ext_shipBuyPriceMult` | [DERELICTS](industries/DERELICTS.md#forge-template-loop) |
+| Academy hire rolls at markets the player does not own | `ext_officersAvailableFraction`, `ext_adminAvailableFraction` | [ACADEMY](industries/ACADEMY.md#hireable-spawns-and-officer-quality) |
 
 ### Shared cross-file constraints
 

@@ -36,6 +36,7 @@ Removed - data/strings/strings.json (text is now in the code, translation packs 
 
 Survival Mode
 Adjusted - Hull Forge: print cost follows the Survival mode ship price
+Adjusted - Academy: officers and admins for hire show up as rarely as on vanilla markets at Academies you do not own
 
 Ashes of the Domain
 Added - Research tree: IE industries, specializations and governments are unlocked by research

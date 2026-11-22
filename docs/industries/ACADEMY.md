@@ -107,6 +107,7 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 ### Hireable spawns and officer quality
 
 - Daily, on non-Galatia markets with no hireable officer (or admin) present, rolls the spawn chance and adds an `OfficerManagerEvent.AvailableOfficer` to the running vanilla officer manager event (`createHireablePerson()`, `:745`). Officers: level 1 to 3, independent, hire fee level x 2000. Admins: tier 0 (90%) or 1 (10%), hire fee from `adminHireTier<n>`.
+- In Survival mode, on markets the player does not own, the officer roll is multiplied by `ext_officersAvailableFraction` and the admin roll by `ext_adminAvailableFraction`, the factors vanilla `OfficerManagerEvent` applies to its own spawns (`getHireChanceMult`, `Academy.java:195`). Own Academies keep the full roll.
 - `apply()` on non-Galatia markets calls `increaseOfficerQuality()` (`:250`): same-faction markets in the location get `Stats.OFFICER_MAX_LEVEL_MOD` mult 1.5 (local) or 1.3 (others); the local market gets `Stats.OFFICER_PROB_MOD` flat +1.5.
 
 ### AI cores

@@ -30,6 +30,7 @@ import indevo.ids.ItemIds;
 import indevo.industries.compatibility.AotdManager;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 
@@ -170,11 +171,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (isFunctional()) {
             if (spawnsHireables()) {
                 //spawn officers/admins if the market has none:
-                if (!marketHasHireableOfficer(false) && getRandomBoolean(Setting.DAILY_OFFICER_SPAWN_CHANCE.value())) {
+                if (!marketHasHireableOfficer(false) && getRandomBoolean(Setting.DAILY_OFFICER_SPAWN_CHANCE.value() * getHireChanceMult("ext_officersAvailableFraction"))) {
                     createHireablePerson(false);
                 }
 
-                if (!marketHasHireableOfficer(true) && getRandomBoolean(Setting.DAILY_ADMIN_SPAWN_CHANCE.value())) {
+                if (!marketHasHireableOfficer(true) && getRandomBoolean(Setting.DAILY_ADMIN_SPAWN_CHANCE.value() * getHireChanceMult("ext_adminAvailableFraction"))) {
                     createHireablePerson(true);
                 }
             }
@@ -188,6 +189,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     protected boolean spawnsHireables() {
         return !market.getId().equals(Ids.ACADEMY_MARKET_ID);
+    }
+
+    private float getHireChanceMult(String key) {
+        return market.isPlayerOwned() ? 1f : ExtModeHelper.mult(key);
     }
 
     // player rules for fees and training; the rat settlement Officer Quarters is never player owned but counts
