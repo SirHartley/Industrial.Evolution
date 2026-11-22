@@ -19,6 +19,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
@@ -274,6 +275,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
             FleetMemberAPI ship = ForgeTemplateItemPlugin.createNakedFleetMemberFromForgeTemplate(data);
             ForgeTemplateItemPlugin.addPrintDefectDMods(ship, ftQualityLevel, random);
+            if (market.isPlayerOwned() && ship.getVariant().hasHullMod(Ids.DEFECTS_HIGH)) Achievements.complete(Achievements.ITS_A_FEATURE);
 
             if (getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE)) {
                 if (market.getName().toLowerCase().equals("eurobeat") || Global.getSettings().getBoolean("IndEvo_ToggleMagicRandomSelector"))

@@ -382,6 +382,7 @@ Run from the repository root after the compile gate. Use `;` in place of `:` on 
 - A stored ship's `getFleetData()` is the `getMothballedShips()` of the submarket cargo holding it, with no fleet (`obf/campaign/fleet/FleetData.java:482`, `addFleetMember` sets it). `getFoodCargo` finds that cargo by identity over `getEconomy().getMarketsCopy()`, the same markets the vanilla storage list shows (`obf/campaign/command/OutpostListPanel.java:271`); a ship stored on a market outside the economy is not found and its pet starves.
 - A plan id starts with `PetPlan.ID_PREFIX` (`plan_`), pet ids never do; places, `parentsOf` and the planner tree tell plans from pets by it. `PetShop.getInbreeding(String, String)` follows plans through `parentsOf`, and `PetPlanner.expected` keeps a visited set, so a plan cycle from a save edit does not loop.
 - The Family tree reads `parentA` and `parentB` of every registered pet, gone ones too. `PetTreeLayout.row` skips a cycle in those links, `fold` and `family` keep visited sets, and `PetGenetics.shared` stops at `INBREEDING_GENERATIONS`, so bad links from a save edit or the console still draw.
+- Achievement hooks in `PetStatusManager` (scuttle, natural death, starving, escape pod, battle win) and `Pet` (`place`, `advance`) call `Achievements`; keep them when moving that code ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

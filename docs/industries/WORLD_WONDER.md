@@ -102,6 +102,7 @@ The colony screen draws the planet from its own background panel (obf `com.fs.st
 - `unapply` removes `IndEvo_hasWonder` even if another wonder in the system is still functional; the next `apply` of that wonder adds it back (inferred: brief stability flicker).
 - The cloud texture stays after the Cloud Painter is removed: `unapply` does not restore `originalClouds` (inferred from `CloudPainter.java:35`). Shield visuals go back to vanilla on the shield's next apply, the market tags stay.
 - `WorldWonderCondition` keys its mod `"WorldWonder"`, so several wonders give +1 total, not +1 each.
+- `finishBuildingOrUpgrading` on a player market ticks a checklist achievement by industry id ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

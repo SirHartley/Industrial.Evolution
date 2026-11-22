@@ -90,6 +90,7 @@ Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFiel
 - `RECENT_JUMP_KEY` expires after `RECENT_JUMP_TIMEOUT_SECONDS` (2 s) through `CampaignClockAPI.convertToDays` (`RecentJumpListener.java:26`).
 - `DisabledArea` objects live in location memory and are saved; the token entity is a normal saved custom entity.
 - The disabled-state glow in `MineCustomEntityPlugin.render()` reads the same location memory list; the green friendly glow uses its own friend rule (relationship and transponder only), which differs from `isFriend()`.
+- `MineImpact` counts player hits for an achievement ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

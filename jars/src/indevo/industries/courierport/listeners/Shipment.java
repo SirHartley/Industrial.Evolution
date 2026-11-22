@@ -14,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Submarkets;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.industries.courierport.ShippingCargoManager;
 import indevo.industries.courierport.ShippingContract;
 import indevo.industries.courierport.ShippingCostCalculator;
@@ -53,6 +54,9 @@ public class Shipment implements NewDayListener, EveryFrameScript {
     }
 
     public void init() {
+        float value = cargo != null ? Achievements.cargoValue(cargo) : 0f;
+        if (value > 0f && cost > value) Achievements.complete(Achievements.FREE_SHIPPING);
+
         //same market = immediate completion
         if (contract.fromMarketId.equals(contract.toMarketId)){
             chargePlayer(cost, this);

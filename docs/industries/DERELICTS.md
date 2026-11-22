@@ -156,6 +156,7 @@ Tear lifetime (`RiftTearManager`): `open` stores the tear, the redirected hypers
 - Block reasons come from `getBlockReason` only; the colony menu tooltip, the industry tooltip and the industry option all read it.
 - Transient listeners in `onGameLoad` have no class dedupe; `ListenerManager.addListener` dedupes only the same instance (`obf/campaign/ListenerManager.java:29`). Fine since transient lists are empty at load.
 - `RiftWarpRenderer` is transient and holds no saved state; `RiftJumpScript` keeps the original planet radius, so a save during the shrink restores it on the jump.
+- `RiftJumpScript` (player market) and `HullForge.printShip` (heavy print defects) unlock achievements ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

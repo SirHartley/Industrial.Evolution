@@ -64,6 +64,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public boolean revealed = false;
     public SectorEntityToken origin;
     public Vector2f target;
+    public boolean remote;
     private float projectileDelayTime;
     private float velocity = PROJECTILE_VELOCITY;
     public float trailID;
@@ -128,6 +129,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         public float warningSeconds;
         public SectorEntityToken track;
         public Vector2f trackOffset;
+        public boolean remote;
 
         public ProjectileParams(SectorEntityToken origin, Vector2f target, float warningSeconds, SectorEntityToken track, Vector2f trackOffset) {
             this.origin = origin;
@@ -138,8 +140,10 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
         }
     }
 
-    public static void spawn(LocationAPI loc, SectorEntityToken origin, Vector2f target, float warningSeconds, SectorEntityToken track, Vector2f trackOffset) {
-        SectorEntityToken t = loc.addCustomEntity(null, null, "IndEvo_artillery_projectile", null, new ProjectileParams(origin, target, warningSeconds, track, trackOffset));
+    public static void spawn(LocationAPI loc, SectorEntityToken origin, Vector2f target, float warningSeconds, SectorEntityToken track, Vector2f trackOffset, boolean remote) {
+        ProjectileParams params = new ProjectileParams(origin, target, warningSeconds, track, trackOffset);
+        params.remote = remote;
+        SectorEntityToken t = loc.addCustomEntity(null, null, "IndEvo_artillery_projectile", null, params);
         t.setLocation(origin.getLocation().x, origin.getLocation().y);
     }
 
@@ -156,6 +160,7 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
             this.warningSeconds = ((ProjectileParams) pluginParams).warningSeconds;
             this.track = ((ProjectileParams) pluginParams).track;
             this.trackOffset = ((ProjectileParams) pluginParams).trackOffset;
+            this.remote = ((ProjectileParams) pluginParams).remote;
 
             // a flight longer than the warning leaves after a short wind up and the reticule waits instead
             float projectileFlightTime = Misc.getDistance(origin.getLocation(), target) / PROJECTILE_VELOCITY;
@@ -311,6 +316,8 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
                         0.65f);
 
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
+        params.artilleryType = ArtilleryStationEntityPlugin.TYPE_MORTAR;
+        params.remote = remote;
 
         SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
                 "IndEvo_VariableExplosion", Factions.NEUTRAL, params);

@@ -10,6 +10,7 @@ import com.fs.starfarer.api.loading.VariantSource;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
@@ -122,6 +123,7 @@ public class Pet {
 
             homeShipId = toMember.getId();
             attach(toMember);
+            if (isWithPlayer()) checkWarship();
         } else if (toStorage != null) {
             storage = toStorage;
             ((PetShop) toStorage).store(this);
@@ -129,6 +131,12 @@ public class Pet {
     }
 
     // a parent in a habitat: held by its Animal Center, outside pet storage
+    private static void checkWarship() {
+        int aboard = 0;
+        for (Pet pet : PetStatusManager.getInstance().getPets()) if (pet.isAboard() && pet.isWithPlayer()) aboard++;
+        if (aboard >= Achievements.WARSHIP_PETS) Achievements.complete(Achievements.WARSHIP);
+    }
+
     public void toHabitat(PetShop shop) {
         leave();
         storage = shop;
@@ -404,6 +412,7 @@ public class Pet {
 
         if (ages) {
             boolean raisedYoung = parentA != null && isYoung();
+            if (getData().isHamster() && age < Achievements.HAMSTER_DAYS && age + dayAmt >= Achievements.HAMSTER_DAYS) Achievements.complete(Achievements.IMMORTAL_HAMPTER);
             age += dayAmt;
             if (raisedYoung && !isYoung()) PetStatusManager.getInstance().checkUnlocks();
             if (age > getData().maxLife) earn(PetTitle.OLD_TIMER);

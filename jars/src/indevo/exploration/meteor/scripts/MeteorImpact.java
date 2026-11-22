@@ -9,6 +9,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.TrigHelper;
 import org.lwjgl.util.vector.Vector2f;
@@ -31,6 +32,7 @@ public class MeteorImpact implements EveryFrameScript {
 
     public MeteorImpact(SectorEntityToken target, SectorEntityToken meteor, boolean dealDamage) {
         this.fleet = target;
+        if (target.isPlayerFleet()) Achievements.complete(Achievements.DINOSAUR);
         boolean isFleet = target instanceof CampaignFleetAPI;
         boolean isStation = isFleet && ((CampaignFleetAPI) target).isStationMode();
 

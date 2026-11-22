@@ -23,6 +23,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.DynamicStatsAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
@@ -708,6 +709,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (mentored) Misc.setMentored(officerInTraining, true);
 
         PersonalityAPI newPersonality = officerInTraining.getPersonalityAPI();
+        Achievements.addPersonality(officerInTraining, oldPersonality.getId(), newPersonality.getId());
 
         moveOfficerInTrainingToStorage();
         clearOfficerTraining();

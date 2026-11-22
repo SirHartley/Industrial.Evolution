@@ -8,6 +8,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.items.consumables.fleet.MissileMemFlags;
 import indevo.utils.helper.MiscIE;
@@ -51,8 +52,10 @@ public class ExplosiveMissileEntityPlugin extends BaseMissileEntityPlugin {
 
         explosion.setLocation(entity.getLocation().x, entity.getLocation().y);
 
-        for (SectorEntityToken t : MiscIE.getEntitiesInRange(entity, EXPLOSION_SIZE))
+        for (SectorEntityToken t : MiscIE.getEntitiesInRange(entity, EXPLOSION_SIZE)) {
+            Achievements.missileCaught(source, t);
             t.getMemoryWithoutUpdate().set(MissileMemFlags.MEM_CAUGHT_BY_MISSILE, new Vector2f(entity.getLocation()), 1f);
+        }
     }
 
     @Override

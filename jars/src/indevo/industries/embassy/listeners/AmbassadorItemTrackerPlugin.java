@@ -13,6 +13,7 @@ import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.submarkets.StoragePlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.config.Setting;
 import indevo.ids.Ids;
@@ -141,6 +142,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
                     adjustRelationship(playerFaction, faction, MURDER_REP_PENALTY);
                     displayMessage("$personName, the $factionName Ambassador, has been sold on a market like cattle.", "This is not a good way to foster positive relations.", person, MURDER_REP_PENALTY);
                     Global.getSector().addScript(new AmbassadorMurderConsequences(person));
+                    Achievements.complete(Achievements.DIPLOMATIC_BAGGAGE);
                     setFailed();
                     return true;
                 }
@@ -154,6 +156,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
                 adjustRelationship(playerFaction, faction, MURDER_REP_PENALTY);
                 displayMessage("$personName, the $factionName Ambassador, has suffocated in a cargo pod.", "What a rotten way to die.", person, MURDER_REP_PENALTY);
                 Global.getSector().addScript(new AmbassadorMurderConsequences(person));
+                Achievements.complete(Achievements.DIPLOMATIC_BAGGAGE);
                 setFailed();
                 return true;
             }
@@ -166,6 +169,7 @@ public class AmbassadorItemTrackerPlugin implements NewDayListener {
                     adjustRelationship(playerFaction, faction, MURDER_REP_PENALTY);
                     displayMessage("$personName, the $factionName Ambassador, has suffocated in a cargo pod.", "What a rotten way to die.", person, MURDER_REP_PENALTY);
                     Global.getSector().addScript(new AmbassadorMurderConsequences(person));
+                    Achievements.complete(Achievements.DIPLOMATIC_BAGGAGE);
                     setFailed();
                     return true;
                 }

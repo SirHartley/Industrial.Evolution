@@ -240,6 +240,7 @@ Watchtowers carry the `objective` tag (`data/config/custom_entities.json`, entit
 - `$IndEvo_ArtilleryStation` is also set as a tag on defender fleets (`IndEvo_ArtilleryDefenderGen.java:107`); `ConsumableItemDropListener` checks that tag (`indevo/items/consumables/listeners/ConsumableItemDropListener.java:48`).
 - `RuinsManager.setUpgradeSpec` excludes the rift generator on artillery planets ([Derelicts](DERELICTS.md)).
 - `MagicInvisibator` sets alpha 0 and applies 1e6 damage every frame to the deco module so it never fights (`MagicInvisibator.java:20-38`).
+- Shot scripts pass a `remote` flag from `ArtilleryRemoteAbilityPlugin.isRemoteTarget` through the projectile params to `VariableExplosionParams` and `ECMExplosion`; mortar and railgun explosions set `artilleryType`. Achievements read both ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

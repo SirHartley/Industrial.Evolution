@@ -53,6 +53,7 @@ Users:
 - A `ButtonAction` or `Runnable` button id must never reach a saved object (skill `docs/ui/widgets.md`, "Event routing"). Popups are rebuilt on every change and never saved.
 - `ButtonReportingCustomPanel.render` uses `pos` set by `positionChanged`; a panel rendered before positioning would NPE (inferred).
 - UI guidance for new panels: [UI](../core/UI.md), skill `docs/ui/index.md`, `layout.md`, `widgets.md`.
+- `HelpIcon` keys each opened `?` by the class that built its content for an achievement ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

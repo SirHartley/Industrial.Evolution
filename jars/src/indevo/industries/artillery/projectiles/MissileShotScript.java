@@ -4,6 +4,7 @@ import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.items.consumables.itemAbilities.missiles.ArtilleryRemoteAbilityPlugin;
 import indevo.utils.helper.Circle;
 import indevo.utils.helper.TrigHelper;
 import org.lazywizard.lazylib.MathUtils;
@@ -105,6 +106,7 @@ public class MissileShotScript implements EveryFrameScript {
                     splitAngleOnTrajectory);
 
             params.track = track;
+            params.remote = ArtilleryRemoteAbilityPlugin.isRemoteTarget(target);
             params.trackOffset = Vector2f.sub(fuzzedTarget, anticipatedTargetLoc, null);
             MissileCarrierEntityPlugin.spawn(params);
         }

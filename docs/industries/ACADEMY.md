@@ -133,6 +133,7 @@ Reserve drills: `reportEconomyMonthEnd()` gives every officer in this Academy's 
 - `Academy.COLOURS_BY_PERSONALITY` order is the personality ladder; [Pets](PETS.md) also use its key set for pet dispositions. Keys are personality ids: look up with `PersonalityAPI.getId()`, never the display name, which translations change (`data/characters/personalities.csv` `name` column).
 - `ListenerManager.addListener` dedupes by instance and drops transient listeners on save (`obf/campaign/ListenerManager.java:29`, `obf/_common/util/container/repo/ObjectRepository.java:87`), so re-adding in every `apply()` is safe.
 - A small RAT settlement version of this industry exists (Officer Quarters: an embedded `QuartersAcademy`, `ownedByPlayer()` true, `spawnsHireables()` false); see [RAT settlements](RAT_SETTLEMENTS.md).
+- `trainOfficerInTraining` records personalities in `$IndEvo_ach_personalities` on the officer ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

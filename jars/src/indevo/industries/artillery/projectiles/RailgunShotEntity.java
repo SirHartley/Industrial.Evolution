@@ -8,6 +8,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.items.consumables.itemAbilities.missiles.ArtilleryRemoteAbilityPlugin;
 import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -136,7 +137,8 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
                     target.getContainingLocation(),
                     origin,
                     anticipatedEntityPos,
-                    impactTimeSeconds);
+                    impactTimeSeconds,
+                    ArtilleryRemoteAbilityPlugin.isRemoteTarget(target));
 
             fuzz = !fuzz;
         }

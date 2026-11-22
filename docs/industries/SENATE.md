@@ -146,6 +146,7 @@ While `IndEvo_edict_fastBuild` is on the market (`Edict_FastBuild.isActive`), fo
 - One Edict per colony: `EdictHelper.enact()` throws `IllegalStateException` when the colony already has one; the panel disables Enact first.
 - Production quality changes from Deadlines and Clearances go on every player market, not only the local one.
 - `Edict_FastBuild` reads and writes `BaseIndustry.buildTime` (`api/impl/campaign/econ/impl/BaseIndustry.java:103`) through `StarReflectionUtils.get` and `ReflectionUtils.setWithSuper` ([Utils](../core/UTILS.md)). `apply()` stores each building industry's current time in `originalBuildTimes` (by industry id, saved with the condition) and sets half of it, so custom times such as a [Ruined Infrastructure](RUINED_INFRASTRUCTURE.md) restore are halved, not replaced by a spec time. `unapply()` writes the stored time back only while the industry still holds the halved value (a build started in between keeps its own time) and clears the map. `reapplyConditions` runs unapply before apply, so the halving never stacks.
+- The Remove confirm in `EdictDetail` unlocks an achievement when the edict is removed before its minimum runtime; automatic removals do not count ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 
