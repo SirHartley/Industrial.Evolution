@@ -27,7 +27,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 |---|---|---|
 | Industry | `IndEvo_Academy` (`Ids.ACADEMY`) | `data/campaign/industries.csv:35`, tags `structure, unraidable` |
 | Market | `IndEvo_academyMarket` (`Ids.ACADEMY_MARKET_ID`) on entity `station_galatia_academy` | `ModPlugin.createAcademyMarket()` (`indevo/utils/ModPlugin.java:378`) |
-| Setting | `IndEvo_Academy` (toggle) | `data/config/LunaSettings.csv:102`, read in `Academy.isAvailableToBuild()` (`Academy.java:147`) |
+| Setting | `IndEvo_Academy` (toggle) | `data/config/LunaSettings.csv:102`, read in `Academy.isAvailableToBuild()` (`Academy.java:148`) |
 | Setting | `IndEvo_dailyOfficerSpawnChance` 0.15, `IndEvo_dailyAdminSpawnChance` 0.10 | `LunaSettings.csv:166-167`, `Academy.onNewDay()` |
 | Setting | `IndEvo_personalityTrainingDayCount` 93, `IndEvo_personalityTrainingCost` 30000 | `LunaSettings.csv:168-169` |
 | Setting | `IndEvo_adminTrainingDayCount` 124, `IndEvo_adminTrainingCost` 20000 | `LunaSettings.csv:170-171` |
@@ -35,7 +35,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 | Whitelist | `academy_admin_skill_whitelist.csv`, key `IndEvo_academySkillList` (`Ids.ACADEMY_SKILL_LIST`) | `data/config/indEvo/`, [Settings](../core/SETTINGS.md#whitelists) |
 | Market memory | `$IndEvo_officerIsTraining`, `$IndEvo_adminIsTraining` | set by `Academy`, no reader left |
 | Person memory | `$IndEvo_wasTrainedLevel` (personality steps used) | `Academy.addTrainedSteps()` |
-| Person memory | `$ome_adminTier` incremented, `$ome_hireable`, `$ome_isAdmin` read | `Academy.java:457`, `:734` (vanilla `OfficerManagerEvent` keys) |
+| Person memory | `$ome_adminTier` incremented, `$ome_hireable`, `$ome_isAdmin` read | `Academy.java:466`, `:734` (vanilla `OfficerManagerEvent` keys) |
 | Rules | `IndEvo_AcademyBaseMenu`, `IndEvo_AcademyBaseMenu_GA`, `IndEvo_AcademyBaseColonyOptionMenu`, `IndEvo_IntitiateAcademyMenu`, `IndEvo_IntitiateAcademyMenu_GA` | `data/campaign/rules.csv`, block `# Academy` to `#END Academy` |
 | Item | `IndEvo_holobench` (`ItemIds.HOLOBENCH`, Holobench, shown by its item name Neural Interface), params `IndEvo_Academy` | `data/campaign/special_items.csv`, effect text `HolobenchEffect`; [Installables](../items/INSTALLABLES.md) |
 | Person memory | `$mentored` (vanilla `Misc.MENTORED`) set by the Holobench | `Academy.trainOfficerInTraining()` |
@@ -46,7 +46,7 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 - Industry plugin from the `industries.csv` plugin column. Rule commands from `ruleCommandPackages` entry `indevo.industries.academy.rules` (`data/config/settings.json:32`).
 - `ModPlugin.onGameLoad()` and `onNewGameAfterEconomyLoad()` call `createAcademyMarket()` (`ModPlugin.java:152`, `:292`): hidden size 3 independent market with Population and Academy, `NO_CONTACTS_ON_MARKET` and `NO_DECIV_KEY` set, only if the market is missing and `station_galatia_academy` exists.
 - `AcademyOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:466`), transient, deduped by class.
-- `Academy.apply()` adds itself as a transient listener (`Academy.java:87`); `unapply()` removes it. Daily ticks come from IE `TimeTracker`, which collects `NewDayListener` listeners ([Utils](../core/UTILS.md)).
+- `Academy.apply()` adds itself as a transient listener (`Academy.java:88`); `unapply()` removes it. Daily ticks come from IE `TimeTracker`, which collects `NewDayListener` listeners ([Utils](../core/UTILS.md)).
 - `NewGameIndustryPlacer.placeAcademy` seeds NPC Academies ([Utils](../core/UTILS.md)).
 
 Load chain: `onGameLoad -> createAcademyMarket -> setListenersIfNeeded -> market reapply -> Academy.apply -> addListener(this, true) -> TimeTracker -> onNewDay`.
@@ -107,7 +107,7 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 ### Hireable spawns and officer quality
 
 - Daily, on non-Galatia markets with no hireable officer (or admin) present, rolls the spawn chance and adds an `OfficerManagerEvent.AvailableOfficer` to the running vanilla officer manager event (`createHireablePerson()`, `:745`). Officers: level 1 to 3, independent, hire fee level x 2000. Admins: tier 0 (90%) or 1 (10%), hire fee from `adminHireTier<n>`.
-- In Survival mode, on markets the player does not own, the officer roll is multiplied by `ext_officersAvailableFraction` and the admin roll by `ext_adminAvailableFraction`, the factors vanilla `OfficerManagerEvent` applies to its own spawns (`getHireChanceMult`, `Academy.java:195`). Own Academies keep the full roll.
+- In Survival mode, on markets the player does not own, the officer roll is multiplied by `ext_officersAvailableFraction` and the admin roll by `ext_adminAvailableFraction`, the factors vanilla `OfficerManagerEvent` applies to its own spawns (`getHireChanceMult`, `Academy.java:198`). Own Academies keep the full roll.
 - `apply()` on non-Galatia markets calls `increaseOfficerQuality()` (`:250`): same-faction markets in the location get `Stats.OFFICER_MAX_LEVEL_MOD` mult 1.5 (local) or 1.3 (others); the local market gets `Stats.OFFICER_PROB_MOD` flat +1.5.
 
 ### AI cores

@@ -57,7 +57,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Hullmod | `IndEvo_print_low`, `IndEvo_print_med`, `IndEvo_print_high` (dmod) | `data/hullmods/hull_mods.csv:2,5,8` |
 | Hullmod | `IndEvo_auto` (`Ids.PRINTING_INDICATOR`) | `data/hullmods/hull_mods.csv:11` |
 | Jump point | id `IndEvo_planet_replacer_<uid>` (rifts from before 4.2.a: `IndEvo_planet_replacer`), tag `IndEvo_artificialRift`, desc `IndEvo_JumpRiftTemporary` (permanent tears from before 4.2.a: `IndEvo_JumpRift`); the jump point dialog prints only text3 (skill `api/impl/campaign/JumpPointInteractionDialogPluginImpl.java:234-236`), so both rows carry the text in text1 and text3 | `RiftRelocator.java:26-29`, `data/strings/descriptions.csv:3-4` |
-| Variant tag | `IndEvo_comp1/2/3` | `HullForge.java:422-424` |
+| Variant tag | `IndEvo_comp1/2/3` | `HullForge.java:423-425` |
 | Variant tag | `IndEvo_hasInbuiltLogMod` | `HullDeconstructor.java:55` |
 | Memory key | `$IndEvo_ruinsIndustryId` (market), `$IndEvo_ruinsPlaced_<marketId>` | `Ruins.java:17`, `RuinsManager` |
 | Variant tag | `no_auto_penalty` (vanilla `Tags.TAG_AUTOMATED_NO_PENALTY`), added by the Ships tab | `AncientLabRelicPanelDelegate.integrate` |
@@ -70,7 +70,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Setting | `IndEvo_derelictDeliverToGathering`, `IndEvo_RG_cooldownTime` (90), `IndEvo_RG_range` (9), `IndEvo_RG_preciseCost` (100), `IndEvo_reslab_autoDeliverToClosestDecon` | `data/config/LunaSettings.csv:156-160` |
 | Setting | `IndEvo_hullDecon_autoDeliverToClosestForge`, `IndEvo_hullDecon_days_*` (10/20/30/40) | `data/config/LunaSettings.csv:153-157` |
 | Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:158-163` |
-| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:28`, read at `HullForge.java:278,444` |
+| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:28`, read at `HullForge.java:279,444` |
 | Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:19` |
 | Config | `IndEvo_riftBlockedSystemsList` -> `data/config/indEvo/rift_blocked_systems.csv` (system ids, never a target), `IndEvo_riftBlockingEntitiesList` -> `data/config/indEvo/rift_blocking_entities.csv` (custom entity types that block in orbit: `bifrost_gate`, `aotd_pluto_station`) | `data/config/settings.json:25-26` |
 | Rules | `IndEvo_RiftGenTargetOptions`, `IndEvo_RiftTarget_*`, `IndEvo_RiftPrecisePicked`, `IndEvo_RiftPreciseFired`, `IndEvo_FireBaseRGOptionList`, `IndEvo_RiftControlMenuPoint*` | `data/campaign/rules.csv:756-817` |
@@ -166,7 +166,7 @@ Tear lifetime (`RiftTearManager`): `open` stores the tear, the redirected hypers
 | `RuinsCountMap` | Deprecated, unused. |
 | `PlanetJumpListener` | No implementers. |
 | `AncientLaboratory.java:263-275` | Null gathering point returns false, retried daily. |
-| `HullForge.java:283` | NPE if the target market has no storage submarket. |
+| `HullForge.java:284` | NPE if the target market has no storage submarket. |
 | Gas giant jump | The planet gets no gravity well in the new system (inferred, autogen would duplicate every jump point there). |
 | Several open tears | A gamma core (tear x2) or a relic Recharge lets one Generator fire again while its last tear is open. |
 | Changelog_todo | "Change derelict industries to superstructures" (`:140`). The rift warp sounds from "riftgen anim sounds" (`:55,82`) now play. |

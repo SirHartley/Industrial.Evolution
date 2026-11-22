@@ -249,7 +249,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 | From | Uses | Where |
 |---|---|---|
-| Privateer | Current government (`GovernmentCondition.getGovernment`); `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
+| Privateer | Current government (`GovernmentCondition.getGovernment`); `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:72,194,203,322` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | RAT settlements | Parent industry code: `Academy`, `ReverseEngineering`, Salvage Yards and Courier panels, `Museum` and `RestorationDocks` static helpers, Requisitions Center submarket, `VariableAssembler` deposits, `AmbassadorPersonManager`, `PetShop` (`HabitatPetShop`, `planCenter`) and the Pets panel | [RAT_SETTLEMENTS](industries/RAT_SETTLEMENTS.md) |
 | Courier port | Contracts allowed and billed with a RAT Courier Office | `ShippingManager.java:44`, `:101` |

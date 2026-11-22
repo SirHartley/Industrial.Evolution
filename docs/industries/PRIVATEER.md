@@ -24,8 +24,8 @@ The base takes two industry slots: a PatchLib patch counts it twice in `Misc.get
 | Industry | `IndEvo_pirateHaven` (`Ids.PIRATEHAVEN`) | `data/campaign/industries.csv`, tags `industry, tactical_bombardment, military` |
 | Condition | `IndEvo_pirate_subpop` (`Ids.COND_PIRATES`) | `data/campaign/market_conditions.csv`, `decivRemove` TRUE |
 | Setting | `IndEvo_pirateHaven` | `data/config/LunaSettings.csv`, enables the industry |
-| Setting | `IndEvo_RaidForUnknownOnly` | blueprint loot skips blueprints the player knows; `PrivateerBase.java:315` |
-| Setting | `IndEvo_PrivateerDeliverToGatheringPoint` | loot goes to the production gathering point storage; `PrivateerBase.java:303` |
+| Setting | `IndEvo_RaidForUnknownOnly` | blueprint loot skips blueprints the player knows; `PrivateerBase.java:316` |
+| Setting | `IndEvo_PrivateerDeliverToGatheringPoint` | loot goes to the production gathering point storage; `PrivateerBase.java:304` |
 | Memory key | `$IndEvo_RaidTimeout`, `$IndEvo_RaidTimeout_AI` | sector memory, owned by `RaidTimeout` |
 
 Settings are listed in [Settings](../core/SETTINGS.md).
@@ -33,7 +33,7 @@ Settings are listed in [Settings](../core/SETTINGS.md).
 ## Registration and lifecycle
 
 - CSV plugin column; nothing in `ModPlugin`. `PrivateerIndustrySlotPatch` is a `@Patch` class, installed by PatchLib ([Patches](../ARCHITECTURE.md#patches)).
-- `apply()` adds itself as transient `EconomyTickListener` (`PrivateerBase.java:73`); `unapply()` removes it.
+- `apply()` adds itself as transient `EconomyTickListener` (`PrivateerBase.java:74`); `unapply()` removes it.
 - `ListenerManager.addListener` dedupes the same instance (`obf/campaign/ListenerManager.java:29`, `ObjectRepository.add` checks `contains`), so the repeated call in `apply()` is safe.
 - Persistent state is in fields: `currentIntel`, `raidTimeoutMonths`, `supplyMemory`, `decayStopTimer`, `aiCoreFPBonus`. `apply()` rebuilds `supply` from `supplyMemory` (`:75-81`).
 
@@ -85,7 +85,7 @@ Cargo goes to local storage, or to the gathering point when the setting is on or
 
 ### Helldivers variant
 
-If the market's government is `HelldiversSubIndustry` (`GovernmentCondition.getGovernment`), names change ("Democratic Liberation Base", "Democratic Liberation Force") and raid results call `HelldiversSubIndustry.reportPrivateerBaseRaidFinished` (`PrivateerBase.java:210-222`). See [Changeling](CHANGELING.md).
+If the market's government is `HelldiversSubIndustry` (`GovernmentCondition.getGovernment`), names change ("Democratic Liberation Base", "Democratic Liberation Force") and raid results call `HelldiversSubIndustry.reportPrivateerBaseRaidFinished` (`PrivateerBase.java:211-223`). See [Changeling](CHANGELING.md).
 
 ### AI cores
 

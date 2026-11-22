@@ -99,7 +99,7 @@ Gamma: upkeep x0.2 while idle. Beta: x0.7 time. Alpha: x0.85 time, one D-mod ign
 - Saved per hub: `currentDeconShipVar`, `daysRequired`, `daysPassed`, `blueprintItem`, `finishOnOwn`. Recovered hullmods are saved per market in `$IndEvo_engHubHullmodData` and stay when the hub is removed; the option only shows on a hub.
 - `getSpecialItem` / `setSpecialItem` are overridden to the `blueprintItem` field; removing the hub refunds it unless upgrading.
 - Tooltip: vanilla `createTooltip`. The override only stores `expanded` in a transient field for the hooks (`:546`). Collapsed: current project after upkeep (`addPostUpkeepSection`, `:476`). Expanded (`NORMAL` mode only): progress list and current project right after the description (`addRightAfterDescriptionSection`, `:462`), vanilla body below.
-- `isTiandong` / `isRoider` are also used by Privateer loot (`indevo/industries/privateer/industry/PrivateerBase.java:322-324`); see [Privateer](PRIVATEER.md).
+- `isTiandong` / `isRoider` are also used by Privateer loot (`indevo/industries/privateer/industry/PrivateerBase.java:323-325`); see [Privateer](PRIVATEER.md).
 - A small RAT settlement version of this industry exists (Engineering Annex, sharing the progress map); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
