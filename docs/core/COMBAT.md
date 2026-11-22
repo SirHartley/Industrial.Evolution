@@ -69,7 +69,6 @@ All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer
 | Item | State |
 |---|---|
 | `IndEvo_CombatSlowFieldTerrain` end (`:112`) | Unmodifies speed on every ship within 99999, also ships inside another active field |
-| `IndEvo_causalityGunEffect.java:105` | `Math.random() == 0.5f` never true, dead branch |
 | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` | `target` is stored but never used for guidance |
 
 ## Maintenance
