@@ -19,6 +19,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
+import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
@@ -266,11 +267,14 @@ public final class ArtilleryChecks {
         float minE = Float.MAX_VALUE;
         float maxE;
         boolean flag;
+        final float tickIn;
 
         Probe(StarSystemAPI system, String projType) {
             this.system = system;
             this.projType = projType;
             this.last = eyeElapsed();
+            IntervalUtil i = eye().checkInterval;
+            this.tickIn = i.intervalElapsed() ? i.getIntervalDuration() : i.getIntervalDuration() - i.getElapsed();
             if (projType != null) projBefore.addAll(entities(system, projType));
         }
 
@@ -910,6 +914,7 @@ public final class ArtilleryChecks {
             });
             steps.add(c -> {
                 float lo = share < 0.5f ? 10f : 18f;
+                c.note("E1 " + pct + "% first eye tick " + probe.tickIn + " s after the probe start, lock " + (probe.lockAt - probe.tickIn) + " s after that tick");
                 c.expect(probe.lockAt >= lo && probe.lockAt <= lo + 2f, "E1 eye locks in " + lo + " to " + (lo + 2f) + " s at " + pct + "% of IndEvo_Artillery_WatchtowerRange (got " + probe.lockAt + ")");
                 c.expect(probe.maxJump < 1.5f, "E1 eye fills smoothly at " + pct + "% (max jump " + probe.maxJump + ")");
                 float delay = probe.firstProj - probe.lockAt;
@@ -917,6 +922,18 @@ public final class ArtilleryChecks {
                 pinPlayer(() -> HIDE);
                 probe = new Probe(sys(c, "w"), null);
                 c.until(() -> eyeElapsed() <= 0f && !playerSeen(), 3f, "E1 eye drains to 0 outside range", probe::sample);
+            });
+            steps.add(c -> {
+                StarSystemAPI s = sys(c, "w");
+                float tower = Float.MAX_VALUE;
+                for (SectorEntityToken t : entities(s, WatchtowerEntityPlugin.ENTITY_ID)) tower = Math.min(tower, Misc.getDistance(t, player()));
+                StringBuilder fleets = new StringBuilder();
+                for (CampaignFleetAPI f : s.getFleets()) {
+                    if (f.isPlayerFleet()) continue;
+                    fleets.append("; ").append(f.getNameWithFaction()).append(f.isStationMode() ? " station" : "").append(f.isHostileTo(player()) ? " hostile" : "")
+                            .append(" at ").append(Math.round(Misc.getDistance(f, player()))).append(" su").append(Misc.getVisibleFleets(f, false).contains(player()) ? " sees player" : "");
+                }
+                c.note("E1 " + pct + "% drain end: elapsed " + eyeElapsed() + ", seen " + playerSeen() + ", max rise " + probe.maxJump + ", nearest tower " + tower + " su, fleets" + (fleets.length() == 0 ? " none" : fleets.substring(1)));
             });
         }
         steps.add(c -> {
