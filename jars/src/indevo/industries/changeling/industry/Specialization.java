@@ -26,7 +26,7 @@ public class Specialization implements ChangelingTarget {
     public static final float IMAGE_HEIGHT = 95f;
 
     public static final Specialization MINING = new Specialization("mining", Industries.MINING, "$IndEvo_miningFocus", MiningSpecializations.BASE_ID, MiningSpecializations.LIST,
-            Arrays.asList(Commodities.ORE, Commodities.RARE_ORE, Commodities.ORGANICS, Commodities.VOLATILES));
+            MiningSpecializations.COMMODITIES);
     public static final Specialization REFINING = new Specialization("refining", Industries.REFINING, "$IndEvo_refiningFocus", RefiningSpecializations.BASE_ID, RefiningSpecializations.LIST,
             Arrays.asList(Commodities.METALS, Commodities.RARE_METALS, Commodities.ORE, Commodities.RARE_ORE));
     public static final List<Specialization> ALL = Arrays.asList(MINING, REFINING);
@@ -45,6 +45,10 @@ public class Specialization implements ChangelingTarget {
         this.baseId = baseId;
         this.list = list;
         this.commodities = commodities;
+    }
+
+    public static String percent(float value) {
+        return (value > 0 ? "+" : "") + Math.round(value) + "%";
     }
 
     public static String getModId(Industry ind) {

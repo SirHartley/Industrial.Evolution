@@ -18,7 +18,6 @@ import indevo.industries.compatibility.AotdManager;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.ui.Ui;
 import indevo.utils.ui.UiButtons;
-import indevo.utils.ui.UiData;
 import indevo.utils.ui.UiFrame;
 import indevo.utils.ui.UiHost;
 import indevo.utils.ui.UiImages;
@@ -39,15 +38,15 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
     static final float GRID_X = 2f;
     static final float GRID_Y = 26f;
     static final float TILE_W = 198f;
-    static final float TILE_H = 142f;
+    static final float TILE_H = 145f;
     static final float TILE_GAP = 8f;
     static final float TILE_PAD = 8f;
     static final float ART_X = 4f;
     static final float HEAD_Y = 4f;
-    static final float ART_Y = 22f;
+    static final float ART_Y = 25f;
     static final float ART_W = 190f;
     static final float ART_H = 95f;
-    static final float TILE_LINE_Y = 122f;
+    static final float TILE_LINE_Y = 125f;
     static final float DIM = 0.45f;
     static final float SECTION_GAP = 20f;
     static final float COLUMN_GAP = 24f;
@@ -199,7 +198,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
         });
 
         Color name = picked ? Ui.bright() : o.research != null ? Ui.gray() : why != null ? Ui.neg() : Ui.base();
-        Ui.heading(tile, ART_X, HEAD_Y, ART_W, o.data.name, Ui.LEFT, name, Ui.dark());
+        Ui.heading(tile, ART_X, HEAD_Y, ART_W, o.data.name, Ui.INS15, Ui.LEFT, name, Ui.dark());
 
         if (o.research != null) UiImages.grey(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite);
         else UiImages.img(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite, null, why == null ? 1f : DIM);
@@ -226,11 +225,16 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
         Ui.heading(p, rx, y, half, "Effects", Ui.LEFT);
 
         float top = y + CARD_TOP;
-        float fy = top + UiData.COST_ROW_H;
-        float vw = half - FACT_LABEL_W;
-        Ui.textIn(p, 0f, top, FACT_LABEL_W, UiData.COST_ROW_H, o.current ? "Status" : "Cost", Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
-        if (o.current) Ui.textIn(p, FACT_LABEL_W, top, vw, UiData.COST_ROW_H, "Current", Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
-        else UiData.cost(p, FACT_LABEL_W, top, vw, UiImages.creditsSprite(), Ui.credits(o.cost), Ui.credits(Global.getSector().getPlayerFleet().getCargo().getCredits().get()), o.afford, UiData.COST_ICON);
+        float fy = top;
+        if (o.current) fy = fact(p, fy, half, "Status", "Current", Ui.text());
+        else {
+            String cost = Ui.credits(o.cost);
+            String have = Ui.credits(Global.getSector().getPlayerFleet().getCargo().getCredits().get());
+            Ui.text(p, 0f, fy, FACT_LABEL_W, "Cost", Ui.gray());
+            Ui.runs(p, FACT_LABEL_W, fy, half - FACT_LABEL_W, Ui.INS15, Ui.gray(), Ui.LEFT, cost + " (Available: " + have + ")",
+                    new String[]{cost}, new Color[]{o.afford ? Ui.hl() : Ui.neg()});
+            fy += FACT_PITCH;
+        }
         if (o.data.requires != null) fy = fact(p, fy, half, "Requires", o.data.requires, o.blocked != null ? Ui.neg() : Ui.text());
         if (o.permanence != null) fy = fact(p, fy, half, "Permanent", o.permanence, Ui.text());
 
@@ -270,7 +274,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
         float tallest = 0f;
         for (Option o : options) {
             int facts = 1 + (o.data.requires != null ? 1 : 0) + (o.permanence != null ? 1 : 0);
-            float left = UiData.COST_ROW_H + (facts - 1) * FACT_PITCH + LORE_GAP + Ui.wrapHeight(o.lore, Ui.INS15, half);
+            float left = facts * FACT_PITCH + LORE_GAP + Ui.wrapHeight(o.lore, Ui.INS15, half);
             tallest = Math.max(tallest, CARD_TOP + Math.max(left, EffectLines.height(o.effects)));
         }
 

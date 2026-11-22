@@ -371,8 +371,13 @@ public final class Ui {
             return label;
         }
 
+        return heading(p, x, y, w, title, ORB12, align, c, bg);
+    }
+
+    // flat bar with the text 8 px in; ORB12 runs about a sixth wider than INS15, a narrow tile takes INS15
+    public static LabelAPI heading(CustomPanelAPI p, float x, float y, float w, String title, String font, Alignment align, Color c, Color bg) {
         bar(p, x, y, w, bg);
-        return textIn(p, x + 8f, y, w - 16f, HEADING_H, title, ORB12, c, align, new String[0], new Color[0]);
+        return textIn(p, x + 8f, y, w - 16f, HEADING_H, title, font, c, align, new String[0], new Color[0]);
     }
 
     // left heading with a grey note at its right end, the note gets what the title leaves; hl parts of the note in the highlight colour
