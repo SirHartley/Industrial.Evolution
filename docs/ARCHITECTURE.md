@@ -284,6 +284,7 @@ Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices
 | Credit Stash payout | 30%, fixed (no vanilla key) | [SALVAGE](exploration/SALVAGE.md#specials) |
 | Privateer Base weapon and wing loot | 30%, fixed (no vanilla key) | [PRIVATEER](industries/PRIVATEER.md#loot) |
 | Salvage Yards order budget and scrap value | `ext_playerIndustryCustomProductionMaxValueMult`, `ext_shipBuyPriceMult` | [SALVAGE_YARDS](industries/SALVAGE_YARDS.md) |
+| Meteor and rogue asteroid hits | `ext_environmentalDamageMult` | [METEOR](exploration/METEOR.md) |
 
 ### Shared cross-file constraints
 

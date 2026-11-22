@@ -36,7 +36,7 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 | `movement/RelativeArcingMovement.java` | Dead: no users |
 | `scripts/MovementModuleRunner.java`, `PayloadOnFinishedModuleRunner.java` | Run a movement module on non-meteor entities (entourage focus, planetoid); payload runs a `Script` in the same `advance()` the arc ends, then `isDone()` |
 | `scripts/PlanetoidDespawnScript.java` | Planetoid payload: fades the planet, its ring bands and every non fleet entity orbiting it; fleets orbiting it lose the orbit and stay |
-| `scripts/MeteorImpact.java`, `IceroidImpact.java` | 0.2 s push on the hit fleet, one ship damaged (weight by hull size, scaled by burn above go-slow), sound, glow, asteroid fragments; station fleets get no push and no damage; ice variant spawns ice fragments |
+| `scripts/MeteorImpact.java`, `IceroidImpact.java` | 0.2 s push on the hit fleet, one ship damaged (weight by hull size, scaled by burn above go-slow and by `ext_environmentalDamageMult` in Survival mode, as vanilla `AsteroidImpact`), sound, glow, asteroid fragments; station fleets get no push and no damage; ice variant spawns ice fragments |
 | `scripts/RadiationReductionScript.java` | NPC radiation decay |
 | `scripts/TutorialEncounterScript.java` | Spawns "Panicked Roiders" (roider or independent `SCAVENGER_SMALL`), makes them intercept the player |
 | `fleet/InterceptPlayerFleetAssignmentAI.java` | Script plus campaign listener: re-issues `INTERCEPT` until the player opens a dialog with the fleet, then returns it to source |
