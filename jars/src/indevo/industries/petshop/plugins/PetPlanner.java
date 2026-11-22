@@ -1055,7 +1055,7 @@ public class PetPlanner {
         filter.off.clear();
         if (other == null) filter.off.add(SORT_CHANCE);
         float top = Ui.HEADING_H + 4f;
-        top += UiFilter.bar(p, 0f, top, filter, "Name or trait", "Filters and sort order of this list.", PARENT_TOGGLES, null, PARENT_KEYS, panel::filtered, panel::refresh)
+        top += UiFilter.bar(p, 0f, top, filter, "Name or trait", null, PARENT_TOGGLES, null, PARENT_KEYS, panel::filtered, panel::refresh)
                 + UiFilter.BELOW;
 
         List<Pet> all = candidates(plan.typeID);
@@ -1121,7 +1121,7 @@ public class PetPlanner {
         Ui.heading(p, 0f, 0f, w, "Copy a pet", "to " + plan.name);
         UiFilter.State filter = view.planCopies;
         float top = Ui.HEADING_H + 4f;
-        top += UiFilter.bar(p, 0f, top, filter, "Name or trait", "Filters and sort order of this list.", COPY_TOGGLES, null, COPY_KEYS, panel::filtered, panel::refresh)
+        top += UiFilter.bar(p, 0f, top, filter, "Name or trait", null, COPY_TOGGLES, null, COPY_KEYS, panel::filtered, panel::refresh)
                 + UiFilter.BELOW;
 
         List<Pet> all = new ArrayList<>();
