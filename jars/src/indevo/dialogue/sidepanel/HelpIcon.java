@@ -9,6 +9,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.campaign.BaseCustomUIPanelPlugin;
 import com.fs.starfarer.api.input.InputEventAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.utils.ui.UiDraw;
 
 import java.awt.Color;
@@ -57,9 +58,18 @@ public class HelpIcon extends BaseCustomUIPanelPlugin {
             @Override
             public void createTooltip(TooltipMakerAPI tooltip, boolean expanded, Object tooltipParam) {
                 content.create(tooltip);
+                Achievements.addKey(Achievements.LUDDS_SAKE, panelKey(content));
             }
         }, TooltipMakerAPI.TooltipLocation.BELOW);
         return element;
+    }
+
+    // the content is a lambda or method reference, its class name starts with the panel class that made it
+    private static String panelKey(Content content) {
+        String name = content.getClass().getName();
+        int cut = name.indexOf('$');
+        if (cut > 0) name = name.substring(0, cut);
+        return name.substring(name.lastIndexOf('.') + 1);
     }
 
     @Override

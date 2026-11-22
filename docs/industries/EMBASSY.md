@@ -100,6 +100,7 @@ Tracker daily order (`AmbassadorItemTrackerPlugin.onNewDay()`, `:52`): `findAmba
 - With Nexerelin enabled, relation changes go through `DiplomacyManager.adjustRelations()` (`AmbassadorPersonManager.java:111`).
 - Users outside the package: `RequisitionCenter`, `RequisitionsCenterSubmarketPlugin`, `JuicyRumorsSpecial`, `IndEvo_SalvageSpecialAssigner` call `getAmbassador`, `hasAmbassador`, `getListOfIncativeFactions` or `adjustRelationship`. Keep these signatures.
 - A small RAT settlement version of this industry exists (Consulate: +3 a month up to 25 through `adjustRelationship`, no ambassador); see [RAT settlements](RAT_SETTLEMENTS.md).
+- `AmbassadorItemTrackerPlugin` unlocks an achievement on each murder consequence path ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

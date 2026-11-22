@@ -69,6 +69,7 @@ Repaired menu (`displayDefaultOptions`, `:110-152`): cargo areas (`FireBest IndE
 
 - The station `Random` lives in entity memory and is saved, so rolls are deterministic per station and save history.
 - Courier deliveries: `ShippingTargetHelper` lists repaired stations (`indevo/industries/courierport/ShippingTargetHelper.java:56-57`), `ShippingContract` resolves the market by tag (`ShippingContract.java:93`). Renaming the tag or `HAS_RESTORED_STATION` breaks the [Courier Port](../industries/COURIER_PORT.md).
+- `cycleMember` collects the fed base hull ids for an achievement ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

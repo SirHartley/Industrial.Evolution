@@ -24,6 +24,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         public float duration;
         public LocationAPI loc;
         public FactionAPI faction;
+        public boolean remote;
 
         public MissileSubmunitionParams(LocationAPI loc, FactionAPI faction, Vector2f origin, Vector2f target, float duration) {
             this.origin = origin;
@@ -56,6 +57,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     public Vector2f origin;
     public Vector2f target;
     public float duration;
+    public boolean remote;
     public float cadence;
     public float startAngle;
 
@@ -79,6 +81,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
             this.origin = ((MissileSubmunitionParams) pluginParams).origin;
             this.target = ((MissileSubmunitionParams) pluginParams).target;
             this.duration = ((MissileSubmunitionParams) pluginParams).duration;
+            this.remote = ((MissileSubmunitionParams) pluginParams).remote;
 
             startAngle = Misc.getAngleInDegrees(origin, target);
             cadence = MathUtils.getRandomNumberInRange(SINE_WAVE_MAX_VARIANCE * 0.5f, SINE_WAVE_MAX_VARIANCE);
@@ -207,6 +210,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
                 Setting.ARTILLERY_MISSILE_DURATION.value(),
                 Setting.ARTILLERY_MISSILE_EXPLOSION_RADIUS.value());
 
+        p.remote = remote;
         ECMExplosion.spawn(p);
     }
 

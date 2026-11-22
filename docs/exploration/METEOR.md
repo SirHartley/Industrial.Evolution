@@ -161,6 +161,7 @@ Use `;` in place of `:` on Windows. It prints `Rogue asteroids: N checks passed`
 - Java 17 features (switch expressions, `instanceof` patterns) are used; the project language level is `JDK_17` (`.idea/misc.xml:6`).
 - Other mods break a meteor by setting `MissileMemFlags.MEM_CAUGHT_BY_MISSILE` (`$missile_bonked`, a `Vector2f` hit point) in its memory. The next `MeteorEntity.advance` collides it with a token at that point, as for a missile: fragments, impact sound, treasure drop, no fleet damage. They find meteors by `METEOR_TAG`. Catch.Release's harpoon uses both as strings, so keep the key, the value type and the tag value. See [Compatibility](../core/COMPATIBILITY.md).
 - Couplings: `MissileMemFlags` ([Consumables](../items/CONSUMABLES.md)); `CircularArc`, `TrigHelper`, `MiscIE`, `NebulaParticle` ([Utils](../core/UTILS.md)); `Ids.LAB_ENTITY`, `Ids.ARSENAL_ENTITY`, `Ids.ABANDONED_PETSHOP_ENTITY` loot stations ([Stations](STATIONS.md)); vanilla `AbyssalRogueStellarObjectEPEC.PLANETOID_TYPES` for planetoid types.
+- `MeteorImpact` on the player fleet unlocks an achievement ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

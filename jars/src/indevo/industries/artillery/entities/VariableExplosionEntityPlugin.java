@@ -2,12 +2,14 @@ package indevo.industries.artillery.entities;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
+import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -25,6 +27,9 @@ public class VariableExplosionEntityPlugin extends ExplosionEntityPlugin {
         public float baseDamageMult;
         public String sound;
         public boolean withBlastwave;
+        // set for artillery shells, null for every other explosion
+        public String artilleryType;
+        public boolean remote;
 
         public VariableExplosionParams(String sound, boolean withBlastwave, float damageMult, Color color, LocationAPI where, Vector2f loc, float radius, float durationMult) {
             super(color, where, loc, radius, durationMult);
@@ -108,6 +113,14 @@ public class VariableExplosionEntityPlugin extends ExplosionEntityPlugin {
     public void advance(float amount) {
         super.advance(amount);
         elapsed += amount;
+    }
+
+    @Override
+    public void applyDamageToFleet(CampaignFleetAPI fleet, float damageMult) {
+        VariableExplosionParams p = (VariableExplosionParams) params;
+        if (fleet.isPlayerFleet() && p.artilleryType != null) Achievements.artilleryHit(p.artilleryType, p.remote);
+
+        super.applyDamageToFleet(fleet, damageMult);
     }
 
     @Override

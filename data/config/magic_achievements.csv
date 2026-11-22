@@ -1,0 +1,29 @@
+id,name,description,tooltip,script,image,spoilerLevel,rarity
+IndEvo_ach_youMonster,You Monster,Scuttle a ship while its pet was still aboard and no other ship could take it.,,indevo.achievements.plugins.IEAchievement,graphics/pets/swearingcrab.png,Hidden,Uncommon
+IndEvo_ach_fullLife,A Full Life,A hamster of yours died of old age. It was a month old.,,indevo.achievements.plugins.IEAchievement,graphics/pets/hampter.png,Spoiler,Common
+IndEvo_ach_immortalHampter,The Immortal Hampter,Keep one hamster alive for 5 cycles.,,indevo.achievements.plugins.IEAchievement,graphics/pets/hampter.png,Visible,Epic
+IndEvo_ach_warship,This Is a Warship,Have a pet on 10 ships of your fleet at once.,,indevo.achievements.plugins.IEAchievement,graphics/pets/gravcat.png,Visible,Uncommon
+IndEvo_ach_priorities,Priorities,A pet took the escape pod when its ship went down. The crew was told to wait for the next one.,,indevo.achievements.plugins.IEAchievement,graphics/pets/phasecat.png,Spoiler,Uncommon
+IndEvo_ach_goodCaptain,Who's a Good Captain,Win a battle with a ship commanded by its pet.,,indevo.achievements.plugins.IEAchievement,graphics/pets/doge.png,Spoiler,Rare
+IndEvo_ach_oneJob,You Had One Job,Let a pet starve.,,indevo.achievements.plugins.IEAchievement,graphics/icons/cargo/petfood.png,Hidden,Common
+IndEvo_ach_minesweeper,Minesweeper,Find 25 mines by flying into them.,,indevo.achievements.plugins.IEAchievement,graphics/icons/markets/mineCondition.png,Visible,Uncommon
+IndEvo_ach_collectThemAll,Collect Them All,"Get hit by a railgun, a mortar and a missile battery.",,indevo.achievements.plugins.IETargetListAchievement,graphics/icons/markets/artyCondition.png,Visible,Uncommon
+IndEvo_ach_dangerClose,Danger Close,Get hit by an artillery strike you called yourself.,,indevo.achievements.plugins.IEAchievement,graphics/icons/cargo/IndEvo_consumable_artillery_remote.png,Hidden,Rare
+IndEvo_ach_dinosaur,Dinosaur,Get hit by a meteor. It worked on the dinosaurs too.,,indevo.achievements.plugins.IEAchievement,graphics/icons/intel/indEvo_roids.png,Visible,Common
+IndEvo_ach_noDrillingCrew,No Drilling Crew Needed,Blow up a meteor with a missile.,,indevo.achievements.plugins.IEAchievement,graphics/icons/cargo/IndEvo_consumable_missile_base.png,Visible,Uncommon
+IndEvo_ach_visibilityZero,Visibility Zero,Get ambushed by a fleet hiding in fog.,,indevo.achievements.plugins.IEAchievement,,Spoiler,Uncommon
+IndEvo_ach_safetyThird,Safety Third,Dismantle a warning beacon. The next captain will find out the old way.,,indevo.achievements.plugins.IEAchievement,graphics/icons/intel/beacon_custom.png,Visible,Common
+IndEvo_ach_worldPeace,World Peace,Your Privateer Base ran out of enemies to raid.,,indevo.achievements.plugins.IEAchievement,graphics/icons/markets/pirate_subpop.png,Spoiler,Rare
+IndEvo_ach_fengShui,Feng Shui,Move a planet with the Rift Generator. The system looks better this way.,,indevo.achievements.plugins.IEAchievement,,Visible,Rare
+IndEvo_ach_itsAFeature,It's a Feature,Print a hull with heavy print defects.,,indevo.achievements.plugins.IEAchievement,graphics/hullmods/printing_defects.png,Visible,Common
+IndEvo_ach_burnout,Burnout,Work a Variable Production Chip to death in a Commodity Forge.,,indevo.achievements.plugins.IEAchievement,graphics/icons/cargo/VPC_empty.png,Visible,Common
+IndEvo_ach_museum,It Belongs in a Museum,Put a ship with 5 or more D-mods on display in a Museum. Visitors are asked not to lean on it.,,indevo.achievements.plugins.IEAchievement,graphics/icons/markets/paradeCondition.png,Visible,Uncommon
+IndEvo_ach_freeShipping,Free Shipping,Pay a courier more than the cargo is worth.,,indevo.achievements.plugins.IEAchievement,,Spoiler,Uncommon
+IndEvo_ach_touristTrap,Tourist Trap,Build every World Symbol.,,indevo.achievements.plugins.IETargetListAchievement,,Visible,Epic
+IndEvo_ach_identityCrisis,Identity Crisis,Train one officer through all five personalities at the Academy.,,indevo.achievements.plugins.IEAchievement,,Visible,Rare
+IndEvo_ach_flipFlop,Flip Flop,Repeal an Edict early and pay for it in unrest.,,indevo.achievements.plugins.IEAchievement,graphics/icons/markets/edict.png,Visible,Common
+IndEvo_ach_diplomaticBaggage,Diplomatic Baggage,Sell or jettison an ambassador you were supposed to deliver.,,indevo.achievements.plugins.IEAchievement,,Hidden,Uncommon
+IndEvo_ach_refundPolicy,Refund Policy,The Automated Shipyard handed back the same hull you fed it.,,indevo.achievements.plugins.IEAchievement,graphics/icons/intel/IndEvo_gachastation.png,Hidden,Legendary
+IndEvo_ach_relicHoard,Might Need It Later,"Sit on 2,000 Relic Components.",,indevo.achievements.plugins.RelicHoardAchievement,graphics/icons/cargo/rare_parts.png,Visible,Uncommon
+IndEvo_ach_luddsSake,For Ludd's Sake,Open the ? help in 10 different panels. Somebody does read them.,,indevo.achievements.plugins.IEAchievement,,Visible,Rare
+IndEvo_ach_delegation,Delegation,Lose a whole detachment while you were somewhere else.,,indevo.achievements.plugins.IEAchievement,graphics/icons/abilities/splinterFleet_icon.png,Hidden,Rare

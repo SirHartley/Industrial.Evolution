@@ -7,6 +7,7 @@ import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.items.consumables.fleet.MissileMemFlags;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
@@ -113,8 +114,10 @@ public abstract class BaseMissileEntityPlugin extends BaseCustomEntityPlugin {
 
     //should be an interface from architecture standpoint but I kinda don't care, have fun future me
     public void setSurroundingMeteorsDestroyed(){
-        for (SectorEntityToken t : MiscIE.getEntitiesInRange(entity, entity.getRadius() + METEOR_DESTRUCTION_RANGE_AROUND_TRAVEL_PATH))
+        for (SectorEntityToken t : MiscIE.getEntitiesInRange(entity, entity.getRadius() + METEOR_DESTRUCTION_RANGE_AROUND_TRAVEL_PATH)) {
+            Achievements.missileCaught(source, t);
             t.getMemoryWithoutUpdate().set(MissileMemFlags.MEM_CAUGHT_BY_MISSILE, new Vector2f(entity.getLocation()), 1f);
+        }
     }
 
     public void advanceProjectile(float amount) {

@@ -90,6 +90,7 @@ Monthly chain: `Museum.reportEconomyTick(iterIndex == 5) -> store lastParadeChec
 - Profile state, presets and the active fleet reference persist as fields on the industry. `lastParadeCheck` (long) is saved too; 0 reads as no check yet.
 - Launch checks have one home, `ParadeFleetProfile.getLaunchBlocker()`. The spawn path, the panel and the tooltip all use it; add a new spawn condition there.
 - A small RAT settlement version of this industry exists (Exhibition Hangar: the static `getShipValueStatistics`, `getTotalShipValue` and `getCreditsForValue` at half rate); see [RAT settlements](RAT_SETTLEMENTS.md).
+- `AchievementCampaignListener` reads ship sales to the museum submarket ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.misc.WarningBeaconIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.BaseCommandPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ public class IndEvo_RemoveCurrentInteractionTarget extends BaseCommandPlugin {
                 for (IntelInfoPlugin p : new ArrayList<>(Global.getSector().getIntelManager().getIntel())){
                     if (p instanceof WarningBeaconIntel && p.getMapLocation(null) == t) Global.getSector().getIntelManager().removeIntel(p);
                 }
+
+                Achievements.complete(Achievements.SAFETY_THIRD);
             }
 
             Misc.fadeAndExpire(t, 1f);

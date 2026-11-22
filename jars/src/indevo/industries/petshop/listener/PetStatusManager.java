@@ -24,6 +24,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.abilities.splitfleet.FleetUtils;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
@@ -615,7 +616,10 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         Pet pet = getPet(member.getVariant());
         if (pet == null || pet.isDead()) return;
 
-        if (!handOver(pet, Collections.singletonList(member))) reportPetDied(pet, PetDeathCause.UNKNOWN);
+        if (handOver(pet, Collections.singletonList(member))) return;
+
+        reportPetDied(pet, PetDeathCause.UNKNOWN);
+        Achievements.complete(Achievements.YOU_MONSTER);
     }
 
     public boolean feed(Pet pet) {
@@ -717,10 +721,12 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 else if (pet.storage != null) home = "formerly living at the " + pet.storage.getMarket().getName() + " " + pet.storage.getCurrentName().toLowerCase();
                 else home = "formerly of the menagerie";
                 message("%s the " + pet.getData().species + ", " + home + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                if (pet.getData().isHamster()) Achievements.complete(Achievements.FULL_LIFE);
 
                 break;
             case STARVED:
                 message("%s the " + pet.getData().species + " has %s on the " + petLocation, Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                Achievements.complete(Achievements.ONE_JOB);
                 break;
             case SOLD:
                 message("%s the " + pet.getData().species + " was sold with the " + petLocation + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
@@ -927,6 +933,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         pet.place(to, null);
         pet.shellShock();
         pet.earn(PetTitle.SURVIVOR);
+        Achievements.complete(Achievements.PRIORITIES);
 
         String start = "%s the " + pet.getData().species + " escaped the destroyed " + ship + " in an escape pod";
         if (to == null) message(start + " and waits in the %s.", Misc.getTextColor(), pet.name, "menagerie", Misc.getHighlightColor(), Misc.getHighlightColor());
@@ -939,6 +946,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
 
         for (EngagementResultForFleetAPI side : Arrays.asList(result.getWinnerResult(), result.getLoserResult())) {
             if (side == null || !side.isPlayer()) continue;
+
+            if (side == result.getWinnerResult()) checkPetCaptainWin(side.getDeployed());
 
             List<FleetMemberAPI> fought = new ArrayList<>(side.getDeployed());
             fought.addAll(side.getRetreated());
@@ -960,6 +969,16 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             }
 
             sayMoment(PetDataRepo.EVENT_FIGHT, speakers);
+        }
+    }
+
+    private void checkPetCaptainWin(List<FleetMemberAPI> deployed) {
+        for (FleetMemberAPI member : deployed) {
+            Pet pet = getPet(member.getVariant());
+            if (pet != null && !pet.isDead() && pet.captain != null && member.getCaptain() == pet.captain) {
+                Achievements.complete(Achievements.GOOD_CAPTAIN);
+                return;
+            }
         }
     }
 

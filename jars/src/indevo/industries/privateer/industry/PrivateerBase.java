@@ -19,6 +19,7 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.compatibility.AotdManager;
@@ -168,6 +169,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "notification"));
                 intel.setSound(BaseIntelPlugin.getSoundStandardPosting());
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, this.market);
+                Achievements.complete(Achievements.WORLD_PEACE);
             }
         }
     }

@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.ids.Ids;
 import indevo.industries.derelicts.RiftRelocator;
 import indevo.industries.derelicts.industry.RiftGenerator;
@@ -83,6 +84,7 @@ public class RiftJumpScript implements EveryFrameScript {
         }
 
         if (market.getIndustry(Ids.RIFTGEN) instanceof RiftGenerator gen) gen.onJumpDone();
+        if (market.isPlayerOwned()) Achievements.complete(Achievements.FENG_SHUI);
     }
 
     @Override

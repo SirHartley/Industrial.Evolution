@@ -12,6 +12,7 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.ids.ItemIds;
 import indevo.industries.senate.EdictEffect;
 import indevo.industries.senate.EdictHelper;
@@ -363,7 +364,11 @@ class EdictDetail {
         return new UiConfirm("Remove", info -> {
             if (unrest > 0) info.addPara("Remove %s from %s? This causes %s.", 0f, new Color[]{hl, hl, Misc.getNegativeHighlightColor()}, edictName, market.getName(), unrest + " unrest");
             else info.addPara("Remove %s from %s? There is %s.", 0f, new Color[]{hl, hl, Misc.getPositiveHighlightColor()}, edictName, market.getName(), "no penalty");
-        }, active::removeWithPenalty);
+        }, () -> {
+            boolean early = active instanceof BaseEdict edict && !edict.minimumRuntimePassed();
+            active.removeWithPenalty();
+            if (early) Achievements.complete(Achievements.FLIP_FLOP);
+        });
     }
 
     private UiConfirm createBribeConfirm(EdictAPI active, MarketConditionAPI condition) {

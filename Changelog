@@ -13,6 +13,7 @@ Added - Settings descriptions updated
 Added - Express Delivery: halve the delivery time of custom production orders with Relic Components
 Added - Shuttle Traffic: small craft fly lanes between the planets and stations of colonized systems, with a flying style per faction, rush hours and convoys. Among them patrols, miners, traders, smugglers, pilgrims, settlers, couriers, Museum parades, recovery tugs, raid dropships and escape pods. Craft flee hostile fleets, keep clear of meteor swarms, stall in interdiction pulses and blow up in explosions or under a fleet on sustained burn. Pather cells and hidden pirate bases show by their traffic (visual only, Quick Settings).
 Added - Celestial Orbits: no orbit lines for mines, meteors, projectiles and other short lived objects
+Added - 28 MagicLib achievements, most of them dumb
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
 Adjusted - Cut redundant UI text and tightened service and panel descriptions

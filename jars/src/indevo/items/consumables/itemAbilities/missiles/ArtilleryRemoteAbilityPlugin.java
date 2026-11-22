@@ -20,6 +20,11 @@ import java.awt.*;
 public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPlugin {
 
     public static final String HAS_BEEN_USED_KEY = "$IndEvo_ArtilleryRemote_hasBeenUsed";
+    public static final String TARGET_KEY = "$IndEvo_ArtilleryRemote_target";
+
+    public static boolean isRemoteTarget(SectorEntityToken target) {
+        return target != null && target.getMemoryWithoutUpdate().getBoolean(TARGET_KEY);
+    }
 
     @Override
     public SkillshotRenderer createReticule() {
@@ -39,6 +44,7 @@ public class ArtilleryRemoteAbilityPlugin extends BaseMissileConsumableAbilityPl
                 CampaignAttackScript script = ((ArtilleryTerrain) plugin).getScript(((ArtilleryTerrain) plugin).getRelatedEntity());
                 if (plugin.containsEntity(entity) && !script.disabled) {
                     SectorEntityToken t = loc.createToken(target);
+                    t.getMemoryWithoutUpdate().set(TARGET_KEY, true);
                     loc.addEntity(t);
                     Misc.fadeAndExpire(t, 1f);
                     script.forceTarget(t, 0.1f);

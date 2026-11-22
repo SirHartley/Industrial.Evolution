@@ -104,6 +104,7 @@ If the market's government is `HelldiversSubIndustry` (`GovernmentCondition.getG
 - `RaidIntel` comes from `api/impl/campaign/intel/raid/RaidIntel.java`; the base is its `RaidDelegate`. `currentIntel` is saved; only one raid per base runs at a time.
 - The condition is added but never removed by IE; it stays after the base is gone (only `decivRemove` clears it). Inferred: intended as a lasting penalty.
 - Dev mode (`Global.getSettings().isDevMode()`) starts a raid and runs `debugOutputs()` on every economy tick (`:139`).
+- Running out of raid targets unlocks an achievement ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

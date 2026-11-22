@@ -15,6 +15,8 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.industries.artillery.scripts.DroneNetScript;
 import indevo.utils.helper.MiscIE;
@@ -45,12 +47,14 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
     public float angle;
     public float dur;
     public float rad;
+    public boolean remote;
 
     public static class ECMExplosionParams {
         public LocationAPI loc;
         public Vector2f pos;
         public float dur;
         public float rad;
+        public boolean remote;
 
         public ECMExplosionParams(LocationAPI loc, Vector2f pos, float dur, float rad) {
             this.loc = loc;
@@ -71,6 +75,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
         if (pluginParams instanceof ECMExplosionParams) {
             this.dur = ((ECMExplosionParams) pluginParams).dur;
             this.rad = ((ECMExplosionParams) pluginParams).rad;
+            this.remote = ((ECMExplosionParams) pluginParams).remote;
 
             angle = MathUtils.getRandomNumberInRange(0, 360);
             entity.setLocation(((ECMExplosionParams) pluginParams).pos.x, ((ECMExplosionParams) pluginParams).pos.y);
@@ -116,6 +121,7 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
             DroneNetScript.reportBlast(entity.getContainingLocation(), entity.getLocation(), rad);
 
             for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, rad)) {
+                if (f.isPlayerFleet()) Achievements.artilleryHit(ArtilleryStationEntityPlugin.TYPE_MISSILE, remote);
                 interdictTarget(f);
             }
         }

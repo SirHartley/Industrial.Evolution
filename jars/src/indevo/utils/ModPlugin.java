@@ -28,6 +28,7 @@ import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.abilities.splitfleet.listeners.DetachmentPayroll;
+import indevo.achievements.listeners.AchievementCampaignListener;
 import indevo.ambience.shuttletraffic.renderers.ShuttleTrafficRenderer;
 import indevo.exploration.meteor.renderers.RogueRockDustRenderer;
 import indevo.config.PlayerSettings;
@@ -496,6 +497,7 @@ public class ModPlugin extends BaseModPlugin {
         RogueRockDustRenderer.register();
         FogWeatherManager.register();
         ShuttleTrafficRenderer.register();
+        AchievementCampaignListener.register();
         RemoveIndustryOptionWarningProvider.register();
         WarehouseAddSubmarketOptionProvider.register();
         WarehouseRemoveSubmarketOptionProvider.register();
