@@ -219,6 +219,7 @@ Fixed - Managed Democracy size cap no longer stays after a government change
 Fixed - Forge World stability now follows metals and transplutonics, not luxuries
 Fixed - Rural Polity bonuses now end when leaving it or closing the free port
 Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
+Fixed - Forge World ships now keep their d-mods and no longer add d-mods to other ships of the same type
 
 Specialized Industries
 Adjusted - Mining and Refining keep their own industry when specialized

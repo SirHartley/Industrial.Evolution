@@ -275,13 +275,14 @@ x can only be built on very hot worlds
         variant = variant.clone();
         variant.setSource(VariantSource.REFIT);
         variant.setOriginalVariant(null);
+        member.setVariant(variant, false, true);
 
         float quality = market.getShipQualityFactor();
         float averageDmods = DefaultFleetInflater.getAverageDmodsForQuality(quality);
-        int addDmods = DefaultFleetInflater.getNumDModsToAdd(member.getVariant(), averageDmods, random);
+        int addDmods = DefaultFleetInflater.getNumDModsToAdd(variant, averageDmods, random);
 
         if (addDmods > 0) {
-            DModManager.setDHull(member.getVariant());
+            DModManager.setDHull(variant);
             DModManager.addDMods(member, true, addDmods, random);
         }
 
