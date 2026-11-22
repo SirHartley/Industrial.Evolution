@@ -12,6 +12,7 @@ import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.changeling.dialogue.EffectLines;
 import indevo.industries.changeling.industry.mining.MiningSpecializations;
 import indevo.industries.changeling.industry.refining.RefiningSpecializations;
 
@@ -119,16 +120,16 @@ public class Specialization implements ChangelingTarget {
         float opad = 10f;
 
         tooltip.addSectionHeading(heading, Alignment.MID, opad);
-        if (vanillaId.equals(ind.getSpec().getId())) {
-            tooltip.addPara(text, opad);
-            return;
+        if (vanillaId.equals(ind.getSpec().getId())) tooltip.addPara(text, opad);
+        else {
+            SubIndustry.ensureTexture(data.imageName);
+            TooltipMakerAPI side = tooltip.beginImageWithText(data.imageName, IMAGE_HEIGHT, width, false);
+            side.addPara(data.name, Misc.getHighlightColor(), 0f);
+            side.addPara(text, 4f);
+            tooltip.addImageWithText(opad);
         }
 
-        SubIndustry.ensureTexture(data.imageName);
-        TooltipMakerAPI side = tooltip.beginImageWithText(data.imageName, IMAGE_HEIGHT, width, false);
-        side.addPara(data.name, Misc.getHighlightColor(), 0f);
-        side.addPara(text, 4f);
-        tooltip.addImageWithText(opad);
+        EffectLines.add(tooltip, width - 10f, data.effects, opad);
     }
 
     public static Specialization getFor(Industry ind) {
