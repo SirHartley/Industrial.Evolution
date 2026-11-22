@@ -83,7 +83,7 @@ Theory of Toolbox (`aotd_theory_of_toolbox`), Vaults of Knowledge (`aotd_vok`), 
 - IE ids another mod reads (the meteor tag, `$missile_bonked` and `$sirhartley_skillshotActive` for Catch.Release) work the same way in reverse: renaming one on the IE side breaks the other mod silently.
 - `isModEnabled` compares ids with `String.equals`, so the check is case sensitive (knowledge skill, obf `launcher/ModManager.java:196`).
 - Compile time: `IndEvo.iml` libraries `ExerelinCore`, `RandomAssortmentofThings`, `SHI` (`IndEvo.iml:28`; inferred: Shadowyards Heavy Industries, the only source of the imported `data.campaign.econ.industries.MS_*` classes) and `lw_Console` must be present to build the jar.
-- Non API engine classes are used in a few places (for example `com.fs.starfarer.combat.CombatEngine`, `com.fs.graphics.particle.*` in `data/scripts/weapons/IndEvo_missileProjectileOnFireEffect.java:3`, `:4`, `:10`; `com.fs.starfarer.campaign.BaseCampaignEntity` in `indevo/console/PrintModData.java:8`). These are game version fragile, not mod fragile. See [Utils](UTILS.md) for the reflection helpers.
+- Non API engine classes are used in a few places, listed in [Architecture](../ARCHITECTURE.md#build). These are game version fragile, not mod fragile. See [Utils](UTILS.md) for the reflection helpers.
 
 ## Maintenance
 

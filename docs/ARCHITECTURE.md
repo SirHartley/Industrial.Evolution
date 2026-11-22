@@ -216,7 +216,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 - Java only, no Kotlin ([CLAUDE.md](../CLAUDE.md#code-layout)).
 - `native-smoke/`: test-only probes, the smoke test wrapper and the scripted live checks (`native-smoke/live/`). Never compiled by the builder or shipped. [SMOKE_TESTS.md](SMOKE_TESTS.md).
 - `IndEvo.iml` `excludeFolder` entries that exist: `WIP/converters`, `exploration/WIP`, `exploration/distress`, `exploration/salvage/specials/WIP`, `items/consumables/itemAbilities/WIP`, `industries/academy/rules/WIP`, `industries/derelicts/industry/WIP`, `industries/warehouses/plugin/wi`. Excluded code does not compile and must not be referenced. The release builder reads the same entries, so change exclusions in `IndEvo.iml` only.
-- IE imports obfuscated game classes in a few places (`com.fs.starfarer.campaign`, `com.fs.starfarer.combat.CombatEngine`, `com.fs.graphics` and `com.fs.state.AppDriver`). Those break on game updates; check them first after one.
+- IE imports a few non API game classes. `CircularOrbitPointDown` (`RiftRelocator`), `FleetMemberStatus` (`NanitesAbilityPlugin`), `DynamicParticleGroup` and `SmoothParticle` (`data/scripts/weapons/IndEvo_missileProjectileOnFireEffect.java`) are `DoNotObfuscate` in the game jar. `com.fs.starfarer.combat.CombatEngine` (smoke particles, same file) and `ModPickerDialogV3` (relic build-in patches, `indevo/economy/patches/`) are not, and have no API equivalent. Check them first after a game update; use the API where one exists (clock, terrain, memory and script lists all have one).
 - `jars/src/data/scripts` holds combat classes in the vanilla `data.scripts` package ([COMBAT](core/COMBAT.md)).
 
 ## Contracts

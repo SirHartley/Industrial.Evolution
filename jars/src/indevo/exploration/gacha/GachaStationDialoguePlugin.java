@@ -24,7 +24,6 @@ import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import com.fs.starfarer.campaign.rules.Memory;
 import indevo.config.Setting;
 import indevo.exploration.gacha.intel.GachaStationIntel;
 import indevo.ids.ItemIds;
@@ -219,7 +218,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 break;
             case CARGO:
                 HashMap<String, MemoryAPI> map = new HashMap<>();
-                map.put(MemKeys.LOCAL, new Memory());
+                map.put(MemKeys.LOCAL, Global.getFactory().createMemory());
                 FireBest.fire(null, dialog,map, "IndEvo_GachaStationCargoOpen");
                 break;
         }

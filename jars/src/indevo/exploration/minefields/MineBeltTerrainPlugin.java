@@ -18,7 +18,6 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
-import com.fs.starfarer.campaign.BaseLocation;
 import indevo.config.Setting;
 import indevo.utils.ModPlugin;
 import org.apache.log4j.Logger;
@@ -66,7 +65,7 @@ public class MineBeltTerrainPlugin extends BaseRingTerrain implements AsteroidSo
                                                 float orbitRadius, float width, float minOrbitDays,
                                                 float maxOrbitDays, String optionalName) {
 
-        CampaignTerrainAPI mineBelt = ((BaseLocation) focus.getContainingLocation()).addTerrain("IndEvo_mine_belt", new MineBeltTerrainPlugin.MineBeltParams(
+        CampaignTerrainAPI mineBelt = (CampaignTerrainAPI) focus.getContainingLocation().addTerrain("IndEvo_mine_belt", new MineBeltTerrainPlugin.MineBeltParams(
                 (int) Math.round(orbitRadius / 3f), //this specifies the mine amount
                 orbitRadius,
                 width,

@@ -18,7 +18,7 @@ Nine commands in `indevo/console/`, listed in `data/console/commands.csv`. Conso
 | `indevo/console/ClearDisruption.java` | `indevo_clearDisruption`: `setDisrupted(0)` on every disrupted industry of the current market. Market only |
 | `indevo/console/SpawnRuins.java` | `indevo_spawnRuins`: if no planet has `Ids.COND_RUINS`, rolls industrial ruins on ruined planets in remnant themed systems (chance 0.2, 0.5 suppressed, 0.8 resurgent; second planet chance / 3); on fully surveyed planets also sets the upgrade spec through `RuinsManager.setUpgradeSpec`. See [Derelicts](../industries/DERELICTS.md) |
 | `indevo/console/PrintRaidTimeout.java` | `indevo_printRaidTimeout`: prints the player and AI raid timeout maps of `RaidTimeout`. See [Utils](UTILS.md#timers), [Privateer](../industries/PRIVATEER.md) |
-| `indevo/console/PrintModData.java` | `indevo_printModData`: counts IE custom entities, scripts (sector, location, entity) and listeners by class name containing `indevo` or `splinterfleet`, plus ambassador count (`AmbassadorItemHelper.POST_AMBASSADOR`). Debug aid for script and listener leaks |
+| `indevo/console/PrintModData.java` | `indevo_printModData`: counts IE custom entities, scripts (sector, each location once, each entity) and listeners by class name containing `indevo` or `splinterfleet`, plus ambassador count (`AmbassadorItemHelper.POST_AMBASSADOR`). Debug aid for script and listener leaks |
 | `indevo/console/SpawnRogue.java` | `indevo_spawnRogue <shape> [asteroid\|ice\|irradiated] [treasure]`: star systems only; spawns one rogue asteroid formation aimed at the player's course through `RogueAsteroidSpawner.spawn`, ignoring the chance and the timeouts and setting none. Shapes: `scatter`, `cluster`, `teardrop`, `wall`, `chevron`, `pair`, `escort`; `drizzle` starts a drizzle (`RogueDrizzleSpawner.start`) instead and refuses `treasure`. No type rolls one by the shower weights; no `treasure` means none. Fails with a message when no start out of view exists. See [Meteor swarms](../exploration/METEOR.md#rogue-asteroids) |
 | `indevo/console/SpawnFog.java` | `indevo_spawnFog [spell\|bank] [ambush] [cache]`: star systems only, refuses a system that already has fog. Calls `FogWeatherManager.spawn` (spell by default); `ambush` forces lurker fleets, `cache` forces the hidden cache of a bank. Ignores `IndEvo_fog_enabled` and the distance and system rules. See [Fog](../exploration/FOG.md) |
 | `indevo/console/PetCommand.java` | `indevo_pet list`: every living pet with id, place, mood, hearts, favourite and open want. `indevo_pet give <species> [name]`: a new pet on a free ship (`PetStatusManager.getFreeShip`), else in the menagerie. `indevo_pet age <pet> <days>`: adds days of age. `indevo_pet hearts <pet> <0-5>`: sets `bondDays` to that heart's threshold. `indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>`: stars the pet and opens that want now, past the fleet gap and the cooldown; an open want of another pet is dropped. The pet must be with the player fleet; Treat needs a favourite food. `indevo_pet trait <pet> <trait> <grade>`: sets a trait of `pet_traits.csv` (id with or without `IndEvo_pt_`) to that grade and reads it, 0 removes it. `indevo_pet scan <pet>`: reads every trait and flaw (`Pet.scan`), no cost. `indevo_pet look <pet> <look>`: sets the look to a `pet_morphs.csv` id of its species, `wild` for Wild type. `indevo_pet title <pet> <title>`: gives a `PetTitle` (veteran, navigator, old_timer, survivor, beloved, pampered, treasure_hunter, admiral, globetrotter, stargazer), `clear` removes all. The pet is named by name or id. Campaign only. See [Pets](../industries/PETS.md) |
@@ -34,7 +34,7 @@ Nine commands in `indevo/console/`, listed in `data/console/commands.csv`. Conso
 
 ## Registration and lifecycle
 
-`commands.csv` row -> Console Commands loads class -> `runCommand(args, context)`. Each command checks `context.isInCampaign()` or `context.isInMarket()` first and returns `CommandResult.WRONG_CONTEXT`, except `PrintModData`, which has no context check.
+`commands.csv` row -> Console Commands loads class -> `runCommand(args, context)`. Each command checks `context.isInCampaign()` or `context.isInMarket()` first and returns `CommandResult.WRONG_CONTEXT`.
 
 ## Flow
 
@@ -46,7 +46,6 @@ To add a command:
 
 ## Contracts
 
-- `PrintModData` reads `BaseCampaignEntity.getScripts()` (`indevo/console/PrintModData.java:36`), a non API class from the game jar (`obf/campaign/BaseCampaignEntity.java:98` in the knowledge base). Recheck after a game update.
 - `SetMarketGrowthProgress` accepts only `0`, `1` or `d.dd` (`indevo/console/SetMarketGrowthProgress.java:27`).
 
 ## Known issues and dormant code
