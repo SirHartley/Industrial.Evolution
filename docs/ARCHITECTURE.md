@@ -281,6 +281,7 @@ Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices
 | Academy hire rolls at markets the player does not own | `ext_officersAvailableFraction`, `ext_adminAvailableFraction` | [ACADEMY](industries/ACADEMY.md#hireable-spawns-and-officer-quality) |
 | Detachment crew and marine pay | `ext_crewSalaryMult`, `ext_marineSalaryMult` (with `Misc.computeFleetMemberCrewSalary`) | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | Ship recovery weights in IE special tables (caches, arsenal station, pet center) | `Misc.getDerelictRecoverableFraction()` | [SALVAGE](exploration/SALVAGE.md#assignment) |
+| Credit Stash payout | 30%, fixed (no vanilla key) | [SALVAGE](exploration/SALVAGE.md#specials) |
 
 ### Shared cross-file constraints
 
