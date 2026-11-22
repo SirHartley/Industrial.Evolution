@@ -176,6 +176,7 @@ Header layout of the boards: title at y 0, tabs at `HEADER_Y` 30 with `HEADER_H`
 | `Column.heading(gapBefore)` | A `Ui.HEADING_H` block for `Ui.heading`; `end()` never ends the viewport on it, so a heading is never shown at rest without the block below it |
 | `Column.end()` | Creates the scroll element (its viewport height is fixed at creation, `obf/ui/newui/int.java` `addUIElement`) at the height of the last block that fits whole, adds the blocks, attaches it and restores its offset |
 | `Offsets` | Offsets by list id: `get`, `set`, `reset(id)` (for example on a new selection), `capture()`, `restore()` |
+| `ruleX(columnX)`, `listWidth(listX, columnX)` | Rule between a scroll list and the column that starts at `columnX`: the rows end `RULE_PAD` (12) left of the rule and the column starts 12 right of it, so both pads match while no scrollbar shows. The 10 px `GUTTER` is part of the left pad and the scrollbar keeps 2 px to the rule. A heading above such a list is `Column.width()` wide, like the rows |
 | `wholeRows(h, lead, rowH, gap)` | Tallest height up to `h` that ends on a whole row, so a fixed pitch list never shows half a row at rest; the rest becomes the gap below |
 
 Blocks need their height before they are built, so detail columns compute each block's height first (`wrapHeight`, `guardHeight`, row counts).
