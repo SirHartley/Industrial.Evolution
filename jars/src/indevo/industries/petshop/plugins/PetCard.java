@@ -843,7 +843,8 @@ public class PetCard {
     // the next step, then every heart with how it comes and what it gives: reached in text, the next highlighted, the rest grey
     private static void heartsTip(TooltipMakerAPI t, Pet pet) {
         t.addPara("Hearts", Ui.hl(), 0f);
-        t.addPara(nextHeart(pet), 10f);
+        String next = nextHeart(pet);
+        if (next != null) t.addPara(next, 10f);
 
         int hearts = pet.getHearts();
         float pad = 10f;
@@ -858,9 +859,10 @@ public class PetCard {
         t.addPara("Each heart adds %s to its escape pod chance. On Supplies, hearts grow at %s.", 10f, Ui.gray(), Ui.hl(), pod, share);
     }
 
+    // null at five hearts
     static String nextHeart(Pet pet) {
         int hearts = pet.getHearts();
-        if (hearts >= PetConstants.MAX_HEARTS) return "All five hearts.";
+        if (hearts >= PetConstants.MAX_HEARTS) return null;
         if (hearts >= PetConstants.TIME_HEARTS) {
             if (!pet.favourite) return "Star it as a favourite to pass " + PetConstants.TIME_HEARTS + " hearts.";
             float need = PetConstants.HEART_DAYS[hearts] - pet.bondDays;

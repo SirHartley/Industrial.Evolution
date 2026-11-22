@@ -513,7 +513,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             return;
         }
         if (view.tab == PetsView.TAB_HUSBANDRY) {
-            tooltip.addPara("Pair two adults of one species in a free habitat. The young come when the brood time runs out.", 0f);
+            tooltip.addPara("Pair two adults of one species in a free habitat. The young come when the Incubation time runs out.", 0f);
             tooltip.addPara("Each trait rolls on its own for every young. Hover a dial for what it does.", 10f);
             tooltip.addPara("Chances use known traits only. A gene scan reads the rest.", 10f);
             return;
