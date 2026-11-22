@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.combat.MutableStat;
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
@@ -120,16 +121,22 @@ public class Specialization implements ChangelingTarget {
         float opad = 10f;
 
         tooltip.addSectionHeading(heading, Alignment.MID, opad);
-        if (vanillaId.equals(ind.getSpec().getId())) tooltip.addPara(text, opad);
-        else {
-            SubIndustry.ensureTexture(data.imageName);
-            TooltipMakerAPI side = tooltip.beginImageWithText(data.imageName, IMAGE_HEIGHT, width, false);
-            side.addPara(data.name, Misc.getHighlightColor(), 0f);
-            side.addPara(text, 4f);
-            tooltip.addImageWithText(opad);
+        if (vanillaId.equals(ind.getSpec().getId())) {
+            tooltip.addPara(text, opad);
+            EffectLines.add(tooltip, width - 10f, data.effects, opad);
+            return;
         }
 
-        EffectLines.add(tooltip, width - 10f, data.effects, opad);
+        SubIndustry.ensureTexture(data.imageName);
+        SpriteAPI sprite = Global.getSettings().getSprite(data.imageName);
+        // beginImageWithText leaves width minus image minus 10 px for the text column
+        float sideW = (int) (width - sprite.getWidth() * IMAGE_HEIGHT / sprite.getHeight() - 10f);
+
+        TooltipMakerAPI side = tooltip.beginImageWithText(data.imageName, IMAGE_HEIGHT, width, false);
+        side.addPara(data.name, Misc.getHighlightColor(), 0f);
+        side.addPara(text, 4f);
+        EffectLines.add(side, sideW, data.effects, opad);
+        tooltip.addImageWithText(opad);
     }
 
     public static Specialization getFor(Industry ind) {
