@@ -40,6 +40,8 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     static final float CARD_GAP = 12f;
     static final float CARDS_Y = 46f;
     static final float BUTTONS_GAP = 16f;
+    static final float PLACE_W = 74f;
+    static final float PLACE_PITCH = 80f;
     static final float MIN_W = 330f;
     static final String TITLE = "New young: ";
     static final float OPEN_W = 96f;
@@ -392,7 +394,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
                 GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition))));
         if (pet.sheet.malformed) {
             Ui.text(p, 88f, 84f, CARD_W - 96f, "Malformed", Ui.neg());
-            Ui.tooltip(p, Ui.panel(p, 88f, 84f, CARD_W - 96f, ROW_H), "Malformed", "Its parents were kin: it came with a new flaw, or one more level of a flaw.");
+            Ui.tooltip(p, Ui.panel(p, 88f, 84f, CARD_W - 96f, ROW_H), "Malformed", "Its parents were kin. It has a new flaw, or one more level of a flaw it inherited.");
         }
 
         float ty = addTalents(p, 130f, pet);
@@ -611,8 +613,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     private void addPlace(CustomPanelAPI p, Pet pet) {
         FleetMemberAPI ship = ships.get(pet.id);
         boolean inCargo = cargo.contains(pet.id);
-        float bw = (float) Math.floor((CARD_W - 16f - 8f) / 3f);
-        UiButtons.button(p, 8f, PLACE_Y, bw, PetCard.BUTTON_H, "Storage", ship == null && !inCargo ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+        UiButtons.area(p, 8f, PLACE_Y, PLACE_W, PetCard.BUTTON_H, "Storage", ship == null && !inCargo, true, null, Ui.CENTER, () -> {
             ships.remove(pet.id);
             cargo.remove(pet.id);
             refresh();
@@ -620,20 +621,19 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
 
         List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
         for (Map.Entry<String, FleetMemberAPI> e : ships.entrySet()) if (!e.getKey().equals(pet.id)) free.remove(e.getValue());
-        String reason = pet.getLifetime() <= 0f ? "It lives only where it does not age: Pet storage with a Beta core."
+        String reason = pet.getLifetime() <= 0f ? "It has no life span left. It only survives in Pet storage with a Beta core, where pets do not age."
                 : free.isEmpty() ? "No ship without a pet." : null;
 
-        ButtonAPI shipButton = UiButtons.button(p, 8f + bw + 4f, PLACE_Y, bw, PetCard.BUTTON_H, "Ship...",
-                reason != null ? UiButtons.Kind.OFF : ship != null ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR,
+        ButtonAPI shipButton = UiButtons.area(p, 8f + PLACE_PITCH, PLACE_Y, PLACE_W, PetCard.BUTTON_H, "Ship...", ship != null, reason == null, null, Ui.CENTER,
                 reason != null ? null : () -> pickShip(pet, free));
         if (reason != null) Ui.tooltip(p, shipButton, "Ship...", reason);
 
-        ButtonAPI cargoButton = UiButtons.button(p, 8f + 2f * (bw + 4f), PLACE_Y, bw, PetCard.BUTTON_H, "Cargo", inCargo ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+        ButtonAPI cargoButton = UiButtons.area(p, 8f + 2f * PLACE_PITCH, PLACE_Y, PLACE_W, PetCard.BUTTON_H, "Cargo", inCargo, true, null, Ui.CENTER, () -> {
             ships.remove(pet.id);
             cargo.add(pet.id);
             refresh();
         });
-        Ui.tooltip(p, cargoButton, "Cargo", "It does not age there.");
+        Ui.tooltip(p, cargoButton, "Cargo", "A young in a Cryochamber does not age and can be sold.");
 
         String where = ship != null ? ship.getShipName() + ", " + PetCard.shipClass(ship) : inCargo ? "Cryochamber, fleet cargo" : "Pet storage, " + shop.getMarket().getName();
         Ui.text(p, 8f, PLACE_Y + 30f, CARD_W - 16f, Ui.fit(where, Ui.INS15, CARD_W - 16f), Ui.gray());
