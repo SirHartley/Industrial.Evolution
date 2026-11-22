@@ -38,8 +38,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     static final float GROUP_GAP = 10f;
     static final float EMPTY_H = 24f;
     static final float PORTRAIT = 46f;
-    static final float SKILL = 28f;
-    static final float SKILL_SMALL = 20f;
+    static final float SKILL = 40f;
     static final float PIP_W = 14f;
     static final float PIP_H = 5f;
     static final float PIP_GAP = 2f;
@@ -357,8 +356,8 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         Ui.text(row, 58f, 26f, 164f, Academy.getAdminSkillCount(person) + " of 2 skills", Ui.gray());
 
         List<Skill> skills = getSkills(person, true);
-        UiImages.iconrow(row, 230f, 10f, ASSIGN_X - 8f - 230f, skills, SKILL, SKILL, 4f, 1, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
-        for (int i = skills.size(); i < 2; i++) Ui.dashbox(row, 230f + i * (SKILL + 4f), 10f, SKILL, SKILL);
+        UiImages.iconrow(row, 230f, 5f, ASSIGN_X - 8f - 230f, skills, SKILL, SKILL, 4f, 1, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
+        for (int i = skills.size(); i < 2; i++) Ui.dashbox(row, 230f + i * (SKILL + 4f), 5f, SKILL, SKILL);
 
         float textX = ASSIGN_X + PORTRAIT + 8f;
         float textW = w - SALARY_W - 12f - textX;
@@ -402,12 +401,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
             return;
         }
 
-        if (skills.size() * (SKILL + 3f) - 3f <= right - x) {
-            for (int i = 0; i < skills.size(); i++) UiImages.skill(row, x + i * (SKILL + 3f), 10f, SKILL, skills.get(i).spec(), skills.get(i).elite());
-            return;
-        }
-
-        UiImages.iconrow(row, x, 3f, right - x, skills, SKILL_SMALL, SKILL_SMALL, 4f, 2, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
+        UiImages.iconrow(row, x, 5f, right - x, skills, SKILL, SKILL, 4f, 1, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
     }
 
     private static void skillCell(CustomPanelAPI p, float x, float y, float w, float h, Skill skill) {
