@@ -23,7 +23,7 @@ public class ResearchProjectPanel {
     public static final float WIDTH = 600f;
     public static final float HEIGHT = 600f;
     static final float LIST_Y = 30f;
-    static final float CARD_GAP = 8f;
+    static final float CARD_GAP = 13f;
     static final float HEAD_H = 20f;
     static final float CARD_H = 92f;
     static final float NOTE_H = 20f;

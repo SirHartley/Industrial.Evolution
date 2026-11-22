@@ -7,6 +7,7 @@ import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
+import indevo.industries.petshop.memory.PetBestiaryFile;
 import indevo.industries.petshop.memory.PetDataRepo;
 import org.lazywizard.console.BaseCommand;
 import org.lazywizard.console.CommonStrings;
@@ -16,7 +17,7 @@ import java.util.Collections;
 import java.util.Locale;
 
 public class PetCommand implements BaseCommand {
-    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>, indevo_pet trait <pet> <trait> <grade>, indevo_pet scan <pet>, indevo_pet look <pet> <look|wild> or indevo_pet title <pet> <veteran|navigator|old_timer|survivor|beloved|pampered|treasure_hunter|admiral|globetrotter|stargazer|clear>.";
+    private static final String SYNTAX = "Use indevo_pet list, indevo_pet give <species> [name], indevo_pet age <pet> <days>, indevo_pet hearts <pet> <0-5>, indevo_pet want <pet> <attention|play|treat|comfort|shore_leave|come_along>, indevo_pet trait <pet> <trait> <grade>, indevo_pet scan <pet>, indevo_pet look <pet> <look|wild>, indevo_pet title <pet> <veteran|navigator|old_timer|survivor|beloved|pampered|treasure_hunter|admiral|globetrotter|stargazer|clear>, indevo_pet unlock or indevo_pet lock.";
 
     @Override
     public CommandResult runCommand(String args, CommandContext context) {
@@ -221,6 +222,16 @@ public class PetCommand implements BaseCommand {
                     pet.earn(title);
                     Console.showMessage(pet.name + " has the title " + title.label + ".");
                 }
+                return CommandResult.SUCCESS;
+            }
+            case "unlock" -> {
+                for (PetStatusManager.Unlock unlock : PetStatusManager.Unlock.values()) PetBestiaryFile.get().unlock(unlock.id);
+                Console.showMessage("Family tree and Planner are open.");
+                return CommandResult.SUCCESS;
+            }
+            case "lock" -> {
+                PetBestiaryFile.get().lockAll();
+                Console.showMessage("Family tree and Planner are locked. Pets in this game open them again when the Pets panel opens.");
                 return CommandResult.SUCCESS;
             }
             default -> {

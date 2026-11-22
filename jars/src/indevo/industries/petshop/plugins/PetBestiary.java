@@ -235,9 +235,10 @@ public class PetBestiary {
 
         Ui.rule(p, 0f, h - 36f, w);
         Pet root = treeRoot(pets);
-        ButtonAPI tree = UiButtons.button(p, 0f, h - PetCard.BUTTON_H, PetCard.TREE_W, PetCard.BUTTON_H, "Family tree", root != null ? UiButtons.Kind.STD : UiButtons.Kind.OFF,
-                CutStyle.TL_BR, root != null ? () -> panel.showSpecies(root) : null);
-        if (root == null) Ui.tooltip(p, tree, "Family tree", "No pet of this species in this game yet.");
+        String block = root == null ? "No pet of this species in this game yet." : PetStatusManager.getInstance().isOpen(PetStatusManager.Unlock.TREE) ? null : PetStatusManager.Unlock.TREE.reason;
+        ButtonAPI tree = UiButtons.button(p, 0f, h - PetCard.BUTTON_H, PetCard.TREE_W, PetCard.BUTTON_H, "Family tree", block == null ? UiButtons.Kind.STD : UiButtons.Kind.OFF,
+                CutStyle.TL_BR, block == null ? () -> panel.showSpecies(root) : null);
+        if (block != null) Ui.tooltip(p, tree, "Family tree", block);
     }
 
     private static void name(CustomPanelAPI p, float w, String name, Color c) {
