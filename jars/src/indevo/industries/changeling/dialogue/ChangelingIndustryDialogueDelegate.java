@@ -198,7 +198,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
         });
 
         Color name = picked ? Ui.bright() : o.research != null ? Ui.gray() : why != null ? Ui.neg() : Ui.base();
-        Ui.heading(tile, ART_X, HEAD_Y, ART_W, o.data.name, Ui.LEFT, name, Ui.dark());
+        Ui.heading(tile, ART_X, HEAD_Y, ART_W, o.data.name, Ui.INS15, Ui.LEFT, name, Ui.dark());
 
         if (o.research != null) UiImages.grey(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite);
         else UiImages.img(tile, ART_X, ART_Y, ART_W, ART_H, o.sprite, null, why == null ? 1f : DIM);
