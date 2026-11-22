@@ -24,6 +24,7 @@ import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -434,7 +435,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     private float getConstructionCost(ShipHullSpecAPI ship) {
         float bonus = getAiCoreIdNotNull().equals(Commodities.BETA_CORE) ? BETA_CORE_COST_RED_MULT : 1f;
-        return (ship.getBaseValue() * 0.2f) * bonus;
+        return (ship.getBaseValue() * 0.2f) * ExtModeHelper.shipBuyPriceMult(ship.getHullSize()) * bonus;
     }
 
     @Override

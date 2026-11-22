@@ -34,6 +34,9 @@ Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 Removed - data/strings/strings.json (text is now in the code, translation packs that replace it no longer work)
 
+Survival Mode
+Adjusted - Hull Forge: print cost follows the Survival mode ship price
+
 Ashes of the Domain
 Added - Research tree: IE industries, specializations and governments are unlocked by research
 Added - IE Ship Components count in the AOTD economy

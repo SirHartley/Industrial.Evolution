@@ -271,6 +271,14 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | `other/legioNuclearOption` | Research `RefitUIOpenChecker` | [MISC](core/MISC.md) |
 | `$IndEvo_ruinsIndustryId` | Read by supercomputer, `LocatorSystemRatingUpdater` | [DERELICTS](industries/DERELICTS.md) |
 
+### Survival mode
+
+Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices, drops and pay at its own call sites; IE code that bypasses those sites applies the same `ext_` key itself through `ExtModeHelper` ([UTILS](core/UTILS.md#helper)), tested at call time, never a copied number. Exceptions are noted per feature. Already exempt on purpose: research drops (`DropDataCreator.java:17`), nest relics (`DroneNetScript.java:258`), the hullmod relic price (`RecoveredHullmods.java:65`).
+
+| Feature | Survival mode factor | Doc |
+|---|---|---|
+| Hull Forge print cost | `ext_shipBuyPriceMult` | [DERELICTS](industries/DERELICTS.md#forge-template-loop) |
+
 ### Shared cross-file constraints
 
 - `PlayerSettings` is the only reader for LunaLib fields; `MiscIE.getCSVSetFromMemory` the only reader for whitelists ([SETTINGS](core/SETTINGS.md)).
