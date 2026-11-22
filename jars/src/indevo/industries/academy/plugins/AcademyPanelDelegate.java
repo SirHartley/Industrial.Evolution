@@ -334,7 +334,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         float shipX = w - 3f - PORTRAIT;
         float salaryX = shipX - 12f - SALARY_W;
         addSkillIcons(row, SKILL_X, salaryX - 12f, person);
-        addSalary(row, salaryX, Academy.getBaseSalary(person));
+        addSalary(row, salaryX, Academy.getBaseSalary(person) * (stored ? Academy.getStoredOfficerSalaryMult() : 1f));
         if (stored) return;
 
         FleetMemberAPI ship = Academy.getCommandedShip(person);
