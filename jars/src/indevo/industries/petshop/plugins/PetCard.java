@@ -668,7 +668,7 @@ public class PetCard {
         UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, rows);
 
         String tip = moodTip(pet, mood);
-        if (tip != null) Ui.tooltip(p, Ui.panel(p, GRID_X, IDENT_Y + (rows.size() - 1) * UiData.GRID_ROW_H, w - GRID_X, UiData.GRID_ROW_H), mood.label, tip);
+        if (tip != null) Ui.solidTooltip(p, Ui.panel(p, GRID_X, IDENT_Y + (rows.size() - 1) * UiData.GRID_ROW_H, w - GRID_X, UiData.GRID_ROW_H), mood.label, tip);
     }
 
     // the cause and the fix
@@ -842,6 +842,7 @@ public class PetCard {
 
     // the next step, then every heart with how it comes and what it gives: reached in text, the next highlighted, the rest grey
     private static void heartsTip(TooltipMakerAPI t, Pet pet) {
+        t.setBgAlpha(1f);
         t.addPara("Hearts", Ui.hl(), 0f);
         String next = nextHeart(pet);
         if (next != null) t.addPara(next, 10f);

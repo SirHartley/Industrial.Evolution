@@ -492,7 +492,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     static ButtonAPI tabButton(CustomPanelAPI p, float x, float y, float w, float h, String label, Unlock unlock, Runnable action) {
         boolean open = PetStatusManager.getInstance().isOpen(unlock);
         ButtonAPI button = UiButtons.button(p, x, y, w, h, label, open ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR, open ? action : null);
-        if (!open) Ui.tooltip(p, button, label, unlock.reason);
+        if (!open) Ui.solidTooltip(p, button, label, unlock.reason);
         return button;
     }
 
