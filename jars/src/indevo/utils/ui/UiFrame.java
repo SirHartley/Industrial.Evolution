@@ -34,6 +34,11 @@ public final class UiFrame {
 
     // title strip at y 0: heading with the sub text in grey, the ? icon at the right end when help is set
     public static LabelAPI title(CustomPanelAPI p, float w, String title, String sub, HelpIcon.Content help) {
+        return title(p, w, title, sub, help, null);
+    }
+
+    // pulse: the ? glows while its level is above 0
+    public static LabelAPI title(CustomPanelAPI p, float w, String title, String sub, HelpIcon.Content help, HelpIcon.Pulse pulse) {
         float hw = help == null ? w : w - HelpIcon.SIZE - TITLE_GAP;
         String text = sub == null ? title : title + "  " + sub;
         LabelAPI label = Ui.heading(p, 0f, 0f, hw, text);
@@ -42,7 +47,7 @@ public final class UiFrame {
             label.setHighlightColors(Ui.gray());
         }
 
-        if (help != null) p.addUIElement(HelpIcon.create(p, help)).inTL(w - HelpIcon.SIZE - Ui.INSET, 0f);
+        if (help != null) p.addUIElement(HelpIcon.create(p, help, pulse)).inTL(w - HelpIcon.SIZE - Ui.INSET, 0f);
         return label;
     }
 

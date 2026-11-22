@@ -98,6 +98,14 @@ public final class UiDraw {
         quad(x + w - 1f, y + 1f, 1f, h - 2f, c, alpha);
     }
 
+    // soft glow around a rect: 1 px rings outward to reach, alpha falling off with the square of the distance
+    public static void glow(float x, float y, float w, float h, float reach, Color c, float alpha) {
+        for (int i = 1; i <= reach; i++) {
+            float f = (reach + 1f - i) / (reach + 1f);
+            outline(x - i, y - i, w + 2 * i, h + 2 * i, c, alpha * f * f);
+        }
+    }
+
     public static void dashed(float x, float y, float w, float h, Color c, float alpha) {
         float dash = 3f;
         for (float i = 0f; i < w; i += dash * 2f) {

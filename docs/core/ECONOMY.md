@@ -32,7 +32,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 |---|---|---|
 | Condition | `IndEvo_ressCond` (`Ids.COND_RESSOURCES`), tags `hidden, technical` | `data/campaign/market_conditions.csv:28` |
 | Commodity | `IndEvo_parts` (`ItemIds.PARTS`), `IndEvo_rare_parts` (`ItemIds.RARE_PARTS`) | `data/campaign/commodities.csv:2`, `:3` |
-| Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:97` |
+| Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:107` |
 | Memory key | `$IndEvo_reduceBuildTimeCooldown` (market memory, expires after `COOLDOWN_DAYS` 60) | `RelicBuildTimeReductionButtonAdder` |
 | Option ids | `IndEvo_cpcExpress` (`IndEvo_CPCExpress.OPTION_EXPRESS`), `IndEvo_cpcStandard` | rules, `IndEvo_CPCExpress` |
 | Rules | `IndEvo_cpcExpressOffer` (trigger `CPCBlueprintsPicked`, score 100), `IndEvo_cpcStandard`, `IndEvo_cpcStandardBar`, `IndEvo_cpcExpress`, `IndEvo_cpcExpressBar` | `data/campaign/rules.csv:856` |

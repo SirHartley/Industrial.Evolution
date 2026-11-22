@@ -12,12 +12,15 @@ import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
+import indevo.dialogue.sidepanel.HelpIcon;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.listener.PetStatusManager.Unlock;
 import indevo.industries.petshop.memory.Pet;
+import indevo.industries.petshop.memory.PetBestiaryFile;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetPlan;
 import indevo.utils.ui.*;
@@ -66,6 +69,10 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     private boolean open = false;
     private boolean popupOpen = false;
     private boolean youngChecked = false;
+    private final PetTour tour;
+    // the tab whose ? pulses, -1 for none; a tab pulses once, the first time it opens in any game
+    private int helpTab = -1;
+    private float helpStart;
 
     record Group(String name, List<Pet> pets, String empty) {
     }
@@ -74,6 +81,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         this.shop = shop;
         this.view = view;
         this.onLeave = onLeave;
+        this.tour = new PetTour(view);
     }
 
     public static float getWidth() {
@@ -151,6 +159,18 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     public void cancel() {
         callback.dismissCustomDialog(1);
+    }
+
+    // escape ends a running tour instead of closing the panel
+    public boolean skipTour() {
+        if (!tour.running()) return false;
+        tour.finish();
+        refresh();
+        return true;
+    }
+
+    PetTour tour() {
+        return tour;
     }
 
     PetShop shop() {
@@ -329,10 +349,18 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     private void build(CustomPanelAPI p, float w, float h) {
         List<Group> groups = groups();
         if (lockReason(view.tab) != null) view.tab = PetsView.TAB_PETS;
+        if (view.tab == PetsView.TAB_HUSBANDRY) beginTour();
         addHeader(p, w, groups);
 
         if (view.tab == PetsView.TAB_HUSBANDRY) {
             new PetHusbandry(this, view).build(p, w, h);
+            if (tour.visible()) UiTour.add(p, w, h, tour.step(() -> {
+                tour.next();
+                refresh();
+            }, () -> {
+                tour.finish();
+                refresh();
+            }), tour);
             return;
         }
         if (view.tab == PetsView.TAB_TREE) {
@@ -363,6 +391,13 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         if (selected != null) new PetCard(this, view).build(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected);
         else Ui.wrap(p, CARD_X, BODY_Y, w - CARD_X, "No pets yet. Animal Centers sell Cryochambers and offer pets for adoption.", Ui.gray());
+    }
+
+    // the tour waits for a free habitat and starts on it
+    private void beginTour() {
+        if (!Setting.PET_TOUR.enabled() || shop.getBroods().size() >= shop.getHabitatCount()) return;
+        if (view.habitat >= 0 && shop.getBrood(view.habitat) != null) view.habitat = -1;
+        tour.begin();
     }
 
     private List<Group> groups() {
@@ -444,7 +479,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     }
 
     private void addHeader(CustomPanelAPI p, float w, List<Group> groups) {
-        UiFrame.title(p, w, "Pets", shop != null ? shop.getMarket().getName() : null, this::addHelp);
+        UiFrame.title(p, w, "Pets", shop != null ? shop.getMarket().getName() : null, this::addHelp, helpPulse());
 
         int count = 0;
         for (Group group : groups) count += group.pets().size();
@@ -494,6 +529,42 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         ButtonAPI button = UiButtons.button(p, x, y, w, h, label, open ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR, open ? action : null);
         if (!open) Ui.solidTooltip(p, button, label, unlock.reason);
         return button;
+    }
+
+    // left or reached, the pulse is over; the seen set keeps it from coming back; no pulse under a running tour
+    private HelpIcon.Pulse helpPulse() {
+        if (helpTab != view.tab) helpTab = -1;
+        if (helpTab < 0 && !tour.running() && PetBestiaryFile.get().seeHelp(helpId(view.tab))) {
+            helpTab = view.tab;
+            helpStart = view.clock;
+        }
+        if (helpTab < 0) return null;
+
+        int tab = helpTab;
+        return new HelpIcon.Pulse() {
+            @Override
+            public float level() {
+                if (helpTab != tab) return 0f;
+                return Setting.PET_MOTION.enabled() ? UiTour.pulse(view.clock - helpStart) : 1f;
+            }
+
+            @Override
+            public void reached() {
+                helpTab = -1;
+            }
+        };
+    }
+
+    // stored in PetBestiaryFile, never rename
+    private static String helpId(int tab) {
+        return switch (tab) {
+            case PetsView.TAB_HUSBANDRY -> "husbandry";
+            case PetsView.TAB_TREE -> "tree";
+            case PetsView.TAB_PLAN -> "planner";
+            case PetsView.TAB_ADOPT -> "adoption";
+            case PetsView.TAB_BEAST -> "bestiary";
+            default -> "pets";
+        };
     }
 
     private void addHelp(TooltipMakerAPI tooltip) {
