@@ -48,7 +48,7 @@ Tuning constants (`GachaStationDialoguePlugin.java:40-48`): repair `METALS_REPAI
 
 ### Placement
 
-`GachaStationSpawner.spawn()` (`:24`): count = `ceil(entitiesWithTag(CORONAL_TAP) * IndEvo_AutomatedShipyardNum)`. Candidate systems have no market, no coronal tap and a star; weight 100 `star_red_supergiant`, 50 `star_red_giant`, 10 `star_red_dwarf`, 0.01 anything else. `placeStation()` orbits the star at `radius + 200`, period 31 days.
+`GachaStationSpawner.spawn()` (`:24`): count = `ceil(entitiesWithTag(CORONAL_TAP) * IndEvo_AutomatedShipyardNum)`. Candidate systems have no market, no coronal tap and a star; weight 100 `star_red_supergiant`, 50 `star_red_giant`, 10 `star_red_dwarf`, 0.01 anything else. Stops early when candidates run out (fewer stations than the count, [#248](https://github.com/SirHartley/Industrial.Evolution/issues/248)). `placeStation()` orbits the star at `radius + 200`, period 31 days.
 
 ### Repair
 
@@ -75,7 +75,6 @@ Repaired menu (`displayDefaultOptions`, `:110-152`): cargo areas (`FireBest IndE
 
 | Item | State |
 |---|---|
-| `GachaStationSpawner.spawn()` | `pickAndRemove()` returns null when fewer candidate systems than stations; `placeStation(null)` would NPE (`:53-55`, inferred) |
 | Repair re-creates the market | Second `setAbandonedStationMarket` replaces the market and its storage (`:207`); anything in storage before repair is lost (inferred) |
 | `GachaStationSpawner.placeStation()` | Local `id` used as market id, entity gets a second `genUID` (`:61-62`); harmless |
 

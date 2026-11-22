@@ -31,6 +31,7 @@ Fixed - Leftover storages of removed industries are now cleaned up on load
 Fixed - Other mods' industry tooltip lines now show on all IE industries
 Fixed - IE industries can no longer be built on colonies that allow no industries
 Fixed - Crash when interacting with a warning beacon in hyperspace
+Fixed - Crash on new game with Wide Horizons (https://github.com/SirHartley/Industrial.Evolution/issues/248)
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 Removed - data/strings/strings.json (text is now in the code, translation packs that replace it no longer work)
