@@ -1032,7 +1032,7 @@ public class PetPlanner {
         Ui.rule(p, 0f, h - 36f, w);
         float y = h - PetCard.BUTTON_H;
         String reason = a == null || b == null ? "Pick both parents." : a.plan() != null ? a.name() + " is not raised yet."
-                : b.plan() != null ? b.name() + " is not raised yet." : shop == null ? "Only at an Animal Center." : null;
+                : b.plan() != null ? b.name() + " is not raised yet." : shop == null ? "Only at an Animal Center." : !PetHusbandry.open(shop) ? PetHusbandry.LOCKED : null;
         UiButtons.button(p, 0f, y, OPEN_W, PetCard.BUTTON_H, "Open pairing", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 reason != null ? null : () -> panel.openCross(a.pet(), b.pet()));
         if (reason != null) Ui.textIn(p, OPEN_W + 8f, y, w - OPEN_W - SIDE_W - 24f, PetCard.BUTTON_H, reason, Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);

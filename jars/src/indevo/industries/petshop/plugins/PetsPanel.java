@@ -515,7 +515,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     private String lockReason(int tab) {
         PetStatusManager manager = PetStatusManager.getInstance();
         return switch (tab) {
-            case PetsView.TAB_HUSBANDRY -> shop == null ? "Pair pets at an Animal Center." : null;
+            case PetsView.TAB_HUSBANDRY -> shop == null ? "Pair pets at an Animal Center." : PetHusbandry.open(shop) ? null : PetHusbandry.LOCKED;
             case PetsView.TAB_ADOPT -> shop == null || !shop.hasAdoption() ? "Only at Animal Centers with pets for adoption." : null;
             case PetsView.TAB_TREE -> manager.isOpen(Unlock.TREE) ? null : Unlock.TREE.reason;
             case PetsView.TAB_PLAN -> manager.isOpen(Unlock.PLAN) ? null : Unlock.PLAN.reason;

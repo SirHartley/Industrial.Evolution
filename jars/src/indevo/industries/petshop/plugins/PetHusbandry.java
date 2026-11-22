@@ -61,6 +61,8 @@ public class PetHusbandry {
     static final String NO_PARTNER = "No match";
     static final String SORT_GRADE = "Grade";
     static final String SORT_NAME = "Name";
+    static final String LOCKED = "Unlocks with two adult pets of one species here. A pet is an adult at " + Math.round(PetConstants.YOUNG_DAYS)
+            + " days old, a hamster at " + Math.round(PetConstants.HAMSTER_YOUNG_DAYS) + ".";
     static final List<UiFilter.Item> KEYS = List.of(
             new UiFilter.Item(SORT_GRADE, 76f, "Best grade of the trait in the field first."),
             new UiFilter.Item(SORT_NAME, 70f),
@@ -174,11 +176,19 @@ public class PetHusbandry {
         else Ui.dashbox(t, x, 7f, HAB_FACE, HAB_FACE);
     }
 
+    // the tab opens while a habitat is busy or two adults of one species are here
+    static boolean open(PetShop shop) {
+        if (!shop.getBroods().isEmpty()) return true;
+        Set<String> species = new HashSet<>();
+        for (Pet pet : adults(shop)) if (!species.add(pet.typeID)) return true;
+        return false;
+    }
+
     // adults with the player or in storage here
-    private List<Pet> adults() {
+    private static List<Pet> adults(PetShop shop) {
         List<Pet> list = new ArrayList<>();
         List<Pet> stored = shop.getStoredPetsPetsCopy();
-        for (Pet pet : manager.getPets()) {
+        for (Pet pet : PetStatusManager.getInstance().getPets()) {
             if (pet.isDead() || pet.isYoung() || pet.getData().isNoSell()) continue;
             if (pet.isWithPlayer() || stored.contains(pet)) list.add(pet);
         }
@@ -188,7 +198,7 @@ public class PetHusbandry {
 
     private void addAdults(CustomPanelAPI p, float y, float h, int habitat) {
         UiFilter.State filter = view.adults;
-        List<Pet> all = adults();
+        List<Pet> all = adults(shop);
         Map<String, Integer> perSpecies = new LinkedHashMap<>();
         for (Pet pet : all) perSpecies.merge(pet.typeID, 1, Integer::sum);
 
