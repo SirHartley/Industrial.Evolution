@@ -23,13 +23,14 @@ public class ItemPatternProject extends ResearchProject {
 
     public static final int REQUIRED_POINTS = 200;
 
+    // the card shows whole sentences on one line, keep each under about 60 characters
     private static final Map<String, String> SHORT_DESC = Map.of(
-            ItemIds.SIMULATOR, "It can simulate a whole star system. Surely it can simulate a copy of itself.",
-            ItemIds.LOG_CORE, "A paperclip maximizer, but for supply chains. Let's make a few more. What could go wrong?",
-            ItemIds.NEUAL_COMPOUNDS, "The chemistry department swears they will not sample the product this time.",
+            ItemIds.SIMULATOR, "If it can simulate a star system, it can simulate itself.",
+            ItemIds.LOG_CORE, "Outlawed by the Domain for a reason. Let's make more.",
+            ItemIds.NEUAL_COMPOUNDS, "Chemistry swears it won't sample the product this time.",
             ItemIds.SALVAGE_DRONES, "It replicates drones. Time to replicate the replicator.",
-            ItemIds.TRANSMITTER, "Nobody knows how it reaches that far. The physics department plans to find out with a screwdriver.",
-            ItemIds.HOLOBENCH, "Plug in, zone out, take notes. The neuroscience department has volunteered an intern.");
+            ItemIds.TRANSMITTER, "Nobody knows how it works. Physics brought a screwdriver.",
+            ItemIds.HOLOBENCH, "Neuroscience has volunteered an intern to plug in first.");
 
     private final String itemId;
 
