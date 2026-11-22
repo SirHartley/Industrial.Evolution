@@ -551,7 +551,7 @@ class AssemblyTab {
         }
 
         ButtonAPI button = UiButtons.confirm(b, 0f, y, rw, BUTTON_H, "Double yard capacity", UiButtons.Kind.STORY, view.confirm, "story", this::spendStoryPoint, panel::refresh);
-        Ui.tooltip(b, button, "Double yard capacity",
+        Ui.tooltip(b, button, null,
                 "Will double the production capacity of the Salvage Yards for a single order.",
                 "Should you select this option, but not confirm the production contract at this moment, the bonus will be retained for the future.");
         Ui.runs(b, 0f, y + 30f, rw, Ui.INS15, Ui.gray(), Ui.CENTER, "Costs 1 story point", new String[]{"1 story point"}, new Color[]{Ui.story()});
