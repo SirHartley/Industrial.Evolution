@@ -14,7 +14,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 |---|---|
 | `indevo/dialogue/research/ResearchProjectTemplateRepo.java` | `RESEARCH_PROJECTS` static map: every project as an anonymous `ResearchProject`. `getRandomForProj` (anti save scum randoms, `:589`), `getNumProjectsPlayerCanContribute` (`:606`). |
 | `dialogue/ResearchProject.java` | Abstract project: id, name, required points, repeatable. `getProgress()` lazily stores a `Progress` (points, redeemed, overflow) in sector memory (`:37`). `allowsOverflow()` is repeatable and overflow on (`:49`). `getRedeemRequirement()` and `getRedeemLore()` default to null, `onRedeem()` is an empty hook run after the reward is added. |
-| `ItemPatternProject.java` | One project per `AotdManager.PRODUCTION_ITEMS` entry (Ashes of the Domain), id `indevo_proj_pattern_<itemId>`, added to `RESEARCH_PROJECTS` in a loop. 200 points from relic components, Redeem consumes the item, `onRedeem` sets the AOTD unlock flag. `addCargoNote` adds the gray "finish its research project" line to the item's cargo and codex tooltip (the six item effects call it) while VoK is on and the item is locked. |
+| `ItemPatternProject.java` | One project per `AotdManager.PRODUCTION_ITEMS` entry (Ashes of the Domain), id `indevo_proj_pattern_<itemId>`, added to `RESEARCH_PROJECTS` in a loop. 200 points from relic components, Redeem consumes the item, `onRedeem` sets the AOTD unlock flag. `addCargoNote` adds the gray "Galatian Academy can work out how to build it" line to the item's cargo and codex tooltip (the six item effects call it) while VoK is on and the item is locked. |
 | `dialogue/RedeemRequirement.java` | Item consumed on Redeem: id, `CargoItemType`, count. Name and sprite through `RequiredItem`, available count and `take(cargo)` (throws when short). |
 | `dialogue/ResearchProjectAPI.java` | `display`, `getRewards`, `getRequiredItems`, short and long desc. |
 | `dialogue/RequiredItem.java` | Accepted item: id, `CargoItemType`, points per unit. Static `getName` and `getSprite` per type; weapons use the turret sprite. |
@@ -74,7 +74,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | Mjolnir | 120 | yes | `IndEvo_consumables_researchProject` on | rare parts 1 | 5 rolls of `indEvo_missiles_always` |
 | Transistor | 80 | yes | always | rare parts 1 | 5 rolls of `indEvo_consumables_always` |
 | Reforge | 500 | no | `CorruptedNanoforgeChecker.isDone()` | rare parts 1; Redeem consumes 1 `corrupted_nanoforge` from fleet cargo | `pristine_nanoforge` |
-| Reverse Engineering: <item> (6, `indevo_proj_pattern_<itemId>`) | 200 | no | VoK on, Domain Blueprint Standardization researched, item found (`ItemPatternChecker`), item not yet unlocked | rare parts 1; Redeem consumes 1 of the item from fleet cargo | no cargo; the item unlocks in AOTD colony item production ([Compatibility](../core/COMPATIBILITY.md)) |
+| Knockoff: <item> (6, `indevo_proj_pattern_<itemId>`) | 200 | no | VoK on, Domain Blueprint Standardization researched, item found (`ItemPatternChecker`), item not yet unlocked | rare parts 1; Redeem consumes 1 of the item from fleet cargo | no cargo; the item unlocks in AOTD colony item production ([Compatibility](../core/COMPATIBILITY.md)) |
 
 ## Registration and lifecycle
 

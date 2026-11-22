@@ -16,16 +16,25 @@ import indevo.industries.compatibility.AotdManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 // unlocks one ie colony item in ashes of the domain production, see AotdManager.PRODUCTION_ITEMS
 public class ItemPatternProject extends ResearchProject {
 
     public static final int REQUIRED_POINTS = 200;
 
+    private static final Map<String, String> SHORT_DESC = Map.of(
+            ItemIds.SIMULATOR, "It can simulate a whole star system. Surely it can simulate a copy of itself.",
+            ItemIds.LOG_CORE, "A paperclip maximizer, but for supply chains. Let's make a few more. What could go wrong?",
+            ItemIds.NEUAL_COMPOUNDS, "The chemistry department swears they will not sample the product this time.",
+            ItemIds.SALVAGE_DRONES, "It replicates drones. Time to replicate the replicator.",
+            ItemIds.TRANSMITTER, "Nobody knows how it reaches that far. The physics department plans to find out with a screwdriver.",
+            ItemIds.HOLOBENCH, "Plug in, zone out, take notes. The neuroscience department has volunteered an intern.");
+
     private final String itemId;
 
     public ItemPatternProject(String itemId) {
-        super(getProjectId(itemId), "Reverse Engineering: " + getItemName(itemId), REQUIRED_POINTS, false);
+        super(getProjectId(itemId), "Project Knockoff: " + getItemName(itemId), REQUIRED_POINTS, false);
         this.itemId = itemId;
     }
 
@@ -71,22 +80,25 @@ public class ItemPatternProject extends ResearchProject {
     @Override
     public void addTooltipOutputOnCompletion(TooltipMakerAPI tooltip) {
         tooltip.addPara("Colony item production can now build the %s.", 10f, Misc.getHighlightColor(), getItemName(itemId));
+        tooltip.addPara("There were a few screws left over. Probably not important ones.", 10f);
+        tooltip.addPara("  - Junior Engineer, Department of Taking Things Apart", Misc.getGrayColor(), 3f);
     }
 
     @Override
     public String getRedeemLore() {
-        return "Its assembly pattern survives inside the casing. Relic components rebuild the tools needed to read it out.";
+        return "The engineers promise to put it back together afterwards. They will not.";
     }
 
     @Override
     public String getShortDesc() {
-        return "Take a " + getItemName(itemId) + " apart to add it to colony item production.";
+        return SHORT_DESC.getOrDefault(itemId, "Why keep hunting for these when the Academy can take one apart and copy it?");
     }
 
     @Override
     public String getLongDesc() {
-        return "The Academy takes one " + getItemName(itemId) + " apart and recovers its assembly pattern with relic components. "
-                + "Deliver the item from fleet cargo when the research is complete. Afterwards, colony item production can build it.";
+        return "A one-off project in which the engineering department takes your perfectly good " + getItemName(itemId) + " apart to see what makes it tick. "
+                + "Relic components pay for the tools. The item will not survive, and the Academy does not do refunds. "
+                + "Once done, colony item production can build more.";
     }
 
     // shown on the item in cargo and codex while production cannot build it yet
@@ -94,6 +106,6 @@ public class ItemPatternProject extends ResearchProject {
         if (mode != InstallableItemDescriptionMode.CARGO_TOOLTIP || !AotdManager.isVokEnabled()) return;
         if (Global.getCurrentState() == GameState.CAMPAIGN && AotdManager.isItemKnown(itemId)) return;
 
-        text.addPara("To build it in colony item production, finish its research project at the Galatian Academy.", Misc.getGrayColor(), 10f);
+        text.addPara("If you can spare one, the Galatian Academy can work out how to build it in colony item production.", Misc.getGrayColor(), 10f);
     }
 }
