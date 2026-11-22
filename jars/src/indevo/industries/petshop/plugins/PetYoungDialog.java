@@ -489,21 +489,53 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         return row(p, y, null, "None", null, false);
     }
 
-    // labels can not turn, so the tag is drawn: box, outline and text around its centre
+    // labels can not turn, so the tag is drawn: the turned box from a java2d texture, the text in a turned gl matrix
     private static void paintTag(PositionAPI pos, float alpha, String tag, Color c) {
-        float w = pos.getWidth();
-        float h = pos.getHeight();
+        int w = Math.round(pos.getWidth());
+        int h = Math.round(pos.getHeight());
+        double tilt = Math.toRadians(TAG_TILT);
+        int iw = (int) Math.ceil(w * Math.cos(tilt) + h * Math.sin(tilt)) + 4;
+        int ih = (int) Math.ceil(w * Math.sin(tilt) + h * Math.cos(tilt)) + 4;
+        int tw = 1;
+        int th = 1;
+        while (tw < iw) tw <<= 1;
+        while (th < ih) th <<= 1;
+        int key = Objects.hash("tag", w, h, c.getRGB());
+        Integer id = TEXTURES.get(key);
+        if (id == null) {
+            id = upload(tagBox(w, h, iw, ih, c), tw, th);
+            TEXTURES.put(key, id);
+        }
+        float cx = Math.round(pos.getCenterX());
+        float cy = Math.round(pos.getCenterY());
+        UiDraw.texture(id, iw, ih, iw / (float) tw, ih / (float) th, cx - iw / 2f, cy - ih / 2f, iw, ih, alpha);
+
         GL11.glPushMatrix();
-        GL11.glTranslatef(pos.getCenterX(), pos.getCenterY(), 0f);
+        GL11.glTranslatef(cx, cy, 0f);
         GL11.glRotatef(-TAG_TILT, 0f, 0f, 1f);
-        UiDraw.quad(-w / 2f, -h / 2f, w, h, Color.BLACK, alpha);
-        UiDraw.outline(-w / 2f, -h / 2f, w, h, c, alpha);
         LazyFont.DrawableString text = tagText(tag);
         if (text != null) {
             text.setBaseColor(Misc.scaleAlpha(c, alpha));
             text.draw(-text.getWidth() / 2f, text.getHeight() / 2f);
         }
         GL11.glPopMatrix();
+    }
+
+    // black box with a 1 px outline, turned clockwise in the middle of an iw x ih image with room for the anti aliased edge
+    private static BufferedImage tagBox(int w, int h, int iw, int ih, Color c) {
+        BufferedImage image = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g.setStroke(new BasicStroke(1f));
+        g.translate(iw / 2.0, ih / 2.0);
+        g.rotate(Math.toRadians(TAG_TILT));
+        g.setColor(Color.BLACK);
+        g.fill(new Rectangle2D.Double(-w / 2.0, -h / 2.0, w, h));
+        g.setColor(c);
+        g.draw(new Rectangle2D.Double(-w / 2.0 + 0.5, -h / 2.0 + 0.5, w - 1, h - 1));
+        g.dispose();
+        return image;
     }
 
     private static LazyFont.DrawableString tagText(String tag) {
