@@ -505,6 +505,20 @@ public final class ArtilleryChecks {
         return ((WatchtowerEyeIndicator) indicator.getCustomPlugin()).state;
     }
 
+    static String eyeGates(StarSystemAPI s, SectorEntityToken tower) {
+        WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) tower.getCustomPlugin();
+        StringBuilder stations = new StringBuilder();
+        for (SectorEntityToken t : s.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION))
+            stations.append(t.getFaction().getId()).append(t.getFaction().isHostileTo(player().getFaction()) ? " hostile " : " not hostile ");
+        SectorEntityToken indicator = (SectorEntityToken) ReflectionUtils.get("indicator", eye());
+        boolean scheduled = Global.getSector().getScripts().contains(eye());
+        return "artillery on " + Setting.ENABLE_ARTILLERY.enabled() + ", range " + Setting.ARTILLERY_WATCHTOWER_RANGE.value()
+                + ", system tag " + s.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY) + ", disabled " + s.getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)
+                + ", tower " + tower.getFaction().getId() + " hostile " + p.isHostileTo(player()) + " hacked " + p.isHacked() + " functional " + p.isFunctional()
+                + ", stations " + stations.toString().trim() + ", eye scheduled " + scheduled + ", indicator here " + (indicator != null && indicator.getContainingLocation() == s)
+                + ", player " + Math.round(Misc.getDistance(tower, player())) + " su from the tower";
+    }
+
     static boolean playerSeen() {
         return player().getMemoryWithoutUpdate().getBoolean(EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY);
     }
@@ -907,6 +921,7 @@ public final class ArtilleryChecks {
                 SectorEntityToken st = station(s);
                 pinPlayer(() -> at(tower, Misc.getAngleInDegrees(tower.getLocation(), st.getLocation()), share * range));
                 c.note("E1 " + towers.size() + " towers, station " + Misc.getDistance(station(s), tower) + " su from the tower");
+                c.note("E1 " + pct + "% gates: " + eyeGates(s, tower));
                 resetEye();
                 realTime();
                 probe = new Probe(s, projectile(MORTAR));
