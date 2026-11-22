@@ -106,10 +106,8 @@ class ReverseEngineeringTab {
         tooltip.addPara("Each ship adds %s to the progress of its hull (%s for capital ships). Every D-mod cuts that, more so the more D-mods the ship has.", pad, hl, frigate, capital);
         tooltip.addPara("At %s, overwrite a ship blueprint of the same hull size with the new data, or pay %s per deployment point of the hull instead.", pad, hl,
                 "100%", EngineeringHub.RELICS_PER_DP_FOR_BP_CREATION + " " + RelicHelper.getName());
-        tooltip.addPara("Blueprints come from the hub's slot and the %s, Relic Components from the %s. Tiandong and Roider hulls take their retrofit item and give a retrofit template.", pad, hl,
-                getSharedName(), getSharedName());
-        tooltip.addPara("Accelerate halves the days left of the ship in work for %s per day left, once every %s.", pad, hl,
-                RelicSpeedUpTarget.RELICS_PER_DAY + " " + RelicHelper.getName(), Math.round(RelicSpeedUpTarget.COOLDOWN_DAYS) + " days");
+        tooltip.addPara("Blueprints come from the hub's slot and the %s. Tiandong and Roider hulls take their retrofit item and give a retrofit template.", pad, hl,
+                getSharedName());
     }
 
     private void addInWork(CustomPanelAPI p, float lw) {
@@ -413,9 +411,8 @@ class ReverseEngineeringTab {
             hub.setFinishOnOwn(!on);
             panel.refresh();
         });
-        Ui.tooltip(p, check, "Finish on its own",
-                "On: a hull at 100% is finished on the next day with the first matching blueprint, the one installed in the hub first, then those in the " + getSharedName() + ". " + RelicHelper.getName() + " are never used.",
-                "Off: a hull stays at 100% until you finish it here.");
+        Ui.tooltip(p, check, null,
+                "A hull at 100% is finished on the next day with the first matching blueprint, the one installed in the hub first, then those in the " + getSharedName() + ". Doesn't use " + RelicHelper.getName() + ".");
     }
 
     private List<Hull> getHulls() {

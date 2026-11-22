@@ -141,10 +141,7 @@ public class EngineeringHubPanelDelegate extends BaseCustomDialogDelegate {
             return;
         }
 
-        Color hl = Misc.getHighlightColor();
         tooltip.addPara("Ships reverse engineered here leave data on the hullmods they had installed that your faction does not know.", 0f);
-        tooltip.addPara("Learning one costs at least %s %s, more for valuable hullmods.", 10f, hl, RecoveredHullmods.MIN_COST + "", RelicHelper.getName());
-        tooltip.addPara("%s are taken from storage first, then from your cargo.", 10f, hl, RelicHelper.getName());
     }
 
     private void addHullmodTab(CustomPanelAPI p, float w, float h, List<Hullmod> hullmods) {
