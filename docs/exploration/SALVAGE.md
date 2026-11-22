@@ -37,8 +37,8 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 | Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:75-81`; item pool for `ItemChoiceSpecial` |
 | Config | `IndEvo_ComForge` column of the VPC commodity table (per commodity base amounts) | `data/config/indEvo/vpc_commodities.csv`; `ConvertVPCSpecial.getDepositList` |
 | Item ids | `IndEvo_ForgeTemplate*`, `IndEvo_DegForgeTemplate`, `IndEvo_vpc`, `IndEvo_vpc_rare`, `IndEvo_vpc_ultra`, `IndEvo_debug` fallback | `indevo/ids/ItemIds.java`; see [Installables](../items/INSTALLABLES.md) |
-| Memory (fleet) | `$IndEvo_poor_spacer`, `$IndEvo_stolen_credit_amt` | `CreditStashSpecial:118-119`; read by rules `IndEvo_ImpoverishedSpacerGreeting` and following (`data/campaign/rules.csv`, rule cmds `indevo/dialogue/rules/IndEvo_AddSpacerFineMenuPoint.java`, `IndEvo_DeductSpacerCreditsAndSetNeutral.java`) |
-| Rep impact ids | `indEvo_creditSpecial`, `csSpecial` | `CreditStashSpecial:120`, `:155` |
+| Memory (fleet) | `$IndEvo_poor_spacer`, `$IndEvo_stolen_credit_amt` | `CreditStashSpecial:125-126`; read by rules `IndEvo_ImpoverishedSpacerGreeting` and following (`data/campaign/rules.csv`, rule cmds `indevo/dialogue/rules/IndEvo_AddSpacerFineMenuPoint.java`, `IndEvo_DeductSpacerCreditsAndSetNeutral.java`) |
+| Rep impact ids | `indEvo_creditSpecial`, `csSpecial` | `CreditStashSpecial:127`, `:162` |
 | CR event id | `indEvo_explosion` | `ExtraFuelSpecial:193` |
 | Option id | `IndEvo_relicRecover` | `RelicDerelictRecoveryPatch.OPTION_ID` |
 | `PatchData` keys (per special instance, transient) | `IndEvo_relicRecoverPickerOpening`, `IndEvo_relicRecoverPayFrom` | `RelicDerelictRecoveryPatch` |
@@ -78,6 +78,8 @@ Order: `onNewGameAfterEconomyLoad -> DerelictStationPlacer.init -> IndEvo_Salvag
 | `IndEvo_abandonedPetCenter` | nothing 30, item choice 2, credit stash 2, rumors 10, vanilla ship recovery (civilian) 8, vanilla transmitter trap 5 |
 | Weapons, supply and equipment caches (all sizes) | nothing 30 plus vanilla creators (sleeper pods, ship recovery, cargo manifest, transmitter trap); IE extras: fuel 20 (supply cache), rumors 10 and credit stash 2 (equipment caches) |
 
+Every vanilla ship recovery weight above is multiplied by `Misc.getDerelictRecoverableFraction()` (1 in normal mode, `ext_derelictShipRecoverableFraction` in Survival mode), as vanilla `SalvageSpecialAssigner` does for its own tables.
+
 Factions: recoverable ships from vanilla `getNearbyFactions` (remnant systems: Tri-Tachyon, Hegemony, independent); trap fleets pirates, remnants in suppressed or resurgent remnant systems.
 
 ### Specials
@@ -85,8 +87,8 @@ Factions: recoverable ships from vanilla `getNearbyFactions` (remnant systems: T
 All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSalvageSpecial`. "Not now" sets `showAgain(true)` so the special returns on the next visit, except in `ItemChoiceSpecial` where declining destroys the item.
 
 - `ChooseBlueprintSpecial`: hull ids rolled at creation from `MiscIE.getAllRareShipHulls()` of the picked size (`ChooseBlueprintSpecialCreator` weights frigate 0.4, destroyer 0.3, cruiser 0.3, capital 0.15, each times 0.8, and 0.2 for the maximum size). Adds `SpecialItemData(SHIP_BP, hullId)`.
-- `ConvertVPCSpecial`: lists every valid VPC stack in the player cargo by its name; amount `round(round((logIncrease * ln 7 + base) / 10) * 10 * outputMult * quality)` per output commodity (`:129-138`) through the static `VariableAssembler.getDepositAmount`, with `CommodityForge.LOG_INCREASE` and `VPCItemPlugin.getDepositMult` ([Assembler](../industries/ASSEMBLER.md)).
-- `CreditStashSpecial`: fleet from `FleetParamsV3` with combat points `rand(min,max) * 5`, faction pirates or independent (coin flip at creation), spawned 2500 to 5000 units away, transponder off, named "Impoverished Pirate/Mercenary", flagged pirate, made aggressive and hostile for 30 days with an `INTERCEPT` assignment (`:105-163`).
+- `ConvertVPCSpecial`: lists every valid VPC stack in the player cargo by its name; amount `round(round((logIncrease * ln 7 + base) / 10) * 10 * outputMult * quality / priceMult)` per output commodity (`:129-138`) through the static `VariableAssembler.getDepositAmount`, with `CommodityForge.LOG_INCREASE` and `VPCItemPlugin.getDepositMult` ([Assembler](../industries/ASSEMBLER.md)).
+- `CreditStashSpecial`: pays `creditAmt`, 30% of it in Survival mode (`SURVIVAL_CREDIT_MULT`, Philipp's number, not a vanilla key; `getPayout`). The hunter chance stays `creditAmt / 100000` and the refund the hunters ask for (`$IndEvo_stolen_credit_amt`) is the paid amount. Hunter fleet from `FleetParamsV3` with combat points `rand(min,max) * 5`, faction pirates or independent (coin flip at creation), spawned 2500 to 5000 units away, transponder off, named "Impoverished Pirate/Mercenary", flagged pirate, made aggressive and hostile for 30 days with an `INTERCEPT` assignment (`:112-170`).
 - `DModRepairSpecial`: removes `dModRemovalAmt` (+1 corrupted, +3 pristine forge) random non-built-in d-mods across chosen ships using `RestorationDocks.getListNonBuiltInDMods` and restores the base hull spec when none remain ([Small industries](../industries/SMALL_INDUSTRIES.md)).
 - `ExtraFuelSpecial`: explosion picks a member weighted against frigates and low-CR ships, applies CR loss (capped to keep emergency burn usable) and armor-based hull damage, hull floor 1%.
 - `ItemChoiceSpecial`: on take, if `random < explodeChance`: crew loss `min(ceil(crew * 0.3 * r * explodeChance), 500)`, `ExplosionScript` on the location, and `setShouldAbortSalvageAndRemoveEntity(true)` on exit. The item is picked from the `rare_tech` and `indEvo_tech_event` rows that name an item id (`pickItemRow`, `:99-110`); the row's params are stored in `itemParams` and resolved on open through the item plugin's `resolveDropParamsToSpecificItemData`, so forge templates get a hull and VPCs a tier roll. A forge template without params (older saves) resolves as `{charges:2}`, and one with no qualifying hull becomes an empty template. Invalid item ids fall back to `IndEvo_debug`.

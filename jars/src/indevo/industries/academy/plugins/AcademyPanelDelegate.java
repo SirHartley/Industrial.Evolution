@@ -17,6 +17,7 @@ import indevo.ids.ItemIds;
 import indevo.industries.academy.industry.Academy;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.StringHelper;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 
@@ -260,8 +261,9 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
 
             if (academy.hasHolobench()) tooltip.addPara(Global.getSettings().getSpecialItemSpec(ItemIds.HOLOBENCH).getName() + ": officers leave training %s. Stored officers gain %s experience per month.", pad, hl, "mentored", Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP));
 
-            if (own) tooltip.addPara("Stored officers draw their full salary.", pad);
-            else tooltip.addPara("Storage costs %s per month for each officer, plus full salary.", pad, hl, storageFee);
+            String salaryShare = StringHelper.getAbsPercentString(Academy.getStoredOfficerSalaryMult(), false);
+            if (own) tooltip.addPara("Stored officers draw %s of their salary.", pad, hl, salaryShare);
+            else tooltip.addPara("Storage costs %s per month for each officer, plus %s of salary.", pad, hl, storageFee, salaryShare);
             tooltip.addPara("Aborting a training loses the fee and the progress.", pad);
         } else {
             String days = academy.getAdminTrainingDays() + " days";
@@ -332,7 +334,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         float shipX = w - 3f - PORTRAIT;
         float salaryX = shipX - 12f - SALARY_W;
         addSkillIcons(row, SKILL_X, salaryX - 12f, person);
-        addSalary(row, salaryX, Academy.getBaseSalary(person));
+        addSalary(row, salaryX, Academy.getBaseSalary(person) * (stored ? Academy.getStoredOfficerSalaryMult() : 1f));
         if (stored) return;
 
         FleetMemberAPI ship = Academy.getCommandedShip(person);

@@ -33,11 +33,11 @@ A planet with the condition `IndEvo_mineFieldCondition` spawns a ring terrain `I
 | Custom entity | `IndEvo_mine_explosion` | `data/config/custom_entities.json:445` |
 | Custom entity | `SplinterFleet_OrbitFocus` (disabled area anchor) | `data/config/custom_entities.json:392`, owned by [Split fleet](../abilities/SPLIT_FLEET.md) |
 | Sprites | `IndEvo/mine4`, `IndEvo/mineGlow` | `data/config/settings.json:153-154` |
-| Setting | `IndEvo_Enable_minefields` (placement needs a new game; off stops hits at once) | `LunaSettings.csv:9`; read in `MineBeltTerrainPlugin.createMines/applyEffect`, `ModPlugin.spawnMineFields/restoreRemovedEntities`, `DerelictStationPlacer` |
-| Setting | `IndEvo_Minefield_HitChance_frigate/destroyer/cruiser/capital` (0.02/0.04/0.06/0.12) | `LunaSettings.csv:57-60`; `MineBeltTerrainPlugin.getBaseFleetHitChance` |
-| Setting | `IndEvo_Minefield_NoHitUntilSum` (0.5) | `LunaSettings.csv:61`; read at use time in `MineBeltTerrainPlugin` |
-| Setting | `IndEvo_Minefield_CivilianShipImpactMult` (0.5), `IndEvo_Minefield_PhaseShipImpactMult` (0.3) | `LunaSettings.csv:62-63`; read at use time |
-| Setting | `IndEvo_Minefield_disable_duration` (5 s) | `LunaSettings.csv:56`; read in `InterdictionPulseAbilityListener:40` |
+| Setting | `IndEvo_Enable_minefields` (placement needs a new game; off stops hits at once) | `LunaSettings.csv:7`; read in `MineBeltTerrainPlugin.createMines/applyEffect`, `ModPlugin.spawnMineFields/restoreRemovedEntities`, `DerelictStationPlacer` |
+| Setting | `IndEvo_Minefield_HitChance_frigate/destroyer/cruiser/capital` (0.02/0.04/0.06/0.12) | `LunaSettings.csv:61-64`; `MineBeltTerrainPlugin.getBaseFleetHitChance` |
+| Setting | `IndEvo_Minefield_NoHitUntilSum` (0.5) | `LunaSettings.csv:65`; read at use time in `MineBeltTerrainPlugin` |
+| Setting | `IndEvo_Minefield_CivilianShipImpactMult` (0.5), `IndEvo_Minefield_PhaseShipImpactMult` (0.3) | `LunaSettings.csv:66-67`; read at use time |
+| Setting | `IndEvo_Minefield_disable_duration` (5 s) | `LunaSettings.csv:60`; read in `InterdictionPulseAbilityListener:40` |
 | Memory (market) | `$IndEvo_MineFieldRefKey` = belt entity id; `$IndEvo_NoAsteroids` = skip ring band visual | `MineFieldCondition:19-20` |
 | Memory (terrain, mine) | `$IndEvo_PlanetMinefieldKey` = controlling planet entity | `MineFieldCondition:21`, copied to every mine in `createMines` |
 | Memory (location) | `$IndEvo_MinesDisabledLocMem` = `List<DisabledArea>` | `MineBeltTerrainPlugin:41` |
@@ -90,6 +90,7 @@ Order: `onNewGameAfterEconomyLoad -> spawnMineFields -> addCondition -> MineFiel
 - `RECENT_JUMP_KEY` expires after `RECENT_JUMP_TIMEOUT_SECONDS` (2 s) through `CampaignClockAPI.convertToDays` (`RecentJumpListener.java:26`).
 - `DisabledArea` objects live in location memory and are saved; the token entity is a normal saved custom entity.
 - The disabled-state glow in `MineCustomEntityPlugin.render()` reads the same location memory list; the green friendly glow uses its own friend rule (relationship and transponder only), which differs from `isFriend()`.
+- `MineImpact` counts player hits for an achievement ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

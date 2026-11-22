@@ -25,7 +25,7 @@ The engine resolves the first word of a rules condition or script line to a `Com
 | Kind | Id / key | Where |
 |---|---|---|
 | Setting | `ruleCommandPackages` (16 IE packages) | `data/config/settings.json:30` to `:47` |
-| Memory, fleet | `$IndEvo_stolen_credit_amt`, `$IndEvo_poor_spacer` | `indevo/exploration/salvage/specials/CreditStashSpecial.java:103`, `:118` (see [Salvage](../exploration/SALVAGE.md)) |
+| Memory, fleet | `$IndEvo_stolen_credit_amt`, `$IndEvo_poor_spacer` | `indevo/exploration/salvage/specials/CreditStashSpecial.java:110`, `:118` (see [Salvage](../exploration/SALVAGE.md)) |
 | Option ids | `IndEvo_PaySpacerFine`, `IndEvo_NoPaySpacerFine` | `IndEvo_AddSpacerFineMenuPoint.OPTION_PAY`, rules |
 | Rules | `IndEvo_ImpoverishedSpacerGreeting` (`:474`), `IndEvo_PaySpacerFine` (`:493`), `IndEvo_NoPaySpacerFine` (`:511`) | `data/campaign/rules.csv` |
 

@@ -83,6 +83,7 @@ public enum Setting {
     CONSUMABLE_RESEARCH("IndEvo_consumables_researchProject", true, BLOCK_CONSUMABLES),
     PET_LINE_DAYS("IndEvo_petLineDays", 14, 0, 90),
     PET_MOTION("IndEvo_petMotion", true),
+    PET_TOUR("IndEvo_petTour", true),
     PET_LONGEVITY_CYCLES("IndEvo_petLongevityCycles", 2, 1, 10),
     ADMANUF("IndEvo_AdManuf", true, BLOCK_INDUSTRIES),
     ADASSEM("IndEvo_AdAssem", true, BLOCK_INDUSTRIES),

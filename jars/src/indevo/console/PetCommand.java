@@ -231,7 +231,7 @@ public class PetCommand implements BaseCommand {
             }
             case "lock" -> {
                 PetBestiaryFile.get().lockAll();
-                Console.showMessage("Family tree and Planner are locked. Pets in this game open them again when the Pets panel opens.");
+                Console.showMessage("Family tree and Planner are locked and every ? of the Pets panel pulses again. Pets in this game open the tabs again when the panel opens.");
                 return CommandResult.SUCCESS;
             }
             default -> {

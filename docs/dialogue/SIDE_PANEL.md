@@ -15,7 +15,7 @@ Checked against Starsector 0.98a-RC8. Recheck engine facts after a game update.
 | `ButtonReportingCustomPanel.java` | `BaseCustomUIPanelPlugin` that forwards `buttonPressed` to a `ButtonReportingDialogueDelegate`; optional bracket frame with height override. |
 | `ButtonReportingDialogueDelegate.java` | `BaseCustomDialogDelegate`; `reportButtonPressed` runs the id if it is a `ButtonAction` (`:7`). |
 | `ButtonAction.java`, `ButtonActionInterface.java` | Abstract button id object holding the `CustomDialogDelegate`; `execute()` is the click handler. |
-| `HelpIcon.java` | `?` icon for rules and rates that stay out of the panel text: vanilla `fleetScreen` `icon_more_info` sprite tinted with the base player colour, 20 px, hover tooltip. `HelpIcon.create(parent, tooltip -> ...)` returns the element; the caller positions it. Kit panels get it through `UiFrame.title` ([UI](../core/UI.md#uiframe)); the Orbital Works slot panel places it by hand at `inTR(0, 0)` on the title line. |
+| `HelpIcon.java` | `?` icon for rules and rates that stay out of the panel text: vanilla `fleetScreen` `icon_more_info` sprite tinted with the base player colour, 20 px, hover tooltip. `HelpIcon.create(parent, tooltip -> ...)` returns the element; the caller positions it. `create(parent, content, pulse)` takes a `HelpIcon.Pulse`: while `level()` is above 0 the icon draws an 8 px glow, a base colour fill and a white icon at that level; a mouse move over it calls `reached()`. Kit panels get it through `UiFrame.title` ([UI](../core/UI.md#uiframe)); the Orbital Works slot panel places it by hand at `inTR(0, 0)` on the title line. |
 | `EscapeBlockingDialoguePluginAPI.java` | `close()` hook. A dialog plugin calls `EscapeInterceptListener.block(this)`: the plugin goes in a static field, memory `$IndEvo_BlockESC` only gets `true`; `indevo/industries/petshop/listener/EscapeInterceptListener.java` consumes ESC and calls `close()`. |
 
 ## Data and ids
@@ -53,6 +53,7 @@ Users:
 - A `ButtonAction` or `Runnable` button id must never reach a saved object (skill `docs/ui/widgets.md`, "Event routing"). Popups are rebuilt on every change and never saved.
 - `ButtonReportingCustomPanel.render` uses `pos` set by `positionChanged`; a panel rendered before positioning would NPE (inferred).
 - UI guidance for new panels: [UI](../core/UI.md), skill `docs/ui/index.md`, `layout.md`, `widgets.md`.
+- `HelpIcon` keys each opened `?` by the class that built its content for an achievement ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

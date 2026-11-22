@@ -12,6 +12,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.population.PopulationComposition;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.compatibility.AotdManager;
@@ -82,6 +83,8 @@ public class WorldWonder extends BaseIndustry implements MarketImmigrationModifi
             Global.getSector().getPlayerStats().addStoryPoints(1);
             memory.set(HAS_AWARDED_SP, true);
         }
+
+        if (market.isPlayerOwned()) Achievements.setTarget(Achievements.TOURIST_TRAP, getId());
     }
 
     @Override

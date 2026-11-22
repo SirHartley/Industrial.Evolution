@@ -68,6 +68,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public SectorEntityToken origin;
     public Vector2f target;
     public Vector2f originLocation = new Vector2f();
+    public boolean remote;
     private boolean fired = false;
     private float beamLength = MAX_RANGE;
 
@@ -75,6 +76,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         public SectorEntityToken origin;
         public Vector2f target;
         public float impactSeconds;
+        public boolean remote;
 
         public ProjectileParams(SectorEntityToken origin, Vector2f target, float impactSeconds) {
             this.origin = origin;
@@ -83,13 +85,15 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
         }
     }
 
-    public static void spawn(LocationAPI loc, SectorEntityToken origin, Vector2f target, float impactSeconds) {
+    public static void spawn(LocationAPI loc, SectorEntityToken origin, Vector2f target, float impactSeconds, boolean remote) {
+        ProjectileParams params = new ProjectileParams(origin, target, impactSeconds);
+        params.remote = remote;
         SectorEntityToken t = loc.addCustomEntity(
                 null,
                 null,
                 "IndEvo_railgun_projectile",
                 null,
-                new ProjectileParams(origin, target, impactSeconds));
+                params);
 
         t.setLocation(origin.getLocation().x, origin.getLocation().y);
     }
@@ -103,6 +107,7 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
             this.target = new Vector2f(((ProjectileParams) pluginParams).target);
             this.impactSeconds = ((ProjectileParams) pluginParams).impactSeconds;
             this.originLocation = new Vector2f(origin.getLocation());
+            this.remote = ((ProjectileParams) pluginParams).remote;
         }
 
         readResolve();
@@ -203,6 +208,8 @@ public class RailgunProjectileEntityPlugin extends BaseCustomEntityPlugin {
                         new Color(100, 160, 255), cl, entity.getLocation(), EXPLOSION_SIZE, 0.6f);
 
         params.damage = ExplosionEntityPlugin.ExplosionFleetDamage.LOW;
+        params.artilleryType = ArtilleryStationEntityPlugin.TYPE_RAILGUN;
+        params.remote = remote;
         SectorEntityToken explosion = cl.addCustomEntity(Misc.genUID(), "Explosion",
                 "IndEvo_VariableExplosion", Factions.NEUTRAL, params);
 

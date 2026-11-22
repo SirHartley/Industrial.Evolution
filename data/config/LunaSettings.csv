@@ -34,6 +34,7 @@ IndEvo_consumables_researchProject,[Consumable Items] Research project,Boolean,T
 IndEvo_header_pets,Pets,Header,Pets,,,,,Exploration & Items
 IndEvo_petLineDays,[Pets] Days Between Pet Lines,Int,14,,"Minimum days between two short lines about what your pets are up to: a message in flight, or a line in the market text when you dock. 0 turns them off. Default 14.",0,90,Exploration & Items
 IndEvo_petMotion,[Pets] Pet Animations,Boolean,TRUE,,"Petting a pet in the Pets panel makes its portrait grow and turn and throws hearts. Default on.",,,Exploration & Items
+IndEvo_petTour,[Pets] Husbandry Tour,Boolean,TRUE,,"Shows the Husbandry tour the next time the Husbandry tab opens. Switches itself off when the tour ends. Default on.",,,Exploration & Items
 IndEvo_petLongevityCycles,[Pets] Cycles per Longevity Syringe,Int,2,,"Cycles of life one Longevity Syringe gives a pet. Hamsters always gain 1 cycle. Default 2.",1,10,Exploration & Items
 ,,,,,,,,
 IndEvo_header_meteor,Meteor Swarms,Header,Meteor Swarms,,,,,Meteor Swarms

@@ -131,7 +131,7 @@ public class ConvertVPCSpecial extends BaseSalvageSpecial {
         float mult = VPCItemPlugin.getDepositMult(vpc) * data.qualityModifier;
 
         for (Commodity c : VPCItemPlugin.getOutputs(vpc)) {
-            map.put(c.id(), VariableAssembler.getDepositAmount(c.getDeposit(Ids.COMFORGE), CommodityForge.LOG_INCREASE, 7, mult));
+            map.put(c.id(), VariableAssembler.getDepositAmount(c.id(), c.getDeposit(Ids.COMFORGE), CommodityForge.LOG_INCREASE, 7, mult));
         }
 
         return map;

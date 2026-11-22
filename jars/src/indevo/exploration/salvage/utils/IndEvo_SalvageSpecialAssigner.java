@@ -229,8 +229,8 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ORGANS, 50, 250, null), 4f);
             picker.add(new SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, STANDARD_PODS_OFFICER_LEVEL, Global.getSettings().getInt("exceptionalSleeperPodsOfficerLevel"), officerFactions), 1f);
             picker.add(new ShipRouletteSpecialCreator(random, 2, 5), 15f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.LARGE, recoverableShipFactions), 2f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.MEDIUM, recoverableShipFactions), 2f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.LARGE, recoverableShipFactions), 2f * Misc.getDerelictRecoverableFraction());
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.MEDIUM, recoverableShipFactions), 2f * Misc.getDerelictRecoverableFraction());
         }
 
         if (Ids.ABANDONED_PETSHOP_ENTITY.equals(type)){
@@ -238,7 +238,7 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new ItemChoiceSpecialCreator(random, 0.2f, 1f), 2f);
             picker.add(new CreditStashSpecialCreator(random, 15000f, 70000f, PATROL_MEDIUM, 10, 16), 2f);
             picker.add(new JuicyRumorsSpecialCreator(random, 5, 10), 10f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.CIVILIAN, recoverableShipFactions), 8f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.CIVILIAN, recoverableShipFactions), 8f * Misc.getDerelictRecoverableFraction());
             picker.add(new SalvageSpecialAssigner.TransmitterTrapSpecialCreator(random, 0.5f, FleetTypes.PATROL_SMALL, trapFactions, 4, 8), 5f);
         }
 
@@ -249,7 +249,7 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ORGANS, 5, 50, null), 4f);
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 1f);
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ADMIN, 1, 5, officerFactions), 0.2f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f * Misc.getDerelictRecoverableFraction());
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 2f);
             picker.add(new SalvageSpecialAssigner.CargoManifestSpecialCreator(random, valuableCargo, 10, 30), 10f);
             picker.add(new SalvageSpecialAssigner.TransmitterTrapSpecialCreator(random, 0.5f, FleetTypes.PATROL_SMALL, trapFactions, 4, 8), 10f);
@@ -261,7 +261,7 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 30f);
             picker.add(new SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.MARINES, 5, 60, null), 6f);
             picker.add(new SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ORGANS, 5, 25, null), 4f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f * Misc.getDerelictRecoverableFraction());
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 1f);
             picker.add(new SalvageSpecialAssigner.CargoManifestSpecialCreator(random, valuableCargo, 10, 30), 10f);
             picker.add(new SalvageSpecialAssigner.TransmitterTrapSpecialCreator(random, 0.5f, FleetTypes.PATROL_SMALL, trapFactions, 4, 8), 10f);
@@ -271,7 +271,7 @@ public class IndEvo_SalvageSpecialAssigner {
         if (supplies.contains(type)) {
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 30f);
             picker.add(new ExtraFuelSpecialCreator(random, 100, 300), 20f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f * Misc.getDerelictRecoverableFraction());
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 1f);
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ADMIN, 1, 5, officerFactions), 0.2f);
             picker.add(new SalvageSpecialAssigner.CargoManifestSpecialCreator(random, valuableCargo, 10, 30), 10f);
@@ -281,7 +281,7 @@ public class IndEvo_SalvageSpecialAssigner {
         List<String> suppliesSmall = Collections.singletonList(Entities.SUPPLY_CACHE_SMALL);
         if (suppliesSmall.contains(type)) {
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 30f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f * Misc.getDerelictRecoverableFraction());
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 1f);
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ADMIN, 1, 5, officerFactions), 0.2f);
             picker.add(new SalvageSpecialAssigner.CargoManifestSpecialCreator(random, valuableCargo, 10, 30), 10f);
@@ -293,7 +293,7 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 30f);
             picker.add(new CreditStashSpecialCreator(random, 5000f, 20000f, PATROL_SMALL, 4, 25), 2f);
             picker.add(new JuicyRumorsSpecialCreator(random, 3, 8), 10f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f * Misc.getDerelictRecoverableFraction());
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 1f);
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ADMIN, 1, 5, officerFactions), 0.2f);
             picker.add(new SalvageSpecialAssigner.CargoManifestSpecialCreator(random, industryCargo, 10, 30), 10f);
@@ -305,7 +305,7 @@ public class IndEvo_SalvageSpecialAssigner {
             picker.add(new SalvageSpecialAssigner.NothingSpecialCreator(), 30f);
             picker.add(new CreditStashSpecialCreator(random, 5000f, 15000f, PATROL_SMALL, 4, 25), 2f);
             picker.add(new JuicyRumorsSpecialCreator(random, 3, 8), 10f);
-            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f);
+            picker.add(new SalvageSpecialAssigner.ShipRecoverySpecialCreator(random, 1, 1, false, DerelictShipEntityPlugin.DerelictType.SMALL, recoverableShipFactions), 10f * Misc.getDerelictRecoverableFraction());
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.OFFICER, 1, 15, officerFactions), 1f);
             picker.add(new SalvageSpecialAssigner.SleeperPodsSpecialCreator(random, SleeperPodsSpecial.SleeperSpecialType.ADMIN, 1, 5, officerFactions), 0.2f);
             picker.add(new SalvageSpecialAssigner.CargoManifestSpecialCreator(random, industryCargo, 10, 30), 10f);

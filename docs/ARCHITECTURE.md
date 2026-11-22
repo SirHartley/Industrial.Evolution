@@ -64,6 +64,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [UI](core/UI.md) | Shared UI kit and layout contract for IE panels | `utils/ui` |
 | | [COMBAT](core/COMBAT.md) | Weapon scripts, missile AI, combat terrain | `data/scripts` |
 | | [Skillshot README](../jars/src/indevo/skillshot/README.md) | Aimed campaign abilities framework (missile targeting), shared design and cross mod lock with Catch.Release | `skillshot` |
+| | [ACHIEVEMENTS](core/ACHIEVEMENTS.md) | MagicLib achievements: specs, scripts and the hook per feature | `achievements` |
 | | [CONSOLE](core/CONSOLE.md) | Console Commands | `console` |
 | | [MISC](core/MISC.md) | Unregistered leftovers | `other` |
 | | [WIP](core/WIP.md) | Converters | `WIP` |
@@ -127,7 +128,7 @@ Every load (`:153` to `:173`):
 | CSV plugin column | Industries, conditions, abilities, items, entities, terrain, hullmods, weapons | `data/campaign/*.csv`, `custom_entities.json`, `terrain.json` |
 | `ruleCommandPackages` | Rule commands found by package | `settings.json:30` ([RULE_COMMANDS](dialogue/RULE_COMMANDS.md)) |
 
-`setListenersIfNeeded()` (`:441` to `:518`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `VPCLootResolver`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`, `RelicSpeedUpOptionProvider`, `TechMiningRelicOptionProvider`), orbital works (`OrbitalWorksSlotManager.getInstanceOrRegister`, `OrbitalWorksSlotOptionProvider`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `AncientLabRelicOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`, `DetachmentPayroll`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `SkillshotFramework.register()`, `FleetConsumableInventoryManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards (`SalvageYardsOptionProvider`, `SalvageDronesBattleListener`), senate, academy, engineering hub (`EngineeringHubOptionProvider`), beacons, Cloud Painter shield visuals, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`, `RogueRockDustRenderer`), fog (`FogWeatherManager`), shuttle traffic (`ShuttleTrafficRenderer`, a transient LunaLib renderer, and its transient `ShuttleCampaignListener` and `ShuttleColonyListener`, the latter also an `ObjectiveEventListener`, `PlayerColonizationListener` and `ColonyDecivListener`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
+`setListenersIfNeeded()` (`:438` to `:516`) by feature: item effects and loot (`SpecialItemEffectsRepo.initEffectListeners`, `ShipComponentLootManager`, `SpecialItemDropsListener`, `VPCLootResolver`, `ConsumableItemDropListener`, `ConsumableItemMarketAdder`), economy (`ResourceConditionApplicator`, `RelicBuildTimeReductionButtonAdder`, `RelicSpeedUpOptionProvider`, `TechMiningRelicOptionProvider`), orbital works (`OrbitalWorksSlotManager.getInstanceOrRegister`, `OrbitalWorksSlotOptionProvider`), assembler (`DepositMessage`), embassy (`AmbassadorPersonManager`, `HostileActivityEventSubRegisterListener`), privateer and raids (`RaidTimeout`), derelicts (`RuinsManager.*`, `AncientLabCommoditySwitchOptionProvider`, `AncientLabRelicOptionProvider`, `RiftGenOptionProvider`, `RemoveIndustryOptionWarningProvider`), courier (`ShippingManager`, `CourierPortOptionProvider`), split fleet (`DetachmentAbilityAdder`, `DetachmentPayroll`), consumables (`LocatorSystemRatingUpdater`, `SpooferItemKeypressListener`, `SkillshotFramework.register()`, `FleetConsumableInventoryManager`), minefields (`RecentJumpListener`, `InterdictionPulseAbilityListener`), world wonder, changeling, pets, ruinfra, artillery (`WatchtowerFactionResetListener`), research unlock checkers, skills, salvage yards (`SalvageYardsOptionProvider`, `SalvageDronesBattleListener`), senate, academy, engineering hub (`EngineeringHubOptionProvider`), beacons, Cloud Painter shield visuals, relay (`MilitaryRelay.RelayItemRemovalButtonListener`, `RelayNetworkBrain`), meteor (`MeteorSwarmManager`, `RogueRockDustRenderer`), fog (`FogWeatherManager`), achievements (`AchievementCampaignListener`), shuttle traffic (`ShuttleTrafficRenderer`, a transient LunaLib renderer, and its transient `ShuttleCampaignListener` and `ShuttleColonyListener`, the latter also an `ObjectiveEventListener`, `PlayerColonizationListener` and `ColonyDecivListener`), warehouses, museum. Nexerelin only: `ManagedDemocracyNexerelinListenerPlugin`. Commented out: `DistressCallManager`, `HullmodTimeTracker`.
 
 When adding a listener, add its `register()` call here in the feature's group and list it in the feature doc's Registration section.
 
@@ -195,6 +196,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | `data/config/indEvo/shuttle_traffic.csv` | Base craft for shuttle traffic | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) |
 | `data/config/indEvo/shuttle_factions.csv` | Shuttle traffic flying style per faction | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md#faction-profiles) |
 | `data/config/exerelinFactionConfig`, `vayraBounties`, `prism`, `BetterColonyConfig`, `modFiles`, `version`, `orbit_entity_blacklist.csv` | Other mods' config | [COMPATIBILITY](core/COMPATIBILITY.md) |
+| `data/config/magic_achievements.csv` | MagicLib achievement specs | [ACHIEVEMENTS](core/ACHIEVEMENTS.md) |
 | `data/console/commands.csv` | Console commands | [CONSOLE](core/CONSOLE.md) |
 | `data/lights`, `data/shaders` | GraphicsLib lights, IE shaders | [COMBAT](core/COMBAT.md), [UTILS](core/UTILS.md), [FOG](exploration/FOG.md) (`indevo_fog*.shader`) |
 | `data/strings` | Descriptions, tips, name lists | Feature docs |
@@ -249,7 +251,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 | From | Uses | Where |
 |---|---|---|
-| Privateer | Current government (`GovernmentCondition.getGovernment`); `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
+| Privateer | Current government (`GovernmentCondition.getGovernment`); `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:72,194,203,322` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | RAT settlements | Parent industry code: `Academy`, `ReverseEngineering`, Salvage Yards and Courier panels, `Museum` and `RestorationDocks` static helpers, Requisitions Center submarket, `VariableAssembler` deposits, `AmbassadorPersonManager`, `PetShop` (`HabitatPetShop`, `planCenter`) and the Pets panel | [RAT_SETTLEMENTS](industries/RAT_SETTLEMENTS.md) |
 | Courier port | Contracts allowed and billed with a RAT Courier Office | `ShippingManager.java:44`, `:101` |
@@ -270,6 +272,26 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Beacons, scoop, smoke cloud, mine belt | Split fleet `OrbitFocus` entity | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `other/legioNuclearOption` | Research `RefitUIOpenChecker` | [MISC](core/MISC.md) |
 | `$IndEvo_ruinsIndustryId` | Read by supercomputer, `LocatorSystemRatingUpdater` | [DERELICTS](industries/DERELICTS.md) |
+
+### Survival mode
+
+Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices, drops and pay at its own call sites; IE code that bypasses those sites applies the same `ext_` key itself through `ExtModeHelper` ([UTILS](core/UTILS.md#helper)), tested at call time, never a copied number. Exceptions are noted per feature. Already exempt on purpose: research drops (`DropDataCreator.java:17`), nest relics (`DroneNetScript.java:258`), the hullmod relic price (`RecoveredHullmods.java:65`).
+
+| Feature | Survival mode factor | Doc |
+|---|---|---|
+| Hull Forge print cost | `ext_shipBuyPriceMult` | [DERELICTS](industries/DERELICTS.md#forge-template-loop) |
+| Academy hire rolls at markets the player does not own | `ext_officersAvailableFraction`, `ext_adminAvailableFraction` | [ACADEMY](industries/ACADEMY.md#hireable-spawns-and-officer-quality) |
+| Detachment crew and marine pay | `ext_crewSalaryMult`, `ext_marineSalaryMult` (with `Misc.computeFleetMemberCrewSalary`) | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
+| Ship recovery weights in IE special tables (caches, arsenal station, pet center) | `Misc.getDerelictRecoverableFraction()` | [SALVAGE](exploration/SALVAGE.md#assignment) |
+| Credit Stash payout | 30%, fixed (no vanilla key) | [SALVAGE](exploration/SALVAGE.md#specials) |
+| Privateer Base weapon and wing loot | 30%, fixed (no vanilla key) | [PRIVATEER](industries/PRIVATEER.md#loot) |
+| Salvage Yards order budget and scrap value | `ext_playerIndustryCustomProductionMaxValueMult`, `ext_shipBuyPriceMult` | [SALVAGE_YARDS](industries/SALVAGE_YARDS.md) |
+| Meteor and rogue asteroid hits | `ext_environmentalDamageMult` | [METEOR](exploration/METEOR.md) |
+| Emergency Fuel Scoop fuel | divided by `ext_fuelPriceMult` | [CONSUMABLES](items/CONSUMABLES.md) |
+| Ice treasure wreck recovery (both modes) | vanilla battle wreck roll | [METEOR](exploration/METEOR.md) |
+| Forge World ship quality | `ext_shipForSaleQualityMod` | [CHANGELING](industries/CHANGELING.md) |
+| VPC chip deposits (Assembler, Manufactory, Commodity Forge, Convert VPC find, Fabricator Bay) | divided by `ext_<id>PriceMult` | [ASSEMBLER](industries/ASSEMBLER.md#deposits) |
+| Restoration Docks and Restoration Bay price | `ext_partsPriceMult` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md) |
 
 ### Shared cross-file constraints
 

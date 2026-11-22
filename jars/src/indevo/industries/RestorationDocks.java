@@ -30,6 +30,7 @@ import indevo.ids.ItemIds;
 import indevo.industries.compatibility.AotdManager;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
@@ -304,7 +305,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
     // also used by the rat settlement Restoration Bay
     public static float getSingleDModRepairCost(FleetMemberAPI ship, int maxDMods, float mult) {
         float baseVal = getBaseShipHullSpec(ship.getVariant(), true).getBaseValue();
-        return (float) (((baseVal / 2) * (Math.pow(1.2, maxDMods + 1))) / maxDMods) * mult;
+        return (float) (((baseVal / 2) * (Math.pow(1.2, maxDMods + 1))) / maxDMods) * mult * ExtModeHelper.commodityPriceMult(Commodities.PARTS);
     }
 
     public static void removeOneDMod(ShipVariantAPI variant, Random random) {

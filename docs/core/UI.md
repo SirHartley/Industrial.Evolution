@@ -44,7 +44,8 @@ Every IE panel follows these rules.
 | `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children; `shown` holds the fraction a kit progress bar shows, for checks |
 | `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code (`show`) and popups over a panel (`over`) |
 | `UiConfirm` | The game's confirmation popup over a panel, in its own interaction dialog |
-| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels to a new texture) |
+| `UiTour` | Guided tour step over a whole panel: dims all but one lit rect, pulsing line around it, a box with the text, `n / N`, Next and Skip or Done; eats clicks outside both while blocking. `pulse(time)` is the 0.4 s up, 0.9 s down level it and the `?` glow use |
+| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels to a new texture, `glow`: 1 px rings outward over `reach`, alpha falling with the square of the distance) |
 
 Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordinates and the content, and returns the created element. Panels the kit creates use `UiCanvas`, so a button anywhere below them reports to the nearest kit panel and runs its `Runnable`. No helper keeps global state; view state lives in the panel's state object.
 
@@ -95,6 +96,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `thead(p, x, y, w, labels, xs, ws, aligns)` | Table header strip with orb12 column labels |
 | `tooltip(p, target, title, lines...)` | Text tooltip below any panel, label or button (title in highlight, lines 10 px apart); buttons show it while disabled |
 | `solidTooltip(p, target, title, lines...)` | Same with a solid background (`setBgAlpha(1)`); use it where the tooltip opens over busy content, the default 0.85 lets it show through |
+| `bottomTooltip(p, target, title, lines...)` | Solid and above the target, for buttons on a dialog panel's bottom row: below them the tooltip runs under the dialog's own buttons (Return), which draw over the panel |
 | `tooltip(p, target, width, loc, content)` | Same with free content |
 
 ### UiButtons
@@ -159,7 +161,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | Signature | Does |
 |---|---|
 | `width(boardW)`, `height(boardH)` | Content size for `showCustomDialog`: `min(board, screen - 100) - 20` and `- 55` |
-| `title(p, w, title, sub, help)` | Title heading at y 0 with the sub text in grey; `HelpIcon` 20 x 20 at the right end when `help` is set |
+| `title(p, w, title, sub, help)`, `title(p, w, title, sub, help, pulse)` | Title heading at y 0 with the sub text in grey; `HelpIcon` 20 x 20 at the right end when `help` is set, glowing while `pulse` (`HelpIcon.Pulse`) is above 0 |
 | `slot(p, right, y, sprite, text, title, lines...)` | Header item right to left (24 px icon, grey text, tooltip); returns the next right edge |
 | `counter(p, right, y, label, sprite, value)`, `credits(p, right, y)` | Grey label, icon, highlighted value; the player's credits |
 
@@ -193,6 +195,15 @@ Every big list gets one (Philipp's rule). The bar takes no list: the caller filt
 | `field(p, x, y, w, state, hint)` | The text field of the bar alone, `H` high, `boxed`, with the grey hint while empty; for a find field with no fold. Poll it with `State.poll()` as the bar |
 | `height(state or open, toggles, keys)` | `H` 26 closed; open adds 30 per row of toggles and of sort keys |
 | `bar(p, x, y, state, hint, showTip, toggles, onToggle, keys, changed, refresh)` | Field 150 x 26 with a grey hint while empty, then the Show filters toggle (108, 124 with the gold count of toggles and sort that differ from the default, "Hide filters" while open). Open: a row of `Item` toggles (`onToggle` null flips one, a radio group passes its own; an `Item` with an `icon` shows the 20 px icon and its `shown` text in the highlight colour in place of its label, which stays the key), then "Sort" and one left aligned key per `Item`, the key in use lit with an 8 x 5 arrow 18 px from its right edge, a second click turns the order. `changed` runs after a filter or sort change, `refresh` after the fold opens or closes. Returns the height used; the list starts `BELOW` 8 px under it |
+
+### UiTour
+
+| Signature | Does |
+|---|---|
+| `State` | Owner's timing state, kept across rebuilds: `alpha()` (fade in and out), `glow()` (0 to 1, constant with motion off), `blocking()` |
+| `Step(x, y, w, h, text, number, index, count, next, skip)` | Target in panel coordinates from the top left; the lit rect is `PAD` 4 larger. `text` null draws no box (fade out); `number` is highlighted in the text |
+| `add(p, w, h, step, state)` | Adds the overlay as the last child of `p`: call it at the end of the build so it draws over and takes input first. 70% black around the lit rect (all of it when `step` is null), glow and 1 px bright line; box `BOX_W` 360, `GAP` 8 right of the rect, else left, top edges level, kept inside `p`; Next 80 and Skip 64, or Done alone on the last step. Panel opacity follows `alpha()` every frame |
+| `pulse(time)` | 0 to 1: 0.4 s up, 0.9 s down, repeating |
 
 ## Rebuild and scroll pattern
 

@@ -50,7 +50,7 @@ public class GachaStationSpawner {
             }
         }
 
-        for (int i = 0; i < amt; i++) {
+        for (int i = 0; i < amt && !systemPicker.isEmpty(); i++) {
             placeStation(systemPicker.pickAndRemove());
         }
 

@@ -90,8 +90,9 @@ public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlocking
 
     @Override
     public void close() {
-        if (panel.isOpen()) panel.cancel();
-        else leave();
+        if (panel.isOpen()) {
+            if (!panel.skipTour()) panel.cancel();
+        } else leave();
     }
 
     public void leave() {

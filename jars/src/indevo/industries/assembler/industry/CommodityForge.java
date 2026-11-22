@@ -14,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.intel.MessageIntel;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.SharedSubmarketUserAPI;
@@ -159,6 +160,7 @@ public class CommodityForge extends VariableAssembler implements SharedSubmarket
             if (depositCounter >= maxDeposits) {
                 reset();
                 fireBurnedOutMessage();
+                Achievements.complete(Achievements.BURNOUT);
                 autoFeed();
             }
         }

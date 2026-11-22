@@ -19,11 +19,13 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.items.ForgeTemplateItemPlugin;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.NewDayListener;
@@ -273,6 +275,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
             FleetMemberAPI ship = ForgeTemplateItemPlugin.createNakedFleetMemberFromForgeTemplate(data);
             ForgeTemplateItemPlugin.addPrintDefectDMods(ship, ftQualityLevel, random);
+            if (market.isPlayerOwned() && ship.getVariant().hasHullMod(Ids.DEFECTS_HIGH)) Achievements.complete(Achievements.ITS_A_FEATURE);
 
             if (getAiCoreIdNotNull().equals(Commodities.ALPHA_CORE)) {
                 if (market.getName().toLowerCase().equals("eurobeat") || Global.getSettings().getBoolean("IndEvo_ToggleMagicRandomSelector"))
@@ -434,7 +437,7 @@ public class HullForge extends BaseForgeTemplateUser implements NewDayListener {
 
     private float getConstructionCost(ShipHullSpecAPI ship) {
         float bonus = getAiCoreIdNotNull().equals(Commodities.BETA_CORE) ? BETA_CORE_COST_RED_MULT : 1f;
-        return (ship.getBaseValue() * 0.2f) * bonus;
+        return (ship.getBaseValue() * 0.2f) * ExtModeHelper.shipBuyPriceMult(ship.getHullSize()) * bonus;
     }
 
     @Override

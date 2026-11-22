@@ -19,6 +19,7 @@ import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.BaseSalvageSpe
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.intel.DetachmentIntel;
@@ -96,6 +97,7 @@ public class CombatAndDerelictionScript implements EveryFrameScript, FleetEventL
             Global.getSector().getCampaignUI().addMessage(fleet.getName() + " has been destroyed in battle.", Misc.getNegativeHighlightColor());
             DetachmentMarines.clear(fleet);
             DetachmentIntel.end(fleet, "Destroyed in battle.");
+            if (!(param instanceof BattleAPI battle) || !battle.isPlayerInvolved()) Achievements.complete(Achievements.DELEGATION);
 
         } else if (reason == CampaignEventListener.FleetDespawnReason.REACHED_DESTINATION
                 && Behaviour.getFleetBehaviour(fleet, true) == Behaviour.FleetBehaviour.TRANSPORT) {

@@ -1,10 +1,15 @@
 package iecheck;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.ui.ButtonAPI;
+import com.fs.starfarer.api.ui.LabelAPI;
+import com.fs.starfarer.api.ui.PositionAPI;
+import indevo.config.PlayerSettings;
+import indevo.config.Setting;
 import indevo.console.PetCommand;
 import indevo.ids.Ids;
 import indevo.industries.petshop.PetMood;
@@ -15,17 +20,21 @@ import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.plugins.PetCard;
 import indevo.industries.petshop.plugins.PetsDialogPlugin;
+import indevo.industries.petshop.plugins.PetsPanel;
 import indevo.industries.petshop.plugins.PetsView;
 import org.apache.log4j.Logger;
 import org.lazywizard.console.BaseCommand;
 
+import java.awt.Color;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.invoke.VarHandle;
 import java.util.ArrayList;
 import java.util.List;
 
 // pet guidance stages 1 and 2 (PR #243): empty texts, locked Family tree and Planner with their buttons, unlock by the first young
 // and by a raised young growing up, the in flight panel, hearts and mood hover texts; holds on the Pets tab for hover shots
+// stage 3 (PR #247): the card's next heart line in every state, the ? glow per tab, the Husbandry tour and IndEvo_petTour
 public final class PetsGuideChecks {
     private static final Logger log = Global.getLogger(PetsGuideChecks.class);
     static final String TREE_REASON = Unlock.TREE.reason;
@@ -93,13 +102,141 @@ public final class PetsGuideChecks {
         }
     }
 
-    static String nextHeart(Pet pet) {
+    // part of the card's next heart line (text, number or color), null at 5 hearts
+    static Object heartLine(Pet pet, String part, Class<?> type) {
         try {
-            return (String) MethodHandles.privateLookupIn(PetCard.class, MethodHandles.lookup())
-                    .findStatic(PetCard.class, "nextHeart", MethodType.methodType(String.class, Pet.class)).invoke(pet);
+            Class<?> line = Class.forName(PetCard.class.getName() + "$HeartLine", false, PetCard.class.getClassLoader());
+            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(PetCard.class, MethodHandles.lookup());
+            Object next = lookup.findStatic(PetCard.class, "nextHeart", MethodType.methodType(line, Pet.class)).invoke(pet);
+            return next == null ? null : lookup.findVirtual(line, part, MethodType.methodType(type)).invoke(next);
         } catch (Throwable e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    static String nextHeart(Pet pet) {
+        return (String) heartLine(pet, "text", String.class);
+    }
+
+    static Color heartColor(Pet pet) {
+        return (Color) heartLine(pet, "color", Color.class);
+    }
+
+    static void starving(Pet pet, boolean on) {
+        try {
+            MethodHandles.privateLookupIn(Pet.class, MethodHandles.lookup()).findVarHandle(Pet.class, "isStarving", boolean.class).set(pet, on);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    static PetsDialogPlugin plugin() {
+        InteractionDialogAPI d = Global.getSector().getCampaignUI().getCurrentInteractionDialog();
+        return d != null && d.getPlugin() instanceof PetsDialogPlugin plugin ? plugin : null;
+    }
+
+    static PetsPanel panel() {
+        PetsDialogPlugin plugin = plugin();
+        if (plugin == null) return null;
+        try {
+            return (PetsPanel) MethodHandles.privateLookupIn(PetsDialogPlugin.class, MethodHandles.lookup()).findVarHandle(PetsDialogPlugin.class, "panel", PetsPanel.class).get(plugin);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    static VarHandle handle(Class<?> owner, String name, Class<?> type) {
+        try {
+            return MethodHandles.privateLookupIn(owner, MethodHandles.lookup()).findVarHandle(owner, name, type);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    // the running tour step 1 to 4, 0 before it starts, -1 once it ended, -9 with no panel
+    static int tourStep() {
+        PetsPanel p = panel();
+        if (p == null) return -9;
+        try {
+            Class<?> type = Class.forName("indevo.industries.petshop.plugins.PetTour", false, PetsPanel.class.getClassLoader());
+            Object tour = handle(PetsPanel.class, "tour", type).get(p);
+            int step = (int) handle(type, "step", int.class).get(tour);
+            float end = (float) handle(type, "end", float.class).get(tour);
+            return end >= 0f ? -1 : step;
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    // the tab whose ? pulses, -1 for none, -9 with no panel
+    static int helpTab() {
+        PetsPanel p = panel();
+        return p == null ? -9 : (int) handle(PetsPanel.class, "helpTab", int.class).get(p);
+    }
+
+    static boolean tourSetting() {
+        Boolean stored = lunalib.lunaSettings.LunaSettings.getBoolean(PlayerSettings.MOD_ID, Setting.PET_TOUR.id);
+        return Setting.PET_TOUR.enabled() && Boolean.TRUE.equals(stored);
+    }
+
+    static String tourLine() {
+        return "tour step " + tourStep() + ", help tab " + helpTab() + ", IndEvo_petTour " + Setting.PET_TOUR.enabled() + " / luna "
+                + lunalib.lunaSettings.LunaSettings.getBoolean(PlayerSettings.MOD_ID, Setting.PET_TOUR.id);
+    }
+
+    static void labels(Object node, String text, List<LabelAPI> out) {
+        if (node instanceof LabelAPI l && text.equals(l.getText())) out.add(l);
+        for (Object child : UiAudit.children(node)) labels(child, text, out);
+    }
+
+    static void buttonsIn(Object node, List<ButtonAPI> out) {
+        if (node instanceof ButtonAPI b) out.add(b);
+        for (Object child : UiAudit.children(node)) buttonsIn(child, out);
+    }
+
+    // runs the enabled button under the n-th label that reads exactly text: habitat and adult rows
+    static boolean clickNth(Object root, String text, int n) {
+        List<LabelAPI> found = new ArrayList<>();
+        labels(root, text, found);
+        if (found.size() <= n) return false;
+        PositionAPI lp = found.get(n).getPosition();
+        float x = lp.getCenterX(), y = lp.getCenterY();
+        List<ButtonAPI> all = new ArrayList<>();
+        buttonsIn(root, all);
+        for (ButtonAPI b : all) {
+            PositionAPI p = b.getPosition();
+            if (b.isEnabled() && b.getCustomData() instanceof Runnable action && x >= p.getX() && x <= p.getX() + p.getWidth() && y >= p.getY() && y <= p.getY() + p.getHeight()) {
+                action.run();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static Object root() {
+        UiAudit.Found f = UiAudit.find();
+        return f == null ? null : f.content();
+    }
+
+    // opens the panel fresh on tab, after the old one is gone
+    static void reopen(List<Step> steps, int tab, String selected) {
+        steps.add(c -> {
+            c.keepDialog(true);
+            UiAudit.dismissDialog();
+            c.frames(10);
+        });
+        steps.add(c -> {
+            PetsDialogPlugin.show(shop(c), view(c, tab, selected));
+            c.frames(120);
+        });
+    }
+
+    static void shot(List<Step> steps, String name) {
+        steps.add(c -> {
+            targets(name);
+            c.frames(15);
+        });
+        steps.add(c -> c.shot(name));
     }
 
     static String moodTip(Pet pet) {
@@ -139,6 +276,9 @@ public final class PetsGuideChecks {
             shop(c).finishBuildingOrUpgrading();
             Global.getSector().getPlayerFleet().getCargo().addCommodity("food", 2000f);
             Global.getSector().getPlayerFleet().getCargo().getCredits().add(200000f);
+            // the tour defaults on and would cover the stage 1 Husbandry views
+            Colony.setting(Setting.PET_TOUR, false);
+            Colony.setting(Setting.PET_MOTION, true);
             cmd("lock");
             c.expect(!manager().isOpen(Unlock.TREE) && !manager().isOpen(Unlock.PLAN), "indevo_pet lock: Family tree and Planner locked");
             c.note("pets " + manager().getPets().size());
@@ -278,13 +418,18 @@ public final class PetsGuideChecks {
             for (Pet p : List.of(fresh, three, four, moved, sup))
                 c.note("TIP " + p.name + ": hearts " + p.getHearts() + ", fav " + p.favourite + ", mood " + p.getMood() + " | next: " + nextHeart(p) + " | mood tip: " + moodTip(p));
             c.expect(nextHeart(fresh).startsWith("Next heart in "), "fresh pet: next heart in days");
-            c.expect(nextHeart(three).equals("Star it as a favourite to pass 3 hearts."), "3 hearts, not a favourite: star it");
-            c.expect(nextHeart(four).startsWith("Answer its wants: about "), "favourite at 4: answer its wants");
-            c.expect(nextHeart(moved).equals("Hearts do not grow while it is Unsettled.") && moodTip(moved).equals("Moved to a new ship. Its talents are off for 3 days."), "Unsettled: hearts and mood tip");
+            c.expect(nextHeart(three).equals("Star it to pass 3 hearts"), "3 hearts, not a favourite: star it");
+            c.expect(nextHeart(four).startsWith("Answer its wants, about "), "favourite at 4: answer its wants");
+            c.expect(nextHeart(sup).startsWith("Next heart in ") && nextHeart(sup).endsWith(" (Supplies)"), "on Supplies: next heart line names it");
+            c.expect(nextHeart(moved).equals("Paused while Unsettled") && moodTip(moved).equals("Moved to a new ship. Its talents are off for 3 days."), "Unsettled: hearts and mood tip");
             c.expect(moodTip(sup) != null && moodTip(sup).startsWith("It ate Supplies. Hearts grow at "), "on Supplies: mood tip");
         });
 
-        // hold on the Pets tab for hovers
+        stage3(steps);
+        if (System.getProperty("ie.switches", "").contains("tourhold")) return steps;
+
+        // hold on the Pets tab for hovers; the lock lets the ? pulse again for the mouse over check
+        steps.add(c -> cmd("lock"));
         steps.add(c -> {
             c.keepDialog(true);
             UiAudit.dismissDialog();
@@ -300,5 +445,238 @@ public final class PetsGuideChecks {
             c.frames(100000000);
         });
         return steps;
+    }
+
+    static final String[] HEART_CARDS = {"Newbie", "Supplied", "Stored", "Moved", "Hungry", "Threeheart", "Fourheart", "Fiveheart"};
+
+    static void stage3(List<Step> steps) {
+        boolean tourHold = System.getProperty("ie.switches", "").contains("tourhold");
+
+        // card next heart line: every state, the paused ones in the negative colour
+        steps.add(c -> {
+            Pet stored = pet(c, "doge", "Stored", 300f);
+            FleetMemberAPI ship = stored.assignedFleetMember;
+            stored.place(null, shop(c));
+            if (ship != null) Global.getSector().getPlayerFleet().getFleetData().removeFleetMember(ship);
+            starving(pet(c, "doge", "Hungry", 300f), true);
+            Pet five = pet(c, "doge", "Fiveheart", 300f);
+            five.setFavourite(true);
+            cmd("hearts " + five.id + " 5");
+
+            Color neg = indevo.utils.ui.Ui.neg(), gray = indevo.utils.ui.Ui.gray();
+            for (String name : HEART_CARDS) {
+                Pet p = get(c, name);
+                c.note("HEART " + name + ": hearts " + p.getHearts() + ", fav " + p.favourite + ", aboard " + p.isAboard() + " | " + nextHeart(p) + " | "
+                        + heartLine(p, "number", String.class) + " | " + heartColor(p));
+            }
+            c.expect(nextHeart(get(c, "Newbie")).matches("Next heart in \\d+ days?") && gray.equals(heartColor(get(c, "Newbie"))), "fresh: Next heart in N days, grey");
+            c.expect(nextHeart(get(c, "Supplied")).matches("Next heart in \\d+ days? \\(Supplies\\)"), "on Supplies: (Supplies)");
+            c.expect("Grows only on a ship".equals(nextHeart(stored)) && gray.equals(heartColor(stored)), "stored: Grows only on a ship, grey");
+            c.expect("Paused while Unsettled".equals(nextHeart(get(c, "Moved"))) && neg.equals(heartColor(get(c, "Moved"))), "Unsettled: paused, negative colour");
+            c.expect("Paused while starving".equals(nextHeart(get(c, "Hungry"))) && neg.equals(heartColor(get(c, "Hungry"))), "starving: paused, negative colour");
+            c.expect(five.getHearts() == 5 && nextHeart(five) == null, "5 hearts: no line (" + five.getHearts() + ")");
+            String days = (String) heartLine(get(c, "Newbie"), "number", String.class);
+            c.expect(days != null && days.matches("\\d+") && nextHeart(get(c, "Newbie")).contains(days), "the day count is the highlighted number (" + days + ")");
+        });
+        if (!tourHold) for (String name : HEART_CARDS) {
+            // capture names drop capitals
+            UiViews.view(steps, "guide-heart-" + name.toLowerCase(),c -> PetsDialogPlugin.show(shop(c), view(c, PetsView.TAB_PETS, name)), (c, f) -> {
+                String line = nextHeart(get(c, name));
+                if (line != null) c.expect(has(f, line), name + " card shows \"" + line + "\"");
+                else c.expect(!has(f, "Next heart") && !has(f, "Star it") && !has(f, "Answer its wants"), name + " card shows no heart line");
+            });
+        }
+
+        // ? glow: once per tab, the first time it opens; a tab change ends it
+        if (!tourHold) {
+            steps.add(c -> cmd("lock"));
+            reopen(steps, PetsView.TAB_PETS, "Newbie");
+            steps.add(c -> c.expect(helpTab() == PetsView.TAB_PETS, "first Pets tab: the ? pulses (" + tourLine() + ")"));
+            shot(steps, "guide-glow-pets-a");
+            shot(steps, "guide-glow-pets-b");
+            steps.add(c -> {
+                c.expect(UiAudit.clickPrefix(root(), "Husbandry"), "click the Husbandry tab");
+                c.frames(30);
+            });
+            steps.add(c -> c.expect(helpTab() == PetsView.TAB_HUSBANDRY, "first Husbandry tab: its ? pulses, the Pets one stopped (" + tourLine() + ")"));
+            shot(steps, "guide-glow-husb");
+            steps.add(c -> {
+                c.expect(UiAudit.clickPrefix(root(), "Pets"), "click the Pets tab");
+                c.frames(30);
+            });
+            steps.add(c -> c.expect(helpTab() == -1, "Pets tab again: no pulse (" + tourLine() + ")"));
+            shot(steps, "guide-glow-pets-again");
+            reopen(steps, PetsView.TAB_PETS, "Newbie");
+            steps.add(c -> c.expect(helpTab() == -1, "panel opened again: no pulse (" + tourLine() + ")"));
+
+            // IndEvo_petMotion off: the ? is still and bright
+            steps.add(c -> {
+                Colony.setting(Setting.PET_MOTION, false);
+                cmd("lock");
+            });
+            reopen(steps, PetsView.TAB_PETS, "Newbie");
+            steps.add(c -> c.expect(helpTab() == PetsView.TAB_PETS, "motion off: the ? lights (" + tourLine() + ")"));
+            shot(steps, "guide-glow-still-a");
+            shot(steps, "guide-glow-still-b");
+            steps.add(c -> Colony.setting(Setting.PET_MOTION, true));
+        }
+
+        // Husbandry tour, the help seen set cleared so the ? would pulse if the tour let it
+        steps.add(c -> {
+            cmd("lock");
+            Colony.setting(Setting.PET_TOUR, true);
+            c.note("broods " + shop(c).getBroods().size() + " of " + shop(c).getHabitatCount() + " habitats");
+            c.expect(tourSetting(), "IndEvo_petTour on");
+        });
+        if (tourHold) {
+            reopen(steps, PetsView.TAB_HUSBANDRY, null);
+            steps.add(c -> {
+                c.note(tourLine());
+                targets("guide-tourhold");
+                log.info("LIVE_CHECK hold");
+                c.frames(100000000);
+            });
+            return;
+        }
+
+        // Next through all four steps, then Done
+        reopen(steps, PetsView.TAB_HUSBANDRY, null);
+        steps.add(c -> {
+            c.expect(tourStep() == 1, "Husbandry opens on tour step 1 (" + tourLine() + ")");
+            c.expect(helpTab() == -1, "no ? pulse under the tour (" + tourLine() + ")");
+            c.expect(!buttons(root(), "Next").isEmpty() && !buttons(root(), "Skip").isEmpty() && buttons(root(), "Done").isEmpty(), "step 1 has Next and Skip");
+            c.expect(has(UiAudit.find(), "Two pets in one habitat raise a spawn. Pick a free one."), "step 1 text");
+        });
+        shot(steps, "guide-tour-1");
+        String[] texts = {null, null, "Pick two adults of one species. No match shows pets without a partner here.","These set the odds for each young.", "Pair starts the incubation. Pick two adults first."};
+        for (int s = 2; s <= 4; s++) {
+            int step = s;
+            steps.add(c -> {
+                c.expect(UiAudit.click(root(), "Next"), "click Next to step " + step);
+                c.frames(20);
+            });
+            steps.add(c -> {
+                c.expect(tourStep() == step, "tour step " + step + " (" + tourLine() + ")");
+                c.expect(has(UiAudit.find(), texts[step]), "step " + step + " text: " + texts[step]);
+                c.expect(tourSetting(), "IndEvo_petTour still on mid tour");
+            });
+            shot(steps, "guide-tour-" + step);
+        }
+        steps.add(c -> {
+            c.expect(buttons(root(), "Next").isEmpty() && buttons(root(), "Skip").isEmpty() && buttons(root(), "Done").size() == 1, "step 4 has only Done");
+            c.expect(UiAudit.click(root(), "Done"), "click Done");
+            c.frames(30);
+        });
+        steps.add(c -> {
+            c.expect(tourStep() == -1, "Done ends the tour (" + tourLine() + ")");
+            c.expect(!tourSetting() && Boolean.FALSE.equals(lunalib.lunaSettings.LunaSettings.getBoolean(PlayerSettings.MOD_ID, Setting.PET_TOUR.id)), "Done switches IndEvo_petTour off in LunaLib");
+            c.note("after the tour: " + tourLine());
+        });
+        shot(steps, "guide-tour-done");
+        reopen(steps, PetsView.TAB_HUSBANDRY, null);
+        steps.add(c -> c.expect(tourStep() == 0, "setting off: no tour on the next opening (" + tourLine() + ")"));
+
+        // Skip
+        steps.add(c -> Colony.setting(Setting.PET_TOUR, true));
+        reopen(steps, PetsView.TAB_HUSBANDRY, null);
+        steps.add(c -> {
+            c.expect(tourStep() == 1 && UiAudit.click(root(), "Skip"), "click Skip on step 1");
+            c.frames(30);
+        });
+        steps.add(c -> c.expect(tourStep() == -1 && !tourSetting(), "Skip ends the tour and switches the setting off (" + tourLine() + ")"));
+
+        // escape: the dialog's close ends the tour and keeps the panel
+        steps.add(c -> Colony.setting(Setting.PET_TOUR, true));
+        reopen(steps, PetsView.TAB_HUSBANDRY, null);
+        steps.add(c -> {
+            c.expect(tourStep() == 1, "tour on step 1 again");
+            plugin().close();
+            c.frames(30);
+        });
+        steps.add(c -> {
+            c.expect(tourStep() == -1 && !tourSetting(), "escape ends the tour and switches the setting off (" + tourLine() + ")");
+            c.expect(panel() != null && panel().isOpen(), "escape leaves the panel open");
+        });
+        shot(steps, "guide-tour-escaped");
+
+        // the panel closed mid tour keeps the setting and starts again on the next opening
+        steps.add(c -> Colony.setting(Setting.PET_TOUR, true));
+        reopen(steps, PetsView.TAB_HUSBANDRY, null);
+        steps.add(c -> {
+            c.expect(UiAudit.click(root(), "Next"), "Next to step 2");
+            c.frames(20);
+        });
+        steps.add(c -> {
+            c.expect(tourStep() == 2, "tour on step 2 before closing");
+            UiAudit.close(UiAudit.find());
+            c.frames(30);
+        });
+        steps.add(c -> {
+            UiAudit.dismissDialog();
+            c.frames(10);
+        });
+        steps.add(c -> c.expect(tourSetting(), "closing the panel mid tour keeps IndEvo_petTour on (" + tourLine() + ")"));
+        reopen(steps, PetsView.TAB_HUSBANDRY, null);
+        steps.add(c -> c.expect(tourStep() == 1, "the next opening starts the tour on step 1 (" + tourLine() + ")"));
+
+        // the tour follows the player: a free habitat, two adults, the chart lit with them, Pair starts the brood and ends it
+        steps.add(c -> {
+            c.note("habitat labels: Empty x" + count(root(), "Empty"));
+            c.expect(clickNth(root(), "Empty", 1), "click the second free habitat");
+            c.frames(20);
+        });
+        steps.add(c -> c.expect(tourStep() == 2, "picking a habitat moves to step 2 (" + tourLine() + ")"));
+        shot(steps, "guide-tour-act-habitat");
+        steps.add(c -> {
+            c.expect(clickNth(root(), "Rex", 0), "pick Rex");
+            c.frames(20);
+        });
+        steps.add(c -> {
+            c.expect(tourStep() == 2, "one adult keeps step 2");
+            c.expect(clickNth(root(), "Lia", 0), "pick Lia");
+            c.frames(20);
+        });
+        steps.add(c -> c.expect(tourStep() == 3, "two adults move to step 3 (" + tourLine() + ")"));
+        shot(steps, "guide-tour-act-dials");
+        steps.add(c -> {
+            c.expect(UiAudit.click(root(), "Next"), "Next to step 4");
+            c.frames(20);
+        });
+        steps.add(c -> {
+            c.expect(tourStep() == 4 && has(UiAudit.find(), "Pair starts the incubation. It takes "), "step 4 names the days (" + tourLine() + ")");
+            c.put("broods", shop(c).getBroods().size());
+        });
+        shot(steps, "guide-tour-act-pair");
+        steps.add(c -> {
+            c.expect(UiAudit.click(root(), "Pair"), "click Pair");
+            c.frames(30);
+        });
+        steps.add(c -> {
+            c.expect(shop(c).getBroods().size() == (int) c.get("broods") + 1, "Pair starts the brood (" + shop(c).getBroods().size() + ")");
+            c.expect(tourStep() == -1 && !tourSetting(), "Pair ends the tour and switches the setting off (" + tourLine() + ")");
+        });
+        shot(steps, "guide-tour-act-paired");
+
+        // motion off: the lit line is still and bright
+        steps.add(c -> {
+            Colony.setting(Setting.PET_MOTION, false);
+            Colony.setting(Setting.PET_TOUR, true);
+        });
+        reopen(steps, PetsView.TAB_HUSBANDRY, null);
+        steps.add(c -> c.expect(tourStep() == 1, "motion off: tour on step 1"));
+        shot(steps, "guide-tour-still-a");
+        shot(steps, "guide-tour-still-b");
+        steps.add(c -> {
+            UiAudit.click(root(), "Skip");
+            Colony.setting(Setting.PET_MOTION, true);
+            c.frames(20);
+        });
+        steps.add(c -> c.note("end of tour checks: " + tourLine()));
+    }
+
+    static int count(Object root, String text) {
+        List<LabelAPI> found = new ArrayList<>();
+        labels(root, text, found);
+        return found.size();
     }
 }

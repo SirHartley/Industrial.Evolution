@@ -23,6 +23,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.DynamicStatsAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.economy.RelicSpeedUpTarget;
 import indevo.ids.Ids;
@@ -30,6 +31,7 @@ import indevo.ids.ItemIds;
 import indevo.industries.compatibility.AotdManager;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.NewDayListener;
 
@@ -152,6 +154,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return Misc.getOfficerSalary(person, Misc.isMercenary(person), false, false);
     }
 
+    public static float getStoredOfficerSalaryMult() {
+        return Misc.getOfficerInactiveSalaryMult();
+    }
+
     public static Academy get(MarketAPI market) {
         return market != null && market.hasIndustry(Ids.ACADEMY) ? (Academy) market.getIndustry(Ids.ACADEMY) : null;
     }
@@ -170,11 +176,11 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (isFunctional()) {
             if (spawnsHireables()) {
                 //spawn officers/admins if the market has none:
-                if (!marketHasHireableOfficer(false) && getRandomBoolean(Setting.DAILY_OFFICER_SPAWN_CHANCE.value())) {
+                if (!marketHasHireableOfficer(false) && getRandomBoolean(Setting.DAILY_OFFICER_SPAWN_CHANCE.value() * getHireChanceMult("ext_officersAvailableFraction"))) {
                     createHireablePerson(false);
                 }
 
-                if (!marketHasHireableOfficer(true) && getRandomBoolean(Setting.DAILY_ADMIN_SPAWN_CHANCE.value())) {
+                if (!marketHasHireableOfficer(true) && getRandomBoolean(Setting.DAILY_ADMIN_SPAWN_CHANCE.value() * getHireChanceMult("ext_adminAvailableFraction"))) {
                     createHireablePerson(true);
                 }
             }
@@ -188,6 +194,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
 
     protected boolean spawnsHireables() {
         return !market.getId().equals(Ids.ACADEMY_MARKET_ID);
+    }
+
+    private float getHireChanceMult(String key) {
+        return market.isPlayerOwned() ? 1f : ExtModeHelper.mult(key);
     }
 
     // player rules for fees and training; the rat settlement Officer Quarters is never player owned but counts
@@ -285,7 +295,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         float totalCost = 0;
 
         for (PersonAPI person : getOfficerStorage()) {
-            totalCost += getBaseSalary(person);
+            totalCost += getBaseSalary(person) * getStoredOfficerSalaryMult();
         }
 
         for (PersonAPI person : getAdminStorage()) {
@@ -699,6 +709,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         if (mentored) Misc.setMentored(officerInTraining, true);
 
         PersonalityAPI newPersonality = officerInTraining.getPersonalityAPI();
+        Achievements.addPersonality(officerInTraining, oldPersonality.getId(), newPersonality.getId());
 
         moveOfficerInTrainingToStorage();
         clearOfficerTraining();

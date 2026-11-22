@@ -44,6 +44,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
         public float impactSeconds;
         public SectorEntityToken track;
         public Vector2f trackOffset;
+        public boolean remote;
 
         public MissileParams(SectorEntityToken origin, Vector2f target, float impactSeconds, Vector2f trajectoryCenter, float trajectoryRadius, float splitAngleOnTrajectory) {
             this.origin = origin;
@@ -96,6 +97,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
     private float timePassedSeconds = 0f;
     public SectorEntityToken origin;
     public Vector2f target;
+    public boolean remote;
     public Vector2f trajectoryCenter;
     public float trajectoryRadius;
     public float splitAngleOnTrajectory;
@@ -137,6 +139,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
             this.warningSeconds = impactSeconds;
             this.track = ((MissileParams) pluginParams).track;
             this.trackOffset = ((MissileParams) pluginParams).trackOffset;
+            this.remote = ((MissileParams) pluginParams).remote;
 
             trailID = MagicCampaignTrailPlugin.getUniqueID();
 
@@ -215,6 +218,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
                 Setting.ARTILLERY_MISSILE_DURATION.value(),
                 size);
 
+        p.remote = remote;
         ECMExplosion.spawn(p);
     }
 
@@ -371,6 +375,7 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
                     target,
                     MathUtils.getRandomNumberInRange(SUBMUNITION_MIN_DURATION, SUBMUNITION_MAX_DURATION));
 
+            p.remote = remote;
             MissileSubmunitionEntity.spawn(p);
         }
     }

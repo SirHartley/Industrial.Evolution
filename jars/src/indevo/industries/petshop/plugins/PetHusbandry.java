@@ -90,6 +90,9 @@ public class PetHusbandry {
 
     void build(CustomPanelAPI p, float w, float h) {
         int selected = resolveHabitat();
+        float[][] targets = panel.tour().targets;
+        Arrays.fill(targets, null);
+        targets[PetTour.CARD] = new float[]{PetsPanel.CARD_X, PetsPanel.BODY_Y, w - PetsPanel.CARD_X, h - PetsPanel.BODY_Y};
         float y = addHabitats(p, PetsPanel.BODY_Y, selected);
         addAdults(p, y, h, selected);
         Ui.vrule(p, PetsPanel.LIST_W + 5f, PetsPanel.BODY_Y, h - PetsPanel.BODY_Y);
@@ -117,6 +120,7 @@ public class PetHusbandry {
         y += Ui.HEADING_H + 4f;
 
         for (int i = 0; i < shop.getHabitatCount(); i++) habitat(p, 2f + i * HAB_PITCH, y, i, i == selected);
+        panel.tour().targets[PetTour.HABITATS] = new float[]{0f, PetsPanel.BODY_Y, PetsPanel.LIST_W - 10f, y - PetsPanel.BODY_Y + HAB_H};
         return y + HAB_H + PetsPanel.HEAD_GAP;
     }
 
@@ -124,6 +128,7 @@ public class PetHusbandry {
         PetBrood brood = shop.getBrood(index);
         CustomPanelAPI t = UiButtons.row(p, x, y, HAB_W, HAB_H, selected, true, null, () -> {
             view.habitat = index;
+            if (brood == null && panel.tour().at(PetTour.HABITATS)) panel.tour().next();
             panel.refresh();
         });
 
@@ -206,6 +211,7 @@ public class PetHusbandry {
         int pairs = 0;
         for (int n : perSpecies.values()) if (n >= 2) pairs += n;
         String count = filter.isFiltering() ? shown.size() + " of " + all.size() : String.valueOf(pairs);
+        float head = y;
         Ui.heading(p, 0f, y, PetsPanel.LIST_W - 10f, "Adults", count);
         y += Ui.HEADING_H + 4f;
 
@@ -222,11 +228,18 @@ public class PetHusbandry {
         float top = y + bar + UiFilter.BELOW;
 
         UiScroll.Column list = UiScroll.list(p, 0f, top, PetsPanel.LIST_W, h - top, view.scroll, PetsView.ADULTS);
+        float shownH;
         if (shown.isEmpty()) {
             String empty = all.isEmpty() ? "No adults here. A pet can pair once it is no longer Young."
                     : filter.isFiltering() ? "No adult matches." : "No two adults of one species here. Buy or adopt a second one.";
-            Ui.wrap(list.block(Ui.wrapHeight(empty, Ui.INS15, list.width()), 0f), 0f, 0f, list.width(), empty, Ui.gray());
+            shownH = Ui.wrapHeight(empty, Ui.INS15, list.width());
+            Ui.wrap(list.block(shownH, 0f), 0f, 0f, list.width(), empty, Ui.gray());
+        } else {
+            int rows = (shown.size() + PetsPanel.PER_ROW - 1) / PetsPanel.PER_ROW;
+            shownH = rows * TILE_H + (rows - 1) * PetsPanel.TILE_GAP;
         }
+        panel.tour().targets[PetTour.ADULTS] = new float[]{0f, head, PetsPanel.LIST_W - 10f, top - head + Math.min(shownH, h - top)};
+        panel.tour().pairPossible = pairs > 0;
 
         boolean free = shop.getBrood(habitat) == null;
         for (int row = 0; row * PetsPanel.PER_ROW < shown.size(); row++) {
@@ -362,6 +375,7 @@ public class PetHusbandry {
             pair.add(pet.id);
         }
 
+        if (pair.size() == 2 && panel.tour().at(PetTour.ADULTS)) panel.tour().next();
         panel.refresh();
     }
 
@@ -393,6 +407,11 @@ public class PetHusbandry {
         title(p, w, pair ? a.name + " x " + b.name : "Habitat " + (habitat + 1));
         tagline(p, w, pair ? kinLine(a, b) : a != null ? "Pick a second " + a.getData().species + "." : "Pick two adults of one species.");
         dials(p, w, a, b);
+        PetTour tour = panel.tour();
+        float litH = pair && a.typeID.equals(b.typeID) ? h - DETAIL_BOTTOM - DIALS_Y : 2 * DIAL_ROW;
+        tour.targets[PetTour.DIALS] = new float[]{PetsPanel.CARD_X, PetsPanel.BODY_Y + DIALS_Y, w, litH};
+        tour.targets[PetTour.PAIR] = new float[]{PetsPanel.CARD_X + w - START_W, PetsPanel.BODY_Y + h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H};
+        tour.pairDays = null;
         if (pair && a.typeID.equals(b.typeID)) {
             cross(p, w, h, a, b);
             treeButton(p, h, a, b);
@@ -411,6 +430,7 @@ public class PetHusbandry {
             PetSheet sb = view.reveal.seen(b);
             String size = broodSize(PetGenetics.broodRange(data, sa, sb, PetDataRepo.getTraits()));
             String days = String.valueOf(Math.round(PetGenetics.broodDays(data, sa, sb, PetDataRepo.getTraits())));
+            tour.pairDays = days;
             List<String> parts = new ArrayList<>(List.of(sizeParts(size)));
             parts.add(days);
             Ui.runs(p, 0f, y, 300f, Ui.INS15, Ui.gray(), Ui.LEFT, size + " in " + days + " days", parts.toArray(new String[0]), hls(parts.size()));
@@ -425,8 +445,8 @@ public class PetHusbandry {
         Ui.rule(p, 0f, h - 36f, w);
         ButtonAPI start = UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Pair",
                 reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.GREEN, CutStyle.TL_BR, reason != null ? null : () -> start(a, b, habitat));
-        if (reason != null) Ui.tooltip(p, start, "Pair", reason);
-        else Ui.tooltip(p, start, "Pair", "Both go into the habitat until the young arrive.");
+        if (reason != null) Ui.bottomTooltip(p, start, "Pair", reason);
+        else Ui.bottomTooltip(p, start, "Pair", "Both go into the habitat until the young arrive.");
     }
 
     private String startBlock(Pet a, Pet b, boolean broke, float fee, float credits) {
@@ -444,6 +464,7 @@ public class PetHusbandry {
 
     private void start(Pet a, Pet b, int habitat) {
         shop.startBrood(a, b, habitat);
+        panel.tour().finish();
         view.pair.clear();
         view.habitat = -1;
         panel.refresh();
@@ -476,7 +497,7 @@ public class PetHusbandry {
     private static void dial(CustomPanelAPI p, float x, float y, float w, String label, String value, Color color, String title, String... lines) {
         CustomPanelAPI row = Ui.panel(p, x, y, w, DIAL_ROW);
         UiData.value(row, 0f, 0f, w, DIAL_ROW, label, value, color, new String[0], new Color[0]);
-        Ui.tooltip(p, row, title, lines);
+        Ui.solidTooltip(p, row, title, lines);
     }
 
     static String percent(float f) {
@@ -822,7 +843,7 @@ public class PetHusbandry {
         ButtonAPI cancel = UiButtons.button(p, w - cw, h - PetCard.BUTTON_H, cw, PetCard.BUTTON_H, "Cancel pairing", UiButtons.Kind.AMBER, CutStyle.TL_BR,
                 () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Cancel the pairing of %s and %s?", 0f,
                         new Color[]{hl, hl}, a.name, b.name), () -> shop.cancelBrood(brood))));
-        Ui.tooltip(p, cancel, "Cancel pairing", "Both parents go back to Pet storage, Unsettled for " + Math.round(PetConstants.UNSETTLED_DAYS) + " days.");
+        Ui.bottomTooltip(p, cancel, "Cancel pairing", "Both parents go back to Pet storage, Unsettled for " + Math.round(PetConstants.UNSETTLED_DAYS) + " days.");
     }
 
     private void readyCard(CustomPanelAPI p, float w, float h, PetBrood brood) {

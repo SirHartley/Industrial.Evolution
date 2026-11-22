@@ -46,6 +46,7 @@ Order: `OpenInteractionDialog rules -> dialog shown -> BeaconDialogueListener ad
 - The in-system check is only `isInHyperspace()`; beacons inside star systems never get the option.
 - Intel removal matches `WarningBeaconIntel.getMapLocation(null) == target`; vanilla returns the beacon itself there (`api/impl/campaign/intel/misc/WarningBeaconIntel.java:175`, hyperspace remap branch disabled with `&& false`).
 - `IndEvo_RemoveCurrentInteractionTarget` fades any target, not only beacons; keep it on beacon rules only.
+- `IndEvo_RemoveCurrentInteractionTarget` unlocks an achievement when it removes a warning beacon ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

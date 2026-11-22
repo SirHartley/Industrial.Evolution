@@ -31,6 +31,8 @@ public final class Groups {
                 return PetsScanChecks.steps();
             case "rc7pay":
                 return Rc7PayChecks.steps();
+            case "survival":
+                return SurvivalChecks.steps();
             case "petstree":
                 return PetsTreeChecks.steps();
             case "petsplan":

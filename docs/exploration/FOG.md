@@ -116,6 +116,7 @@ Tuning constants are public statics on their owner: roll chances, caps, duration
 - `ShaderLib.loadShader` returns 0 when the shader fails (GraphicsLib 1.9.0). `FogRenderer` then logs a warning once and draws the plain mesh.
 - Fog shader uniforms and the texture layout are coupled between `FogRenderer.renderShader`, `FogGrid.pack` and `indevo_fogFragment.shader`. `keep()` in the shader and `FogGrid.Shape.keepAt` must stay the same math, apart from the shader's edge wobble: effects read `keepAt`, the player sees `keep()`.
 - Couplings: `MeteorSwarmManager.METEOR_TAG` ([Meteor](METEOR.md)); the artillery projectile plugins, `RailgunProjectileEntityPlugin.isFired()` and `originLocation` ([Artillery](../industries/ARTILLERY.md)); `BaseMissileEntityPlugin` (consumable missiles); `MiscIE.getRandomInRange` ([Utils](../core/UTILS.md)); `Setting.FOG_ENABLED` ([Settings](../core/SETTINGS.md)).
+- `AchievementCampaignListener` reads `MEM_LURKER` on battle fleets ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

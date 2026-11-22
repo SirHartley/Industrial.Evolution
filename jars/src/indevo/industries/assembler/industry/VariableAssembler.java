@@ -17,6 +17,7 @@ import indevo.industries.compatibility.AotdManager;
 import indevo.items.VPCItemPlugin;
 import indevo.items.installable.NamedItemSlotPlugin;
 import indevo.items.memory.VPCCommodityRepo.Commodity;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
@@ -138,11 +139,12 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
         int deficit = getMaxDeficitAllDemand().two;
         float deficitMult = 1 - (deficit / (getSupply(commodity.id()).getQuantity().getModifiedValue() + deficit));
 
-        return getDepositAmount(commodity.getDeposit(getId()), getLogIncrease(), market.getSize() - 2, aiCoreMult * getTimeMult() * outputMult * deficitMult);
+        return getDepositAmount(commodity.id(), commodity.getDeposit(getId()), getLogIncrease(), market.getSize() - 2, aiCoreMult * getTimeMult() * outputMult * deficitMult);
     }
 
-    public static int getDepositAmount(int base, float logIncrease, int sizeMult, float mult) {
-        int total = Math.round((Math.round(((logIncrease * Math.log(sizeMult)) + base) / 10) * 10) * mult);
+    // deposits are a credit budget at normal mode prices, survival mode price factors would multiply it
+    public static int getDepositAmount(String commodityId, int base, float logIncrease, int sizeMult, float mult) {
+        int total = Math.round((Math.round(((logIncrease * Math.log(sizeMult)) + base) / 10) * 10) * mult / ExtModeHelper.commodityPriceMult(commodityId));
         return Math.max(0, total);
     }
 
