@@ -37,8 +37,8 @@ public class MortarProjectileEntityPlugin extends BaseCustomEntityPlugin {
     public static final float MAX_RETICULE_ALPHA = 0.7f;
     public static final float PROJECTILE_VELOCITY = 1500f;
     public static final float MIN_LAUNCH_DELAY = 0.5f;
-    // min delay plus the mean of the 0 to 3 s warning spread
-    public static final float AVERAGE_LAUNCH_DELAY = MIN_LAUNCH_DELAY + 1.5f;
+    public static final float WARNING_SPREAD = 2.4f;
+    public static final float AVERAGE_LAUNCH_DELAY = MIN_LAUNCH_DELAY + WARNING_SPREAD * 0.5f;
     public static final float MIN_RETARGET_SPEED_MULT = 0.25f;
     public static final float MAX_RETARGET_SPEED_MULT = 3f;
     public static final float TRAIL_TIME = 0.1f;
