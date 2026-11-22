@@ -59,10 +59,10 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 |---|---|---|
 | `instanceof HeavyIndustry` (vanilla `heavyindustry` and `orbitalworks`, both use that plugin in vanilla `data/campaign/industries.csv`) | `min(size - 3, 3)` | `size` |
 | Shadowyards `MS_modularFac` / `MS_fabUpgrader`, only if `shadow_ships` enabled | `MODULARFACTORIES` size-3, `PARALLEL_PRODUCTION` size-2 | `MILITARY_LINES` size-4, `SHIPYARDS` size-2 |
-| Other industry tagged `heavyindustry` that supplies ships and no parts | `min(machinery - 2, 4)` | ships supply + 2 |
+| Other `BaseIndustry` tagged `heavyindustry` that supplies ships and no parts (other plugin classes are skipped) | `min(machinery - 2, 4)` | ships supply + 2 |
 
 - Supply: Corrupted Nanoforge -1, Pristine -3; metals or rare metals deficit cuts parts supply (`applyPartsSupply`).
-- Demand: Corrupted -1, Pristine -2. A parts shortfall gives a production quality penalty `deficit / demand * maxPenalty` (-0.5, -0.4 corrupted, -0.3 pristine) and cuts ship output by at most 2 (`applyPartsDemands`, `ResourceCondition.java:152`).
+- Demand: Corrupted -1, Pristine -2. A parts shortfall gives a production quality penalty `deficit / demand * maxPenalty` (-0.5, -0.4 corrupted, -0.3 pristine) and cuts ship output by at most 2 (`applyPartsDemands`, `ResourceCondition.java:153`).
 
 ### Supercomputer income
 
@@ -146,7 +146,7 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 ## Contracts
 
 - The condition applies to every economy market including NPC ones, so parts and the Supercomputer bonus affect AI factions too (`ResourceConditionApplicator.java:13`).
-- `unapply` resets `IndEvo_parts` supply and demand to 0 on every `BaseIndustry` of the market (`ResourceCondition.java:112`); any other source of parts on these industries must reapply after this condition. Inferred from the code: condition unapply order relative to industries is engine controlled.
+- `unapply` resets `IndEvo_parts` supply and demand to 0 on every `BaseIndustry` of the market (`ResourceCondition.java:113`); any other source of parts on these industries must reapply after this condition. Inferred from the code: condition unapply order relative to industries is engine controlled.
 - Reflection on `buildTime` (`RelicBuildTimeReductionButtonAdder.java:114`) depends on the `BaseIndustry` field name; `Edict_FastBuild` writes the same field through `ReflectionUtils`. See [Utils](UTILS.md#helper), [Senate](../industries/SENATE.md).
 - Express Delivery has to run after the accept: `BaseHubMission.setCurrentStage` resets the new stage's `elapsed` to 0 (vanilla `BaseHubMission.java:1219`).
 - The IE accept rows copy vanilla `cpcBPPicked` / `cpcBPPickedBar` (`$option = contact_accept 0`, `FireBest DialogOptionSelected`, `Call $cpc_ref repSuccess`, `Call $cpc_ref addContacts`). A game update that changes those rows needs the copy checked.

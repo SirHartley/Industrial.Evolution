@@ -98,7 +98,6 @@ Max weapon tier by standing (`getMaxTier`): <0.5 -> 0, <0.7 -> 1, <0.9 -> 2, els
 
 | Item | State |
 |---|---|
-| `RestorationDocksSubmarketPlugin.createTooltipAfterDescription` (`:120`) | Casts `market.getIndustry(REPAIRDOCKS)` without a null check |
 | Changelog_todo | "museum storage gets placed before building complete", "museum storage doesn't remove properly", "warehouse storage linking", "implement 5 more shared storage variants", "check resto dock billing for bugs", "Requisition center RAT settlement plugin" |
 
 ## Maintenance

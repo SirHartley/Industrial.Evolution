@@ -115,7 +115,7 @@ public class RestorationDocksSubmarketPlugin extends BaseSubmarketPlugin {
         float opad = 10f;
         Color hlColor = Misc.getHighlightColor();
 
-        RestorationDocks restorationDocks = (RestorationDocks) market.getIndustry(REPAIRDOCKS);
+        if (!(market.getIndustry(REPAIRDOCKS) instanceof RestorationDocks restorationDocks)) return;
         restorationDocks.publicAddRightAfterDescriptionSection(tooltip, Industry.IndustryTooltipMode.NORMAL);
 
         if (expanded) {
