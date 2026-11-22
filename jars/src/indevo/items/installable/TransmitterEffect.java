@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.impl.campaign.econ.impl.MilitaryBase;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ItemPatternProject;
 import indevo.ids.ItemIds;
 import indevo.industries.relay.industry.MilitaryRelay;
 
@@ -59,5 +60,7 @@ public class TransmitterEffect extends BaseInstallableItemEffect {
             text.addPara(pre + "Removes the Military Base construction requirement for Relays in the entire sector.",
                     pad, Misc.getHighlightColor(), "without a military base");
         }
+
+        ItemPatternProject.addCargoNote(text, id, mode);
     }
 }

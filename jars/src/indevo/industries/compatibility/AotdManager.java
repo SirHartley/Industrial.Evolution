@@ -2,12 +2,15 @@ package indevo.industries.compatibility;
 
 import com.fs.starfarer.api.GameState;
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import data.kaysaar.aotd.vok.scripts.research.AoTDMainResearchManager;
+import data.kaysaar.aotd.vok.scripts.research.models.ResearchOptionSpec;
+import indevo.ids.ItemIds;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -29,6 +32,13 @@ public class AotdManager {
     public static final String TECH_OPTIONS = "data/campaign/aotd_tech_options.csv";
     public static final String INDUSTRY_REWARD = "industry";
     public static final String MEGASTRUCTURE_KEY = "aotd_megastructure_";
+    public static final String ITEM_RESEARCH = "aotd_tech_domain_template_construct";
+    public static final String ITEM_LOCK_TAG = "aotd_ignore_standarization";
+    public static final String ITEM_KNOWN_KEY = "$aotd";
+
+    // same ids as aotd_item_prod in settings.json
+    public static final List<String> PRODUCTION_ITEMS = List.of(ItemIds.SIMULATOR, ItemIds.LOG_CORE, ItemIds.NEUAL_COMPOUNDS,
+            ItemIds.SALVAGE_DRONES, ItemIds.TRANSMITTER, ItemIds.HOLOBENCH);
 
     private static Map<String, List<String>> nodesByIndustry = null;
     private static final Map<String, String> nodeNames = new HashMap<>();
@@ -39,6 +49,28 @@ public class AotdManager {
 
     public static boolean isTotEnabled() {
         return Global.getSettings().getModManager().isModEnabled(TOT_ID);
+    }
+
+    // vok's colony item research unlocks untagged items on its own, tagged ones wait for the $aotd<id> flag
+    public static void lockProductionItems() {
+        if (!isVokEnabled()) return;
+        for (String id : PRODUCTION_ITEMS) Global.getSettings().getSpecialItemSpec(id).getTags().add(ITEM_LOCK_TAG);
+    }
+
+    public static boolean hasItemResearch() {
+        return isVokEnabled() && Vok.hasResearched(Global.getSector().getPlayerFaction(), ITEM_RESEARCH);
+    }
+
+    public static String getItemResearchName() {
+        return isVokEnabled() ? Vok.getName(ITEM_RESEARCH) : ITEM_RESEARCH;
+    }
+
+    public static boolean isItemKnown(String itemId) {
+        return Global.getSector().getPlayerFaction().getMemoryWithoutUpdate().getBoolean(ITEM_KNOWN_KEY + itemId);
+    }
+
+    public static void unlockItem(String itemId) {
+        Global.getSector().getPlayerFaction().getMemoryWithoutUpdate().set(ITEM_KNOWN_KEY + itemId, true);
     }
 
     public static boolean isResearched(Industry ind) {
@@ -125,6 +157,17 @@ public class AotdManager {
             }
 
             return false;
+        }
+
+        static boolean hasResearched(FactionAPI faction, String node) {
+            AoTDMainResearchManager manager = AoTDMainResearchManager.loadData();
+            return manager != null && manager.getSpecificFactionManager(faction) != null && manager.getSpecificFactionManager(faction).haveResearched(node);
+        }
+
+        static String getName(String node) {
+            AoTDMainResearchManager manager = AoTDMainResearchManager.loadData();
+            ResearchOptionSpec spec = manager == null ? null : manager.getSpecForSpecificResearch(node);
+            return spec == null ? node : spec.getName();
         }
     }
 }

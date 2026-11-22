@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MutableCommodityQuantity;
 import com.fs.starfarer.api.combat.MutableStat;
+import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
@@ -12,6 +13,7 @@ import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.changeling.dialogue.EffectLines;
 import indevo.industries.changeling.industry.mining.MiningSpecializations;
 import indevo.industries.changeling.industry.refining.RefiningSpecializations;
 
@@ -23,7 +25,7 @@ public class Specialization implements ChangelingTarget {
 
     public static final String MOD_SUFFIX = "_IndEvo_specialized";
     public static final String DESC = "Specialized Extraction";
-    public static final float IMAGE_HEIGHT = 95f;
+    public static final float IMAGE_HEIGHT = 90f;
 
     public static final Specialization MINING = new Specialization("mining", Industries.MINING, "$IndEvo_miningFocus", MiningSpecializations.BASE_ID, MiningSpecializations.LIST,
             MiningSpecializations.COMMODITIES);
@@ -121,13 +123,19 @@ public class Specialization implements ChangelingTarget {
         tooltip.addSectionHeading(heading, Alignment.MID, opad);
         if (vanillaId.equals(ind.getSpec().getId())) {
             tooltip.addPara(text, opad);
+            EffectLines.add(tooltip, width - 10f, data.effects, opad);
             return;
         }
 
         SubIndustry.ensureTexture(data.imageName);
+        SpriteAPI sprite = Global.getSettings().getSprite(data.imageName);
+        // beginImageWithText leaves width minus image minus 10 px for the text column
+        float sideW = (int) (width - sprite.getWidth() * IMAGE_HEIGHT / sprite.getHeight() - 10f);
+
         TooltipMakerAPI side = tooltip.beginImageWithText(data.imageName, IMAGE_HEIGHT, width, false);
         side.addPara(data.name, Misc.getHighlightColor(), 0f);
         side.addPara(text, 4f);
+        EffectLines.add(side, sideW, data.effects, opad);
         tooltip.addImageWithText(opad);
     }
 

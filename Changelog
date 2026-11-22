@@ -53,7 +53,7 @@ Ashes of the Domain
 Added - Research tree: IE industries, specializations and governments are unlocked by research
 Added - IE Ship Components count in the AOTD economy
 Added - Tenebrian Nanoforge works like the other nanoforges with Ship Components (stronger than Pristine)
-Added - Macro-Industrial Complex accepts IE colony items
+Added - IE colony items can be built in AOTD production after a Galatia research project (200 relic components and one of the item, VPCs excluded)
 Fixed - Derelict Watchtowers can be taken over again with Theory of Toolbox
 Fixed - Objectives are found again with Theory of Toolbox (Shuttle Traffic, detachments, orbit focus)
 
@@ -232,7 +232,7 @@ Specialized Industries
 Adjusted - Mining and Refining keep their own industry when specialized
 Adjusted - Modded Mining and Refining tiers can now be specialized, their tooltip shows the variant (Ashes of the Domain)
 Adjusted - Change specialization dialog uses the new government dialog layout
-Adjusted - Specializations now scale output by percent (was flat +2, -2 or -3)
+Adjusted - Specializations now scale output by percent (was flat +2, -2 or -3), listed in the industry tooltip
 
 Courier Port
 Adjusted - Contracts are now managed in one panel with a contract list and a step by step editor

@@ -51,6 +51,7 @@ import indevo.exploration.minefields.listeners.RecentJumpListener;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
 import indevo.industries.engineeringhub.plugins.EngineeringHubOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
@@ -138,6 +139,7 @@ public class ModPlugin extends BaseModPlugin {
 
         //Warehouses.adjustWormholeAnchorSpec();
         SpecialItemEffectsRepo.addItemEffectsToVanillaRepo();
+        AotdManager.lockProductionItems();
     }
 
     @Override
@@ -480,6 +482,7 @@ public class ModPlugin extends BaseModPlugin {
         CamouflageRefitListener.register();
         HasUniqueShipChecker.register();
         CorruptedNanoforgeChecker.register();
+        ItemPatternChecker.register();
         SalvageYardsOptionProvider.register();
         SalvageDronesBattleListener.register();
         CourierPortOptionProvider.register();
