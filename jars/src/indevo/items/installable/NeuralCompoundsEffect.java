@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin.Installa
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ItemPatternProject;
 import indevo.utils.helper.StringHelper;
 
 import static indevo.items.installable.SpecialItemEffectsRepo.NEURAL_COMPOUNDS_UNREST_RED;
@@ -33,5 +34,7 @@ public class NeuralCompoundsEffect extends BaseInstallableItemEffect {
         text.addPara(pre + "Allows you to issue Edicts on any friendly colony within " + RANGE_LY_TWELVE + "LY" +
                         " and reduces the unrest after preliminary removal by " + s,
                 pad, Misc.getHighlightColor(), RANGE_LY_TWELVE + "LY", s);
+
+        ItemPatternProject.addCargoNote(text, id, mode);
     }
 }

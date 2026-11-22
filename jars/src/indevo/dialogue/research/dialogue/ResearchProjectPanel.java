@@ -394,6 +394,7 @@ public class ResearchProjectPanel {
         CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
         CargoAPI rewards = project.getRewards();
         cargo.addAll(rewards.createCopy());
+        project.onRedeem();
 
         if (project.isRepeatable()) {
             project.getProgress().points = Math.max(0f, project.getProgress().points - project.getRequiredPoints());

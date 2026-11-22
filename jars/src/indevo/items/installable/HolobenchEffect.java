@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin.Installa
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ItemPatternProject;
 
 public class HolobenchEffect extends BaseInstallableItemEffect {
 
@@ -27,5 +28,7 @@ public class HolobenchEffect extends BaseInstallableItemEffect {
         String xp = Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP);
         text.addPara(pre + "Officers can train %s more personality step and leave training mentored. Stored officers gain %s experience per month.",
                 pad, Misc.getHighlightColor(), "one", "mentored", xp);
+
+        ItemPatternProject.addCargoNote(text, id, mode);
     }
 }

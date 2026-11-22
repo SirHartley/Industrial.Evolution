@@ -13,7 +13,8 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | File | Owner / role |
 |---|---|
 | `indevo/dialogue/research/ResearchProjectTemplateRepo.java` | `RESEARCH_PROJECTS` static map: every project as an anonymous `ResearchProject`. `getRandomForProj` (anti save scum randoms, `:589`), `getNumProjectsPlayerCanContribute` (`:606`). |
-| `dialogue/ResearchProject.java` | Abstract project: id, name, required points, repeatable. `getProgress()` lazily stores a `Progress` (points, redeemed, overflow) in sector memory (`:37`). `allowsOverflow()` is repeatable and overflow on (`:49`). `getRedeemRequirement()` and `getRedeemLore()` default to null. |
+| `dialogue/ResearchProject.java` | Abstract project: id, name, required points, repeatable. `getProgress()` lazily stores a `Progress` (points, redeemed, overflow) in sector memory (`:37`). `allowsOverflow()` is repeatable and overflow on (`:49`). `getRedeemRequirement()` and `getRedeemLore()` default to null, `onRedeem()` is an empty hook run after the reward is added. |
+| `ItemPatternProject.java` | One project per `AotdManager.PRODUCTION_ITEMS` entry (Ashes of the Domain), id `indevo_proj_pattern_<itemId>`, added to `RESEARCH_PROJECTS` in a loop. 200 points from relic components, Redeem consumes the item, `onRedeem` sets the AOTD unlock flag. `addCargoNote` adds the gray "finish its research project" line to the item's cargo and codex tooltip (the six item effects call it) while VoK is on and the item is locked. |
 | `dialogue/RedeemRequirement.java` | Item consumed on Redeem: id, `CargoItemType`, count. Name and sprite through `RequiredItem`, available count and `take(cargo)` (throws when short). |
 | `dialogue/ResearchProjectAPI.java` | `display`, `getRewards`, `getRequiredItems`, short and long desc. |
 | `dialogue/RequiredItem.java` | Accepted item: id, `CargoItemType`, points per unit. Static `getName` and `getSprite` per type; weapons use the turret sprite. |
@@ -29,6 +30,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | `listeners/HasUniqueShipChecker.java` | Economy tick: a fleet variant with `ship_unique_signature` unlocks Morgana. |
 | `listeners/SlowShipInFleetChecker.java` | Economy tick: a member with base max burn <= 7 unlocks Sonic. |
 | `listeners/CorruptedNanoforgeChecker.java` | Economy tick: a `corrupted_nanoforge` in fleet cargo unlocks Reforge. |
+| `listeners/ItemPatternChecker.java` | Economy tick, VoK only: sets `$IndEvo_ItemPatternFound_<itemId>` once the item is in fleet cargo, player storage or installed on a player colony, and posts one intel per newly visible pattern project (`$IndEvo_ItemPatternNotified_<itemId>`). |
 | `listeners/HyperspaceTopoProgressChecker.java` | Economy tick: topography progress >= 100 posts the Prospector intel. |
 | `listeners/CamouflageRefitListener.java` | On closing a market, swaps `ship_unique_signature` and `IndEvo_ship_unique_signature` depending on whether the Camouflage Emitter is installed. |
 | `listeners/SurveyDataTooltipAmender.java` | `CommodityTooltipModifier`: "can be traded in at the Galatia Academy" on `survey_data_*`. |
@@ -42,7 +44,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge`, `_longevity` (Methuselah) | `indevo/ids/Ids.java:168` to `:182` |
+| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge`, `_longevity` (Methuselah), `indevo_proj_pattern_<itemId>` (`PROJ_PATTERN_PREFIX`) | `indevo/ids/Ids.java:179` to `:194` |
 | Hullmods | `IndEvo_augfield`, `IndEvo_CamouflageFieldEmitter` | `data/hullmods/hull_mods.csv:16`, `:17` |
 | Tag | `IndEvo_ship_unique_signature` (parked vanilla tag) | `CamouflageFieldEmitter.TAG_UNIQUE` |
 | Memory, sector | `$IndEvo_ResearchProgress_<id>` (`Progress`), `$IndEvo_ProjRand_<id>` (5 `Random`s) | `ResearchProject.java:39`, `ResearchProjectTemplateRepo.java:590` |
@@ -72,6 +74,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | Mjolnir | 120 | yes | `IndEvo_consumables_researchProject` on | rare parts 1 | 5 rolls of `indEvo_missiles_always` |
 | Transistor | 80 | yes | always | rare parts 1 | 5 rolls of `indEvo_consumables_always` |
 | Reforge | 500 | no | `CorruptedNanoforgeChecker.isDone()` | rare parts 1; Redeem consumes 1 `corrupted_nanoforge` from fleet cargo | `pristine_nanoforge` |
+| Reverse Engineering: <item> (6, `indevo_proj_pattern_<itemId>`) | 200 | no | VoK on, Domain Blueprint Standardization researched, item found (`ItemPatternChecker`), item not yet unlocked | rare parts 1; Redeem consumes 1 of the item from fleet cargo | no cargo; the item unlocks in AOTD colony item production ([Compatibility](../core/COMPATIBILITY.md)) |
 
 ## Registration and lifecycle
 
@@ -83,6 +86,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | `DoritoGunFoundChecker` | `addListener(x, true)` every load | transient |
 | `HyperspaceTopoProgressChecker` | `addListener(x, true)`, deduped by class | transient |
 | `SlowShipInFleetChecker`, `CorruptedNanoforgeChecker` | `addListener(x, true)` deduped | transient |
+| `ItemPatternChecker` | `addListener(x, true)` deduped, only with VoK | transient |
 | `AutopulseUseChecker`, `HasUniqueShipChecker` | `addListener(x)` deduped | saved |
 | `RefitUIOpenChecker` | `addTransientScript` deduped | transient |
 | `CamouflageRefitListener` | `addTransientListener` | transient |
@@ -97,7 +101,7 @@ Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -
 1. `execute` stores the original plugin, swaps in itself, `init` shows the side panel (`ResearchProjectPanel.show`) and text. Buttons run `Runnable`s through `UiCanvas`; nothing polls.
 2. Info -> toggles the project id in `ResearchView.info` and rebuilds; the card grows in place. The list keeps its scroll offset.
 3. Donate... -> `ResearchProjectDonationCargoPicker.init`: copies matching stacks from player cargo, the picker preview shows percent per stack; on confirm each stack adds `size x points` or only the units needed to finish, removed from the real cargo (`:81`). With overflow every picked unit is taken. Donate... is disabled on a finished project unless overflow is on, and when the fleet holds none of the accepted items. The picker calls `refreshCustomPanel` on confirm.
-4. Redeem -> with a redeem requirement, a popup (`InteractionDialogAPI.showCustomDialog`) shows "Redeeming consumes N item from your fleet cargo (Available: N).": Confirm and Cancel with the item in fleet cargo, only Return without it. Confirm takes the item, then the normal redeem runs. The Redeem button hover shows the same line and the project's lore in gray. Normal redeem: `project.getRewards()` added to cargo; repeatable subtracts the required points (floor 0), else `redeemed = true`; the text panel shows `addTooltipOutputOnCompletion`, loss lines for a consumed requirement and gain lines. Redeem stays enabled while points still cover another completion. A finished project with a missing redeem requirement keeps Redeem off and shows the red line.
+4. Redeem -> with a redeem requirement, a popup (`InteractionDialogAPI.showCustomDialog`) shows "Redeeming consumes N item from your fleet cargo (Available: N).": Confirm and Cancel with the item in fleet cargo, only Return without it. Confirm takes the item, then the normal redeem runs. The Redeem button hover shows the same line and the project's lore in gray. Normal redeem: `project.getRewards()` added to cargo, then `project.onRedeem()`; repeatable subtracts the required points (floor 0), else `redeemed = true`; the text panel shows `addTooltipOutputOnCompletion`, loss lines for a consumed requirement and gain lines. Redeem stays enabled while points still cover another completion. A finished project with a missing redeem requirement keeps Redeem off and shows the red line.
 5. Stock toggle (tooltip: excess donations toward future rewards, otherwise retained cargo) -> `UiButtons.check` (label `OVERFLOW_LABEL`) with a hover tooltip (width 400, left), flips `Progress.overflow` and rebuilds the panel.
 6. Return -> clear text, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
 

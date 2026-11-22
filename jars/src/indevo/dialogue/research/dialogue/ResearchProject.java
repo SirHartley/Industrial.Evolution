@@ -62,6 +62,10 @@ public abstract class ResearchProject implements ResearchProjectAPI {
         return null;
     }
 
+    public void onRedeem() {
+
+    }
+
     //create a list with templates
     //create a memory with progress on each of these templates
     //getProgress method in each template obj

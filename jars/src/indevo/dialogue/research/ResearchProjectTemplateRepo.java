@@ -28,6 +28,7 @@ import indevo.dialogue.research.listeners.HasUniqueShipChecker;
 import indevo.dialogue.research.listeners.SlowShipInFleetChecker;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.ModPlugin;
 
@@ -662,6 +663,11 @@ public class ResearchProjectTemplateRepo {
                 return "Restore a Corrupted Nanoforge to pristine condition.";
             }
         });
+
+        for (String itemId : AotdManager.PRODUCTION_ITEMS) {
+            ItemPatternProject project = new ItemPatternProject(itemId);
+            put(project.getId(), project);
+        }
     }};
 
     public static List<Random> getRandomForProj(String id) {

@@ -191,6 +191,7 @@ public class Ids {
     public static final String PROJ_MJOLNIR = "indevo_proj_mjolnir";
     public static final String PROJ_REFORGE = "indevo_proj_reforge";
     public static final String PROJ_LONGEVITY = "indevo_proj_longevity";
+    public static final String PROJ_PATTERN_PREFIX = "indevo_proj_pattern_";
 
     //id
     //IndEvo_cryoartillery

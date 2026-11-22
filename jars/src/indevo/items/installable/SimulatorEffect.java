@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin.Installa
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ItemPatternProject;
 import indevo.utils.helper.StringHelper;
 
 import static com.fs.starfarer.api.impl.campaign.econ.impl.ItemEffectsRepo.COLD_OR_EXTREME_COLD;
@@ -39,5 +40,7 @@ public class SimulatorEffect extends BaseInstallableItemEffect {
         text.addPara(pre + "Applies the Supercomputer Effect to any friendly colony within " + RANGE_LY_TWELVE + "LY" +
                         " and increases the effect by " + s + ", scaling with distance.",
                 pad, Misc.getHighlightColor(), RANGE_LY_TWELVE + "LY", s);
+
+        ItemPatternProject.addCargoNote(text, id, mode);
     }
 }
