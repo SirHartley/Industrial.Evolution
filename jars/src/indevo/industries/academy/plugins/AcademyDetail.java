@@ -15,6 +15,7 @@ import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.industries.academy.industry.Academy;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.RelicHelper;
+import indevo.utils.helper.StringHelper;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 
@@ -404,7 +405,8 @@ class AcademyDetail {
         String fee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
         String text;
 
-        if (!view.admins) text = own ? "Stored officers draw their full salary." : "Storage costs " + fee + " per month plus full salary.";
+        String salaryShare = StringHelper.getAbsPercentString(Academy.getStoredOfficerSalaryMult(), false);
+        if (!view.admins) text = own ? "Stored officers draw " + salaryShare + " of their salary." : "Storage costs " + fee + " per month plus " + salaryShare + " of salary.";
         else text = own ? "Stored administrators draw 10% of their salary." : "Storage costs " + fee + " per month plus 10% of salary.";
 
         if (governed != null) text += " You take over as governor of " + governed.getName() + ".";

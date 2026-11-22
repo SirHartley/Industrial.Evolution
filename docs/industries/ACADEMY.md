@@ -102,7 +102,7 @@ Rules mode follows the Courier Port pattern: the command swaps in `AcademyDialog
 ### Storage and fees
 
 - `storeOfficer`/`returnOfficer`, `storeAdmin`/`returnAdmin` move people between fleet or character data and the lists. Storing an admin who governs a player market sets the player as admin there (`storeAdmin()`, `:471`). Retrieval checks officer or admin capacity (dev mode skips the admin check); blocked Retrieve buttons explain the capacity limit.
-- `reportEconomyTick()` on the last iteration of the month (`economyIterPerMonth - 1`) charges full officer salary (`Academy.getBaseSalary`: level pay and mercenary mult, no populated system or inactive mult; also the hire price and every salary shown), 10% admin salary and, on NPC markets, `IndEvo_monthlyAIStorageCost` per stored person (`:132`), on the "Personnel storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)).
+- `reportEconomyTick()` on the last iteration of the month (`economyIterPerMonth - 1`) charges officer salary (`Academy.getBaseSalary`: level pay and mercenary mult, no populated system or inactive mult; also the hire price and every salary shown) times the vanilla idle rate `Misc.getOfficerInactiveSalaryMult()` (`getStoredOfficerSalaryMult`, `officerSalaryInactiveMultIfRequiresColony`, 1 when `officerActivateRequiresColony` is off) in both modes, 10% admin salary and, on NPC markets, `IndEvo_monthlyAIStorageCost` per stored person (`:132`), on the "Personnel storage" report line ([BillingHelper](../core/UTILS.md#billinghelper)).
 
 ### Hireable spawns and officer quality
 
@@ -126,7 +126,7 @@ Reserve drills: `reportEconomyMonthEnd()` gives every officer in this Academy's 
 
 ## Contracts
 
-- Storage help lists the monthly fee per person and the salary charged while stored. The help and the Abort section state the loss of the training fee and progress.
+- Storage help lists the monthly fee per person and the salary share charged while stored (`getStoredOfficerSalaryMult` for officers, read at display time). The help and the Abort section state the loss of the training fee and progress.
 
 - All Academy state is plain fields on the industry instance and persists with the market. Stored `PersonAPI` objects exist only in those lists; removing the industry loses them (inferred: `notifyBeingRemoved` is not overridden).
 - `Stats.OFFICER_PROB_MOD` on a market is read by vanilla `OfficerManagerEvent` (`api/impl/campaign/events/OfficerManagerEvent.java:118`). `Stats.OFFICER_MAX_LEVEL_MOD` is read from person stats by `FleetFactoryV3` (`api/impl/campaign/fleets/FleetFactoryV3.java:1050`); no read of the market level mod was found in `api/impl` or `obf`, so the max level mult likely has no effect (inferred).

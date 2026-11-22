@@ -188,6 +188,7 @@ Added - Accelerate: halve the remaining training time with Relic Components
 Added - Holobench: new Academy item. Officers get one more personality step, leave training mentored and gain 20,000 XP per month while stored.
 Adjusted - Training at your own Academy is now free
 Adjusted - Admin training only teaches skills from academy_admin_skill_whitelist.csv (other mods can add theirs)
+Adjusted - Stored officers cost the vanilla idle rate of 10% of their salary (was full salary)
 Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit
 Fixed - Swapping AI cores no longer keeps the old core's bonuses

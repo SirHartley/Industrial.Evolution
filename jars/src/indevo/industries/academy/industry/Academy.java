@@ -153,6 +153,10 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         return Misc.getOfficerSalary(person, Misc.isMercenary(person), false, false);
     }
 
+    public static float getStoredOfficerSalaryMult() {
+        return Misc.getOfficerInactiveSalaryMult();
+    }
+
     public static Academy get(MarketAPI market) {
         return market != null && market.hasIndustry(Ids.ACADEMY) ? (Academy) market.getIndustry(Ids.ACADEMY) : null;
     }
@@ -290,7 +294,7 @@ public class Academy extends BaseIndustry implements NewDayListener, EconomyTick
         float totalCost = 0;
 
         for (PersonAPI person : getOfficerStorage()) {
-            totalCost += getBaseSalary(person);
+            totalCost += getBaseSalary(person) * getStoredOfficerSalaryMult();
         }
 
         for (PersonAPI person : getAdminStorage()) {
