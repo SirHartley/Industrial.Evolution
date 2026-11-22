@@ -37,7 +37,7 @@ Excluded: `IndEvo.iml` `excludeFolder` `jars/src/indevo/WIP/converters`.
 
 ## Registration and lifecycle
 
-- Nothing registered. `ModPlugin.onNewGameAfterEconomyLoad` has `//ConverterRepRestetter.resetConverterRep();` commented out (`indevo/utils/ModPlugin.java:306`). No `market_conditions.csv` row for the log core condition and no `industries.csv` row for the paperclip factory (grep of `data/campaign`).
+- Nothing registered. `ModPlugin.onNewGameAfterEconomyLoad` has `//ConverterRepRestetter.resetConverterRep();` commented out (`indevo/utils/ModPlugin.java:303`). No `market_conditions.csv` row for the log core condition and no `industries.csv` row for the paperclip factory (grep of `data/campaign`).
 
 ## Flow
 

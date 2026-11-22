@@ -76,14 +76,14 @@ Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks i
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin.java:132`) | Loads the nanites texture for the codex |
-| `ModPlugin.java:166` (`onGameLoad`), `:288` (`onNewGameAfterEconomyLoad`) | `LocatorSystemRatingUpdater.updateAllSystems()` |
-| `ModPlugin.java:440` | `LocatorSystemRatingUpdater`, transient |
-| `ModPlugin.java:441` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
-| `ModPlugin.java:442` | `ConsumableItemMarketAdder`, transient |
-| `ModPlugin.java:445` | `SpooferItemKeypressListener`, transient |
-| `ModPlugin.java:471`, `:314` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
-| `ModPlugin.java:472` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
+| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin.java:131`) | Loads the nanites texture for the codex |
+| `ModPlugin.java:165` (`onGameLoad`), `:285` (`onNewGameAfterEconomyLoad`) | `LocatorSystemRatingUpdater.updateAllSystems()` |
+| `ModPlugin.java:437` | `LocatorSystemRatingUpdater`, transient |
+| `ModPlugin.java:438` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
+| `ModPlugin.java:439` | `ConsumableItemMarketAdder`, transient |
+| `ModPlugin.java:442` | `SpooferItemKeypressListener`, transient |
+| `ModPlugin.java:468`, `:311` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
+| `ModPlugin.java:469` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
 
 `ListenerManager.addListener(Object)` is the persistent variant (`obf/campaign/ListenerManager.java:25-33` in the starsector-knowledge skill), so any listener added without `true` is saved with the game.
 

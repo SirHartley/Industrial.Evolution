@@ -62,9 +62,9 @@ There are two install paths. Items in vanilla style (VPCs, Logistics Core, Neuro
 
 ## Registration and lifecycle
 
-- `ModPlugin.onApplicationLoad`: `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` (`ModPlugin.java:128`), `ItemEffectsRepo.ITEM_EFFECTS.putAll(ITEM_EFFECTS)`. `BaseIndustry` looks up the effect of an installed special item by id in that map (skill `api/impl/campaign/econ/impl/BaseIndustry.java:214`).
+- `ModPlugin.onApplicationLoad`: `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` (`ModPlugin.java:127`), `ItemEffectsRepo.ITEM_EFFECTS.putAll(ITEM_EFFECTS)`. `BaseIndustry` looks up the effect of an installed special item by id in that map (skill `api/impl/campaign/econ/impl/BaseIndustry.java:214`).
 - `ModPlugin.setListenersIfNeeded()`: `SpecialItemEffectsRepo.initEffectListeners()` (`:426`) adds `SuperComputerFactor`, `Senate.SenateFactor`, `MilitaryRelay.RelayFactor`, `CentralizationBureau.BureauFactor`, `CentralizationBureau.BureauApplyListener` (deduped by class); `PartsCargoInterceptor.register()` (`:431`), `PartsLootAdder.register()` (`:433`, `addTransientListener`), `SpecialItemDropsListener.register()` and `VPCLootResolver.register()` (`:451-452`, deduped by class). All transient.
-- `ModPlugin.loadTransientMemory()` warms the VPC tables (`ModPlugin.java:411`).
+- `ModPlugin.loadTransientMemory()` warms the VPC tables (`ModPlugin.java:408`).
 - Installable plugins are created on demand by the owning industry's `getInstallableItems()` (skill `api/campaign/econ/Industry.java:149`), for example `VariableAssembler.java:315`, `EngineeringHub.java:487`, `Embassy.java:237`, `BaseForgeTemplateUser.java:51`.
 - Item cargo plugins come from the `plugin` column.
 

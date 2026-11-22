@@ -95,7 +95,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 
 | Hook | What IE does | Line |
 |---|---|---|
-| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:117` |
+| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:116` |
 | `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:132` |
 | `onNewGame()` | `PlayerSettings.reload()`: picks up the new game settings panel | `:279` |
 | `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:285` |
@@ -110,7 +110,7 @@ New game, once (`:288` to `:304`):
 
 Every load (`:153` to `:173`):
 
-`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> IndustrySubmarkets.removeOrphans -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> [newGame] ArtilleryStationReplacer.register -> PlayerSettings.applyCampaignSettings -> [newGame, IndEvo_pets] addLordFoogRep -> [IndEvo_pets] PetLongevity.placeSyringes`
+`createAcademyMarket -> setListenersIfNeeded -> setScriptsIfNeeded -> IndustrySubmarkets.removeOrphans -> ResourceConditionApplicator.applyResourceConditionToAllMarkets -> loadTransientMemory -> OrbitFocus.removeUnusedOrbitFoci -> addTypePrefaceToIndustrySpecs -> LocatorSystemRatingUpdater.updateAllSystems -> resetDerelictRep -> PlayerSettings.applyCampaignSettings -> [newGame, IndEvo_pets] addLordFoogRep -> [IndEvo_pets] PetLongevity.placeSyringes`
 
 ### Registration patterns
 
@@ -282,13 +282,12 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 | Component | State | Doc |
 |---|---|---|
-| Crucible | Spawner commented out (`ModPlugin.java:202`, `:294`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
+| Crucible | Spawner commented out (`ModPlugin.java:199`, `:291`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
 | Distress calls, ghost ships | Excluded, does not compile; hullmod rows and rules still load | [DISTRESS](exploration/DISTRESS.md) |
 | Converters | Excluded, does not compile | [WIP](core/WIP.md) |
 | Wormhole complex (`IndEvo_Warphouse`) | CSV row and item commented out | [WAREHOUSES](industries/WAREHOUSES.md) |
-| `ArtilleryStationReplacer` | Never matches: checks `contains("artillery")` against `IndEvo_Artillery_*` ids | [ARTILLERY](industries/ARTILLERY.md) |
 | `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
-| `devActions()` | Disabled (`&& false`, `ModPlugin.java:150`) | This file |
+| `devActions()` | Disabled (`&& false`, `ModPlugin.java:149`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.
 

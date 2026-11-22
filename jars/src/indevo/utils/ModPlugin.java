@@ -53,7 +53,6 @@ import indevo.ids.Ids;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
 import indevo.industries.engineeringhub.plugins.EngineeringHubOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
-import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
@@ -177,8 +176,6 @@ public class ModPlugin extends BaseModPlugin {
 
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
-
-        if (newGame) ArtilleryStationReplacer.register();
 
         PlayerSettings.applyCampaignSettings();
         if (newGame && Setting.PETS.enabled()) addLordFoogRep();

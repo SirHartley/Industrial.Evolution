@@ -65,7 +65,7 @@ Rows: `data/campaign/market_conditions.csv:3-14`, tags `show_in_codex, IndEvo_ed
 ## Registration and lifecycle
 
 - Industry and condition plugins from CSV plugin columns; rule commands from `ruleCommandPackages` `indevo.industries.senate.rules` (`data/config/settings.json:34`).
-- `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:468`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:30`), called at `ModPlugin.java:426`.
+- `SenateOptionProvider.register()` from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:465`). `Senate.SenateFactor` is registered by `SpecialItemEffectsRepo.initEffectListeners()` (`SpecialItemEffectsRepo.java:30`), called at `ModPlugin.java:423`.
 - `Senate.notifyBeingRemoved()` (shut down, not for upgrade) calls `EdictHelper.cancelEdictsOf(market)`. Vanilla calls it before the industry leaves the market (`obf/campaign/econ/Market.java:266`), so the helpers exclude the Senate market by parameter.
 - `BaseEdict.apply()` adds the condition as a transient listener (deduped) and a `TimeTracker` market tag tracker; skips both on markets without a primary entity and in the codex (`BaseEdict.java:38`). `TimeTracker` increments the tag daily and calls `onNewDay()`.
 

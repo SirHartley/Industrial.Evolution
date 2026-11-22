@@ -33,7 +33,7 @@ All three hold one VPC in the vanilla special item slot. The VPC sets market sup
 ## Registration and lifecycle
 
 - Industry plugins from `industries.csv`. Each `apply()` adds the industry itself as a transient listener (`EconomyTickListener`, Forge also `NewDayListener`) and `unapply()` removes it (`VariableAssembler.java:48,79`, `CommodityForge.java:55,90`).
-- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:434`), transient, re-added each load.
+- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:431`), transient, re-added each load.
 - `NewGameIndustryPlacer.placeManufactories()` puts a Manufactory with an uncommon ship parts VPC on `eochu_bres` at new game (`indevo/utils/update/NewGameIndustryPlacer.java:45-62`).
 - `initWithParams`: vanilla preinstalls `IndEvo_vpc` when an econ file lists it; a VPC without data then gets a random NPC roll, which can swap in the rare or ultra rare id (`VariableAssembler.java:323-328`).
 

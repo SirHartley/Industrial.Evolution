@@ -84,8 +84,8 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:493`) adds a transient listener each load (`MeteorSwarmManager.java:81`).
-- `setListenersIfNeeded() -> RogueRockDustRenderer.register()` (`ModPlugin.java:494`): transient Luna renderer, once per session (`hasRendererOfClass`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:490`) adds a transient listener each load (`MeteorSwarmManager.java:81`).
+- `setListenersIfNeeded() -> RogueRockDustRenderer.register()` (`ModPlugin.java:491`): transient Luna renderer, once per session (`hasRendererOfClass`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
 - `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:36-45`).
 
