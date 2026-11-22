@@ -259,7 +259,7 @@ public final class ArtilleryChecks {
         float maxJump;
         float firstProj = -1f;
         String projType;
-        int projBefore;
+        final List<SectorEntityToken> projBefore = new ArrayList<>();
         StarSystemAPI system;
         float e1 = -1f;
         float e4 = -1f;
@@ -271,7 +271,7 @@ public final class ArtilleryChecks {
             this.system = system;
             this.projType = projType;
             this.last = eyeElapsed();
-            if (projType != null) projBefore = count(system, projType);
+            if (projType != null) projBefore.addAll(entities(system, projType));
         }
 
         float secs() {
@@ -289,7 +289,7 @@ public final class ArtilleryChecks {
             if (e1 < 0f && t >= 1f) e1 = e;
             if (e4 < 0f && t >= 4f) e4 = e;
             if (playerSeen()) flag = true;
-            if (projType != null && firstProj < 0f && count(system, projType) > projBefore) firstProj = t;
+            if (projType != null && firstProj < 0f && !projBefore.containsAll(entities(system, projType))) firstProj = t;
         }
     }
 

@@ -29,7 +29,7 @@ Some planets carry the `IndEvo_ArtilleryStationCondition` condition and a statio
 | `indevo/industries/artillery/entities/WatchtowerEyeIndicator.java` | Custom entity `IndEvo_Eye` that draws the eye above the player fleet |
 | `indevo/industries/artillery/entities/VariableExplosionEntityPlugin.java` | `ExplosionEntityPlugin` subclass with sound, size and blastwave params. Shared: also used by consumables and the crucible |
 | `indevo/industries/artillery/projectiles/MortarShotScript.java`, `MortarProjectileEntityPlugin.java` | Mortar volley: N reticules around the predicted target position, shells fly at 1500 su/s with a short trail (`TRAIL_WIDTH`, `TRAIL_TIME`), explode with `VariableExplosion`. Holds `ArtilleryReactionScript` (NPC avoidance) |
-| `indevo/industries/artillery/projectiles/RailgunShotEntity.java`, `RailgunProjectileEntityPlugin.java` | Railgun volley: danger sign plus N lead-predicted lances, each a target line that fires as an instant beam. Drawn sizes are the constants at the top of `RailgunProjectileEntityPlugin` (`LINE_WIDTH`, `BEAM_*`, `AFTERGLOW_*`) |
+| `indevo/industries/artillery/projectiles/RailgunShotEntity.java`, `RailgunProjectileEntityPlugin.java` | Railgun volley: danger sign plus N lead-predicted lances, each a target line that fires as an instant beam. The danger sign entity expires once its fade ends (`DANGER_SIGN_FADEOUT_TIME`, 8 s); the lances are their own entities. Drawn sizes are the constants at the top of `RailgunProjectileEntityPlugin` (`LINE_WIDTH`, `BEAM_*`, `AFTERGLOW_*`) |
 | `indevo/industries/artillery/projectiles/MissileShotScript.java`, `MissileCarrierEntityPlugin.java`, `MissileSubmunitionEntity.java`, `ECMExplosion.java` | Missile volley: curved carriers split into 3 homing submunitions; each submunition or a direct hit spawns an `ECMExplosion` (interdict plus slow field terrain) |
 | `indevo/industries/artillery/renderers/LightConeRenderer.java` | Draws one soft additive light wedge for a lighthouse beam or a spotter cone, or the round halo of a searchlight, from a `Style` (brightness across and along, shadow share, penumbra), and the dust lit by a beam. Drawing only |
 | `indevo/industries/artillery/renderers/SearchlightRenderer.java` | Plain GL parts of a searchlight: round glow, rim on the tower side of a spot, emitter V on the tower, lock ring. Drawing only |
@@ -254,7 +254,6 @@ Suspected bugs (not fixed): see the return report of the documentation pass; lis
 
 - Railgun lances hit any fleet, friendly included (`RailgunProjectileEntityPlugin.fire`); carriers check hostility.
 - `IndEvo_Artillery_railgun_projectilesImpactTime` is applied at half (`RailgunShotEntity.LANCE_TIME_MULT`) to keep the warning time of the old shells, whose clock ran at double speed.
-- `RailgunShotEntity` never expires; the danger-sign entity stays in the location at alpha 0.
 - `MissileCarrierEntityPlugin` keeps looping after `finishing` and can spawn several ECM explosions in one frame (`:159-169`).
 - `MissileCarrierEntityPlugin` uses `fleet.isHostileTo(origin)` with the station as origin; inferred fine, not checked in game.
 

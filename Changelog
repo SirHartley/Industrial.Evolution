@@ -496,6 +496,7 @@ Fixed - Placed stations no longer fire with Artillery turned off
 Fixed - Orbital Artillery tooltip now unlocks its Codex entry
 Fixed - Jumping out of a system now empties the watchtower eye
 Fixed - Artillery missiles no longer launch from beside a moving station
+Fixed - Railgun target markers no longer pile up in saves
 Removed - Artillery improvement and the Max Range setting (no range left to improve)
 Removed - Watchtower vision weight setting
 
