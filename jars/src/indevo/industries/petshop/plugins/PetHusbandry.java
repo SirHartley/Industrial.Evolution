@@ -445,8 +445,8 @@ public class PetHusbandry {
         Ui.rule(p, 0f, h - 36f, w);
         ButtonAPI start = UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Pair",
                 reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.GREEN, CutStyle.TL_BR, reason != null ? null : () -> start(a, b, habitat));
-        if (reason != null) Ui.tooltip(p, start, "Pair", reason);
-        else Ui.tooltip(p, start, "Pair", "Both go into the habitat until the young arrive.");
+        if (reason != null) Ui.bottomTooltip(p, start, "Pair", reason);
+        else Ui.bottomTooltip(p, start, "Pair", "Both go into the habitat until the young arrive.");
     }
 
     private String startBlock(Pet a, Pet b, boolean broke, float fee, float credits) {
@@ -497,7 +497,7 @@ public class PetHusbandry {
     private static void dial(CustomPanelAPI p, float x, float y, float w, String label, String value, Color color, String title, String... lines) {
         CustomPanelAPI row = Ui.panel(p, x, y, w, DIAL_ROW);
         UiData.value(row, 0f, 0f, w, DIAL_ROW, label, value, color, new String[0], new Color[0]);
-        Ui.tooltip(p, row, title, lines);
+        Ui.solidTooltip(p, row, title, lines);
     }
 
     static String percent(float f) {
@@ -843,7 +843,7 @@ public class PetHusbandry {
         ButtonAPI cancel = UiButtons.button(p, w - cw, h - PetCard.BUTTON_H, cw, PetCard.BUTTON_H, "Cancel pairing", UiButtons.Kind.AMBER, CutStyle.TL_BR,
                 () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Cancel the pairing of %s and %s?", 0f,
                         new Color[]{hl, hl}, a.name, b.name), () -> shop.cancelBrood(brood))));
-        Ui.tooltip(p, cancel, "Cancel pairing", "Both parents go back to Pet storage, Unsettled for " + Math.round(PetConstants.UNSETTLED_DAYS) + " days.");
+        Ui.bottomTooltip(p, cancel, "Cancel pairing", "Both parents go back to Pet storage, Unsettled for " + Math.round(PetConstants.UNSETTLED_DAYS) + " days.");
     }
 
     private void readyCard(CustomPanelAPI p, float w, float h, PetBrood brood) {
