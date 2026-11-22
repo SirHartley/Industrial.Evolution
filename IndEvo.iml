@@ -27,6 +27,7 @@
     <orderEntry type="library" name="commons-compiler" level="application" />
     <orderEntry type="library" name="src" level="application" />
     <orderEntry type="library" name="SHI" level="application" />
+    <orderEntry type="library" name="patchlib" level="application" />
     <orderEntry type="module-library">
       <library name="Vok">
         <CLASSES>

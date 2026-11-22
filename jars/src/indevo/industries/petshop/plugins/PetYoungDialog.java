@@ -385,7 +385,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
 
         fields.put(pet.id, PetCard.nameField(p, 8f, 8f, CARD_W - 16f, pet.name));
         Ui.card(p, 8f, 42f, PetCard.IDENT, PetCard.IDENT);
-        UiImages.img(p, 12f, 46f, PetCard.PORTRAIT, PetCard.PORTRAIT, pet.getIcon());
+        PetCard.speciesTip(p, UiImages.img(p, 12f, 46f, PetCard.PORTRAIT, PetCard.PORTRAIT, pet.getIcon()), pet.getData(), null);
         UiData.grid(p, 88f, 44f, CARD_W - 96f, ROW_H, List.of(
                 GridRow.of("Look", pet.getLookName(), Ui.text()),
                 GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition))));

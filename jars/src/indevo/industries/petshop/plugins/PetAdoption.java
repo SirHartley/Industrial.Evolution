@@ -3,9 +3,6 @@ package indevo.industries.petshop.plugins;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
-import com.fs.starfarer.api.util.Misc;
-import indevo.industries.academy.industry.Academy;
-import indevo.industries.petshop.PetGenetics;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
@@ -24,16 +21,15 @@ public class PetAdoption {
     static final float ROW_H = 48f;
     static final float ROW_PITCH = 52f;
     static final float NAME_X = 54f;
-    static final float NAME_W = 236f;
+    static final float NAME_W = 332f;
 
     static final String PET = "Pet";
-    static final String DISPOSITION = "Disposition";
     static final String AGE = "Age";
     static final String PRICE = "Price";
-    static final String[] COLUMNS = {PET, DISPOSITION, AGE, PRICE};
-    static final float[] COLUMN_X = {8f, 300f, 396f, 456f};
-    static final float[] COLUMN_W = {200f, 90f, 60f, 86f};
-    static final Alignment[] COLUMN_ALIGN = {Ui.LEFT, Ui.LEFT, Ui.LEFT, Ui.RIGHT};
+    static final String[] COLUMNS = {PET, AGE, PRICE};
+    static final float[] COLUMN_X = {8f, 396f, 456f};
+    static final float[] COLUMN_W = {380f, 60f, 86f};
+    static final Alignment[] COLUMN_ALIGN = {Ui.LEFT, Ui.LEFT, Ui.RIGHT};
     static final float[] DOWN = {0f, 0f, 8f, 0f, 4f, 5f};
     static final float[] UP = {0f, 5f, 8f, 5f, 4f, 0f};
 
@@ -132,16 +128,14 @@ public class PetAdoption {
 
         String name = Ui.fit(offer.name, Ui.INS15, NAME_W);
         Ui.text(row, NAME_X, 6f, NAME_W, name);
-        if (!name.equals(offer.name)) Ui.tooltip(p, row, null, offer.name);
+        PetCard.speciesTip(p, row, offer.getData(), name.equals(offer.name) ? null : offer.name);
         Ui.text(row, NAME_X, 25f, NAME_W, Ui.fit(PetCard.species(offer), Ui.INS15, NAME_W), Ui.gray());
 
-        String disposition = offer.sheet.disposition;
-        Ui.text(row, COLUMN_X[1], 15f, COLUMN_W[1], Misc.ucFirst(disposition), Academy.COLOURS_BY_PERSONALITY.get(disposition));
-        Ui.text(row, COLUMN_X[2], 15f, COLUMN_W[2], ageLabel(offer));
+        Ui.text(row, COLUMN_X[1], 15f, COLUMN_W[1], ageLabel(offer));
 
         float price = shop.getOfferPrice(offer);
         Color color = price > credits ? Ui.neg() : Ui.hl();
-        Ui.text(row, COLUMN_X[3], 15f, COLUMN_W[3], Ui.credits(price), Ui.INS15, color, Ui.RIGHT);
+        Ui.text(row, COLUMN_X[2], 15f, COLUMN_W[2], Ui.credits(price), Ui.INS15, color, Ui.RIGHT);
     }
 
     private static String ageLabel(Pet pet) {
@@ -164,7 +158,6 @@ public class PetAdoption {
 
         Comparator<Pet> name = Comparator.comparing(pet -> pet.name, String.CASE_INSENSITIVE_ORDER);
         shown.sort(switch (view.offerSort) {
-            case DISPOSITION -> Comparator.comparingInt((Pet pet) -> PetGenetics.DISPOSITIONS.indexOf(pet.sheet.disposition)).thenComparing(name);
             case AGE -> Comparator.comparingDouble((Pet pet) -> -pet.age).thenComparing(name);
             case PRICE -> Comparator.comparingDouble((Pet pet) -> shop.getOfferPrice(pet)).thenComparing(name);
             default -> name;
