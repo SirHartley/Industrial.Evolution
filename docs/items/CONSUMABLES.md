@@ -138,7 +138,7 @@ NPCs: `FleetConsumableInventoryManager` gives spawned fleets the missile abiliti
 
 | Item | State |
 |---|---|
-| NPC missile AI | `ExplosiveMissileAbilityAI` unreferenced, `if(true) return` at `:59`; `MissileAIReactionManager.reportFleetUsedMissile` `if (true) return` at `:68`; `reportFleetHitByMissile` is a stub. NPC inventories are never used |
+| NPC missile AI | `ExplosiveMissileAbilityAI` unreferenced, `if(true) return` at `:59`; `MissileAIReactionManager.reportFleetUsedMissile` `if (true) return` at `:68`; `reportFleetHitByMissile` is a stub. NPC inventories are never used. When on, a reacting fleet gets one `MissileAIReactionManager.ChaseScript` per offender; a repeat offense resets its timer |
 | `ItemAbilityHelper.getItemAmount` | NPC fleets always read 0 (the NPC inventory is never asked), so NPC `isUsable` is false |
 | `InterceptMissileEntityPlugin.java:105-106` | Sets `angle` instead of `currentAngle`; harmless, the missile is finishing after `onExplosion` |
 | `SpooferAbilityPlugin.java:93` | Render dead (`\|\| true`) |
