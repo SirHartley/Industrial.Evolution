@@ -102,14 +102,26 @@ public final class PlayerSettings implements LunaSettingsListener {
         }
     }
 
+    // a setting the mod switches itself, as the Husbandry tour does when it ends; the lunalib menu shows the new value
+    public static void set(Setting setting, Object value) {
+        if (!loaded) reload();
+        Object resolved = setting.sanitize(value);
+        if (Setting.same(current.get(setting), resolved)) return;
+
+        current.put(setting, resolved);
+        if (LunaSettings.getBoolean(MOD_ID, COMMERCE_BALANCE_CHANGES.id) != null) save(List.of(setting), current);
+    }
+
     private static void writeBack(Map<Setting, Object> stored, Map<Setting, Object> resolved) {
         List<Setting> changed = Arrays.stream(Setting.values()).filter(setting -> !Setting.same(stored.get(setting), resolved.get(setting))).toList();
-        if (changed.isEmpty()) return;
+        if (!changed.isEmpty()) save(changed, resolved);
+    }
 
+    private static void save(List<Setting> changed, Map<Setting, Object> values) {
         // the public lunalib api has no setter
         CommonDataJSONObject data = LunaSettingsLoader.getSettings().get(MOD_ID);
         try {
-            for (Setting setting : changed) data.put(setting.id, resolved.get(setting));
+            for (Setting setting : changed) data.put(setting.id, values.get(setting));
             data.save();
         } catch (IOException | JSONException e) {
             log.error("Could not save IndEvo settings", e);

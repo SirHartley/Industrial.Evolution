@@ -78,6 +78,8 @@ public class PetCard {
     static final float HOVER_HEART_GAP = 3f;
     static final float CARD_HEART = 14f;
     static final float CARD_HEART_GAP = 4f;
+    static final float HEART_LINE_X = 60f;
+    static final float HEART_LINE_GAP = 10f;
     static final float GRADE_X = 4f;
     static final float GRADE_W = 44f;
     static final float TALENT_X = 58f;
@@ -98,6 +100,10 @@ public class PetCard {
     private final PetShop shop;
 
     record Marker(String sprite, String title, String line) {
+    }
+
+    // number is highlighted, null for none
+    record HeartLine(String text, String number, Color color) {
     }
 
     PetCard(PetsPanel panel, PetsView view) {
@@ -769,7 +775,11 @@ public class PetCard {
         float y = HEARTS_Y;
         boolean off = pet.isUnsettled();
         Ui.text(p, 0f, y, 120f, "Hearts");
-        hearts(p, w - heartsWidth(CARD_HEART, CARD_HEART_GAP), y + 2f, pet, CARD_HEART, CARD_HEART_GAP);
+        float hx = w - heartsWidth(CARD_HEART, CARD_HEART_GAP);
+        hearts(p, hx, y + 2f, pet, CARD_HEART, CARD_HEART_GAP);
+        HeartLine next = nextHeart(pet);
+        if (next != null) Ui.runs(p, HEART_LINE_X, y, hx - HEART_LINE_GAP - HEART_LINE_X, Ui.INS15, next.color(), Ui.RIGHT, next.text(),
+                new String[]{next.number()}, new Color[]{Ui.hl()});
         UiData.thinbar(p, 0f, y + 21f, w, pet.getHeartProgress(), off ? HEART_OFF : HEART_RED);
         Ui.tooltip(p, Ui.panel(p, 0f, y, w, 24f), Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> heartsTip(t, pet));
         y += 28f;
@@ -840,12 +850,10 @@ public class PetCard {
         panel.refresh();
     }
 
-    // the next step, then every heart with how it comes and what it gives: reached in text, the next highlighted, the rest grey
+    // every heart with how it comes and what it gives: reached in text, the next highlighted, the rest grey; the next step is on the card
     private static void heartsTip(TooltipMakerAPI t, Pet pet) {
         t.setBgAlpha(1f);
         t.addPara("Hearts", Ui.hl(), 0f);
-        String next = nextHeart(pet);
-        if (next != null) t.addPara(next, 10f);
 
         int hearts = pet.getHearts();
         float pad = 10f;
@@ -860,24 +868,24 @@ public class PetCard {
         t.addPara("Each heart adds %s to its escape pod chance. On Supplies, hearts grow at %s.", 10f, Ui.gray(), Ui.hl(), pod, share);
     }
 
-    // null at five hearts
-    static String nextHeart(Pet pet) {
+    // the card's next heart line, null at five hearts; a pause has a cause the player can fix, so it is in the negative colour
+    static HeartLine nextHeart(Pet pet) {
         int hearts = pet.getHearts();
         if (hearts >= PetConstants.MAX_HEARTS) return null;
         if (hearts >= PetConstants.TIME_HEARTS) {
-            if (!pet.favourite) return "Star it as a favourite to pass " + PetConstants.TIME_HEARTS + " hearts.";
+            if (!pet.favourite) return new HeartLine("Star it to pass " + PetConstants.TIME_HEARTS + " hearts", null, Ui.gray());
             float need = PetConstants.HEART_DAYS[hearts] - pet.bondDays;
             float perWant = PetConstants.WANT_BOND_DAYS * PetGenetics.heartMult(pet.sheet, PetDataRepo.getTraits());
-            int wants = Math.max(1, (int) Math.ceil(need / perWant));
-            return "Answer its wants: about " + wants + " more for the next heart.";
+            String wants = String.valueOf(Math.max(1, (int) Math.ceil(need / perWant)));
+            return new HeartLine("Answer its wants, about " + wants + " more", wants, Ui.gray());
         }
 
-        if (!pet.isAboard()) return "Hearts grow only on a ship.";
-        if (pet.isUnsettled()) return "Hearts do not grow while it is Unsettled.";
-        if (pet.isStarving()) return "Hearts do not grow while it is starving.";
+        if (!pet.isAboard()) return new HeartLine("Grows only on a ship", null, Ui.gray());
+        if (pet.isUnsettled()) return new HeartLine("Paused while Unsettled", null, Ui.neg());
+        if (pet.isStarving()) return new HeartLine("Paused while starving", null, Ui.neg());
 
-        String next = "Next heart in " + days(pet.getDaysToHeart()) + ".";
-        return pet.lastMealSupplies ? next + " It grows at " + Math.round(PetConstants.SUPPLIES_HEART_RATE * 100f) + "% on Supplies." : next;
+        String days = days(pet.getDaysToHeart());
+        return new HeartLine("Next heart in " + days + (pet.lastMealSupplies ? " (Supplies)" : ""), days.substring(0, days.indexOf(' ')), Ui.gray());
     }
 
     private static String heartHow(int heart) {
