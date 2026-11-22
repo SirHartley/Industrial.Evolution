@@ -20,10 +20,12 @@ import indevo.industries.petshop.PetTitle;
 import indevo.industries.petshop.PetWant;
 import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
+import indevo.industries.petshop.item.PetItemPlugin;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.DeathData;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
+import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.RelicHelper;
@@ -464,7 +466,7 @@ public class PetCard {
         PetHusbandry.tagline(p, w, goneLine(pet));
 
         Ui.card(p, 0f, IDENT_Y, IDENT, IDENT);
-        UiImages.img(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, pet.getIcon(), null, DIM);
+        speciesTip(p, UiImages.img(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, pet.getIcon(), null, DIM), pet.getData(), null);
         List<GridRow> rows = new ArrayList<>();
         rows.add(GridRow.of("Species", species(pet), Ui.text()));
         rows.add(GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition)));
@@ -509,7 +511,7 @@ public class PetCard {
         PetHusbandry.tagline(p, w, status(offer, view.lines.computeIfAbsent(offer.id, id -> offerLine(offer))));
 
         Ui.card(p, 0f, IDENT_Y, IDENT, IDENT);
-        UiImages.img(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, offer.getIcon());
+        speciesTip(p, UiImages.img(p, 4f, IDENT_Y + 4f, PORTRAIT, PORTRAIT, offer.getIcon()), offer.getData(), null);
         UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, List.of(
                 GridRow.of("Species", species(offer), Ui.text()),
                 GridRow.of("Disposition", Misc.ucFirst(offer.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(offer.sheet.disposition)),
@@ -651,6 +653,15 @@ public class PetCard {
         return line == null ? "" : line;
     }
 
+    // the pet box tooltip's species part; name is the full name of a cut row label, else null
+    static void speciesTip(CustomPanelAPI p, UIComponentAPI target, PetData data, String name) {
+        Ui.tooltip(p, target, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> {
+            if (name != null) t.addPara(name, Ui.hl(), 0f);
+            t.addPara(data.species, Ui.hl(), name != null ? 10f : 0f);
+            PetItemPlugin.addSpeciesInfo(t, data, 3f);
+        });
+    }
+
     private static String status(Pet pet, String line) {
         return line.isEmpty() ? "" : line.replace("%s", pet.name) + ".";
     }
@@ -661,6 +672,7 @@ public class PetCard {
         SpriteAPI sprite = Global.getSettings().getSprite(pet.getIcon());
         Ui.painted(card, 4f, 4f, PORTRAIT, PORTRAIT, null, (pos, a) -> paintPortrait(sprite, pos, a));
         if (!canPet) Ui.tooltip(p, card, null, pet.name + " is out with " + away.getName() + ".");
+        else speciesTip(p, card, pet.getData(), null);
         if (pet.want != null) UiImages.img(p, IDENT - 18f, IDENT_Y, 16f, 16f, quest());
 
         if (view.clicks > 0) UiData.thinbar(p, 0f, IDENT_Y + IDENT + 3f, IDENT, view.clicks / (float) PetConstants.PETTING_CLICKS, HEART_RED);

@@ -108,14 +108,14 @@ Fixed - NPC fleets no longer lose meteor radiation faster than intended
 
 Pets
 Added - Pet moods: Hungry, Unsettled, Shell shocked, Sulking, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel, where a hover names the fix
-Added - Pets panel: your pets as tiles by ship, detachment, menagerie and storage, with filter and sort, and a card to rename, move, store or euthanize each
+Added - Pets panel: your pets as tiles by ship, detachment, menagerie and storage, with filter and sort, and a card to rename, move, store or euthanize each. It opens from "Visit the Animal Center" in the market menu.
 Added - Petting: click a pet's portrait five times in the Pets panel and it is Happy for 3 days
 Added - Rehome: an Animal Center finds a pet a new home for 2,000 credits
 Added - Setting to turn off the petting animation
 Added - Setting to show the Husbandry tour again
 Added - A pet on a sold, stored or scuttled ship moves to a free ship in the fleet, flagship first, then the largest
 Added - Console command indevo_pet: list, give and age pets, set hearts and talents, open wants, unlock the Family tree and Planner
-Added - Pet lines: your pets post short messages in flight, when you dock, jump or fight
+Added - Pet lines: your pets post short messages in flight, when you dock, jump or fight. A click on any pet message opens where to act on it.
 Added - Setting to adjust the days between pet lines (default 14, 0 turns them off)
 Added - Pet icon on its ship in the fleet and refit screens, a click opens the Pets panel
 Added - Pet icon in the ship tooltip

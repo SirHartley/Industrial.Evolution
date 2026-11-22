@@ -33,13 +33,15 @@ public class IndEvo_requiresColonyMenuPoint extends BaseCommandPlugin {
         boolean shippingPort = playerOwned
                 && market.hasIndustry(Ids.PORT);
         boolean salvageYards = market.hasIndustry(Ids.SCRAPYARD);
+        boolean petCenter = market.hasIndustry(Ids.PET_STORE) && market.getIndustry(Ids.PET_STORE).isFunctional();
 
         int howManyBooleansAreTrue =
                 (senate ? 1 : 0)
                         + (academy ? 1 : 0)
                         + (riftGen ? 1 : 0)
                         + (salvageYards ? 1 : 0)
-                        + (shippingPort ? 1 : 0);
+                        + (shippingPort ? 1 : 0)
+                        + (petCenter ? 1 : 0);
 
         return howManyBooleansAreTrue >= 2;
     }
