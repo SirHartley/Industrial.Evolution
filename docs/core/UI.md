@@ -88,6 +88,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `wrap(p, x, y, w, s, color)`, `wrap(..., font, color, align, parts, colors)` | Wrapped at `w`; `height(label)` is the measured height |
 | `wrapHeight(s, font, w)` | Height of wrapped text before placing it |
 | `heading(p, x, y, w, title[, align[, color, bg]])` | Section heading, 18 high, exactly `w` wide. Centred: the vanilla heading label. Left or right: a flat bar of the same colour with the text 8 px in |
+| `heading(p, x, y, w, title, font, align, color, bg)` | The flat bar with another font. `ORB12` runs about a sixth wider than `INS15` in the game, so a name on a narrow tile takes `INS15` |
 | `heading(p, x, y, w, title, note, hl...)` | Left heading with a grey orb12 note at the right end; the `hl` parts of the note in the highlight colour |
 | `rule(p, x, y, w[, color])`, `vrule(p, x, y, h)` | 1 px line, `line()` colour |
 | `box(p, x, y, w, h, border, fill)`, `card`, `well`, `dashbox` | Framed box; card (base 0.3 frame, no fill); recessed cell behind pictures; dashed empty slot |
