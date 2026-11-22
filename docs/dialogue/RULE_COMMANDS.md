@@ -12,7 +12,7 @@ The engine resolves the first word of a rules condition or script line to a `Com
 
 | File | Owner / role |
 |---|---|
-| `indevo/dialogue/rules/IndEvo_requiresColonyMenuPoint.java` | Condition: market is a real, non-neutral colony with at least two of: Senate in system (player owned), Academy, Rift Generator (player owned), Courier Port (player owned), Salvage Yards (`:20`). True means the features collapse into the shared "colony options" submenu. |
+| `indevo/dialogue/rules/IndEvo_requiresColonyMenuPoint.java` | Condition: market is a real, non-neutral colony with at least two of: Senate in system (player owned), Academy, Rift Generator (player owned), Courier Port (player owned), Salvage Yards, Animal Center (`:20`). True means the features collapse into the shared "colony options" submenu. |
 | `IndEvo_marketHasIndustry.java` | Condition `IndEvo_marketHasIndustry <industryId>`: `$market.id` has the industry and it is functional. |
 | `IndEvo_marketIsPlayerOwned.java` | Condition: `$market.id` is player owned; falls back to `$faction.id == player`. |
 | `IndEvo_notAtWar.java` | Condition: player relation to the faction of the market's ambassador > -0.5 (`AmbassadorPersonManager.getAmbassador`, see [Embassy](../industries/EMBASSY.md)). |
@@ -74,8 +74,9 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 | `IndEvo_playerHasFreeEmbassyNoCargo` | `indevo.industries.embassy.rules` | 0 | | [Embassy](../industries/EMBASSY.md) |
 | `IndEvo_OpenEdictPanel` | `indevo.industries.senate.rules` | 1 | `IndEvo_openEdictPanel:714` | [Senate](../industries/SENATE.md) |
 | `IndEvo_systemHasSenate` | `indevo.industries.senate.rules` | 4 | `IndEvo_SenateMenuPoint:698` | [Senate](../industries/SENATE.md) |
-| `IndEvo_PetDockingLine` | `indevo.industries.petshop.rules` | 1 | `IndEvo_petDockingLine:900` | [Pets](../industries/PETS.md#lines) |
-| `IndEvo_PetTreatment` | `indevo.industries.petshop.rules` | 2 | `IndEvo_nomiosLongevityOption:902` | [Pets](../industries/PETS.md#longevity) |
+| `IndEvo_PetDockingLine` | `indevo.industries.petshop.rules` | 1 | `IndEvo_petDockingLine:891` | [Pets](../industries/PETS.md#lines) |
+| `IndEvo_PetTreatment` | `indevo.industries.petshop.rules` | 2 | `IndEvo_nomiosLongevityOption:893` | [Pets](../industries/PETS.md#longevity) |
+| `IndEvo_ShowPetCenter` | `indevo.industries.petshop.rules` | 1 | `IndEvo_openPetCenter:904` | [Pets](../industries/PETS.md#pets-panel) |
 | `IndEvo_ShowAcademyPanel` | `indevo.industries.academy.rules` | 2 | `IndEvo_IntitiateAcademyMenu:726` | [Academy](../industries/ACADEMY.md) |
 | `IndEvo_InitPersonalityTransferMenu` | `indevo.industries.academy.rules.WIP` | 0 | not in packages, folder excluded by `IndEvo.iml` | [Academy](../industries/ACADEMY.md) |
 | `HasItemAmountAnywhere`, `RemoveItemAmountAnywhere` | `indevo.other` | 0 | not in packages, unresolvable from rules | [Misc](../core/MISC.md) |
@@ -116,13 +117,13 @@ All classes that extend `BaseCommandPlugin` in `jars/src/` (grep `extends BaseCo
 
 ### Colony options menu
 
-When a player market has two or more of Senate, Academy, Rift Generator, Courier Port, Salvage Yards, `IndEvo_ColonyOptionPoint` (`:533`, condition `IndEvo_requiresColonyMenuPoint`) adds one menu option; `IndEvo_fireColonyOptions` fires the custom trigger `IndEvo_ColonyOptionPoint`, and each feature has a `...2` or `...ColonyOptionMenu` rule on that trigger. With fewer than two, each feature's own `PopulateOptions` rule (condition `!IndEvo_requiresColonyMenuPoint`) adds its option directly. Features also have `IndEvo_FireBase<X>OptionList` triggers, fired by `new RuleBasedInteractionDialogPluginImpl(trigger)` from each feature's industry option provider (e.g. `indevo/industries/courierport/plugin/CourierPortOptionProvider.java:38`). The Academy and Senate options open their panels directly.
+When a player market has two or more of Senate, Academy, Rift Generator, Courier Port, Salvage Yards, Animal Center, `IndEvo_ColonyOptionPoint` (`:533`, condition `IndEvo_requiresColonyMenuPoint`) adds one menu option; `IndEvo_fireColonyOptions` fires the custom trigger `IndEvo_ColonyOptionPoint`, and each feature has a `...2` or `...ColonyOptionMenu` rule on that trigger. With fewer than two, each feature's own `PopulateOptions` rule (condition `!IndEvo_requiresColonyMenuPoint`) adds its option directly. Features also have `IndEvo_FireBase<X>OptionList` triggers, fired by `new RuleBasedInteractionDialogPluginImpl(trigger)` from each feature's industry option provider (e.g. `indevo/industries/courierport/plugin/CourierPortOptionProvider.java:38`). The Academy, Senate and Animal Center options open their panels directly.
 
 ## Contracts
 
 - Command lookup is by simple class name across all listed packages; two classes with the same simple name in different listed packages collide (inferred, not traced in `obf/`). Keep the `IndEvo_` prefix for new commands.
 - Rules memory keys need `$`; commands read market data through `memoryMap.get(MemKeys.MARKET).getString("$id")`, so they need a market in the dialog memory map.
-- `IndEvo_requiresColonyMenuPoint` counts Senate only via `MiscIE.systemHasIndustry(Ids.SENATE, system, faction)`, Academy and Salvage Yards also on non-player markets.
+- `IndEvo_requiresColonyMenuPoint` counts Senate only via `MiscIE.systemHasIndustry(Ids.SENATE, system, faction)`, Academy, Salvage Yards and Animal Center also on non-player markets.
 - A rule whose script names a missing command fails when fired, not at load (inferred from per-call resolution).
 
 ## Known issues and dormant code

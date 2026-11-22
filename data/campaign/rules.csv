@@ -895,3 +895,10 @@ $menuState == main
 $market.id == nomios
 IndEvo_PetTreatment available",IndEvo_PetTreatment option,,20:IndEvo_NomiosLongevity:Ask about the longevity treatment,pet longevity treatment at Nomios; greyed with a tooltip when no pet is with the fleet
 IndEvo_nomiosLongevityOpen,DialogOptionSelected,$option == IndEvo_NomiosLongevity,IndEvo_PetTreatment open,,,prints the intro and opens PetTreatDialog; its Confirm and Cancel print their text and fire PopulateOptions
+IndEvo_petCenterMenuPoint,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketHasIndustry IndEvo_PetStore
+!IndEvo_requiresColonyMenuPoint
+RepIsAtWorst $faction.id INHOSPITABLE",,,99:IndEvo_openPetCenter:Visit the Animal Center,
+IndEvo_petCenterColonyOptionMenu,IndEvo_ColonyOptionPoint,IndEvo_marketHasIndustry IndEvo_PetStore,,,4:IndEvo_openPetCenter:Visit the Animal Center,
+IndEvo_openPetCenter,DialogOptionSelected,$option == IndEvo_openPetCenter,IndEvo_ShowPetCenter IndEvo_SelectreturnToMenu,,,opens the Pets panel in this dialog; its Return selects IndEvo_SelectreturnToMenu
