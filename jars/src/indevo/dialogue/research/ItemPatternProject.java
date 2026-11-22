@@ -29,7 +29,7 @@ public class ItemPatternProject extends ResearchProject {
             ItemIds.LOG_CORE, "Outlawed by the Domain for a reason. Let's make more.",
             ItemIds.NEUAL_COMPOUNDS, "Chemistry swears it won't sample the product this time.",
             ItemIds.SALVAGE_DRONES, "It replicates drones. Time to replicate the replicator.",
-            ItemIds.TRANSMITTER, "Nobody knows how it works. The physics guys brought a screwdriver.",
+            ItemIds.TRANSMITTER, "No idea how it works. The physics guys brought a screwdriver.",
             ItemIds.HOLOBENCH, "The neuroscience department has volunteered an intern to plug in first.");
 
     private final String itemId;

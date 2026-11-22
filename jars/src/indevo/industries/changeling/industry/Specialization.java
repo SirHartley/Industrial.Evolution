@@ -25,7 +25,7 @@ public class Specialization implements ChangelingTarget {
 
     public static final String MOD_SUFFIX = "_IndEvo_specialized";
     public static final String DESC = "Specialized Extraction";
-    public static final float IMAGE_HEIGHT = 95f;
+    public static final float IMAGE_HEIGHT = 90f;
 
     public static final Specialization MINING = new Specialization("mining", Industries.MINING, "$IndEvo_miningFocus", MiningSpecializations.BASE_ID, MiningSpecializations.LIST,
             MiningSpecializations.COMMODITIES);
