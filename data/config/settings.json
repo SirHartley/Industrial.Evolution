@@ -9,15 +9,13 @@
   #---------------- If you touch anything below here dont come complaining when it crashes -------------------
 
   #ashes of the domain: colony items its production screen may build, appended to vok's list, cost follows base price
+  #each stays hidden until its galatia project is redeemed (AotdManager.PRODUCTION_ITEMS), vpcs left out
   "aotd_item_prod": [
     "IndEvo_simulator",
     "IndEvo_log_core",
-    "IndEvo_vpc_ultra",
     "IndEvo_neurals",
     "IndEvo_drones",
     "IndEvo_transmitter",
-    "IndEvo_vpc_rare",
-    "IndEvo_vpc",
     "IndEvo_holobench"
   ],
 
