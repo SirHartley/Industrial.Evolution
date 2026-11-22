@@ -149,6 +149,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         commitName();
         open = false;
         view.picked.clear();
+        view.treePicked.clear();
         onLeave.run();
     }
 
@@ -324,9 +325,12 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         refresh();
     }
 
-    // dead branches fold again once the tab is left
+    // dead branches fold again and the tree picks go once the tab is left
     private void tab(int tab) {
-        if (view.tab == PetsView.TAB_TREE && tab != PetsView.TAB_TREE) view.unfolded.clear();
+        if (view.tab == PetsView.TAB_TREE && tab != PetsView.TAB_TREE) {
+            view.unfolded.clear();
+            view.treePicked.clear();
+        }
         view.tab = tab;
     }
 
@@ -505,7 +509,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         refresh();
     }
 
-    private static boolean shift() {
+    static boolean shift() {
         return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
     }
 
@@ -640,6 +644,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             tooltip.addPara("Every pet of a species linked through parents and young, gone pets too.", 0f);
             tooltip.addPara("Hover a pet to light up the lines to its parents. A gold outline marks the shared ancestors of a pair.", 10f);
             tooltip.addPara("The closer the kin, the higher the Inbreeding and the chance of malformed young.", 10f);
+            tooltip.addPara("Shift click two pets to pair or plan them.", 10f);
             return;
         }
 

@@ -20,7 +20,6 @@ import indevo.industries.petshop.memory.PetSheet;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 import org.lazywizard.lazylib.ui.LazyFont;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -28,7 +27,6 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.*;
 
@@ -268,7 +266,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         int key = Objects.hash(back, lattice, outline.getRGB(), Ui.base().getRGB(), Ui.dark().getRGB());
         Integer id = TEXTURES.get(key);
         if (id == null) {
-            id = upload(draw(back, lattice, outline), tw, th);
+            id = UiDraw.upload(draw(back, lattice, outline), tw, th);
             TEXTURES.put(key, id);
         }
         UiDraw.texture(id, back.w, back.h, back.w / tw, back.h / th, x, y, back.w, back.h, a);
@@ -326,18 +324,6 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         g.draw(new RoundRectangle2D.Double(0.5, 0.5, w - 1, h - 1, 2 * back.round, 2 * back.round));
         g.dispose();
         return image;
-    }
-
-    private static int upload(BufferedImage image, int tw, int th) {
-        ByteBuffer pixels = BufferUtils.createByteBuffer(tw * th * 4);
-        for (int py = 0; py < image.getHeight(); py++) {
-            for (int px = 0; px < image.getWidth(); px++) {
-                int argb = image.getRGB(px, py);
-                int i = (py * tw + px) * 4;
-                pixels.put(i, (byte) (argb >> 16)).put(i + 1, (byte) (argb >> 8)).put(i + 2, (byte) argb).put(i + 3, (byte) (argb >>> 24));
-            }
-        }
-        return UiDraw.upload(pixels, tw, th);
     }
 
     private static Shape diamond(double cx, double cy, double w, double h) {
@@ -505,7 +491,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         int key = Objects.hash("tag", w, h, c.getRGB());
         Integer id = TEXTURES.get(key);
         if (id == null) {
-            id = upload(tagBox(w, h, iw, ih, c), tw, th);
+            id = UiDraw.upload(tagBox(w, h, iw, ih, c), tw, th);
             TEXTURES.put(key, id);
         }
         float cx = Math.round(pos.getCenterX());

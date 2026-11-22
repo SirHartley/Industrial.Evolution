@@ -462,14 +462,20 @@ public class PetHusbandry {
     private String startBlock(Pet a, Pet b, boolean broke, float fee, float credits) {
         if (a == null || b == null) return "Pick two adults of one species.";
 
+        String block = pairReason(shop, a, b);
+        if (block != null) return block;
+        if (broke) return "The fee is " + Misc.getDGSCredits(fee) + " a month. You have " + Misc.getDGSCredits(credits) + ".";
+        return null;
+    }
+
+    // why the two can not pair here, null when they can; the fee is not checked
+    static String pairReason(PetShop shop, Pet a, Pet b) {
         String block = shop.pairBlock(a, b);
         if (block != null) return block;
         block = shop.parentBlock(a);
         if (block != null) return a.name + ": " + block;
         block = shop.parentBlock(b);
-        if (block != null) return b.name + ": " + block;
-        if (broke) return "The fee is " + Misc.getDGSCredits(fee) + " a month. You have " + Misc.getDGSCredits(credits) + ".";
-        return null;
+        return block != null ? b.name + ": " + block : null;
     }
 
     private void start(Pet a, Pet b, int habitat) {

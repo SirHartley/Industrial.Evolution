@@ -53,6 +53,8 @@ public class PetsView {
     String treeRoot = null;
     String treeCard = null;
     final List<String> treePair = new ArrayList<>();
+    // two at most, picked with shift click; a third replaces the second
+    final List<String> treePicked = new ArrayList<>();
     boolean treeFull = false;
     boolean treeSmall = false;
     String treeSpecies = null;

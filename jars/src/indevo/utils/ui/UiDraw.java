@@ -2,10 +2,12 @@ package indevo.utils.ui;
 
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
 
 // gl primitives for UiCanvas painters, coordinates are virtual pixels with y up, x and y are the bottom left corner
@@ -255,6 +257,19 @@ public final class UiDraw {
         GL11.glVertex2f(dx + dw, dy);
         GL11.glEnd();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+    }
+
+    // an image into the top left of a new tw x th texture, power of two sides
+    public static int upload(BufferedImage image, int tw, int th) {
+        ByteBuffer pixels = BufferUtils.createByteBuffer(tw * th * 4);
+        for (int py = 0; py < image.getHeight(); py++) {
+            for (int px = 0; px < image.getWidth(); px++) {
+                int argb = image.getRGB(px, py);
+                int i = (py * tw + px) * 4;
+                pixels.put(i, (byte) (argb >> 16)).put(i + 1, (byte) (argb >> 8)).put(i + 2, (byte) argb).put(i + 3, (byte) (argb >>> 24));
+            }
+        }
+        return upload(pixels, tw, th);
     }
 
     // rgba8 pixels, rows top first, power of two sides; linear filter, clamped
