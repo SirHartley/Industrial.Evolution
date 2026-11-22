@@ -150,13 +150,20 @@ public final class UiButtons {
 
     // tabs left to right, tabW 0 splits w evenly, then a rule below; returns the y under the rule
     public static float tabs(CustomPanelAPI p, float x, float y, float w, float tabW, float h, String[] labels, int selected, boolean[] enabled, IntConsumer onSelect) {
+        return tabs(p, x, y, w, tabW, h, labels, selected, enabled, null, onSelect);
+    }
+
+    // tips: a solid hover per tab, null for none; shown on a disabled tab too
+    public static float tabs(CustomPanelAPI p, float x, float y, float w, float tabW, float h, String[] labels, int selected, boolean[] enabled, String[] tips,
+                             IntConsumer onSelect) {
         int n = labels.length;
         float each = tabW > 0f ? tabW : Math.round((w - TAB_GAP * (n - 1)) / n);
 
         for (int i = 0; i < n; i++) {
             int index = i;
             boolean on = i == selected;
-            tab(p, x + i * (each + TAB_GAP), y, each, h, labels[i], on, enabled == null || enabled[i], () -> onSelect.accept(index));
+            ButtonAPI tab = tab(p, x + i * (each + TAB_GAP), y, each, h, labels[i], on, enabled == null || enabled[i], () -> onSelect.accept(index));
+            if (tips != null && tips[i] != null) Ui.solidTooltip(p, tab, null, tips[i]);
         }
 
         Ui.rule(p, x, y + h, w, Misc.scaleAlpha(Ui.base(), 0.55f));

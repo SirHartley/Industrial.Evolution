@@ -222,7 +222,11 @@ public class PetHusbandry {
         float top = y + bar + UiFilter.BELOW;
 
         UiScroll.Column list = UiScroll.list(p, 0f, top, PetsPanel.LIST_W, h - top, view.scroll, PetsView.ADULTS);
-        if (shown.isEmpty()) Ui.text(list.block(Ui.LINE_H, 0f), 0f, 0f, list.width(), all.isEmpty() ? "No adults here." : filter.isFiltering() ? "No adult matches." : "No two adults of one species here.", Ui.gray());
+        if (shown.isEmpty()) {
+            String empty = all.isEmpty() ? "No adults here. A pet can pair once it is no longer Young."
+                    : filter.isFiltering() ? "No adult matches." : "No two adults of one species here. Buy or adopt a second one.";
+            Ui.wrap(list.block(Ui.wrapHeight(empty, Ui.INS15, list.width()), 0f), 0f, 0f, list.width(), empty, Ui.gray());
+        }
 
         boolean free = shop.getBrood(habitat) == null;
         for (int row = 0; row * PetsPanel.PER_ROW < shown.size(); row++) {
@@ -345,7 +349,7 @@ public class PetHusbandry {
     }
 
     private void treeButton(CustomPanelAPI p, float h, Pet a, Pet b) {
-        UiButtons.button(p, 0f, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Family tree", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.showPair(a, b));
+        PetsPanel.tabButton(p, 0f, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Family tree", PetStatusManager.Unlock.TREE, () -> panel.showPair(a, b));
     }
 
     // a second adult of another species starts the pair again
@@ -393,7 +397,7 @@ public class PetHusbandry {
             cross(p, w, h, a, b);
             treeButton(p, h, a, b);
             scanControls(p, w, h, a, b);
-            UiButtons.button(p, PLAN_X, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Add to plan", UiButtons.Kind.STD, CutStyle.TL_BR,
+            PetsPanel.tabButton(p, PLAN_X, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Add to plan", PetStatusManager.Unlock.PLAN,
                     () -> panel.newPlan(a.typeID, a.id, b.id));
         }
 

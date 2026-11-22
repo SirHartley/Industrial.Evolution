@@ -10,8 +10,8 @@ Added - Quick Settings tab for category toggles
 Added - Refit: Build hullmods in with Relic Components instead of story points (5 per DP, no bonus XP)
 Added - Boost Extraction: pay Relic Components on Tech Mining to double next month's finds
 Added - Settings descriptions updated
-Added - Express Delivery for custom production orders: halves the delivery time for Relic Components
-Added - Shuttle Traffic: small craft fly in traffic lanes between the planets and stations of colonized systems, with pleasure cruises, patrols, mining and salvage runs, scavengers, smugglers, traffic that flees hostile fleets, escape pods from destroyed fleets, service shuttles for fleets in orbit, trade shuttles to your fleet, scavenger survey shuttles, raid dropships, evacuation pods, fighters dogfighting around NPC battles, a flying style per faction, free ports, pirate activity, Pather cells and hidden pirate bases you can spot by their traffic, settlers for new colonies, recovery tugs after battles, couriers, pilgrims, Museum parades, ships towed to Restoration Docks, convoys, rush hours, traffic that keeps clear of meteor swarms, and craft that ease around slow fleets, stall in interdiction pulses and blow up in explosions or under a fleet on sustained burn (visual only, Quick Settings)
+Added - Express Delivery: halve the delivery time of custom production orders with Relic Components
+Added - Shuttle Traffic: small craft fly lanes between the planets and stations of colonized systems, with a flying style per faction, rush hours and convoys. Among them patrols, miners, traders, smugglers, pilgrims, settlers, couriers, Museum parades, recovery tugs, raid dropships and escape pods. Craft flee hostile fleets, keep clear of meteor swarms, stall in interdiction pulses and blow up in explosions or under a fleet on sustained burn. Pather cells and hidden pirate bases show by their traffic (visual only, Quick Settings).
 Added - Celestial Orbits: no orbit lines for mines, meteors, projectiles and other short lived objects
 Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
@@ -70,13 +70,13 @@ Added - Setting to adjust interdict disable time
 Fixed - Mines no longer cluster in one spot of the belt
 
 Fog
-Added - Fog: weather that sometimes rolls out from a nearby system's star within two days and lies there as one huge misshapen patch for about a month or sits there as a smaller local bank with drifting arms for months. It takes the colour of the system's nebula, grey where there is none, and glows in the star's colour close to a star. Systems thick with nebula get no fog, and fog never lies on nebula: it thins out just before it. Banks are common, about one nearby system in three has one; the core worlds only get banks. Inside it the music fades out and sound is muffled like in a nebula. Sensors are nearly useless inside, so moving fleets and passing meteors show only by the trails they leave. Emergency Burn and Interdiction Pulse blow the fog clear, artillery shots, missiles and explosions tear holes in it, and pirate or Pather fleets sometimes lie in wait. Some banks hide a small cache, found with an Active Sensor Burst or by flying right over it; it is gone when the bank is (Quick Settings).
+Added - Fog: now and then a bank rolls out from the star of a nearby system, about one in three, and lies there as one huge patch for about a month or a smaller bank for months. Systems thick with nebula get none. Inside, sensors barely work, fleets and meteors show only by their trails and sound is muffled. Emergency Burn and Interdiction Pulse clear it, shots and explosions tear holes, pirate and Pather fleets sometimes lie in wait, and some banks hide a cache, found with an Active Sensor Burst or by flying over it (Quick Settings).
 
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
 Added - Catch.Release harpoons can now break meteors
 Added - NPC fleets now steer out of the way of incoming meteors
-Added - Rogue Asteroids: small groups of rocks in seven shapes cross systems without warning, colonies included, sometimes carrying treasure. Now and then a system gets a drizzle of small rocks for 5 to 15 days instead. Rogue rocks carry a faint halo of dust and small debris. Rare, the chance is a setting in the Meteor Swarms tab.
+Added - Rogue Asteroids: rare small groups of rocks cross systems without warning, colonies included, sometimes carrying treasure. Now and then a system gets a drizzle of small rocks for 5 to 15 days instead (chance is a setting in the Meteor Swarms tab).
 Adjusted - Meteors now break on stations without damaging or pushing them
 Fixed - Tutorial intel can no longer show duplicate notifications
 Fixed - Planetoid swarms no longer leave planets, rings and loot stations behind
@@ -91,39 +91,39 @@ Fixed - A second meteor storm can no longer start alongside the tutorial storm
 Fixed - NPC fleets no longer lose meteor radiation faster than intended
 
 Pets
-Added - Pet moods: Hungry, Unsettled, Shell shocked, Sulking, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel
+Added - Pet moods: Hungry, Unsettled, Shell shocked, Sulking, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel, where a hover names the fix
 Added - Pets panel: your pets as tiles by ship, detachment, menagerie and storage, with filter and sort, and a card to rename, move, store or euthanize each
 Added - Petting: click a pet's portrait five times in the Pets panel and it is Happy for 3 days
 Added - Rehome: an Animal Center finds a pet a new home for 2,000 credits
 Added - Setting to turn off the petting animation
 Added - A pet on a sold, stored or scuttled ship moves to a free ship in the fleet, flagship first, then the largest
-Added - Console command indevo_pet: list, give and age pets, set hearts and talents, open wants
+Added - Console command indevo_pet: list, give and age pets, set hearts and talents, open wants, unlock the Family tree and Planner
 Added - Pet lines: your pets post short messages in flight, when you dock, jump or fight
 Added - Setting to adjust the days between pet lines (default 14, 0 turns them off)
 Added - Pet icon on its ship in the fleet and refit screens, a click opens the Pets panel
 Added - Pet icon in the ship tooltip
-Added - Pet hearts: a pet on a ship earns up to 3 hearts with time (14, 60 and 180 days), a quarter as fast on Supplies. Its mascot effect starts at 1 heart.
+Added - Pet hearts: a pet on a ship earns up to 3 hearts with time (14, 60 and 180 days), a quarter as fast on Supplies. Its mascot effect starts at 1 heart. The hearts tooltip shows what each heart takes and gives.
 Added - Pet nest: a pet with 4 hearts builds a nest on its ship, +30% mascot effect
 Added - Escape pods: a pet on a destroyed ship survives with a 10% chance per heart
 Added - Hamsters have double the mascot effect and talents
 Added - Favourite pets: star up to 3 pets in the Pets panel. Only favourites reach hearts 4 and 5.
 Added - Pet wants: a favourite now and then wants attention, play, a treat, comfort, shore leave or to come along. Answer within 30 days for hearts. Three missed in a row and it sulks.
 Added - Jumps and fights bring the pets aboard closer to their next heart
-Added - Pet talents: every pet has 1 or 2 talents, such as flux, armor, range, supplies or salvage. Each heart switches one on, the best first, and the pet shows it to you.
+Added - Pet talents: every pet has 1 or 2 talents, such as flux, armor, range, supplies or salvage. Each heart unlocks one, the best first.
 Added - Fleet talents (Pathfinder, Scavenger, Marine mascot) count once per fleet, from the best pet. The lead Scavenger now and then finds extra salvage, sometimes a colony item.
 Added - Signature talents: a Rare or Epic pet may come with one of Time skip, Small target, Mender, Overcharge, Skeleton crew, Spite or Captain (commands its ship when no officer does)
 Added - Pet titles: Veteran, Navigator, Old Timer, Survivor, Beloved, Pampered, Treasure Hunter, Admiral, Globetrotter and Stargazer, earned from what a pet lives through
-Added - Pet habitats: raise young from two adults of one species at an Animal Center (4 habitats at your own, 2 elsewhere for 3,000 credits a month). Young inherit talents, mutations and flaws (a chart shows the odds) and open like a draw.
-Added - Gene scan: reads every talent and flaw of a pet for 10 relic components at an Animal Center
-Added - Family tree in the Pets panel: a pet's parents, young and kin, the shared ancestors of a pair, or every family of a species
-Added - Planner in the Pets panel: plan young over generations, with the odds per wanted trait and the best pairs
+Added - Pet habitats: raise young from two adults of one species at an Animal Center (4 habitats at your own, 2 elsewhere for 3,000 credits a month). Young inherit talents, mutations and flaws (a chart shows the odds), what they got only shows when opened.
+Added - Gene scan: reads every talent and flaw of a pet for 10 Relic Components at an Animal Center
+Added - Family tree in the Pets panel: a pet's parents, young and kin, the shared ancestors of a pair, or every family of a species. It unlocks with your first young.
+Added - Planner in the Pets panel: plan young over generations, with the odds per wanted trait and the best pairs. It unlocks when a young you raised grows up. Locked tabs stay grey and say how to unlock them, and unlocks carry over between games.
 Added - Pet looks: young can be born with a new look, and pass it on. 25 looks for 15 species so far.
-Added - Cargo place for new young: a Cryochamber that stops it ageing and can be sold
-Added - Sale value for young: read talents, mutations, a look and a titled ancestor raise it
+Added - Cryochamber: holds new young in the cargo without ageing, can be sold
+Added - Young now have a sale value, raised by read talents, mutations, a look or a titled ancestor
 Added - Animal Centers you do not own offer named pets for adoption, new ones each month
 Added - Bestiary in the Pets panel: every species you owned or saw on offer, with its looks and the mutations found. It carries over between games.
 Added - Memorial: a Remembered section shows the pets that died one at a time. The Pets panel lists them all with the Remembered filter. Favourites carry over to your other games.
-Added - Longevity Syringe: right-click in the cargo to give a pet 2 more cycles, again and again. From Project Methuselah at the Galatia Academy (50 relic components, repeatable) and from derelict pet centers.
+Added - Longevity Syringe: right-click in the cargo to give a pet 2 more cycles, again and again. From Project Methuselah at the Galatia Academy (50 Relic Components, repeatable) and from derelict pet centers.
 Added - Longevity treatment at Nomios: 1 to 5 cycles for a pet, paid in Harvested Organs, Recreational Drugs and credits
 Added - Warnings a few weeks and a few days before a pet in your fleet dies of old age
 Added - Setting for the cycles one Longevity Syringe gives (default 2)
@@ -230,15 +230,16 @@ Added - Accelerate: halve the remaining Ancient Laboratory repair time with Reli
 Added - Recharge: end the Rift Generator cooldown at once for 3 Relic Components per day left
 Added - Rift Generator: each jump direction now shows its target area on the sector map before you fire
 Added - Rift Generator: Precise targeting picks the exact star system on the map for Relic Components (100 by default, setting)
-Adjusted - Rift Generator: the planet now jumps with its station, rings, stellar mirrors and shades, magnetic field, orbital junk and everything else in its orbit; moons and jump points stay behind and orbit the tear
-Adjusted - Rift Generator: the Artificial Hyperspace Tear left behind now closes after the recharge time and shows the days left; moons go back to orbiting the star
+Adjusted - Rift Generator: the planet now jumps with everything in its orbit (station, rings, mirrors, shades, magnetic field, junk), moons and jump points stay behind and orbit the tear
+Adjusted - Rift Generator: the Artificial Hyperspace Tear left behind closes after the recharge time and shows the days left, moons then go back to orbiting the star
 Adjusted - Rift Generator: a star system can be targeted again after a jump into it
 Adjusted - Rift Generator: the gamma core now keeps the tear open twice as long
 Adjusted - Rift Generator: the colony menu now says why the Generator can not fire
-Adjusted - Rift Generator: never jumps into hidden, abyssal or cut off systems; mods can block star systems and orbiting entities (rift_blocked_systems.csv, rift_blocking_entities.csv, $IndEvo_riftBlocked)
+Adjusted - Rift Generator: never jumps into hidden, abyssal or cut off systems (mods can block systems and entities with rift_blocked_systems.csv, rift_blocking_entities.csv or $IndEvo_riftBlocked)
 Adjusted - Rift Generator: the warp now has sound
 Adjusted - Forge Templates now only install in the structure that can use them
-Fixed - Rift Generator no longer breaks Ashes of the Domain megastructures; a planet with a megastructure or Bifrost Gate can not jump
+Fixed - Rift Generator no longer breaks Ashes of the Domain megastructures
+Note - A planet with a megastructure or Bifrost Gate can not jump
 Fixed - Rift Generator no longer deletes orbital junk around the other planets of the system
 Fixed - Rift Generator core direction no longer depends on Askonia
 Fixed - Rift Generator planets now move in sync with the warp animation
@@ -262,7 +263,7 @@ Fixed - Ruined Infrastructure without a target can now be restored
 Fixed - Ruined Infrastructure tooltip now unlocks its Codex entry
 
 Embassy
-Changed - Only one ambassador per faction can be hired at a time
+Adjusted - Only one ambassador per faction can be hired at a time
 Fixed - Ambassadors can now properly be told to stop sabotaging hostile activity
 Fixed - Luddic Church ambassadors now properly reduce hostile activity
 Fixed - Hostile activity tooltip no longer shows relations above the 40 cap
@@ -296,7 +297,7 @@ Fixed - Relic Components no longer show up as an item in storage or cargo
 Fixed - Reverse engineering message now says "an Eagle-class" instead of "a Eagle-class"
 
 Orbital Works
-Added - Relic Lattice Work: Orbital Works option, adds one S-mod slot to a ship. Costs relic components, takes 3 months.
+Added - Relic Lattice Work: Orbital Works option that adds one S-mod slot to a ship for Relic Components, takes 3 months
 
 Privateer Base
 Adjusted - Now takes two industry slots itself, also while queued
@@ -305,7 +306,7 @@ Fixed - Raid strength now properly follows colony fleet size modifiers
 Fixed - Build tooltip no longer shows the base as unavailable when it can be built
 
 Salvage Yards
-Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
+Added - Move S-mods: transfer S-mods between similar hulls for Relic Components and credits
 Note - The target ship needs the hullmod installed and a free S-mod slot
 Added - Accelerate Construction: halve the delivery time of a production order with Relic Components, from the order intel or the Ship assembly tab
 Added - Salvage Drone Replicator: battles within 6 LY give 50% salvage, lost ships fill a Wreck Registry
@@ -330,7 +331,7 @@ Fixed - D-mod transfer no longer offers hulls whose D-mods are built in and can 
 Senate
 Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
-Added - New Edict panel: pick a colony and an Edict, see its effect values, supply changes, term, requirements and the cost of ending it early, enact or remove it with a confirm
+Added - Edict panel: pick a colony and an Edict, see its effects, supply changes, term, requirements and early removal cost, then enact or remove it
 Added - Bribe Senators: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
 Added - The Senate can now be visited from remote colony screens
 Adjusted - Visiting the Senate manages the Edicts of every colony in its range, colonies without a Senate get "Enact an Edict" for themselves
@@ -388,7 +389,7 @@ Fixed - Cloud and shield visual changes now show at once, colony screen included
 Automated Shipyards
 Fixed - Automated Shipyard now shows lost components and highlights failures red
 Fixed - Cryosleeper intel no longer shows the Automated Shipyard icon
-Fixed - Relic components in station storage are now properly counted
+Fixed - Relic Components in station storage are now properly counted
 
 Salvage Specials
 Added - Story point derelicts can now be rebuilt with Relic Components instead of a story point (5 per DP)

@@ -296,7 +296,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         heading(list, rw, "Stored here", note, GROUP_GAP);
         List<PersonAPI> stored = stored();
         for (PersonAPI person : stored) addRow(list, rw, person, true);
-        if (stored.isEmpty()) empty(list, rw, view.admins ? "No administrators stored here." : "No officers stored here.");
+        if (stored.isEmpty()) empty(list, rw, view.admins ? "No administrators in storage." : "No officers in storage.");
 
         list.end();
     }

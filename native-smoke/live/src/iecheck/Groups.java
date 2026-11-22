@@ -41,6 +41,8 @@ public final class Groups {
                 return PetsStatusChecks.steps();
             case "petsreport":
                 return PetsReportChecks.steps();
+            case "petsguide":
+                return PetsGuideChecks.steps();
             case "petsmemo":
                 return PetsMemorialChecks.steps();
             case "ratsettle":
