@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
@@ -52,8 +51,7 @@ public class AncientLabRelicOptionProvider extends SingleIndustrySimpifiedOption
     @Override
     public void createTooltip(TooltipMakerAPI tooltip, IndustryOptionData opt) {
         Color hl = Misc.getHighlightColor();
-        tooltip.addSectionHeading("Relic services", Alignment.MID, 0f);
-        tooltip.addPara("Refine Forge Templates or integrate automated ships, paid with %s.", 10f, hl, RelicHelper.getName());
+        tooltip.addPara("Refine Forge Templates or integrate automated ships, paid with %s.", 0f, hl, RelicHelper.getName());
         tooltip.addPara("Available: %s", 10f, hl, RelicHelper.getAvailable(opt.ind.getMarket()) + "");
     }
 }

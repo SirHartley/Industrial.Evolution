@@ -5,7 +5,6 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.Ids;
@@ -58,8 +57,7 @@ public class SenateOptionProvider extends SingleIndustrySimpifiedOptionProvider 
             if (EdictHelper.getActiveEdict(colony) != null) active++;
         }
 
-        tooltip.addSectionHeading("Visit the Senate", Alignment.MID, 0f);
-        tooltip.addPara("Enact an Edict or manage your current ones, on every colony in range of this Senate.", 10f);
+        tooltip.addPara("Enact an Edict or manage your current ones, on every colony in range of this Senate.", 0f);
         tooltip.addPara("Active: %s of %s colonies in range.", 10f, Misc.getHighlightColor(), active + "", colonies.size() + "");
     }
 }
