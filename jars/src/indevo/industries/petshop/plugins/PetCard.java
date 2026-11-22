@@ -59,6 +59,8 @@ public class PetCard {
     static final float PET_TIME = 0.5f;
     static final float PET_GROW = 0.2f;
     static final float PORTRAIT = 64f;
+    static final String[] MENAGERIE_TIP = {"It stays with the fleet on no ship. It eats from the fleet cargo and ages.",
+            "No mascot effect or talents. Hearts grow only from answered wants."};
     static final float MARKER = 28f;
     static final float UNKNOWN_BOX = 22f;
     static final float NAME_H = 26f;
@@ -1109,11 +1111,12 @@ public class PetCard {
 
             UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Move...", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     reason != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Move", free, shop)));
-            UiButtons.button(p, w - 6f - BUTTON_W, by, BUTTON_W, BUTTON_H, "Unassign", away != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
+            ButtonAPI unassign = UiButtons.button(p, w - 6f - BUTTON_W, by, BUTTON_W, BUTTON_H, "Unassign", away != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     away != null ? null : () -> {
                         pet.place(null, null);
                         panel.refresh();
                     });
+            if (away == null) Ui.tooltip(p, unassign, "Unassign", MENAGERIE_TIP);
             return;
         }
 
@@ -1134,10 +1137,11 @@ public class PetCard {
 
             UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Assign...", noShip != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     noShip != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Assign", free, null)));
-            UiButtons.button(p, w - 6f - WIDE_W, by, WIDE_W, BUTTON_H, "To menagerie", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+            ButtonAPI menagerie = UiButtons.button(p, w - 6f - WIDE_W, by, WIDE_W, BUTTON_H, "To menagerie", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
                 pet.place(null, null);
                 panel.refresh();
             });
+            Ui.tooltip(p, menagerie, "To menagerie", MENAGERIE_TIP);
             return;
         }
 
