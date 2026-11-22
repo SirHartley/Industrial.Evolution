@@ -287,6 +287,7 @@ Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices
 | Meteor and rogue asteroid hits | `ext_environmentalDamageMult` | [METEOR](exploration/METEOR.md) |
 | Emergency Fuel Scoop fuel | divided by `ext_fuelPriceMult` | [CONSUMABLES](items/CONSUMABLES.md) |
 | Ice treasure wreck recovery (both modes) | vanilla battle wreck roll | [METEOR](exploration/METEOR.md) |
+| Forge World ship quality | `ext_shipForSaleQualityMod` | [CHANGELING](industries/CHANGELING.md) |
 
 ### Shared cross-file constraints
 
