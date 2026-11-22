@@ -666,6 +666,38 @@ public class PetCard {
         rows.add(GridRow.of("Age", age(pet), Ui.text()));
         rows.add(GridRow.of("Mood", mood.label, mood.getColor()));
         UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, rows);
+
+        String tip = moodTip(pet, mood);
+        if (tip != null) Ui.tooltip(p, Ui.panel(p, GRID_X, IDENT_Y + (rows.size() - 1) * UiData.GRID_ROW_H, w - GRID_X, UiData.GRID_ROW_H), mood.label, tip);
+    }
+
+    // the cause and the fix
+    private static String moodTip(Pet pet, PetMood mood) {
+        String share = Math.round(PetConstants.SUPPLIES_HEART_RATE * 100f) + "%";
+        String food = realFood(pet);
+        return switch (mood) {
+            case HUNGRY -> "No food for its next meal. It eats " + foods(pet) + ".";
+            case UNSETTLED -> "Moved to a new ship. Its talents are off for " + days(pet.unsettledDays) + ".";
+            case SHELL_SHOCKED -> "It was in a fight. It calms down in " + days(pet.shellShockedDays) + ".";
+            case SULKING -> "It missed " + PetConstants.SULK_LAPSES + " wants in a row. Answer the next one, or unstar it.";
+            case UNHAPPY_WITH_FOOD -> "It ate Supplies. Hearts grow at " + share + (food != null ? " until it gets " + food + "." : ".");
+            case HAPPY -> "Petted or got what it wanted lately.";
+            case SLEEPY -> "Getting old.";
+            case CONTENT -> null;
+        };
+    }
+
+    private static String days(float days) {
+        int n = Math.max(1, (int) Math.ceil(days));
+        return n + (n == 1 ? " day" : " days");
+    }
+
+    // every food by its commodity name, in the order it eats them
+    private static String foods(Pet pet) {
+        List<String> names = new ArrayList<>();
+        for (String food : pet.getData().foodCommodities) names.add(Global.getSettings().getCommoditySpec(food).getName());
+        if (names.size() < 2) return names.isEmpty() ? "nothing listed" : names.get(0);
+        return String.join(", ", names.subList(0, names.size() - 1)) + " or " + names.get(names.size() - 1);
     }
 
     static String age(Pet pet) {
@@ -739,7 +771,7 @@ public class PetCard {
         Ui.text(p, 0f, y, 120f, "Hearts");
         hearts(p, w - heartsWidth(CARD_HEART, CARD_HEART_GAP), y + 2f, pet, CARD_HEART, CARD_HEART_GAP);
         UiData.thinbar(p, 0f, y + 21f, w, pet.getHeartProgress(), off ? HEART_OFF : HEART_RED);
-        Ui.tooltip(p, Ui.panel(p, 0f, y, w, 24f), "Hearts", heartsTip(pet));
+        Ui.tooltip(p, Ui.panel(p, 0f, y, w, 24f), Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> heartsTip(t, pet));
         y += 28f;
 
         List<PetTitle> titles = pet.getTitles();
@@ -808,16 +840,56 @@ public class PetCard {
         panel.refresh();
     }
 
-    private static String heartsTip(Pet pet) {
-        if (pet.getHearts() >= PetConstants.MAX_HEARTS) return "All five hearts.";
-        if (pet.getHearts() >= PetConstants.TIME_HEARTS) return pet.favourite ? "Hearts 4 and 5 come from answered wants, jumps and fights." : "Hearts 4 and 5 are for favourites.";
+    // the next step, then every heart with how it comes and what it gives: reached in text, the next highlighted, the rest grey
+    private static void heartsTip(TooltipMakerAPI t, Pet pet) {
+        t.addPara("Hearts", Ui.hl(), 0f);
+        t.addPara(nextHeart(pet), 10f);
+
+        int hearts = pet.getHearts();
+        float pad = 10f;
+        for (int i = 1; i <= PetConstants.MAX_HEARTS; i++) {
+            Color c = i <= hearts ? Ui.text() : i == hearts + 1 ? Ui.hl() : Ui.gray();
+            t.addPara("Heart " + i + ": " + heartHow(i) + ". " + heartGives(i) + ".", c, pad);
+            pad = 3f;
+        }
+
+        String pod = Math.round(PetConstants.POD_CHANCE_PER_HEART * 100f) + "%";
+        String share = Math.round(PetConstants.SUPPLIES_HEART_RATE * 100f) + "%";
+        t.addPara("Each heart adds %s to its escape pod chance. On Supplies, hearts grow at %s.", 10f, Ui.gray(), Ui.hl(), pod, share);
+    }
+
+    static String nextHeart(Pet pet) {
+        int hearts = pet.getHearts();
+        if (hearts >= PetConstants.MAX_HEARTS) return "All five hearts.";
+        if (hearts >= PetConstants.TIME_HEARTS) {
+            if (!pet.favourite) return "Star it as a favourite to pass " + PetConstants.TIME_HEARTS + " hearts.";
+            float need = PetConstants.HEART_DAYS[hearts] - pet.bondDays;
+            float perWant = PetConstants.WANT_BOND_DAYS * PetGenetics.heartMult(pet.sheet, PetDataRepo.getTraits());
+            int wants = Math.max(1, (int) Math.ceil(need / perWant));
+            return "Answer its wants: about " + wants + " more for the next heart.";
+        }
+
         if (!pet.isAboard()) return "Hearts grow only on a ship.";
         if (pet.isUnsettled()) return "Hearts do not grow while it is Unsettled.";
         if (pet.isStarving()) return "Hearts do not grow while it is starving.";
 
-        int days = Math.max(1, (int) Math.ceil(pet.getDaysToHeart()));
-        String next = "Next heart in " + days + (days == 1 ? " day." : " days.");
+        String next = "Next heart in " + days(pet.getDaysToHeart()) + ".";
         return pet.lastMealSupplies ? next + " It grows at " + Math.round(PetConstants.SUPPLIES_HEART_RATE * 100f) + "% on Supplies." : next;
+    }
+
+    private static String heartHow(int heart) {
+        if (heart > PetConstants.TIME_HEARTS) return "Favourites only, from answered wants, jumps and fights";
+        return Math.round(PetConstants.HEART_DAYS[heart - 1]) + " days aboard";
+    }
+
+    private static String heartGives(int heart) {
+        List<String> gives = new ArrayList<>();
+        if (heart == PetConstants.MASCOT_HEARTS) gives.add("mascot effect");
+        if (heart == PetConstants.NEST_HEARTS) gives.add("nest");
+        gives.add(heart >= PetConstants.MAX_HEARTS ? "every talent on" : heart + (heart == 1 ? " talent on" : " talents on"));
+        if (heart == PetConstants.READ_HEARTS) gives.add("every talent read");
+        if (heart == PetConstants.MAX_HEARTS) gives.add("the " + PetTitle.BELOVED.label + " title");
+        return Misc.ucFirst(String.join(", ", gives));
     }
 
     // mascot effect, then the talents best first, then mutations and flaws; only the rows scroll, unknown talents last

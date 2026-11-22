@@ -360,7 +360,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         Ui.vrule(p, LIST_W + 5f, BODY_Y, h - BODY_Y);
 
         if (selected != null) new PetCard(this, view).build(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected);
-        else Ui.text(p, CARD_X, BODY_Y, w - CARD_X, "No pets yet.", Ui.gray());
+        else Ui.wrap(p, CARD_X, BODY_Y, w - CARD_X, "No pets yet. Animal Centers sell Cryochambers and offer pets for adoption.", Ui.gray());
     }
 
     private List<Group> groups() {
@@ -495,6 +495,18 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         if (view.tab == PetsView.TAB_PLAN) {
             tooltip.addPara("A planned young stands in for a pet you do not have yet.", 0f);
             tooltip.addPara("Chances use known traits only. A planned young counts as a parent with what is wanted from it.", 10f);
+            return;
+        }
+        if (view.tab == PetsView.TAB_HUSBANDRY) {
+            tooltip.addPara("Pair two adults of one species in a free habitat. The young come when the brood time runs out.", 0f);
+            tooltip.addPara("Each trait rolls on its own for every young. Hover a dial for what it does.", 10f);
+            tooltip.addPara("Chances use known traits only. A gene scan reads the rest.", 10f);
+            return;
+        }
+        if (view.tab == PetsView.TAB_TREE) {
+            tooltip.addPara("Every pet of a species linked through parents and young, gone pets too.", 0f);
+            tooltip.addPara("Hover a pet to light up the lines to its parents. A gold outline marks the shared ancestors of a pair.", 10f);
+            tooltip.addPara("The closer the kin, the higher the Inbreeding and the chance of malformed young.", 10f);
             return;
         }
 

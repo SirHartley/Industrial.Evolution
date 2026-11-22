@@ -222,7 +222,11 @@ public class PetHusbandry {
         float top = y + bar + UiFilter.BELOW;
 
         UiScroll.Column list = UiScroll.list(p, 0f, top, PetsPanel.LIST_W, h - top, view.scroll, PetsView.ADULTS);
-        if (shown.isEmpty()) Ui.text(list.block(Ui.LINE_H, 0f), 0f, 0f, list.width(), all.isEmpty() ? "No adults here." : filter.isFiltering() ? "No adult matches." : "No two adults of one species here.", Ui.gray());
+        if (shown.isEmpty()) {
+            String empty = all.isEmpty() ? "No adults here. A pet can pair once it is no longer Young."
+                    : filter.isFiltering() ? "No adult matches." : "No two adults of one species here. Buy or adopt a second one.";
+            Ui.wrap(list.block(Ui.wrapHeight(empty, Ui.INS15, list.width()), 0f), 0f, 0f, list.width(), empty, Ui.gray());
+        }
 
         boolean free = shop.getBrood(habitat) == null;
         for (int row = 0; row * PetsPanel.PER_ROW < shown.size(); row++) {

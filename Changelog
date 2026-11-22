@@ -91,7 +91,7 @@ Fixed - A second meteor storm can no longer start alongside the tutorial storm
 Fixed - NPC fleets no longer lose meteor radiation faster than intended
 
 Pets
-Added - Pet moods: Hungry, Unsettled, Shell shocked, Sulking, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel
+Added - Pet moods: Hungry, Unsettled, Shell shocked, Sulking, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel, where a hover names the fix
 Added - Pets panel: your pets as tiles by ship, detachment, menagerie and storage, with filter and sort, and a card to rename, move, store or euthanize each
 Added - Petting: click a pet's portrait five times in the Pets panel and it is Happy for 3 days
 Added - Rehome: an Animal Center finds a pet a new home for 2,000 credits
@@ -102,7 +102,7 @@ Added - Pet lines: your pets post short messages in flight, when you dock, jump 
 Added - Setting to adjust the days between pet lines (default 14, 0 turns them off)
 Added - Pet icon on its ship in the fleet and refit screens, a click opens the Pets panel
 Added - Pet icon in the ship tooltip
-Added - Pet hearts: a pet on a ship earns up to 3 hearts with time (14, 60 and 180 days), a quarter as fast on Supplies. Its mascot effect starts at 1 heart.
+Added - Pet hearts: a pet on a ship earns up to 3 hearts with time (14, 60 and 180 days), a quarter as fast on Supplies. Its mascot effect starts at 1 heart. The hearts tooltip shows what each heart takes and gives.
 Added - Pet nest: a pet with 4 hearts builds a nest on its ship, +30% mascot effect
 Added - Escape pods: a pet on a destroyed ship survives with a 10% chance per heart
 Added - Hamsters have double the mascot effect and talents
