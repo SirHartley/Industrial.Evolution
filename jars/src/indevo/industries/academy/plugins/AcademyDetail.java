@@ -143,7 +143,7 @@ class AcademyDetail {
                     academy.storeOfficer(person);
                     panel.refresh();
                 });
-                Ui.tooltip(b, store, null, getStoreTooltip(null));
+                Ui.tooltip(b, store, null, getStoreTooltip());
             });
         }
     }
@@ -256,7 +256,7 @@ class AcademyDetail {
             panel.refresh();
         });
         else {
-            guarded("Store", UiButtons.Kind.STD, STORE_H, null, GAP, getStoreTooltip(governed), () -> {
+            guarded("Store", UiButtons.Kind.STD, STORE_H, null, GAP, getStoreTooltip(), () -> {
                 academy.storeAdmin(person);
                 panel.refresh();
             });
@@ -278,7 +278,6 @@ class AcademyDetail {
             float lineY = 2f + 3f * GRID_ROW + 4f;
             if (stored) {
                 Ui.text(b, GRID_X, lineY, w - GRID_X, "Stored here", Ui.gray());
-                Ui.text(b, GRID_X, lineY + GRID_ROW, w - GRID_X, "draws 10% of salary", Ui.gray());
             } else if (governed != null) {
                 UiImages.planet(b, GRID_X, lineY, 30f, governed);
                 Ui.text(b, GRID_X + 36f, lineY + 7f, w - GRID_X - 36f, AcademyPanelDelegate.getMarketLine(governed, w - GRID_X - 36f), Ui.gray());
@@ -367,21 +366,14 @@ class AcademyDetail {
         String blocker = view.admins ? Academy.getAdminSlotBlocker() : Academy.getOfficerSlotBlocker();
         heading("Abort", SECTION_GAP);
 
-        String who = view.admins ? "administrator" : "officer";
         String lost = "The fee and the progress are lost.";
         float half = Math.round((w - 7f) / 2f);
         add(UiButtons.guardHeight(w, STORE_H, blocker), GAP, row -> {
             ButtonAPI fleet = UiButtons.button(row, 0f, 0f, half, STORE_H, "Abort to fleet", blocker != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
                     blocker != null ? null : () -> abort(false));
-            Ui.tooltip(row, fleet, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
-                t.addPara("Ends the training and returns the " + who + " to you.", 0f);
-                t.addPara(lost, 10f);
-            });
+            Ui.tooltip(row, fleet, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> t.addPara(lost, 0f));
             ButtonAPI storage = UiButtons.button(row, w - half, 0f, half, STORE_H, "Abort to storage", UiButtons.Kind.RED, CutStyle.TL_BR, () -> abort(true));
-            Ui.tooltip(row, storage, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
-                t.addPara("Ends the training and stores the " + who + " here.", 0f);
-                t.addPara(lost, 10f);
-            });
+            Ui.tooltip(row, storage, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> t.addPara(lost, 0f));
             if (blocker != null) Ui.wrap(row, 0f, STORE_H + UiButtons.REASON_GAP, w, blocker, Ui.neg());
         });
     }
@@ -400,7 +392,7 @@ class AcademyDetail {
         });
     }
 
-    private String getStoreTooltip(MarketAPI governed) {
+    private String getStoreTooltip() {
         boolean own = academy.ownedByPlayer();
         String fee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
         String text;
@@ -408,8 +400,6 @@ class AcademyDetail {
         String salaryShare = StringHelper.getAbsPercentString(Academy.getStoredOfficerSalaryMult(), false);
         if (!view.admins) text = own ? "Stored officers draw " + salaryShare + " of their salary." : "Storage costs " + fee + " per month plus " + salaryShare + " of salary.";
         else text = own ? "Stored administrators draw 10% of their salary." : "Storage costs " + fee + " per month plus 10% of salary.";
-
-        if (governed != null) text += " You take over as governor of " + governed.getName() + ".";
         return text;
     }
 
