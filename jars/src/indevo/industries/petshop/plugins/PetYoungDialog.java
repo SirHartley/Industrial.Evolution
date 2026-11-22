@@ -39,6 +39,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     static final float CARD_H = 374f;
     static final float CARD_GAP = 12f;
     static final float CARDS_Y = 46f;
+    static final float BUTTONS_GAP = 16f;
     static final float MIN_W = 330f;
     static final String TITLE = "New young: ";
     static final float OPEN_W = 96f;
@@ -106,7 +107,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         brood.shown = true;
         UiHost.over(dialog -> {
             this.dialog = dialog;
-            dialog.showCustomDialog(width(), CARDS_Y + CARD_H, this);
+            dialog.showCustomDialog(width(), CARDS_Y + CARD_H + BUTTONS_GAP, this);
         }, onClose);
     }
 
