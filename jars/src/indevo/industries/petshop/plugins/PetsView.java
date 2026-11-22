@@ -90,6 +90,7 @@ public class PetsView {
     float pettedAt = -1f;
     final PetReveal reveal = new PetReveal();
     final List<Heart> hearts = new ArrayList<>();
+    PetPlay play = null;
 
     TextFieldAPI nameField = null;
     String namePet = null;
@@ -129,5 +130,6 @@ public class PetsView {
         answer = null;
         pettedAt = -1f;
         hearts.clear();
+        play = null;
     }
 }

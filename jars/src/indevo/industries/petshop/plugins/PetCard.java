@@ -456,7 +456,11 @@ public class PetCard {
         addPlace(p, shipY, w, pet, away);
         addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h - 44f, pet, true);
         addBottom(p, w, h, pet, heldReason(pet, away), away);
-        Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> paintHearts(pos, a));
+        SpriteAPI portrait = Global.getSettings().getSprite(pet.getIcon());
+        Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> {
+            if (view.play != null) view.play.paint(portrait, pos.getX() + IDENT / 2f, pos.getY() + pos.getHeight() - IDENT_Y - IDENT / 2f, PORTRAIT, view.clock, a);
+            paintHearts(pos, a);
+        });
         if (view.reveal.on(pet)) view.reveal.border(parent, x, y, w, h);
     }
 
@@ -748,6 +752,7 @@ public class PetCard {
 
     // grow to 1.2 and back with one eased full turn over PET_TIME after the last petting click
     private void paintPortrait(SpriteAPI sprite, PositionAPI pos, float alpha) {
+        if (view.play != null && view.play.holdsPortrait(view.clock)) return;
         float t = view.pettedAt < 0f ? 1f : (view.clock - view.pettedAt) / PET_TIME;
         float scale = 1f;
         float angle = 0f;
@@ -856,7 +861,10 @@ public class PetCard {
 
     private void answer(Pet pet, PetWant want) {
         if (want == PetWant.TREAT) PetStatusManager.getInstance().treat(pet);
-        else pet.play();
+        else {
+            pet.play();
+            if (Setting.PET_MOTION.enabled()) view.play = new PetPlay(view.clock, Misc.random);
+        }
 
         view.answer = PetStatusManager.getInstance().getLine(pet, want == PetWant.TREAT ? PetDataRepo.EVENT_TREAT : PetDataRepo.EVENT_PLAY, shop != null);
         panel.refresh();
