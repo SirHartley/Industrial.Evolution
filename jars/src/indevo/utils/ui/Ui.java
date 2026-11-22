@@ -445,18 +445,28 @@ public final class Ui {
     }
 
     public static void tooltip(CustomPanelAPI p, UIComponentAPI target, String title, String... lines) {
-        tooltip(p, target, TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> {
-            float pad = 0f;
-            if (title != null) {
-                t.addPara(title, hl(), 0f);
-                pad = 10f;
-            }
+        tooltip(p, target, TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> textTip(t, title, lines));
+    }
 
-            for (String line : lines) {
-                t.addPara(line, pad);
-                pad = 10f;
-            }
+    // the default 0.85 background lets busy content under it show through; vanilla ship tooltips use 1 too
+    public static void solidTooltip(CustomPanelAPI p, UIComponentAPI target, String title, String... lines) {
+        tooltip(p, target, TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> {
+            t.setBgAlpha(1f);
+            textTip(t, title, lines);
         });
+    }
+
+    private static void textTip(TooltipMakerAPI t, String title, String... lines) {
+        float pad = 0f;
+        if (title != null) {
+            t.addPara(title, hl(), 0f);
+            pad = 10f;
+        }
+
+        for (String line : lines) {
+            t.addPara(line, pad);
+            pad = 10f;
+        }
     }
 
     public static void tooltip(CustomPanelAPI p, LabelAPI target, String title, String... lines) {

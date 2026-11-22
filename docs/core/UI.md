@@ -94,6 +94,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `box(p, x, y, w, h, border, fill)`, `card`, `well`, `dashbox` | Framed box; card (base 0.3 frame, no fill); recessed cell behind pictures; dashed empty slot |
 | `thead(p, x, y, w, labels, xs, ws, aligns)` | Table header strip with orb12 column labels |
 | `tooltip(p, target, title, lines...)` | Text tooltip below any panel, label or button (title in highlight, lines 10 px apart); buttons show it while disabled |
+| `solidTooltip(p, target, title, lines...)` | Same with a solid background (`setBgAlpha(1)`); use it where the tooltip opens over busy content, the default 0.85 lets it show through |
 | `tooltip(p, target, width, loc, content)` | Same with free content |
 
 ### UiButtons
@@ -106,7 +107,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `guarded(p, x, y, w, h, label, kind, reason, action)` | `reason` null: normal button. Else grey button and the red reason wrapped below. Takes `guardHeight(w, h, reason)` (one line reserved when not blocked) |
 | `confirm(p, x, y, w, h, label, kind, state, id, action, refresh[, okLabel, cancelLabel])` | Inline confirm: the button arms `id` in a `Confirm` held by the view state; armed, Confirm and Cancel (or the given labels, so the pair never reads like a neighbouring Cancel) stand in its place |
 | `tab(p, x, y, w, h, label, on, enabled, action)` | `CutStyle.TOP` tab, selected bright on opaque dark |
-| `tabs(p, x, y, w, tabW, h, labels, selected, enabled[, tips], onSelect)` | Tab bar (`tabW` 0 splits evenly, gap 4) and a rule below; returns the y under the rule. `tips` holds a hover per tab (null for none), shown on a disabled tab too |
+| `tabs(p, x, y, w, tabW, h, labels, selected, enabled[, tips], onSelect)` | Tab bar (`tabW` 0 splits evenly, gap 4) and a rule below; returns the y under the rule. `tips` holds a solid hover per tab (null for none), shown on a disabled tab too |
 | `area(p, x, y, w, h, label, on, enabled, strip, align, action)` | Area checkbox look: checked is the bright frame and fill; optional 4 px colour strip at the left edge |
 | `row(p, x, y, w, h, selected, enabled, strip, action)` | Selectable list row: the area is the click target, content added to the returned panel sits on top |
 | `check(p, x, y, w, label, on, enabled, action)` | Vanilla checkbox with label |
