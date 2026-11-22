@@ -75,7 +75,7 @@ Highest score wins. No target on a player base sends a "make some more enemies" 
 
 - chance of any drop 0.7 (0.9 alpha), extra drops 0.3 (0.4 alpha) halved
 - ship users roll blueprints from the target faction's known ships, weapons and fighters; skips `no_bp_drop` and unboardable hulls; Tiandong and Roider hulls become retrofit blueprints (`EngineeringHub.isTiandong`, `isRoider`)
-- weapons and fighters weighted by rarity; non ship users only drop tier 0 to 1, non large weapons and tier 0 fighters
+- weapons and fighters weighted by rarity, `getNumPicks * 3` picks plus market size for ship users; non ship users only drop tier 0 to 1, non large weapons and tier 0 fighters. In Survival mode each pick is kept with chance 0.3 (`SURVIVAL_LOOT_FRACTION`, Philipp's number, not a vanilla key); blueprints are not cut
 
 Cargo goes to local storage, or to the gathering point when the setting is on or storage is missing.
 

@@ -42,6 +42,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     public static final float SUCCESS_OUTPUT_FRACT = 0.9f;
     public static final float FAIL_OUTPUT_FRACT = 0.45f;
+    public static final float SURVIVAL_LOOT_FRACTION = 0.3f;
     public RaidIntel currentIntel = null;
     private int raidTimeoutMonths = 0;
     private final int supplyDiminishmentPerMonth = 1;
@@ -391,6 +392,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         for (int i = 0; i < num && !picker.isEmpty(); i++) {
             String id = picker.pickAndRemove();
             if (id == null) continue;
+            if (Misc.isExtended() && random.nextFloat() >= SURVIVAL_LOOT_FRACTION) continue;
 
             if (id.startsWith(weapon)) {
                 cargo.addWeapons(id.substring(weapon.length()), 1);
