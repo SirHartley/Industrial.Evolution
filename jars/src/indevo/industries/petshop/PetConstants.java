@@ -83,6 +83,8 @@ public final class PetConstants {
     public static final float MAX_BROOD_DAYS = 90f;
     public static final float YOUNG_DAYS = 30f;
     public static final float HAMSTER_YOUNG_DAYS = 7f;
+    // only a young this fresh goes back into a Cryochamber
+    public static final float BOX_DAYS = 7f;
     public static final int NPC_HABITATS = 2;
     public static final int PLAYER_HABITATS = 4;
     public static final float NPC_CARE = 20f;

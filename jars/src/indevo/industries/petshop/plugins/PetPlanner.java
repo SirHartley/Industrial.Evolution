@@ -669,7 +669,7 @@ public class PetPlanner {
             stepper(row, "None", Ui.hl(), () -> change(plan, key, -1, 0), null);
             Ui.textIn(row, TRAIT_X, 0f, EFFECT_X - TRAIT_X - 8f, WANT_H, "Malformed", Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);
             Ui.textIn(row, EFFECT_X, 0f, ew, WANT_H, "None", Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
-            Ui.tooltip(row, row, "Malformed", "A young of related parents can come out with one new flaw, or one more level of a flaw.");
+            Ui.tooltip(row, row, "Malformed", "A young of related parents can get a new flaw, or one more level of a flaw it inherited.");
             return;
         }
 
@@ -698,7 +698,7 @@ public class PetPlanner {
             float cx = rw - CHANCE_W - 8f;
             Ui.textIn(row, cx, 0f, CHANCE_W, WANT_H, chance(p), Ui.INS15, p <= 0f ? Ui.neg() : Ui.hl(), Ui.RIGHT, new String[0], new Color[0]);
         }
-        Ui.tooltip(row, row, "Look", "A young has the look of one parent, or now and then a new one. Only looks you have seen are listed.");
+        Ui.tooltip(row, row, "Look", "A young has the look of one parent. The Mutation rate can give it a new one. Only looks you have seen are listed.");
     }
 
     private void setLook(PetPlan plan, String look) {
@@ -1032,7 +1032,7 @@ public class PetPlanner {
         Ui.rule(p, 0f, h - 36f, w);
         float y = h - PetCard.BUTTON_H;
         String reason = a == null || b == null ? "Pick both parents." : a.plan() != null ? a.name() + " is not raised yet."
-                : b.plan() != null ? b.name() + " is not raised yet." : shop == null ? "Only at an Animal Center." : null;
+                : b.plan() != null ? b.name() + " is not raised yet." : shop == null ? "Only at an Animal Center." : !PetHusbandry.open(shop) ? PetHusbandry.LOCKED : null;
         UiButtons.button(p, 0f, y, OPEN_W, PetCard.BUTTON_H, "Open pairing", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 reason != null ? null : () -> panel.openCross(a.pet(), b.pet()));
         if (reason != null) Ui.textIn(p, OPEN_W + 8f, y, w - OPEN_W - SIDE_W - 24f, PetCard.BUTTON_H, reason, Ui.INS15, Ui.neg(), Ui.LEFT, new String[0], new Color[0]);
@@ -1298,7 +1298,7 @@ public class PetPlanner {
 
             CustomPanelAPI b = list.block(ROW, g);
             row(b, w, "Malformed", Ui.neg(), "One new flaw from inbreeding", "", () -> add(MALFORMED, 0));
-            Ui.tooltip(b, b, "Malformed", "A young of related parents can come out with one new flaw, or one more level of a flaw.");
+            Ui.tooltip(b, b, "Malformed", "A young of related parents can get a new flaw, or one more level of a flaw it inherited.");
         }
 
         private static void row(CustomPanelAPI b, float w, String name, Color color, String per, String best, Runnable action) {

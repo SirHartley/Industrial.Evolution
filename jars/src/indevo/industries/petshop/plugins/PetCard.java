@@ -36,6 +36,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -59,6 +60,8 @@ public class PetCard {
     static final float PET_TIME = 0.5f;
     static final float PET_GROW = 0.2f;
     static final float PORTRAIT = 64f;
+    static final String[] MENAGERIE_TIP = {"It travels with the fleet without a ship. It eats from the fleet cargo and ages.",
+            "Its mascot effect and talents are off.", "Hearts do not grow with time. A favourite still gains them from answered wants."};
     static final float MARKER = 28f;
     static final float UNKNOWN_BOX = 22f;
     static final float NAME_H = 26f;
@@ -88,6 +91,14 @@ public class PetCard {
     static final float TALENT_W = 180f;
     static final float EFFECT_X = 254f;
     static final float DIM = 0.4f;
+    static final float GREY_TILE = 0.35f;
+    static final float PICK_ROW_H = 50f;
+    static final float PICK_GAP = 4f;
+    static final float PICK_PORTRAIT = 44f;
+    static final float PICK_TEXT_X = 56f;
+    static final float CLEAR_W = 60f;
+    static final float CARGO_W = 88f;
+    static final float FEE_W = 140f;
     static final float TITLES_GAP = 16f;
     static final String NO_SHIP = "Effects work only on a ship.";
     public static final float REFIT_ICON = 34f;
@@ -114,8 +125,10 @@ public class PetCard {
         this.shop = panel.shop();
     }
 
-    static void tile(PetsPanel panel, CustomPanelAPI p, float x, float y, Pet pet, boolean selected) {
-        CustomPanelAPI t = UiButtons.row(p, x, y, PetsPanel.TILE_W, PetsPanel.TILE_H, selected, true, null, () -> panel.select(pet));
+    // grey: several are picked and this one can not join; its click still shows it
+    static void tile(PetsPanel panel, CustomPanelAPI p, float x, float y, Pet pet, boolean selected, boolean grey) {
+        CustomPanelAPI row = UiButtons.row(p, x, y, PetsPanel.TILE_W, PetsPanel.TILE_H, selected, true, null, () -> panel.click(pet));
+        CustomPanelAPI t = grey ? Ui.panel(row, 0f, 0f, PetsPanel.TILE_W, PetsPanel.TILE_H) : row;
         UiImages.img(t, 11f, 5f, PORTRAIT, PORTRAIT, pet.getIcon());
 
         Marker marker = marker(pet);
@@ -124,10 +137,11 @@ public class PetCard {
             Ui.tooltip(t, icon, marker.title(), marker.line());
         }
 
-        Ui.text(t, 4f, 71f, 78f, pet.name, Ui.text(), Ui.CENTER);
+        Ui.text(t, 4f, 71f, 78f, pet.name, grey ? Ui.gray() : Ui.text(), Ui.CENTER);
         hearts(t, 17f, 91f, pet, 9f, 2f);
         Ui.rule(t, 13f, 107f, 60f);
         if (pet.assignedFleetMember != null) UiImages.ship(t, 30f, 114f, 26f, pet.assignedFleetMember, false, false);
+        if (grey) t.setOpacity(GREY_TILE);
     }
 
     // a pet of the Remembered list: dimmed portrait (grey from another game), grey name, the cause where the hearts are, the cycle where the ship is
@@ -456,8 +470,106 @@ public class PetCard {
         addPlace(p, shipY, w, pet, away);
         addTalents(p, shipY + STRIP_H + PetsPanel.HEAD_GAP, w, h - 44f, pet, true);
         addBottom(p, w, h, pet, heldReason(pet, away), away);
-        Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> paintHearts(pos, a));
+        SpriteAPI portrait = Global.getSettings().getSprite(pet.getIcon());
+        Ui.painted(p, 0f, 0f, w, h, null, (pos, a) -> {
+            if (view.play != null) view.play.paint(portrait, pos.getX() + IDENT / 2f, pos.getY() + pos.getHeight() - IDENT_Y - IDENT / 2f, PORTRAIT, view.clock, a);
+            paintHearts(pos, a);
+        });
         if (view.reveal.on(pet)) view.reveal.border(parent, x, y, w, h);
+    }
+
+    // two or more pets picked with shift click on the Pets tab: a row each, the bottom row acts on all of them
+    void buildPicked(CustomPanelAPI parent, float x, float y, float w, float h, List<Pet> pets) {
+        CustomPanelAPI p = Ui.panel(parent, x, y, w, h);
+        Ui.heading(p, 0f, 0f, w, "Selected", String.valueOf(pets.size()));
+
+        float top = Ui.HEADING_H + 4f;
+        float vh = h - 44f - top;
+        boolean scrolls = pets.size() * (PICK_ROW_H + PICK_GAP) - PICK_GAP > vh;
+        UiScroll.Column list = scrolls ? UiScroll.list(p, 0f, top, w, vh, view.scroll, PetsView.PICKED) : null;
+        float rw = scrolls ? list.width() : w;
+        for (int i = 0; i < pets.size(); i++) {
+            CustomPanelAPI r = scrolls ? list.block(PICK_ROW_H, i == 0 ? 0f : PICK_GAP) : Ui.panel(p, 0f, top + i * (PICK_ROW_H + PICK_GAP), w, PICK_ROW_H);
+            pickedRow(r, rw, pets.get(i));
+        }
+        if (scrolls) list.end();
+
+        addPickedBottom(p, w, h, pets);
+    }
+
+    private static void pickedRow(CustomPanelAPI r, float w, Pet pet) {
+        Ui.card(r, 0f, 0f, w, PICK_ROW_H);
+        UiImages.img(r, 3f, 3f, PICK_PORTRAIT, PICK_PORTRAIT, pet.getIcon());
+        float hx = w - 8f - heartsWidth(HOVER_HEART, HOVER_HEART_GAP);
+        float tw = hx - 8f - PICK_TEXT_X;
+        Ui.text(r, PICK_TEXT_X, 7f, tw, pet.name);
+        Ui.text(r, PICK_TEXT_X, 26f, tw, species(pet) + ", " + age(pet), Ui.gray());
+        hearts(r, hx, 19f, pet, HOVER_HEART, HOVER_HEART_GAP);
+    }
+
+    // Clear, To cargo, Rehome with the total fee, Euthanize; in flight Clear and Euthanize only
+    private void addPickedBottom(CustomPanelAPI p, float w, float h, List<Pet> pets) {
+        Ui.rule(p, 0f, h - 36f, w);
+        float y = h - BUTTON_H;
+        Color hl = Misc.getHighlightColor();
+        String count = String.valueOf(pets.size());
+        String[] names = new String[pets.size()];
+        for (int i = 0; i < names.length; i++) names[i] = pets.get(i).name;
+
+        UiButtons.button(p, 0f, y, CLEAR_W, BUTTON_H, "Clear", UiButtons.Kind.STD, CutStyle.TL_BR, panel::clearPicked);
+        UiButtons.button(p, w - BUTTON_W, y, BUTTON_W, BUTTON_H, "Euthanize", UiButtons.Kind.RED, CutStyle.TL_BR,
+                () -> panel.popup(new UiConfirm("Confirm", info -> {
+                    info.addPara("Euthanize %s pets?", 0f, hl, count);
+                    names(info, names);
+                }, () -> {
+                    view.picked.clear();
+                    for (Pet pet : pets) PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.EUTHANIZED);
+                })));
+        if (shop == null) return;
+
+        List<String> older = new ArrayList<>();
+        for (Pet pet : pets) if (pet.age >= PetConstants.BOX_DAYS) older.add(pet.name);
+        ButtonAPI box = UiButtons.button(p, CLEAR_W + 6f, y, CARGO_W, BUTTON_H, "To cargo", older.isEmpty() ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
+                older.isEmpty() ? () -> {
+                    view.picked.clear();
+                    for (Pet pet : pets) PetStatusManager.getInstance().toChamber(pet);
+                    panel.refresh();
+                } : null);
+        if (older.isEmpty()) Ui.bottomTooltip(p, box, "To cargo", "A young in a Cryochamber does not age and can be sold.");
+        else if (older.size() > 3) bottomTip(p, box, "To cargo", "Only young under a week fit into a Cryochamber. %s of the selected pets are older.", String.valueOf(older.size()));
+        else bottomTip(p, box, "To cargo", "Only young under a week fit into a Cryochamber. " + nameList(older.size()) + (older.size() == 1 ? " is older." : " are older."), older.toArray(new String[0]));
+
+        float fee = pets.size() * PetConstants.REHOME_FEE;
+        String feeText = Misc.getDGSCredits(fee);
+        float credits = Global.getSector().getPlayerFleet().getCargo().getCredits().get();
+        boolean broke = credits < fee;
+        ButtonAPI rehome = UiButtons.button(p, w - BUTTON_W - 6f - FEE_W, y, FEE_W, BUTTON_H, "Rehome", broke ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
+                null, feeText, broke ? Ui.neg() : null, Ui.ORB12, broke ? null : () -> panel.popup(new UiConfirm("Confirm", info -> {
+                    info.addPara("Rehome %s pets for a fee of %s?", 0f, hl, count, feeText);
+                    names(info, names);
+                }, () -> {
+                    view.picked.clear();
+                    for (Pet pet : pets) shop.rehome(pet);
+                })));
+        if (broke) bottomTip(p, rehome, "Rehome", "Rehoming %s pets costs %s. You have %s.", count, feeText, Misc.getDGSCredits(credits));
+    }
+
+    // the names after an empty line, comma separated
+    private static void names(TooltipMakerAPI info, String[] names) {
+        info.addPara(String.join(", ", Collections.nCopies(names.length, "%s")), Ui.wrapHeight("Ag", Ui.INS21, 100f), Misc.getHighlightColor(), names);
+    }
+
+    // %s, %s and %s
+    private static String nameList(int n) {
+        return n == 1 ? "%s" : String.join(", ", Collections.nCopies(n - 1, "%s")) + " and %s";
+    }
+
+    private static void bottomTip(CustomPanelAPI p, UIComponentAPI target, String title, String format, String... hl) {
+        Ui.tooltip(p, target, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.ABOVE, t -> {
+            t.setBgAlpha(1f);
+            t.addPara(title, Misc.getHighlightColor(), 0f);
+            t.addPara(format, 10f, Misc.getHighlightColor(), hl);
+        });
     }
 
     // a dead, sold or rehomed pet: the top part with no star, want or ship, its titles, the tables; Family tree only on the Remembered list
@@ -626,6 +738,18 @@ public class PetCard {
         }
     }
 
+    // To cargo left of right while the pet is young enough for a Cryochamber; returns where the text left of it ends
+    private float boxButton(CustomPanelAPI p, float right, float by, Pet pet) {
+        if (pet.age >= PetConstants.BOX_DAYS) return right;
+        float x = right - 6f - BUTTON_W;
+        ButtonAPI box = UiButtons.button(p, x, by, BUTTON_W, BUTTON_H, "To cargo", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+            PetStatusManager.getInstance().toChamber(pet);
+            panel.refresh();
+        });
+        Ui.tooltip(p, box, "To cargo", "A Cryochamber in the fleet cargo. It does not age there.", "Only young under a week fit into a Cryochamber.");
+        return x;
+    }
+
     static TextFieldAPI nameField(CustomPanelAPI p, float x, float y, float w, String name) {
         TextFieldAPI field = UiButtons.field(p, x, y, w, NAME_H, name, PetConstants.NAME_MAX_CHARS, Ui.ORB20);
         field.setMidAlignment();
@@ -748,6 +872,7 @@ public class PetCard {
 
     // grow to 1.2 and back with one eased full turn over PET_TIME after the last petting click
     private void paintPortrait(SpriteAPI sprite, PositionAPI pos, float alpha) {
+        if (view.play != null && view.play.holdsPortrait(view.clock)) return;
         float t = view.pettedAt < 0f ? 1f : (view.clock - view.pettedAt) / PET_TIME;
         float scale = 1f;
         float angle = 0f;
@@ -856,7 +981,10 @@ public class PetCard {
 
     private void answer(Pet pet, PetWant want) {
         if (want == PetWant.TREAT) PetStatusManager.getInstance().treat(pet);
-        else pet.play();
+        else {
+            pet.play();
+            if (Setting.PET_MOTION.enabled()) view.play = new PetPlay(view.clock, Misc.random);
+        }
 
         view.answer = PetStatusManager.getInstance().getLine(pet, want == PetWant.TREAT ? PetDataRepo.EVENT_TREAT : PetDataRepo.EVENT_PLAY, shop != null);
         panel.refresh();
@@ -1101,11 +1229,12 @@ public class PetCard {
 
             UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Move...", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     reason != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Move", free, shop)));
-            UiButtons.button(p, w - 6f - BUTTON_W, by, BUTTON_W, BUTTON_H, "Unassign", away != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
+            ButtonAPI unassign = UiButtons.button(p, w - 6f - BUTTON_W, by, BUTTON_W, BUTTON_H, "Unassign", away != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     away != null ? null : () -> {
                         pet.place(null, null);
                         panel.refresh();
                     });
+            if (away == null) Ui.tooltip(p, unassign, "Unassign", MENAGERIE_TIP);
             return;
         }
 
@@ -1121,22 +1250,26 @@ public class PetCard {
 
         if (pet.storage != null) {
             float bx = w - 6f - WIDE_W - 6f - BUTTON_W;
-            Ui.text(p, 56f, y + 7f, bx - 64f, "Pet storage");
-            Ui.text(p, 56f, y + 26f, bx - 64f, noShip != null ? noShip : pet.storage.getMarket().getName(), noShip != null ? Ui.neg() : Ui.gray());
+            float tw = boxButton(p, bx, by, pet) - 64f;
+            Ui.text(p, 56f, y + 7f, tw, Ui.fit("Pet storage", Ui.INS15, tw));
+            String where = noShip != null ? noShip : pet.storage.getMarket().getName();
+            Ui.text(p, 56f, y + 26f, tw, Ui.fit(where, Ui.INS15, tw), noShip != null ? Ui.neg() : Ui.gray());
 
             UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Assign...", noShip != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     noShip != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Assign", free, null)));
-            UiButtons.button(p, w - 6f - WIDE_W, by, WIDE_W, BUTTON_H, "To menagerie", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+            ButtonAPI menagerie = UiButtons.button(p, w - 6f - WIDE_W, by, WIDE_W, BUTTON_H, "To menagerie", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
                 pet.place(null, null);
                 panel.refresh();
             });
+            Ui.tooltip(p, menagerie, "To menagerie", MENAGERIE_TIP);
             return;
         }
 
         float bx = w - 6f - BUTTON_W;
         String reason = shop == null ? noShip : null;
-        Ui.text(p, 56f, y + 7f, bx - 64f, "Menagerie");
-        Ui.text(p, 56f, y + 26f, bx - 64f, reason != null ? reason : "In the fleet, on no ship", reason != null ? Ui.neg() : Ui.gray());
+        float tx = boxButton(p, bx, by, pet);
+        Ui.text(p, 56f, y + 7f, tx - 64f, "Menagerie");
+        Ui.text(p, 56f, y + 26f, tx - 64f, reason != null ? reason : "In the fleet, on no ship", reason != null ? Ui.neg() : Ui.gray());
         UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Assign...", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 reason != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Assign", free, shop)));
     }
