@@ -3,6 +3,7 @@ package indevo.industries.petshop.listener;
 import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
+import com.fs.starfarer.api.campaign.comm.CommMessageAPI.MessageClickAction;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DiscoverEntityListener;
@@ -43,6 +44,8 @@ import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
 import indevo.industries.petshop.memory.PetMemorialFile;
 import indevo.industries.petshop.memory.PetPlan;
+import indevo.industries.petshop.plugins.PetsDialogPlugin;
+import indevo.industries.petshop.plugins.PetsView;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.MiscIE;
 
@@ -140,14 +143,23 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     private record Line(String format, Color color, String[] hl, Color[] hlColors) {
     }
 
-    // a report: paragraphs in a dialog's text, else a campaign message
+    // a report: paragraphs in a dialog's text, else a campaign message whose icon opens link, or the cargo tab
     private static final class Note {
         final List<Line> lines = new ArrayList<>();
         String icon = null;
         boolean sound = false;
+        SectorEntityToken link = null;
+        boolean cargo = false;
 
         Note line(String format, Color color, String[] hl, Color... hlColors) {
             lines.add(new Line(format, color, hl, hlColors));
+            return this;
+        }
+
+        Note about(Pet pet) {
+            if (pet == null) return this;
+            icon = pet.getIcon();
+            link = PetsDialogPlugin.link(pet);
             return this;
         }
 
@@ -161,21 +173,16 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 return;
             }
 
+            // only a message with an icon takes a click
             Line first = lines.get(0);
-            if (lines.size() == 1 && icon == null && first.hl.length <= 2) {
-                String hl1 = first.hl.length > 0 ? first.hl[0] : null;
-                String hl2 = first.hl.length > 1 ? first.hl[1] : null;
-                Color c1 = first.hlColors.length > 0 ? first.hlColors[0] : null;
-                Color c2 = first.hlColors.length > 1 ? first.hlColors[1] : null;
-                Global.getSector().getCampaignUI().addMessage(first.format, first.color, hl1, hl2, c1, c2);
-                return;
-            }
-
             MessageIntel intel = new MessageIntel(first.format, first.color, first.hl, first.hlColors);
             for (Line l : lines.subList(1, lines.size())) intel.addLine(l.format, l.color, l.hl, l.hlColors);
-            if (icon != null) intel.setIcon(icon);
+            intel.setIcon(icon != null ? icon : Global.getSettings().getSpriteName("IndEvo", "pets_small"));
             if (sound) intel.setSound(BaseIntelPlugin.getSoundStandardUpdate());
-            Global.getSector().getCampaignUI().addMessage(intel);
+
+            CampaignUIAPI ui = Global.getSector().getCampaignUI();
+            if (cargo) ui.addMessage(intel, MessageClickAction.CARGO_TAB);
+            else ui.addMessage(intel, MessageClickAction.INTERACTION_DIALOG, link != null ? link : PetsDialogPlugin.link(PetsView.TAB_PETS));
         }
     }
 
@@ -196,7 +203,9 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         for (Unlock unlock : Unlock.values()) {
             if (isOpen(unlock) || !earned(unlock)) continue;
             PetBestiaryFile.get().unlock(unlock.id);
-            message("%s unlocked in Manage Pets.", Misc.getTextColor(), unlock.tab, null, Misc.getHighlightColor(), null);
+            Note note = note("%s unlocked in Manage Pets.", Misc.getTextColor(), unlock.tab, null, Misc.getHighlightColor(), null);
+            note.link = PetsDialogPlugin.link(unlock == Unlock.TREE ? PetsView.TAB_TREE : PetsView.TAB_PLAN);
+            post(note);
         }
     }
 
@@ -358,9 +367,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             return true;
         }
 
-        MessageIntel intel = new MessageIntel(line, Misc.getTextColor(), new String[]{pet.name}, hl);
-        intel.setIcon(pet.getIcon());
-        Global.getSector().getCampaignUI().addMessage(intel);
+        new Note().line(line, Misc.getTextColor(), new String[]{pet.name}, hl).about(pet).show(null);
         return true;
     }
 
@@ -606,7 +613,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         pet.place(to, null);
 
         String fromName = from != null ? from.getShipName() : "fleet";
-        message("%s the " + pet.getData().species + " moved from the " + fromName + " to the %s", Misc.getTextColor(), pet.name, to.getShipName(), Misc.getHighlightColor(), Misc.getHighlightColor());
+        message(pet, "%s the " + pet.getData().species + " moved from the " + fromName + " to the %s", Misc.getTextColor(), pet.name, to.getShipName(), Misc.getHighlightColor(), Misc.getHighlightColor());
         return true;
     }
 
@@ -705,7 +712,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             case COMBAT:
                 picker = new WeightedRandomPicker<>();
                 picker.addAll(MiscIE.getCSVSetFromMemory(COMBAT_DEATH_CAUSES));
-                message("%s the " + pet.getData().species + ", living on the destroyed " + petLocation + ", " + picker.pick() + "", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
+                message(pet, "%s the " + pet.getData().species + ", living on the destroyed " + petLocation + ", " + picker.pick() + "", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
             case NATURAL:
                 String message = "";
@@ -720,26 +727,26 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 if (pet.isAssigned()) home = "formerly living on the " + petLocation;
                 else if (pet.storage != null) home = "formerly living at the " + pet.storage.getMarket().getName() + " " + pet.storage.getCurrentName().toLowerCase();
                 else home = "formerly of the menagerie";
-                message("%s the " + pet.getData().species + ", " + home + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message(pet, "%s the " + pet.getData().species + ", " + home + ", %s", Misc.getTextColor(), pet.name, message, Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 if (pet.getData().isHamster()) Achievements.complete(Achievements.FULL_LIFE);
 
                 break;
             case STARVED:
-                message("%s the " + pet.getData().species + " has %s on the " + petLocation, Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message(pet, "%s the " + pet.getData().species + " has %s on the " + petLocation, Misc.getTextColor(), pet.name, "starved to death", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 Achievements.complete(Achievements.ONE_JOB);
                 break;
             case SOLD:
-                message("%s the " + pet.getData().species + " was sold with the " + petLocation + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message(pet, "%s the " + pet.getData().species + " was sold with the " + petLocation + " and promptly %s by the new owners.", Misc.getTextColor(), pet.name, "euthanized", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case UNKNOWN:
                 //if sold and not caught or magic'd away
-                message("%s the " + pet.getData().species + ", formerly of the " + petLocation + ", has %s", Misc.getTextColor(), pet.name, "died.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message(pet, "%s the " + pet.getData().species + ", formerly of the " + petLocation + ", has %s", Misc.getTextColor(), pet.name, "died.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case EUTHANIZED:
-                message("%s the " + pet.getData().species + " has been %s", Misc.getTextColor(), pet.name, "euthanized.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+                message(pet, "%s the " + pet.getData().species + " has been %s", Misc.getTextColor(), pet.name, "euthanized.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
                 break;
             case REHOMED:
-                message("%s the " + pet.getData().species + " went to a new home.", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
+                message(pet, "%s the " + pet.getData().species + " went to a new home.", Misc.getTextColor(), pet.name, null, Misc.getHighlightColor(), null);
                 break;
         }
 
@@ -763,7 +770,12 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         for (Note note : out) note.show(to);
     }
 
-    public void message(String format, Color color, String hl1, String hl2, Color hlColor1, Color hlColor2) {
+    // about: the pet a click on the message opens
+    public void message(Pet about, String format, Color color, String hl1, String hl2, Color hlColor1, Color hlColor2) {
+        post(note(format, color, hl1, hl2, hlColor1, hlColor2).about(about));
+    }
+
+    private static Note note(String format, Color color, String hl1, String hl2, Color hlColor1, Color hlColor2) {
         List<String> hl = new ArrayList<>();
         List<Color> colors = new ArrayList<>();
         if (hl1 != null) {
@@ -774,7 +786,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
             hl.add(hl2);
             colors.add(hlColor2);
         }
-        post(new Note().line(format, color, hl.toArray(new String[0]), colors.toArray(new Color[0])));
+        return new Note().line(format, color, hl.toArray(new String[0]), colors.toArray(new Color[0]));
     }
 
     private void defer(Runnable reports) {
@@ -806,7 +818,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         else if (PetLongevity.getNomios() != null) note.line("A %s or a treatment at %s gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName(), PetLongevity.getNomios().getName()}, hl, hl);
         else note.line("A %s gives it more time.", Misc.getTextColor(), new String[]{PetLongevity.syringeName()}, hl);
 
-        note.icon = pet.getIcon();
+        note.about(pet).cargo = PetLongevity.hasSyringe();
         note.sound = true;
         post(note);
     }
@@ -814,25 +826,27 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
     public void reportBroodReady(PetShop shop, PetBrood brood, Pet a, Pet b) {
         String at = " at " + shop.getMarket().getName();
         int n = brood.getYoung().size();
-        if (n == 0) message("The spawn of %s and %s" + at + " brought no young.", Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
-        else message("The spawn of %s and %s" + at + " is ready: " + n + " young.", Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
+        String format = n == 0 ? "The spawn of %s and %s" + at + " brought no young." : "The spawn of %s and %s" + at + " is ready: " + n + " young.";
+        Note note = note(format, Misc.getTextColor(), a.name, b.name, Misc.getHighlightColor(), Misc.getHighlightColor());
+        note.link = PetsDialogPlugin.course(shop.getMarket().getPrimaryEntity());
+        post(note);
     }
 
     public void reportTitle(Pet pet, PetTitle title) {
-        message("%s the " + pet.getData().species + " earned a title: %s.", Misc.getTextColor(), pet.name, title.label, Misc.getHighlightColor(), Misc.getHighlightColor());
+        message(pet, "%s the " + pet.getData().species + " earned a title: %s.", Misc.getTextColor(), pet.name, title.label, Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     public void reportTalentShown(Pet pet, PetDataRepo.Trait trait) {
-        message("%s the " + pet.getData().species + " shows a talent: %s.", Misc.getTextColor(), pet.name, trait.name(), Misc.getHighlightColor(), Misc.getHighlightColor());
+        message(pet, "%s the " + pet.getData().species + " shows a talent: %s.", Misc.getTextColor(), pet.name, trait.name(), Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     public void reportRoomLost(Pet pet, FleetMemberAPI member, List<String> lost) {
         String them = lost.size() > 1 ? "them" : "it";
-        message("The " + member.getShipName() + " lost %s, %s no longer makes room for " + them + ".", Misc.getTextColor(), Misc.getAndJoined(lost), pet.name, Misc.getNegativeHighlightColor(), Misc.getHighlightColor());
+        message(pet, "The " + member.getShipName() + " lost %s, %s no longer makes room for " + them + ".", Misc.getTextColor(), Misc.getAndJoined(lost), pet.name, Misc.getNegativeHighlightColor(), Misc.getHighlightColor());
     }
 
     public void reportPetStarving(Pet pet) {
-        message("%s the " + pet.getData().species + " has started %s", Misc.getTextColor(), pet.name, "starving. Feed it or it will die.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
+        message(pet, "%s the " + pet.getData().species + " has started %s", Misc.getTextColor(), pet.name, "starving. Feed it or it will die.", Misc.getHighlightColor(), Misc.getNegativeHighlightColor());
     }
 
     @Override
@@ -936,8 +950,8 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         Achievements.complete(Achievements.PRIORITIES);
 
         String start = "%s the " + pet.getData().species + " escaped the destroyed " + ship + " in an escape pod";
-        if (to == null) message(start + " and waits in the %s.", Misc.getTextColor(), pet.name, "menagerie", Misc.getHighlightColor(), Misc.getHighlightColor());
-        else message(start + " and moved to the %s.", Misc.getTextColor(), pet.name, to.getShipName(), Misc.getHighlightColor(), Misc.getHighlightColor());
+        if (to == null) message(pet, start + " and waits in the %s.", Misc.getTextColor(), pet.name, "menagerie", Misc.getHighlightColor(), Misc.getHighlightColor());
+        else message(pet, start + " and moved to the %s.", Misc.getTextColor(), pet.name, to.getShipName(), Misc.getHighlightColor(), Misc.getHighlightColor());
     }
 
     @Override
@@ -1049,15 +1063,14 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         if (line == null) return;
 
         Color hl = Misc.getHighlightColor();
-        MessageIntel intel = new MessageIntel(line, Misc.getTextColor(), new String[]{pet.name}, hl);
+        Note note = new Note().line(line, Misc.getTextColor(), new String[]{pet.name}, hl).about(pet);
         for (CargoStackAPI stack : found.getStacksCopy()) {
             int size = Math.round(stack.getSize());
             String item = size > 1 ? Misc.getWithDGS(size) + " " + stack.getDisplayName() : stack.getDisplayName();
-            intel.addLine(BaseIntelPlugin.BULLET + "%s", Misc.getTextColor(), new String[]{item}, hl);
+            note.line(BaseIntelPlugin.BULLET + "%s", Misc.getTextColor(), new String[]{item}, hl);
         }
 
-        intel.setIcon(pet.getIcon());
-        Global.getSector().getCampaignUI().addMessage(intel);
+        note.show(null);
     }
 
     @Override
@@ -1099,6 +1112,7 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
                 new String[]{center}, Misc.getHighlightColor());
 
         note.icon = Global.getSettings().getSpriteName("IndEvo", "warning");
+        note.link = PetsDialogPlugin.course(onMarket.getMarket().getPrimaryEntity());
         note.sound = true;
         post(note);
     }

@@ -411,7 +411,7 @@ public class PetTreatDialog extends BaseCustomDialogDelegate {
             picked.treat(add);
             syringe.removeFromClickedStackFirst(1);
             String gain = "+" + PetLongevity.cycles(add);
-            PetStatusManager.getInstance().message("%s: %s of life", Misc.getTextColor(), picked.name, gain, Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
+            PetStatusManager.getInstance().message(picked, "%s: %s of life", Misc.getTextColor(), picked.name, gain, Misc.getHighlightColor(), Misc.getPositiveHighlightColor());
             dialog.dismiss();
             return;
         }

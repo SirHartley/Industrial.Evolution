@@ -9,6 +9,8 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
+import indevo.config.Setting;
 import indevo.dialogue.sidepanel.EscapeBlockingDialoguePluginAPI;
 import indevo.ids.Ids;
 import indevo.industries.petshop.industry.PetShop;
@@ -25,12 +27,17 @@ import java.util.function.Consumer;
 // hosts the Pets panel; shop is the docked Animal Center, null in flight
 public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlockingDialoguePluginAPI {
 
+    private static final String LINK = "IndEvo_petLink";
+
     private final PetsPanel panel;
     // the dialog under this one, it takes the panel's reports when it closes
     private final InteractionDialogAPI under;
     private final Consumer<InteractionDialogAPI> onReturn;
     private InteractionDialogAPI dialog;
     private boolean returnPending = false;
+
+    private record Link(String pet, int tab, SectorEntityToken course) {
+    }
 
     public PetsDialogPlugin(PetShop shop, PetsView view) {
         this(shop, view, null);
@@ -46,6 +53,41 @@ public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlocking
     public static boolean show(PetShop shop, PetsView view) {
         SectorEntityToken target = shop != null ? shop.getMarket().getPrimaryEntity() : Global.getSector().getPlayerFleet();
         return Global.getSector().getCampaignUI().showInteractionDialog(new PetsDialogPlugin(shop, view), target);
+    }
+
+    // a pet message's click target: a token that lives only in the message list, PetCampaignPlugin hands it to follow
+    public static SectorEntityToken link(Pet pet) {
+        return token(new Link(pet.id, PetsView.TAB_PETS, null));
+    }
+
+    public static SectorEntityToken link(int tab) {
+        return token(new Link(null, tab, null));
+    }
+
+    public static SectorEntityToken course(SectorEntityToken to) {
+        return token(new Link(null, PetsView.TAB_PETS, to));
+    }
+
+    private static SectorEntityToken token(Link link) {
+        SectorEntityToken token = Global.getSector().getHyperspace().createToken(0f, 0f);
+        token.setFaction(Factions.PLAYER);
+        token.addTag(LINK);
+        token.getCustomData().put(LINK, link);
+        return token;
+    }
+
+    // a link to a place lays in the course and opens nothing
+    public static InteractionDialogPlugin follow(SectorEntityToken token) {
+        if (token == null || !token.hasTag(LINK) || !Setting.PETS.enabled()) return null;
+        if (!(token.getCustomData().get(LINK) instanceof Link link)) return null;
+
+        if (link.course() != null) {
+            if (!link.course().isExpired()) Global.getSector().layInCourseFor(link.course());
+            return null;
+        }
+
+        Pet pet = link.pet() != null ? PetStatusManager.getInstance().get(link.pet()) : null;
+        return new PetsDialogPlugin(null, pet != null ? PetsView.of(pet) : PetsView.at(link.tab()));
     }
 
     // from a vanilla screen with no dialog of its own (fleet, refit), with the docked Animal Center; onClose refreshes that screen

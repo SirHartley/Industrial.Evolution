@@ -1,6 +1,7 @@
 package indevo.industries.petshop.plugins;
 
 import com.fs.starfarer.api.ui.TextFieldAPI;
+import indevo.industries.petshop.memory.Pet;
 import indevo.utils.ui.UiFilter;
 import indevo.utils.ui.UiScroll;
 
@@ -101,6 +102,22 @@ public class PetsView {
 
     public PetsView(String selected) {
         this.selected = selected;
+    }
+
+    // a gone pet shows among the Remembered
+    static PetsView of(Pet pet) {
+        PetsView view = new PetsView(pet.id);
+        if (pet.isRemembered()) {
+            view.filter.on.add(PetsPanel.REMEMBERED);
+            view.filter.sort = PetsPanel.GONE_KEYS.get(0).label();
+        }
+        return view;
+    }
+
+    static PetsView at(int tab) {
+        PetsView view = new PetsView();
+        view.tab = tab;
+        return view;
     }
 
     void select(String id) {
