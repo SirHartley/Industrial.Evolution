@@ -289,6 +289,7 @@ Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices
 | Ice treasure wreck recovery (both modes) | vanilla battle wreck roll | [METEOR](exploration/METEOR.md) |
 | Forge World ship quality | `ext_shipForSaleQualityMod` | [CHANGELING](industries/CHANGELING.md) |
 | VPC chip deposits (Assembler, Manufactory, Commodity Forge, Convert VPC find, Fabricator Bay) | divided by `ext_<id>PriceMult` | [ASSEMBLER](industries/ASSEMBLER.md#deposits) |
+| Restoration Docks and Restoration Bay price | `ext_partsPriceMult` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md) |
 
 ### Shared cross-file constraints
 

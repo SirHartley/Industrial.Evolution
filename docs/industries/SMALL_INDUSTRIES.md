@@ -104,7 +104,7 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 - `advance` adds `IndEvo_RepairStorage`; demand `IndEvo_parts` `min(eligible ships, 4)`.
 - `reportEconomyTick` on the last tick of the month (`RestorationDocks.java:107`, before month end because of the report) -> `removeDMods()`.
 - `removeDMods`: budget = market size (+3 alpha). Per step: pick a ship (beta: fewest D-mods; else random), remove one random non built in D-mod, add `getSingleDModRepairCost` to the ship's total. Gamma: one D-mod per ship. A clean ship is restored to its base hull (`getBaseShipHullSpec`).
-- Cost per D-mod = `(baseValue / 2) * 1.2^(maxD + 1) / maxD * aiCoreBonusMult` (`:304`), where `maxD` is the highest D-mod count seen for that member (`$IndEvo_maxDModMemory`). Beta mult 0.85, alpha upkeep x0.2.
+- Cost per D-mod = `(baseValue / 2) * 1.2^(maxD + 1) / maxD * aiCoreBonusMult * partsPriceMult` (`:306`, also the RAT Restoration Bay), where `partsPriceMult` is the Survival mode price factor of Domain grade parts (`ExtModeHelper.commodityPriceMult(Commodities.PARTS)`, `ext_partsPriceMult`, 1 in normal mode) so the Docks keep their normal mode price relation to buying parts, and `maxD` is the highest D-mod count seen for that member (`$IndEvo_maxDModMemory`). Beta mult 0.85, alpha upkeep x0.2.
 - AI markets (not hostile, or pirates): the player can use the docks there; a hull size fee scaled by `1 - relation` (clamped to +-0.5) is added.
 - The month's total books on the "Ship repairs" report line, the AI market fee on "Dock fees" ([BillingHelper](../core/UTILS.md#billinghelper)). Credits are only checked, not subtracted, during the loop.
 
