@@ -8,6 +8,7 @@ import indevo.utils.ui.UiScroll;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ public class PetsView {
     public static final String BEST = "best";
     public static final String BEASTS = "beasts";
     public static final String BEAST = "beast";
+    public static final String PICKED = "picked";
     public static final int TAB_PETS = 0;
     public static final int TAB_HUSBANDRY = 1;
     public static final int TAB_TREE = 2;
@@ -35,6 +37,8 @@ public class PetsView {
 
     public int tab = TAB_PETS;
     public String selected = null;
+    // Pets tab: the pets picked with shift click, in click order; two or more show the selection card
+    final Set<String> picked = new LinkedHashSet<>();
     public final UiScroll.Offsets scroll = new UiScroll.Offsets();
     final UiFilter.State filter = new UiFilter.State(PetsPanel.SORT_SHIP);
 

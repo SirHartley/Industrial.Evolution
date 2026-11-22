@@ -25,6 +25,8 @@ import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetPlan;
 import indevo.utils.ui.*;
 
+import org.lwjgl.input.Keyboard;
+
 import java.awt.Color;
 import java.util.*;
 
@@ -146,6 +148,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     private void close() {
         commitName();
         open = false;
+        view.picked.clear();
         onLeave.run();
     }
 
@@ -386,10 +389,12 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         }
 
         Pet selected = resolveSelection(groups);
-        addList(p, h - BODY_Y, groups, selected);
+        List<Pet> picked = picked(groups);
+        addList(p, h - BODY_Y, groups, selected, picked);
         Ui.vrule(p, LIST_W + 5f, BODY_Y, h - BODY_Y);
 
-        if (selected != null) new PetCard(this, view).build(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected);
+        if (picked.size() > 1) new PetCard(this, view).buildPicked(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, picked);
+        else if (selected != null) new PetCard(this, view).build(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected);
         else Ui.wrap(p, CARD_X, BODY_Y, w - CARD_X, "No pets yet. Animal Centers sell Cryochambers and offer pets for adoption.", Ui.gray());
     }
 
@@ -460,6 +465,48 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         if (first != null) view.select(first.id);
         return first;
+    }
+
+    // the picked pets still listed and pickable, in click order; a pick that went away drops out
+    private List<Pet> picked(List<Group> groups) {
+        Map<String, Pet> listed = new HashMap<>();
+        for (Group group : groups) for (Pet pet : group.pets()) if (pickable(pet)) listed.put(pet.id, pet);
+        view.picked.retainAll(listed.keySet());
+
+        List<Pet> picked = new ArrayList<>();
+        for (String id : view.picked) picked.add(listed.get(id));
+        return picked;
+    }
+
+    // a pet in a habitat or out with a detachment can not be picked
+    static boolean pickable(Pet pet) {
+        return PetCard.habitat(pet) == null && awayFleet(pet) == null;
+    }
+
+    // a tile click: with shift it adds the pet to the picked or takes it out, the shown pet counts as picked first; else it shows one pet
+    void click(Pet pet) {
+        if (!shift()) {
+            view.picked.clear();
+            select(pet);
+            return;
+        }
+        if (!pickable(pet)) return;
+
+        Pet shown = PetStatusManager.getInstance().get(view.selected);
+        if (view.picked.isEmpty() && shown != null && pickable(shown)) view.picked.add(shown.id);
+        if (!view.picked.remove(pet.id)) view.picked.add(pet.id);
+        if (view.picked.size() == 1) view.select(view.picked.iterator().next());
+        view.scroll.reset(PetsView.PICKED);
+        refresh();
+    }
+
+    void clearPicked() {
+        view.picked.clear();
+        refresh();
+    }
+
+    private static boolean shift() {
+        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
     }
 
     void select(Pet pet) {
@@ -603,10 +650,11 @@ public class PetsPanel extends BaseCustomDialogDelegate {
                 String.valueOf(PetConstants.NEST_HEARTS), String.valueOf(PetConstants.MAX_HEARTS), String.valueOf(Math.round(PetConstants.WANT_COOLDOWN_DAYS / 30f)));
         tooltip.addPara("A pet that moves to another ship is Unsettled for %s days, %s if it had a nest. Its effects are off. Hearts stay.", 10f, hl,
                 Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.UNSETTLED_DAYS), Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.NEST_UNSETTLED_DAYS));
+        tooltip.addPara("Shift click selects several pets.", 10f);
     }
 
     // the selected pet keeps its card while the filter hides its tile
-    private void addList(CustomPanelAPI p, float h, List<Group> groups, Pet selected) {
+    private void addList(CustomPanelAPI p, float h, List<Group> groups, Pet selected, List<Pet> picked) {
         UiFilter.State filter = view.filter;
         float top = bar(p, KEYS) + UiFilter.BELOW;
 
@@ -614,6 +662,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         float w = list.width();
         boolean first = true;
         boolean filtering = filter.isFiltering();
+        boolean many = picked.size() > 1;
 
         for (Group group : groups) {
             List<Pet> pets = new ArrayList<>();
@@ -636,7 +685,8 @@ public class PetsPanel extends BaseCustomDialogDelegate {
                 CustomPanelAPI b = list.block(TILE_H, row == 0 ? 4f : TILE_GAP);
                 for (int i = row * PER_ROW; i < Math.min(pets.size(), (row + 1) * PER_ROW); i++) {
                     Pet pet = pets.get(i);
-                    PetCard.tile(this, b, 2f + (i % PER_ROW) * TILE_PITCH, 0f, pet, pet == selected);
+                    boolean on = many ? picked.contains(pet) : pet == selected;
+                    PetCard.tile(this, b, 2f + (i % PER_ROW) * TILE_PITCH, 0f, pet, on, many && !pickable(pet));
                 }
             }
         }

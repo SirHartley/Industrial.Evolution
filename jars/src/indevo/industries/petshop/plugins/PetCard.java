@@ -36,6 +36,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -90,6 +91,14 @@ public class PetCard {
     static final float TALENT_W = 180f;
     static final float EFFECT_X = 254f;
     static final float DIM = 0.4f;
+    static final float GREY_TILE = 0.35f;
+    static final float PICK_ROW_H = 50f;
+    static final float PICK_GAP = 4f;
+    static final float PICK_PORTRAIT = 44f;
+    static final float PICK_TEXT_X = 56f;
+    static final float CLEAR_W = 60f;
+    static final float CARGO_W = 88f;
+    static final float FEE_W = 140f;
     static final float TITLES_GAP = 16f;
     static final String NO_SHIP = "Effects work only on a ship.";
     public static final float REFIT_ICON = 34f;
@@ -116,8 +125,10 @@ public class PetCard {
         this.shop = panel.shop();
     }
 
-    static void tile(PetsPanel panel, CustomPanelAPI p, float x, float y, Pet pet, boolean selected) {
-        CustomPanelAPI t = UiButtons.row(p, x, y, PetsPanel.TILE_W, PetsPanel.TILE_H, selected, true, null, () -> panel.select(pet));
+    // grey: several are picked and this one can not join; its click still shows it
+    static void tile(PetsPanel panel, CustomPanelAPI p, float x, float y, Pet pet, boolean selected, boolean grey) {
+        CustomPanelAPI row = UiButtons.row(p, x, y, PetsPanel.TILE_W, PetsPanel.TILE_H, selected, true, null, () -> panel.click(pet));
+        CustomPanelAPI t = grey ? Ui.panel(row, 0f, 0f, PetsPanel.TILE_W, PetsPanel.TILE_H) : row;
         UiImages.img(t, 11f, 5f, PORTRAIT, PORTRAIT, pet.getIcon());
 
         Marker marker = marker(pet);
@@ -126,10 +137,11 @@ public class PetCard {
             Ui.tooltip(t, icon, marker.title(), marker.line());
         }
 
-        Ui.text(t, 4f, 71f, 78f, pet.name, Ui.text(), Ui.CENTER);
+        Ui.text(t, 4f, 71f, 78f, pet.name, grey ? Ui.gray() : Ui.text(), Ui.CENTER);
         hearts(t, 17f, 91f, pet, 9f, 2f);
         Ui.rule(t, 13f, 107f, 60f);
         if (pet.assignedFleetMember != null) UiImages.ship(t, 30f, 114f, 26f, pet.assignedFleetMember, false, false);
+        if (grey) t.setOpacity(GREY_TILE);
     }
 
     // a pet of the Remembered list: dimmed portrait (grey from another game), grey name, the cause where the hearts are, the cycle where the ship is
@@ -464,6 +476,100 @@ public class PetCard {
             paintHearts(pos, a);
         });
         if (view.reveal.on(pet)) view.reveal.border(parent, x, y, w, h);
+    }
+
+    // two or more pets picked with shift click on the Pets tab: a row each, the bottom row acts on all of them
+    void buildPicked(CustomPanelAPI parent, float x, float y, float w, float h, List<Pet> pets) {
+        CustomPanelAPI p = Ui.panel(parent, x, y, w, h);
+        Ui.heading(p, 0f, 0f, w, "Selected", String.valueOf(pets.size()));
+
+        float top = Ui.HEADING_H + 4f;
+        float vh = h - 44f - top;
+        boolean scrolls = pets.size() * (PICK_ROW_H + PICK_GAP) - PICK_GAP > vh;
+        UiScroll.Column list = scrolls ? UiScroll.list(p, 0f, top, w, vh, view.scroll, PetsView.PICKED) : null;
+        float rw = scrolls ? list.width() : w;
+        for (int i = 0; i < pets.size(); i++) {
+            CustomPanelAPI r = scrolls ? list.block(PICK_ROW_H, i == 0 ? 0f : PICK_GAP) : Ui.panel(p, 0f, top + i * (PICK_ROW_H + PICK_GAP), w, PICK_ROW_H);
+            pickedRow(r, rw, pets.get(i));
+        }
+        if (scrolls) list.end();
+
+        addPickedBottom(p, w, h, pets);
+    }
+
+    private static void pickedRow(CustomPanelAPI r, float w, Pet pet) {
+        Ui.card(r, 0f, 0f, w, PICK_ROW_H);
+        UiImages.img(r, 3f, 3f, PICK_PORTRAIT, PICK_PORTRAIT, pet.getIcon());
+        float hx = w - 8f - heartsWidth(HOVER_HEART, HOVER_HEART_GAP);
+        float tw = hx - 8f - PICK_TEXT_X;
+        Ui.text(r, PICK_TEXT_X, 7f, tw, pet.name);
+        Ui.text(r, PICK_TEXT_X, 26f, tw, species(pet) + ", " + age(pet), Ui.gray());
+        hearts(r, hx, 19f, pet, HOVER_HEART, HOVER_HEART_GAP);
+    }
+
+    // Clear, To cargo, Rehome with the total fee, Euthanize; in flight Clear and Euthanize only
+    private void addPickedBottom(CustomPanelAPI p, float w, float h, List<Pet> pets) {
+        Ui.rule(p, 0f, h - 36f, w);
+        float y = h - BUTTON_H;
+        Color hl = Misc.getHighlightColor();
+        String count = String.valueOf(pets.size());
+        String[] names = new String[pets.size()];
+        for (int i = 0; i < names.length; i++) names[i] = pets.get(i).name;
+
+        UiButtons.button(p, 0f, y, CLEAR_W, BUTTON_H, "Clear", UiButtons.Kind.STD, CutStyle.TL_BR, panel::clearPicked);
+        UiButtons.button(p, w - BUTTON_W, y, BUTTON_W, BUTTON_H, "Euthanize", UiButtons.Kind.RED, CutStyle.TL_BR,
+                () -> panel.popup(new UiConfirm("Confirm", info -> {
+                    info.addPara("Euthanize %s pets?", 0f, hl, count);
+                    names(info, names);
+                }, () -> {
+                    view.picked.clear();
+                    for (Pet pet : pets) PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.EUTHANIZED);
+                })));
+        if (shop == null) return;
+
+        List<String> older = new ArrayList<>();
+        for (Pet pet : pets) if (pet.age >= PetConstants.BOX_DAYS) older.add(pet.name);
+        ButtonAPI box = UiButtons.button(p, CLEAR_W + 6f, y, CARGO_W, BUTTON_H, "To cargo", older.isEmpty() ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR,
+                older.isEmpty() ? () -> {
+                    view.picked.clear();
+                    for (Pet pet : pets) PetStatusManager.getInstance().toChamber(pet);
+                    panel.refresh();
+                } : null);
+        if (older.isEmpty()) Ui.bottomTooltip(p, box, "To cargo", "A young in a Cryochamber does not age and can be sold.");
+        else if (older.size() > 3) bottomTip(p, box, "To cargo", "Only a young under a week old fits. %s of the selected pets are older.", String.valueOf(older.size()));
+        else bottomTip(p, box, "To cargo", "Only a young under a week old fits. " + nameList(older.size()) + (older.size() == 1 ? " is older." : " are older."), older.toArray(new String[0]));
+
+        float fee = pets.size() * PetConstants.REHOME_FEE;
+        String feeText = Misc.getDGSCredits(fee);
+        float credits = Global.getSector().getPlayerFleet().getCargo().getCredits().get();
+        boolean broke = credits < fee;
+        ButtonAPI rehome = UiButtons.button(p, w - BUTTON_W - 6f - FEE_W, y, FEE_W, BUTTON_H, "Rehome", broke ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
+                null, feeText, broke ? Ui.neg() : null, Ui.ORB12, broke ? null : () -> panel.popup(new UiConfirm("Confirm", info -> {
+                    info.addPara("Rehome %s pets for a fee of %s?", 0f, hl, count, feeText);
+                    names(info, names);
+                }, () -> {
+                    view.picked.clear();
+                    for (Pet pet : pets) shop.rehome(pet);
+                })));
+        if (broke) bottomTip(p, rehome, "Rehome", "Rehoming %s pets costs %s. You have %s.", count, feeText, Misc.getDGSCredits(credits));
+    }
+
+    // the names after an empty line, comma separated
+    private static void names(TooltipMakerAPI info, String[] names) {
+        info.addPara(String.join(", ", Collections.nCopies(names.length, "%s")), Ui.wrapHeight("Ag", Ui.INS21, 100f), Misc.getHighlightColor(), names);
+    }
+
+    // %s, %s and %s
+    private static String nameList(int n) {
+        return n == 1 ? "%s" : String.join(", ", Collections.nCopies(n - 1, "%s")) + " and %s";
+    }
+
+    private static void bottomTip(CustomPanelAPI p, UIComponentAPI target, String title, String format, String... hl) {
+        Ui.tooltip(p, target, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.ABOVE, t -> {
+            t.setBgAlpha(1f);
+            t.addPara(title, Misc.getHighlightColor(), 0f);
+            t.addPara(format, 10f, Misc.getHighlightColor(), hl);
+        });
     }
 
     // a dead, sold or rehomed pet: the top part with no star, want or ship, its titles, the tables; Family tree only on the Remembered list
