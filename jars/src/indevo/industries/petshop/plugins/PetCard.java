@@ -1147,8 +1147,16 @@ public class PetCard {
 
         float bx = w - 6f - BUTTON_W;
         String reason = shop == null ? noShip : null;
-        Ui.text(p, 56f, y + 7f, bx - 64f, "Menagerie");
-        Ui.text(p, 56f, y + 26f, bx - 64f, reason != null ? reason : "In the fleet, on no ship", reason != null ? Ui.neg() : Ui.gray());
+        if (pet.age < PetConstants.BOX_DAYS) {
+            ButtonAPI box = UiButtons.button(p, bx - 6f - BUTTON_W, by, BUTTON_W, BUTTON_H, "To cargo", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+                PetStatusManager.getInstance().toChamber(pet);
+                panel.refresh();
+            });
+            Ui.tooltip(p, box, "To cargo", "A Cryochamber in the fleet cargo. It does not age there.", "Only a young under a week old fits.");
+        }
+        float tx = pet.age < PetConstants.BOX_DAYS ? bx - 6f - BUTTON_W : bx;
+        Ui.text(p, 56f, y + 7f, tx - 64f, "Menagerie");
+        Ui.text(p, 56f, y + 26f, tx - 64f, reason != null ? reason : "In the fleet, on no ship", reason != null ? Ui.neg() : Ui.gray());
         UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Assign...", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 reason != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Assign", free, shop)));
     }
