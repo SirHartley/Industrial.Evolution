@@ -76,14 +76,14 @@ Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks i
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin.java:133`) | Loads the nanites texture for the codex |
-| `ModPlugin.java:167` (`onGameLoad`), `:289` (`onNewGameAfterEconomyLoad`) | `LocatorSystemRatingUpdater.updateAllSystems()` |
-| `ModPlugin.java:441` | `LocatorSystemRatingUpdater`, transient |
-| `ModPlugin.java:442` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
-| `ModPlugin.java:443` | `ConsumableItemMarketAdder`, transient |
-| `ModPlugin.java:446` | `SpooferItemKeypressListener`, transient |
-| `ModPlugin.java:472`, `:315` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
-| `ModPlugin.java:473` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
+| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin.java:132`) | Loads the nanites texture for the codex |
+| `ModPlugin.java:166` (`onGameLoad`), `:288` (`onNewGameAfterEconomyLoad`) | `LocatorSystemRatingUpdater.updateAllSystems()` |
+| `ModPlugin.java:440` | `LocatorSystemRatingUpdater`, transient |
+| `ModPlugin.java:441` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
+| `ModPlugin.java:442` | `ConsumableItemMarketAdder`, transient |
+| `ModPlugin.java:445` | `SpooferItemKeypressListener`, transient |
+| `ModPlugin.java:471`, `:314` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
+| `ModPlugin.java:472` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
 
 `ListenerManager.addListener(Object)` is the persistent variant (`obf/campaign/ListenerManager.java:25-33` in the starsector-knowledge skill), so any listener added without `true` is saved with the game.
 
@@ -149,7 +149,7 @@ NPCs: `FleetConsumableInventoryManager` gives spawned fleets the missile abiliti
 | `DecoyEntityPlugin` | Adds and activates the ability every frame while FIRING |
 | `ItemAbilityHelper.ID_MAP` | Maps drones, stabilizer, supercharger, which have no CSV rows |
 | `itemAbilities/WIP/*` | Excluded in `IndEvo.iml`; stubs with a copied nanite tooltip |
-| `custom_entities.json:485` | Trail entity uses `SpikeEntityPlugin` as its plugin class |
+| `custom_entities.json:457` | Trail entity uses `SpikeEntityPlugin` as its plugin class |
 | Changelog_todo | Missile NPC usage and AI (`:74-76`), remote buff (`:62`), beacon hazard level (`:112`), missile NPC reactions (`:84`), eye-bots (`:97`), "look bigger" item idea (`:137`) |
 
 ## Maintenance

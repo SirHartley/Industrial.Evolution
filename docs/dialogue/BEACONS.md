@@ -20,14 +20,14 @@ Any warning beacon (vanilla or IE) in hyperspace gets an extra option to dismant
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Custom entity | `IndEvo_warning_beacon` (tags `warning_beacon`, `IndEvo_beacon`) | `data/config/custom_entities.json:333` |
+| Custom entity | `IndEvo_warning_beacon` (tags `warning_beacon`, `IndEvo_beacon`) | `data/config/custom_entities.json:305` |
 | Tag | `warning_beacon` (`Tags.WARNING_BEACON`) | `api/impl/campaign/ids/Tags.java:380` |
 | Option ids | `IndEvo_beacon_destroyConfirm`, `IndEvo_beacon_destroyLeave`, vanilla `beaconLeave` | listener, rules |
 | Rules | `IndEvo_beacon_OpenDialogCustom` (`:257`), `IndEvo_beacon_destroyConfirm` (`:261`), `IndEvo_beacon_destroyLeave` (`:263`) | `data/campaign/rules.csv` "#Beacons" block, lines 256 to 264 |
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded` -> `BeaconDialogueListener.register()` (`ModPlugin.java:475`): `addTransientListener`, so one instance per load and nothing saved.
+- `ModPlugin.setListenersIfNeeded` -> `BeaconDialogueListener.register()` (`ModPlugin.java:474`): `addTransientListener`, so one instance per load and nothing saved.
 - Rule commands resolve from `ruleCommandPackages` entry `indevo.dialogue.beacons.dialogue` (`data/config/settings.json:43`).
 
 Order: `OpenInteractionDialog rules -> dialog shown -> BeaconDialogueListener adds option -> IndEvo_beacon_destroyConfirm -> IndEvo_beacon_destroyLeave -> IndEvo_RemoveCurrentInteractionTarget + DismissDialog`.

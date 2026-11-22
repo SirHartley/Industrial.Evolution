@@ -66,7 +66,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 | | [Skillshot README](../jars/src/indevo/skillshot/README.md) | Aimed campaign abilities framework (missile targeting), shared design and cross mod lock with Catch.Release | `skillshot` |
 | | [CONSOLE](core/CONSOLE.md) | Console Commands | `console` |
 | | [MISC](core/MISC.md) | Unregistered leftovers | `other` |
-| | [WIP](core/WIP.md) | Mobile colony, converters | `WIP` |
+| | [WIP](core/WIP.md) | Converters | `WIP` |
 | Ambience | [SHUTTLE_TRAFFIC](core/SHUTTLE_TRAFFIC.md) | Visual only shuttle traffic in the current system: lanes, pleasure cruises, patrols, mining, salvage, fleet craft, dogfights around NPC battles, faction profiles, economy tells, event flights, IE industry flights, convoys, slow traffic that eases around slow fleets and flees hostile ones, hits, escape pods | `ambience/shuttletraffic` |
 
 ## Start here
@@ -95,7 +95,7 @@ One doc per feature. Every IE industry id is mapped to its class and doc in the 
 
 | Hook | What IE does | Line |
 |---|---|---|
-| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:118` |
+| `onApplicationLoad()` | `PlayerSettings.install()` first ([SETTINGS](core/SETTINGS.md#reading-a-setting)); GraphicsLib `ShaderLib.init()`, light and texture CSVs from `data/lights/`; `SpecialItemEffectsRepo.addItemEffectsToVanillaRepo()` | `utils/ModPlugin.java:117` |
 | `onAboutToStartGeneratingCodex()` | Preloads the nanites icon texture | `:132` |
 | `onNewGame()` | `PlayerSettings.reload()`: picks up the new game settings panel | `:279` |
 | `onNewGameAfterEconomyLoad()` | One-time world generation (chain below) | `:285` |
@@ -215,7 +215,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 - `indevo/tools/PetChecks.java`: headless pet data and pet line checks (ids, bodies, line coverage per species and mood, pick weights), run by hand after the compile gate, never shipped. [PETS](industries/PETS.md#checks).
 - Java only, no Kotlin ([CLAUDE.md](../CLAUDE.md#code-layout)).
 - `native-smoke/`: test-only probes, the smoke test wrapper and the scripted live checks (`native-smoke/live/`). Never compiled by the builder or shipped. [SMOKE_TESTS.md](SMOKE_TESTS.md).
-- `IndEvo.iml` `excludeFolder` entries that exist: `WIP/converters`, `exploration/WIP`, `exploration/distress`, `exploration/salvage/specials/WIP`, `items/consumables/itemAbilities/WIP`, `industries/academy/rules/WIP`, `industries/derelicts/industry/WIP`, `industries/warehouses/plugin/wi`. The others point at old paths. Excluded code does not compile and must not be referenced. The release builder reads the same entries, so change exclusions in `IndEvo.iml` only.
+- `IndEvo.iml` `excludeFolder` entries that exist: `WIP/converters`, `exploration/WIP`, `exploration/distress`, `exploration/salvage/specials/WIP`, `items/consumables/itemAbilities/WIP`, `industries/academy/rules/WIP`, `industries/derelicts/industry/WIP`, `industries/warehouses/plugin/wi`. Excluded code does not compile and must not be referenced. The release builder reads the same entries, so change exclusions in `IndEvo.iml` only.
 - IE imports obfuscated game classes in a few places (`com.fs.starfarer.campaign`, `com.fs.starfarer.combat.CombatEngine`, `com.fs.graphics` and `com.fs.state.AppDriver`). Those break on game updates; check them first after one.
 - `jars/src/data/scripts` holds combat classes in the vanilla `data.scripts` package ([COMBAT](core/COMBAT.md)).
 
@@ -282,14 +282,13 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 | Component | State | Doc |
 |---|---|---|
-| Crucible | Spawner commented out (`ModPlugin.java:203`, `:295`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
+| Crucible | Spawner commented out (`ModPlugin.java:202`, `:294`); data rows still load | [CRUCIBLE](exploration/CRUCIBLE.md) |
 | Distress calls, ghost ships | Excluded, does not compile; hullmod rows and rules still load | [DISTRESS](exploration/DISTRESS.md) |
-| Mobile colony | Compiled and its campaign plugin registered (`:495`), never created | [WIP](core/WIP.md) |
 | Converters | Excluded, does not compile | [WIP](core/WIP.md) |
 | Wormhole complex (`IndEvo_Warphouse`) | CSV row and item commented out | [WAREHOUSES](industries/WAREHOUSES.md) |
 | `ArtilleryStationReplacer` | Never matches: checks `contains("artillery")` against `IndEvo_Artillery_*` ids | [ARTILLERY](industries/ARTILLERY.md) |
 | `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
-| `devActions()` | Disabled (`&& false`, `ModPlugin.java:151`) | This file |
+| `devActions()` | Disabled (`&& false`, `ModPlugin.java:150`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.
 

@@ -34,7 +34,7 @@ At new game, uncolonized planets with tech mining ruins may get the `IndEvo_Ruin
 
 ## Registration and lifecycle
 
-- `ModPlugin.onNewGameAfterEconomyLoad()` calls `DerelictInfrastructurePlacer.placeRuinedInfrastructure()` (`ModPlugin.java:304`).
+- `ModPlugin.onNewGameAfterEconomyLoad()` calls `DerelictInfrastructurePlacer.placeRuinedInfrastructure()` (`ModPlugin.java:303`).
 - `ModPlugin.setListenersIfNeeded()` calls `RuinfraOnDecivListener.register()` (`:458`), transient, deduped by class.
 - `ModPlugin.loadTransientMemory()` preloads the whitelist (`:418`).
 

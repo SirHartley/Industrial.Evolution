@@ -22,7 +22,7 @@ All three hold one VPC in the vanilla special item slot. The VPC sets market sup
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_AdAssem` (structure, upgrade `IndEvo_AdManuf`), `IndEvo_AdManuf` (industry, downgrade `IndEvo_AdAssem`), `IndEvo_ComForge` (structure) | `data/campaign/industries.csv:2,5,8`; `indevo/ids/Ids.java:51-53` |
+| Industry | `IndEvo_AdAssem` (structure, upgrade `IndEvo_AdManuf`), `IndEvo_AdManuf` (industry, downgrade `IndEvo_AdAssem`), `IndEvo_ComForge` (structure) | `data/campaign/industries.csv:2,5,8`; `indevo/ids/Ids.java:50-52` |
 | Setting | `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` (build toggles) | `data/config/LunaSettings.csv:86-88` |
 | Setting | `IndEvo_VarInd_deliverToProductionPoint` (deliver to gathering point instead of local storage) | `data/config/LunaSettings.csv:115` |
 | Config | Base deposit per commodity: columns `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` of the VPC commodity table | `data/config/indEvo/vpc_commodities.csv`, read through `VPCCommodityRepo.Commodity.getDeposit(getId())` |
@@ -33,7 +33,7 @@ All three hold one VPC in the vanilla special item slot. The VPC sets market sup
 ## Registration and lifecycle
 
 - Industry plugins from `industries.csv`. Each `apply()` adds the industry itself as a transient listener (`EconomyTickListener`, Forge also `NewDayListener`) and `unapply()` removes it (`VariableAssembler.java:48,79`, `CommodityForge.java:55,90`).
-- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:435`), transient, re-added each load.
+- `DepositMessage.register()` in `ModPlugin.setListenersIfNeeded()` (`indevo/utils/ModPlugin.java:434`), transient, re-added each load.
 - `NewGameIndustryPlacer.placeManufactories()` puts a Manufactory with an uncommon ship parts VPC on `eochu_bres` at new game (`indevo/utils/update/NewGameIndustryPlacer.java:45-62`).
 - `initWithParams`: vanilla preinstalls `IndEvo_vpc` when an econ file lists it; a VPC without data then gets a random NPC roll, which can swap in the rare or ultra rare id (`VariableAssembler.java:323-328`).
 

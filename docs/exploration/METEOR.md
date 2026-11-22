@@ -63,7 +63,7 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 | Kind | Id / key | Where |
 |---|---|---|
 | Settings | `IndEvo_meteor_enabled` (true), `_baseChancePerEconomyTick` (0.02), `_immediateMode` (false), `_minIntensity` (1), `_maxIntensity` (3), `_baseShowerWidth` (5000), `_intensityWidthModifier` (1000), `_maxDensity` (2.5), `_maxRuntimeMult` (2.5), `_baseRuntime` (50 s), `_locationTimeoutAfterSpawnDays` (186), `_generalTimeoutAfterSpawnDays` (31), `_gridLimit` (26000), `_maxDistanceFromSun` (10000), `_minDistanceFromSun` (3000), `_maxAngle` (80), `_minAngle` (50), `_rogueChancePerEconomyTick` (0.1, 0 to 0.3, 0 turns rogues off) | `data/config/LunaSettings.csv:8`, `:14`, `:34-49`, constants in `indevo/config/Setting.java:22-39`, read at use time in `MeteorSwarmManager.java` and `RogueAsteroidSpawner.java` (`_gridLimit`) |
-| Custom entities | `IndEvo_meteor_1..4` (`MeteorEntity`), `IndEvo_icy_rock_1..6` (`IcyRockEntity`), `IndEvo_spicy_rock_1..4` (`SpicyRockEntity`), `IndEvo_spicy_rock_5` (`TreasuradoidEntity`), `IndEvo_meteor_treasure_1` (`TreasuroidEntity`), `IndEvo_meteor_treasure_2` (`IceTreasureoidEntity`), `IndEvo_warning_sign`, `IndEvo_token` | `data/config/custom_entities.json:30-316`, `:410` |
+| Custom entities | `IndEvo_meteor_1..4` (`MeteorEntity`), `IndEvo_icy_rock_1..6` (`IcyRockEntity`), `IndEvo_spicy_rock_1..4` (`SpicyRockEntity`), `IndEvo_spicy_rock_5` (`TreasuradoidEntity`), `IndEvo_meteor_treasure_1` (`TreasuroidEntity`), `IndEvo_meteor_treasure_2` (`IceTreasureoidEntity`), `IndEvo_warning_sign`, `IndEvo_token` | `data/config/custom_entities.json:2-288`, `:382` |
 | Terrain | `IndEvo_radioactive_field` -> `RadioactiveTerrain` | `data/campaign/terrain.json:6` |
 | Memory key | `$IndEvo_MeteorTimeout` (global and location, expiring) | `MeteorSwarmManager.java:48`, set in `reserveForShower` `:258-259` |
 | Memory key | `$IndEvo_MeteorShowerPending` (location, expiring: days until the shower starts plus 1) | `MeteorSwarmManager.java:50`, set in `reserveForShower` `:262` |
@@ -84,8 +84,8 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:494`) adds a transient listener each load (`MeteorSwarmManager.java:81`).
-- `setListenersIfNeeded() -> RogueRockDustRenderer.register()` (`ModPlugin.java:495`): transient Luna renderer, once per session (`hasRendererOfClass`).
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> MeteorSwarmManager.register()` (`indevo/utils/ModPlugin.java:493`) adds a transient listener each load (`MeteorSwarmManager.java:81`).
+- `setListenersIfNeeded() -> RogueRockDustRenderer.register()` (`ModPlugin.java:494`): transient Luna renderer, once per session (`hasRendererOfClass`).
 - Spawners, warning path renderer and delayed spawn are location scripts; meteors are custom entities with saved plugins.
 - `RadiationEffectHandler.get()` adds itself as a transient Luna renderer on first use per session (`:36-45`).
 

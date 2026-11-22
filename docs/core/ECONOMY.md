@@ -43,10 +43,10 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:165`) and `ResourceConditionApplicator.register()` (`:434`, transient listener).
+- `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:164`) and `ResourceConditionApplicator.register()` (`:433`, transient listener).
 - Economy tick -> `applyResourceConditionToAllMarkets()` -> `ResourceCondition.applyRessourceCond(m)` adds the condition if `m.isInEconomy()` and missing. The condition itself persists in the market.
-- `RelicBuildTimeReductionButtonAdder.register()` and `RelicSpeedUpOptionProvider.register()` (`indevo/utils/ModPlugin.java:492`, `:496`) add transient listeners.
-- `TechMiningRelicOptionProvider.register()` (`indevo/utils/ModPlugin.java:497`) adds a transient listener; one instance is both the option provider and the `EconomyTickListener`.
+- `RelicBuildTimeReductionButtonAdder.register()` and `RelicSpeedUpOptionProvider.register()` (`indevo/utils/ModPlugin.java:491`, `:495`) add transient listeners.
+- `TechMiningRelicOptionProvider.register()` (`indevo/utils/ModPlugin.java:496`) adds a transient listener; one instance is both the option provider and the `EconomyTickListener`.
 - `RelicBuildInPatch` and `RelicBuildInCounterPatch` need no registration; PatchLib installs them when the refit build in dialog first loads. The toggle state is transient, nothing is saved.
 
 ## Flow

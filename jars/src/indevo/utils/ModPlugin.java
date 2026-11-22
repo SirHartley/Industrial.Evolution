@@ -23,7 +23,6 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
-import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
@@ -521,7 +520,6 @@ public class ModPlugin extends BaseModPlugin {
         //Scripts:
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
-        Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
         Global.getSector().registerPlugin(new CorporateGovernanceCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {
