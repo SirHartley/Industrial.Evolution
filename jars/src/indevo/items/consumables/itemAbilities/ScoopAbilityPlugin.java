@@ -10,7 +10,6 @@ import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.campaign.CampaignClock;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.items.consumables.entities.PlayerTrackingNebulaParticle;
 import indevo.utils.ModPlugin;
@@ -174,7 +173,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
             ageMult = (Float) ageTypes.get(age.toString());
         }
 
-        float dur = getDurationDays() * CampaignClock.SECONDS_PER_GAME_DAY;
+        float dur = getDurationDays() * Global.getSector().getClock().getSecondsPerDay();
         float amt = targetType == TargetType.NEBULA ? (MAX_FUEL_AMT / dur) * ageMult : (MAX_FUEL_AMT / dur) * starMult;
 
         CargoAPI cargo = getFleet().getCargo();

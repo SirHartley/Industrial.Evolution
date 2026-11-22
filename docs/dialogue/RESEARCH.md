@@ -42,7 +42,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge`, `_longevity` (Methuselah) | `indevo/ids/Ids.java:169` to `:183` |
+| Projects | `indevo_proj_morgana`, `_pulse`, `_sanic`, `_prospector`, `_navi`, `_snowblind`, `_spitfire`, `_eureka`, `_parallax`, `_keyhole`, `_revival` (Spyglass), `_mjolnir`, `_transistor`, `_reforge`, `_longevity` (Methuselah) | `indevo/ids/Ids.java:168` to `:182` |
 | Hullmods | `IndEvo_augfield`, `IndEvo_CamouflageFieldEmitter` | `data/hullmods/hull_mods.csv:16`, `:17` |
 | Tag | `IndEvo_ship_unique_signature` (parked vanilla tag) | `CamouflageFieldEmitter.TAG_UNIQUE` |
 | Memory, sector | `$IndEvo_ResearchProgress_<id>` (`Progress`), `$IndEvo_ProjRand_<id>` (5 `Random`s) | `ResearchProject.java:39`, `ResearchProjectTemplateRepo.java:590` |
@@ -76,7 +76,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 ## Registration and lifecycle
 
 - Entry: rules `IndEvo_JobMenuPoint` adds option 4 "Visit the Research Tracts" on `PopulateOptions` at `$id == station_galatia_academy`; `IndEvo_JobMenuInit` runs the command `ResearchProjectDialoguePlugin` (package `indevo.dialogue.research.dialogue` is in `ruleCommandPackages`, `data/config/settings.json:40`).
-- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:426` to `:491`):
+- `ModPlugin.setListenersIfNeeded` (`ModPlugin.java:422` to `:487`):
 
 | Class | How | Persists |
 |---|---|---|

@@ -155,7 +155,7 @@ Apply chain, per industry, from `Market.reapplyIndustries` and `BaseIndustry.rea
 - Persistent listener dedupe: `ListenerManager.addListener` stores into an `ObjectRepository` that ignores an instance already present (`obf/campaign/ListenerManager.java:29-35`, `obf/_common/util/container/repo/ObjectRepository.java:87-90`), so repeated `addListener(this)` from `apply()` is safe.
 - `market.addImmigrationModifier` keeps a persistent `LinkedHashSet` (`obf/campaign/econ/Market.java:98`); the variant object is saved with the market.
 - Other features read the current government with `GovernmentCondition.getGovernment(market) instanceof X`: Privateer (`PrivateerBase.java:71`, `PrivateerBaseRaidIntel.java:76`), the Nexerelin listener, `CorporateGovernanceCampaignPlugin`.
-- Rural, Forge World, Corporate and Monastic rules key on industry spec tags `industrial`, `rural`, `military` from `data/campaign/industries.csv`; Managed Democracy uses `MiscIE.isMilitary`. `ModPlugin.addTypePrefaceToIndustrySpecs` only shows those tags in descriptions (`ModPlugin.java:250`). See [Economy](../core/ECONOMY.md).
+- Rural, Forge World, Corporate and Monastic rules key on industry spec tags `industrial`, `rural`, `military` from `data/campaign/industries.csv`; Managed Democracy uses `MiscIE.isMilitary`. `ModPlugin.addTypePrefaceToIndustrySpecs` only shows those tags in descriptions (`ModPlugin.java:246`). See [Economy](../core/ECONOMY.md).
 - Storage access goes through `MiscIE.getStorageCargo`; see [Utils](../core/UTILS.md). Setting reads: [Settings](../core/SETTINGS.md).
 
 ## Known issues and dormant code

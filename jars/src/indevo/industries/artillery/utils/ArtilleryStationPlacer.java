@@ -131,7 +131,6 @@ public class ArtilleryStationPlacer {
                 if (r.nextFloat() < planetMod) {
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
-                    //addTestArtilleryToPlanet(p);
                     addArtilleryToPlanet(p, false);
 
                     ModPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
@@ -166,32 +165,6 @@ public class ArtilleryStationPlacer {
 
             if (!planet.getMarket().hasCondition(ArtilleryStationCondition.ID))
                 planet.getMarket().addCondition(ArtilleryStationCondition.ID);
-        }
-    }
-
-    public static class ArtilleryStationInteractionConfigGen implements FleetInteractionDialogPluginImpl.FIDConfigGen {
-        public FleetInteractionDialogPluginImpl.FIDConfig createConfig() {
-            FleetInteractionDialogPluginImpl.FIDConfig config = new FleetInteractionDialogPluginImpl.FIDConfig();
-
-            config.alwaysAttackVsAttack = true;
-            config.leaveAlwaysAvailable = true;
-            config.showFleetAttitude = false;
-            config.showTransponderStatus = false;
-            config.showEngageText = false;
-
-            config.delegate = new FleetInteractionDialogPluginImpl.BaseFIDDelegate() {
-                public void postPlayerSalvageGeneration(InteractionDialogAPI dialog, FleetEncounterContext context, CargoAPI salvage) {
-                    new RemnantSeededFleetManager.RemnantFleetInteractionConfigGen().createConfig().delegate.
-                            postPlayerSalvageGeneration(dialog, context, salvage);
-                }
-                public void notifyLeave(InteractionDialogAPI dialog) {
-                }
-                public void battleContextCreated(InteractionDialogAPI dialog, BattleCreationContext bcc) {
-                    bcc.aiRetreatAllowed = false;
-                    bcc.objectivesAllowed = false;
-                }
-            };
-            return config;
         }
     }
 

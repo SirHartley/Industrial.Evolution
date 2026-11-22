@@ -94,6 +94,8 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
             sizeMult = MAX_FADE_IN_SIZE_MULT - (MAX_FADE_IN_SIZE_MULT - 1) * mult;
         } else
             currentAlpha = MAX_RETICULE_ALPHA * (1 - smootherstep(maxFadeInTime, DANGER_SIGN_FADEOUT_TIME, timePassedSeconds));
+
+        if (timePassedSeconds > DANGER_SIGN_FADEOUT_TIME) Misc.fadeAndExpire(entity, 0.1f);
     }
 
     public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {

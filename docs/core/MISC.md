@@ -57,9 +57,6 @@ Not run in IE. Read the class before copying it; the issues below apply to any c
 | Item | State |
 |---|---|
 | Whole package | Unregistered (dead in IE) |
-| `YourMod_PetName_PetHullmod.java:31`, `:48` | Checks `isModEnabled("indEvo")`; IE's id is `IndEvo` (`mod_info.json`). `isModEnabled` is case sensitive ([Compatibility](COMPATIBILITY.md)), so the check never matches |
-| `SpawnDerelictFleetMembersOnDeathListener.java:23` | Dedupe checks `hasScriptOfClass` but adds an event listener, so every call adds another listener |
-| `NuclearWeaponCombatListener.java:20` | Dedupe checks `instanceof NuclearWeaponChecker` instead of itself, so `register()` always adds |
 | `UniqueFleetRespawnTracker.getTargetMarket` (`:150`) | Never updates `maxRel`, so the last non hostile market wins |
 | `UniqueShipRemoveAndReplacer.isChosenFleet` (`:218`) | NPE when no chosen fleet is set |
 | `PIRATE_Event_FleetManager.getCrowConstellation` (`:69`) | Returns null while `currSpawnLoc` is null, and `DisposableFleetManager` only sets `currSpawnLoc` from `pickCurrentSpawnLocation()` (`api/impl/campaign/fleets/DisposableFleetManager.java:130` in the knowledge base), so no spawn location is ever picked |

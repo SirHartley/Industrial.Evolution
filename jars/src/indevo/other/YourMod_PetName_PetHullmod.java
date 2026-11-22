@@ -28,7 +28,7 @@ public class YourMod_PetName_PetHullmod extends BaseHullMod {
 
     @Override
     public void applyEffectsBeforeShipCreation(ShipAPI.HullSize hullSize, MutableShipStatsAPI stats, String id) {
-        if (!Global.getSettings().getModManager().isModEnabled("indEvo")) return;
+        if (!Global.getSettings().getModManager().isModEnabled("IndEvo")) return;
 
         Pet pet = PetStatusManager.getInstance().getPet(stats.getVariant());
         if (pet == null) return;
@@ -46,7 +46,7 @@ public class YourMod_PetName_PetHullmod extends BaseHullMod {
         super.addPostDescriptionSection(tooltip, hullSize, ship, width, isForModSpec);
 
         //don't touch this!
-        if (!Global.getSettings().getModManager().isModEnabled("indEvo")) return;
+        if (!Global.getSettings().getModManager().isModEnabled("IndEvo")) return;
         Pet pet = PetStatusManager.getInstance().getPet(ship.getVariant());
         if (pet == null) return;
 

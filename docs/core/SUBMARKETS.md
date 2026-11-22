@@ -17,7 +17,7 @@ Each IE submarket is a row in `data/campaign/submarkets.csv` with a plugin class
 | `indevo/submarkets/impl/RestorationDocksSubmarketPlugin.java` | `IndEvo_RepairStorage`: fleet screen only; accepts ships with removable D-mods that are not `VARIANT_UNRESTORABLE`/`HULL_UNRESTORABLE`; tooltip shows the cost prediction from `RestorationDocks`. Feature: [Small industries](../industries/SMALL_INDUSTRIES.md) |
 | `indevo/submarkets/impl/RequisitionsCenterSubmarketPlugin.java` | `IndEvo_ReqCenterMarket`: open weapons market, buy only, 35000 credit unlock on non player markets, stock by faction standing, ambassador and AI core. Feature: [Small industries](../industries/SMALL_INDUSTRIES.md), [Embassy](../industries/EMBASSY.md) |
 | `indevo/submarkets/impl/DeconstructorSubmarketPlugin.java` | `IndEvo_DeconstStorage`: fleet screen only; ship whitelist from `Ids.PRINT_LIST`, blacklist prism and Vayra boss ships. Feature: [Derelicts](../industries/DERELICTS.md) |
-| `indevo/submarkets/impl/ReverseEngineeringSubmarketPlugin.java` | `IndEvo_EngStorage`: fleet screen only; whitelist `Ids.REVERSE_LIST` plus any hull with a `_bp` tag unless strict; blacklists `threat`/`dweller`, prism, Vayra; tooltip shows research progress. Feature: [Engineering Hub](../industries/ENGINEERING_HUB.md) |
+| `indevo/submarkets/impl/ReverseEngineeringSubmarketPlugin.java` | `IndEvo_EngStorage`: fleet screen only; whitelist `Ids.REVERSE_LIST` plus any hull with a `_bp` tag unless strict; blacklists `threat`/`dweller`, prism, Vayra; both lists are transient, rebuilt in `updateCargoPrePlayerInteraction` or on first use after a load; tooltip shows research progress. Feature: [Engineering Hub](../industries/ENGINEERING_HUB.md) |
 | `indevo/submarkets/impl/SharedSubmarketPlugin.java` | `IndEvo_SharedStore`: cargo screen only, free transfer; an item is legal if any industry on the market implementing `SharedSubmarketUserAPI` accepts it. Users: `indevo/industries/SharedSubmarketUser.java`, [Assembler](../industries/ASSEMBLER.md) `CommodityForge` |
 
 Feature submarkets with their plugin outside this package:
@@ -27,7 +27,7 @@ Feature submarkets with their plugin outside this package:
 | `IndEvo_PetSubMarket` | `indevo/industries/petshop/submarket/PetSubMarket.java` | [Pets](../industries/PETS.md) |
 | `IndEvo_MuseumStorage` | `indevo/industries/museum/submarket/MuseumSubmarketPlugin.java` (extends `BaseRemovableStorageSubmarketPlugin`) | [Museum](../industries/MUSEUM.md) |
 | `IndEvo_WarehouseStorage_1` to `_5` | `indevo/industries/warehouses/submarket/WarehouseSubmarketPlugin.java` (extends `BaseRemovableStorageSubmarketPlugin`) | [Warehouses](../industries/WAREHOUSES.md) |
-| `IndEvo_tempStorage` | vanilla `StoragePlugin` | `ModUpdater` swap space, see [Utils](UTILS.md#update) |
+| `IndEvo_tempStorage` | vanilla `StoragePlugin` | Unused; row kept so a save that still holds the submarket loads |
 
 ## Data and ids
 
@@ -98,9 +98,6 @@ Max weapon tier by standing (`getMaxTier`): <0.5 -> 0, <0.7 -> 1, <0.9 -> 2, els
 
 | Item | State |
 |---|---|
-| `ReverseEngineeringSubmarketPlugin.roleListings` | `@Deprecated`, unused |
-| `ReverseEngineeringSubmarketPlugin.java:57` | `getHullSpec(id)` for every faction known ship; throws on a missing hull id (engine fact: spec getters throw on missing ids, knowledge base `docs/concepts/spec-loading.md`) |
-| `RestorationDocksSubmarketPlugin.createTooltipAfterDescription` (`:120`) | Casts `market.getIndustry(REPAIRDOCKS)` without a null check |
 | Changelog_todo | "museum storage gets placed before building complete", "museum storage doesn't remove properly", "warehouse storage linking", "implement 5 more shared storage variants", "check resto dock billing for bugs", "Requisition center RAT settlement plugin" |
 
 ## Maintenance

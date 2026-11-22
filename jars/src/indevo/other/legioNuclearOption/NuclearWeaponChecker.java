@@ -16,7 +16,8 @@ import static indevo.other.legioNuclearOption.NuclearOptionManager.*;
 public class NuclearWeaponChecker implements RefitTabListener {
 
     public static void register() {
-        Global.getSector().getListenerManager().addListener(new NuclearWeaponChecker(), true);
+        if (!Global.getSector().getListenerManager().hasListenerOfClass(NuclearWeaponChecker.class))
+            Global.getSector().getListenerManager().addListener(new NuclearWeaponChecker(), true);
         initPersistentDataIfNeeded();
     }
 

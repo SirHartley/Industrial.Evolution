@@ -29,7 +29,7 @@ The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player 
 
 ## Registration and lifecycle
 
-- `OrbitalWorksSlotManager.getInstanceOrRegister()` (`indevo/utils/ModPlugin.java:492`): persistent listener, saved with the sector.
+- `OrbitalWorksSlotManager.getInstanceOrRegister()` (`indevo/utils/ModPlugin.java:488`): persistent listener, saved with the sector.
 - `OrbitalWorksSlotOptionProvider.register()` (`:493`): transient listener, added on every load.
 - `TimeTracker` calls `OrbitalWorksSlotManager.onNewDay()` once per day ([UTILS](../core/UTILS.md)).
 

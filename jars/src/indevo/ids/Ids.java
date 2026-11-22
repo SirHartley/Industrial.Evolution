@@ -43,7 +43,6 @@ public class Ids {
 
     //Submarkets
     public static final String REPSTORAGE = "IndEvo_RepairStorage";
-    public static final String TEMPSTORE = "IndEvo_tempStorage";
     public static final String REQMARKET = "IndEvo_ReqCenterMarket";
     public static final String DECSTORAGE = "IndEvo_DeconstStorage";
     public static final String ENGSTORAGE = "IndEvo_EngStorage";

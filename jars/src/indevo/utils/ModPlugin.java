@@ -23,7 +23,6 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
-import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
@@ -54,7 +53,6 @@ import indevo.ids.Ids;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
 import indevo.industries.engineeringhub.plugins.EngineeringHubOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
-import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
@@ -178,8 +176,6 @@ public class ModPlugin extends BaseModPlugin {
 
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
-
-        if (newGame) ArtilleryStationReplacer.register();
 
         PlayerSettings.applyCampaignSettings();
         if (newGame && Setting.PETS.enabled()) addLordFoogRep();
@@ -521,7 +517,6 @@ public class ModPlugin extends BaseModPlugin {
         //Scripts:
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
-        Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
         Global.getSector().registerPlugin(new CorporateGovernanceCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {

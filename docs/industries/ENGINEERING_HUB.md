@@ -28,7 +28,7 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_EngHub` (`Ids.ENGHUB`, structure, `unraidable`) | `data/campaign/industries.csv:42`, `indevo/ids/Ids.java:65` |
+| Industry | `IndEvo_EngHub` (`Ids.ENGHUB`, structure, `unraidable`) | `data/campaign/industries.csv:42`, `indevo/ids/Ids.java:64` |
 | Submarket | `IndEvo_EngStorage` (`Ids.ENGSTORAGE`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `indevo/ids/Ids.java:44-45` |
 | Memory key | `$IndEvo_researchProgress` (sector, `Map<String, Float>` base hull id -> progress) | `ReverseEngineering.java:20` |
 | Memory key | `$IndEvo_engHubHullmodData` (market memory, `LinkedHashMap<String, String>` hullmod id -> source hull id) | `RecoveredHullmods.MEM_KEY` |
@@ -45,8 +45,7 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 - Industry plugin from `industries.csv`. While functional and player owned, `apply()` adds the hub as a transient listener; `TimeTracker` then calls `onNewDay` ([Utils](../core/UTILS.md)). `unapply()` removes it (`EngineeringHub.java:78-99`).
 - `advance()` keeps `IndEvo_EngStorage` through `IndustrySubmarkets.ensure` (`:91`), the shared storage through the `SharedSubmarketUser` base; `notifyBeingRemoved()` releases both through the base ([Submarkets](../core/SUBMARKETS.md#registration-and-lifecycle)).
 - `EngineeringHubOptionProvider.register()` (`indevo/utils/ModPlugin.java`, `setListenersIfNeeded`) adds a transient listener once.
-- `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:413`).
-- `ModUpdater` keeps `currentDeconShipVar` across an industry replacement on mod update (`indevo/utils/update/ModUpdater.java:94,136`).
+- `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:409`).
 
 Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstruction | (done) addProgressToList + message | daysPassed++ -> (finishOnOwn) first hull at >= 1.0 with a blueprint source: consume -> deliver -> storeMapInMemory`.
 
@@ -56,7 +55,7 @@ Panel chain: "Visit the Engineering Hub..." -> `EngineeringHubPanelDelegate.show
 
 ### Intake and deconstruction
 
-- Intake: `ReverseEngineeringSubmarketPlugin.isIllegalOnSubmarket` allows a hull if it is on `IndEvo_reverseList` or (unless strict) has any tag containing `_bp`, is not a Prism or Vayra boss hull or tagged `threat` / `dweller`, has research value above 0 and is not printed. `IndEvo_EngHubIgnoreWhitelists` drops the list checks; dev mode allows anything (`ReverseEngineeringSubmarketPlugin.java:42-164`). The list checks are the static `getAllowedHulls`, `getRestrictedHulls` and `isWhitelisted`, also used by the Salvage Yards Wreck Registry ([Salvage Yards](SALVAGE_YARDS.md#wreck-registry)).
+- Intake: `ReverseEngineeringSubmarketPlugin.isIllegalOnSubmarket` allows a hull if it is on `IndEvo_reverseList` or (unless strict) has any tag containing `_bp`, is not a Prism or Vayra boss hull or tagged `threat` / `dweller`, has research value above 0 and is not printed. `IndEvo_EngHubIgnoreWhitelists` drops the list checks; dev mode allows anything (`ReverseEngineeringSubmarketPlugin.java:39-155`). The list checks are the static `getAllowedHulls`, `getRestrictedHulls` and `isWhitelisted`, also used by the Salvage Yards Wreck Registry ([Salvage Yards](SALVAGE_YARDS.md#wreck-registry)).
 - `initDeconstruction()` takes the first ship in `IndEvo_EngStorage` whose base hull is below 100%, strips weapons and fighters into the gathering point storage (local storage if the gathering point has none) with `MiscIE.stripShipToCargoAndReturnVariant`, removes the ship and stores its variant in `currentDeconShipVar` (`EngineeringHub.java:275`).
 - Days: `getBaseDays`, `round(sizeValue * 57) - 5` = 15 (frigate to cruiser) or 21 (capital), x0.7 beta, x0.85 alpha, truncated to int.
 - Accelerate Research: `EngineeringHub` is a `RelicSpeedUpTarget`. The industry option and the panel's Accelerate button halve the days left of the current hull (adds to `daysPassed`) for 1 Relic Component per remaining day, once per 60 days. See [Economy](../core/ECONOMY.md#relic-speed-up).
@@ -96,7 +95,7 @@ Gamma: upkeep x0.2 while idle. Beta: x0.7 time. Alpha: x0.85 time, one D-mod ign
 ## Contracts
 
 - Progress is sector wide and shared with the RAT Engineering Annex, which reads and writes it through `ReverseEngineering` within one call ([RAT settlements](RAT_SETTLEMENTS.md#engineering-annex)). Every hub reads `$IndEvo_researchProgress` at the start of `onNewDay` and writes it back at the end, so several hubs share and race on one map (each writes its full copy; inferred safe because calls are sequential on the campaign thread).
-- `getMapFromMemory` returns a sorted copy, not the stored map; always write back with `storeMapInMemory` (`indevo/utils/helper/MiscIE.java:320-342`).
+- `getMapFromMemory` returns a sorted copy, not the stored map; always write back with `storeMapInMemory` (`indevo/utils/helper/MiscIE.java:316-338`).
 - Saved per hub: `currentDeconShipVar`, `daysRequired`, `daysPassed`, `blueprintItem`, `finishOnOwn`. Recovered hullmods are saved per market in `$IndEvo_engHubHullmodData` and stay when the hub is removed; the option only shows on a hub.
 - `getSpecialItem` / `setSpecialItem` are overridden to the `blueprintItem` field; removing the hub refunds it unless upgrading.
 - Tooltip: vanilla `createTooltip`. The override only stores `expanded` in a transient field for the hooks (`:546`). Collapsed: current project after upkeep (`addPostUpkeepSection`, `:476`). Expanded (`NORMAL` mode only): progress list and current project right after the description (`addRightAfterDescriptionSection`, `:462`), vanilla body below.

@@ -19,7 +19,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | `data/config/LunaSettingsConfig.json` | LunaLib mod entry: settings menu icon `graphics/icons/IndEvo.png` |
 | `data/config/settings.json` | Non-player config, sprite keys, `ruleCommandPackages`, `designTypeColors` |
 | `data/config/indEvo/*.csv` | Whitelists and blacklists, one `id` column each; `shuttle_traffic.csv` is a data table owned by [Shuttle traffic](SHUTTLE_TRAFFIC.md) |
-| `indevo/utils/helper/MiscIE.java:513` | `getCSVSetFromMemory(path)`: loads and caches a whitelist |
+| `indevo/utils/helper/MiscIE.java:509` | `getCSVSetFromMemory(path)`: loads and caches a whitelist |
 | `indevo/ids/Ids.java` | Whitelist path constants (`EMBASSY_LIST` and so on) read from `settings.json` at class init |
 
 ## LunaLib settings

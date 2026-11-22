@@ -187,11 +187,12 @@ public class MissileCarrierEntityPlugin extends BaseCustomEntityPlugin {
                     spawnECCMExplosion(EXPLOSION_SIZE);
                     Misc.fadeAndExpire(entity, 0.1f);
                     finishing = true;
+                    break;
                 }
             }
 
             //split when loc reached
-            if (Misc.getDistance(getPointForTrajectoryAngle(splitAngleOnTrajectory), entity.getLocation()) < 60f) {
+            if (!finishing && Misc.getDistance(getPointForTrajectoryAngle(splitAngleOnTrajectory), entity.getLocation()) < 60f) {
                 spawnExplosion(SUBMUNITION_DEPLOY_EXPLOSION_SIZE);
 
                 deploySubMunitions();

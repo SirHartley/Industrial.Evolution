@@ -40,7 +40,7 @@ Ten weapons. Six are player weapons with tier and blueprint, given out by Galati
 | `IndEvo_artillery_railgun` | ballistic large, `SYSTEM` | `everyFrameEffect` `IndEvo_targetingBeamEffect`; proj `IndEvo_railgun_projectile` (no script) | `skins/IndEvo_artilleryStation_railgun.skin:17` |
 | `IndEvo_artillery_missile` | missile large, `SYSTEM` | proj `IndEvo_missile_projectile` (missile): on fire effect, AI from `ModPlugin.pickMissileAI` | `skins/IndEvo_artilleryStation_missile.skin:17` |
 
-All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer, restricted, codex_unlockable`; artillery weapons also `no_drop, no_drop_salvage`. `data/weapons/weapon_data_pre_nerf.csv` is not loaded by the engine (inferred: only `weapon_data.csv` is a vanilla spec file; nothing in IE reads the other).
+All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer, restricted, codex_unlockable`; artillery weapons also `no_drop, no_drop_salvage`.
 
 | Other id | Where |
 |---|---|
@@ -53,7 +53,7 @@ All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer
 ## Registration and lifecycle
 
 - `.wpn` / `.proj` plugin keys -> engine instantiates the effect classes.
-- `ModPlugin.pickMissileAI` (`indevo/utils/ModPlugin.java:373`): projectile spec `IndEvo_mortar_projectile` -> `IndEvo_mortarProjectileAI`, `IndEvo_missile_projectile` -> `IndEvo_missileProjectileAI`, priority `MOD_SPECIFIC`.
+- `ModPlugin.pickMissileAI` (`indevo/utils/ModPlugin.java:369`): projectile spec `IndEvo_mortar_projectile` -> `IndEvo_mortarProjectileAI`, `IndEvo_missile_projectile` -> `IndEvo_missileProjectileAI`, priority `MOD_SPECIFIC`.
 - `IndEvo_missileProjectileAI.splode()` -> `engine.addPlugin(new IndEvo_CombatSlowFieldTerrain(...))` -> per ship hit during ramp up `engine.addPlugin(new IndEvo_ForcedOverload(...))`.
 - `IndEvo_degradeEffect.onHit` -> `engine.addLayeredRenderingPlugin(new IndEvo_degradeEffect(proj, target, offset))`.
 
@@ -69,9 +69,7 @@ All rows in `data/weapons/weapon_data.csv`. Player weapons are tagged `no_dealer
 | Item | State |
 |---|---|
 | `IndEvo_CombatSlowFieldTerrain` end (`:112`) | Unmodifies speed on every ship within 99999, also ships inside another active field |
-| `IndEvo_causalityGunEffect.java:105` | `Math.random() == 0.5f` never true, dead branch |
 | `IndEvo_mortarProjectileAI`, `IndEvo_missileProjectileAI` | `target` is stored but never used for guidance |
-| `weapon_data_pre_nerf.csv` | Unused data file |
 
 ## Maintenance
 

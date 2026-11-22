@@ -102,10 +102,6 @@ public class IndEvo_causalityGunEffect implements BeamEffectPlugin {
                 );
             }
 
-            if (Math.random() == 0.5f) {
-                return;
-            }
-
             CombatEntityAPI target = beam.getDamageTarget();
             if (target instanceof ShipAPI && beam.getBrightness() >= 1f) {
                 float dur = beam.getDamage().getDpsDuration();

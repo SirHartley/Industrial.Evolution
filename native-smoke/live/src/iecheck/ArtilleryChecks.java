@@ -19,6 +19,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
+import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
@@ -259,19 +260,22 @@ public final class ArtilleryChecks {
         float maxJump;
         float firstProj = -1f;
         String projType;
-        int projBefore;
+        final List<SectorEntityToken> projBefore = new ArrayList<>();
         StarSystemAPI system;
         float e1 = -1f;
         float e4 = -1f;
         float minE = Float.MAX_VALUE;
         float maxE;
         boolean flag;
+        final float tickIn;
 
         Probe(StarSystemAPI system, String projType) {
             this.system = system;
             this.projType = projType;
             this.last = eyeElapsed();
-            if (projType != null) projBefore = count(system, projType);
+            IntervalUtil i = eye().checkInterval;
+            this.tickIn = i.intervalElapsed() ? i.getIntervalDuration() : i.getIntervalDuration() - i.getElapsed();
+            if (projType != null) projBefore.addAll(entities(system, projType));
         }
 
         float secs() {
@@ -289,7 +293,7 @@ public final class ArtilleryChecks {
             if (e1 < 0f && t >= 1f) e1 = e;
             if (e4 < 0f && t >= 4f) e4 = e;
             if (playerSeen()) flag = true;
-            if (projType != null && firstProj < 0f && count(system, projType) > projBefore) firstProj = t;
+            if (projType != null && firstProj < 0f && !projBefore.containsAll(entities(system, projType))) firstProj = t;
         }
     }
 
@@ -499,6 +503,20 @@ public final class ArtilleryChecks {
     static WatchtowerEyeIndicator.State eyeState() {
         SectorEntityToken indicator = (SectorEntityToken) ReflectionUtils.get("indicator", eye());
         return ((WatchtowerEyeIndicator) indicator.getCustomPlugin()).state;
+    }
+
+    static String eyeGates(StarSystemAPI s, SectorEntityToken tower) {
+        WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) tower.getCustomPlugin();
+        StringBuilder stations = new StringBuilder();
+        for (SectorEntityToken t : s.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION))
+            stations.append(t.getFaction().getId()).append(t.getFaction().isHostileTo(player().getFaction()) ? " hostile " : " not hostile ");
+        SectorEntityToken indicator = (SectorEntityToken) ReflectionUtils.get("indicator", eye());
+        boolean scheduled = Global.getSector().getScripts().contains(eye());
+        return "artillery on " + Setting.ENABLE_ARTILLERY.enabled() + ", range " + Setting.ARTILLERY_WATCHTOWER_RANGE.value()
+                + ", system tag " + s.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY) + ", disabled " + s.getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)
+                + ", tower " + tower.getFaction().getId() + " hostile " + p.isHostileTo(player()) + " hacked " + p.isHacked() + " functional " + p.isFunctional()
+                + ", stations " + stations.toString().trim() + ", eye scheduled " + scheduled + ", indicator here " + (indicator != null && indicator.getContainingLocation() == s)
+                + ", player " + Math.round(Misc.getDistance(tower, player())) + " su from the tower";
     }
 
     static boolean playerSeen() {
@@ -903,6 +921,7 @@ public final class ArtilleryChecks {
                 SectorEntityToken st = station(s);
                 pinPlayer(() -> at(tower, Misc.getAngleInDegrees(tower.getLocation(), st.getLocation()), share * range));
                 c.note("E1 " + towers.size() + " towers, station " + Misc.getDistance(station(s), tower) + " su from the tower");
+                c.note("E1 " + pct + "% gates: " + eyeGates(s, tower));
                 resetEye();
                 realTime();
                 probe = new Probe(s, projectile(MORTAR));
@@ -910,6 +929,7 @@ public final class ArtilleryChecks {
             });
             steps.add(c -> {
                 float lo = share < 0.5f ? 10f : 18f;
+                c.note("E1 " + pct + "% first eye tick " + probe.tickIn + " s after the probe start, lock " + (probe.lockAt - probe.tickIn) + " s after that tick");
                 c.expect(probe.lockAt >= lo && probe.lockAt <= lo + 2f, "E1 eye locks in " + lo + " to " + (lo + 2f) + " s at " + pct + "% of IndEvo_Artillery_WatchtowerRange (got " + probe.lockAt + ")");
                 c.expect(probe.maxJump < 1.5f, "E1 eye fills smoothly at " + pct + "% (max jump " + probe.maxJump + ")");
                 float delay = probe.firstProj - probe.lockAt;
@@ -917,6 +937,18 @@ public final class ArtilleryChecks {
                 pinPlayer(() -> HIDE);
                 probe = new Probe(sys(c, "w"), null);
                 c.until(() -> eyeElapsed() <= 0f && !playerSeen(), 3f, "E1 eye drains to 0 outside range", probe::sample);
+            });
+            steps.add(c -> {
+                StarSystemAPI s = sys(c, "w");
+                float tower = Float.MAX_VALUE;
+                for (SectorEntityToken t : entities(s, WatchtowerEntityPlugin.ENTITY_ID)) tower = Math.min(tower, Misc.getDistance(t, player()));
+                StringBuilder fleets = new StringBuilder();
+                for (CampaignFleetAPI f : s.getFleets()) {
+                    if (f.isPlayerFleet()) continue;
+                    fleets.append("; ").append(f.getNameWithFaction()).append(f.isStationMode() ? " station" : "").append(f.isHostileTo(player()) ? " hostile" : "")
+                            .append(" at ").append(Math.round(Misc.getDistance(f, player()))).append(" su").append(Misc.getVisibleFleets(f, false).contains(player()) ? " sees player" : "");
+                }
+                c.note("E1 " + pct + "% drain end: elapsed " + eyeElapsed() + ", seen " + playerSeen() + ", max rise " + probe.maxJump + ", nearest tower " + tower + " su, fleets" + (fleets.length() == 0 ? " none" : fleets.substring(1)));
             });
         }
         steps.add(c -> {

@@ -141,24 +141,6 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         }
     }
 
-    @Deprecated
-    public void advanceProjectileTowardsEnemy(float amount) {
-        //FRONT TOWARDS ENEMY
-
-        float dist = PROJECTILE_VELOCITY * amount;
-        float turn = MAX_ANGLE_TURN_DIST_PER_SECOND * amount;
-        float currAngle = Misc.getAngleInDegrees(entity.getLocation(), currentTarget.getLocation());
-        float angleDiff = Misc.getAngleDiff(currAngle, entity.getFacing());
-
-        if (angleDiff < turn) turn = angleDiff;
-        float nextAngle = entity.getFacing() + turn * (currAngle > entity.getFacing() ? 1 : -1);
-
-        //ModPlugin.log("current angle " + currAngle + " current diff " + angleDiff + " TURN " + turn + " next angle " + nextAngle);
-        Vector2f nextPos = MathUtils.getPointOnCircumference(entity.getLocation(), dist, nextAngle);
-        entity.setLocation(nextPos.x, nextPos.y);
-        entity.setFacing(nextAngle);
-    }
-
     public void advanceProjectileTowardsEnemyV2(float amount) {
         //FRONT TOWARDS ENEMY IN THE CORRECT DIRECTION
 
