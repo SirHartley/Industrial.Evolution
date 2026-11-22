@@ -132,7 +132,7 @@ public class PetAdoption {
 
         String name = Ui.fit(offer.name, Ui.INS15, NAME_W);
         Ui.text(row, NAME_X, 6f, NAME_W, name);
-        if (!name.equals(offer.name)) Ui.tooltip(p, row, null, offer.name);
+        PetCard.speciesTip(p, row, offer.getData(), name.equals(offer.name) ? null : offer.name);
         Ui.text(row, NAME_X, 25f, NAME_W, Ui.fit(PetCard.species(offer), Ui.INS15, NAME_W), Ui.gray());
 
         String disposition = offer.sheet.disposition;

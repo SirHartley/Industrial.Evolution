@@ -191,17 +191,21 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         // the codex shows item tooltips outside a campaign too
         if (this.pet != null && Global.getCurrentState() == GameState.CAMPAIGN) PetStatusManager.getInstance().seeSpecies(this.pet.id);
 
-        Pair<String, Color> rpair = pet.getRarityDesc();
-
         tooltip.addPara("Contains a %s", opad, h, pet.species);
-        tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);
-        tooltip.addPara(pet.desc, opad);
-        tooltip.addPara(pet.species + "s tend to live for about " + getYearDescription(Math.round(pet.maxLife / 31f)), opad);
+        addSpeciesInfo(tooltip, pet, pad);
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 
         if (isFleetCargo()) tooltip.addPara("Right-click to assign", b, opad);
         else tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
+    }
+
+    // also the species hover of the Pets panel
+    public static void addSpeciesInfo(TooltipMakerAPI tooltip, PetData pet, float pad) {
+        Pair<String, Color> rpair = pet.getRarityDesc();
+        tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);
+        tooltip.addPara(pet.desc, 10f);
+        tooltip.addPara(pet.species + "s tend to live for about " + getYearDescription(Math.round(pet.maxLife / 31f)), 10f);
     }
 
     public static String getYearDescription(int months) {
