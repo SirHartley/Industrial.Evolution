@@ -28,10 +28,9 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     public static final float DANGERSIGN_ALPHA_RAMPUP_FRACTION = 0.1f;
     public static final float MAX_FADE_IN_SIZE_MULT = 1.5f;
     public static final float MAX_RETICULE_ALPHA = 0.7f;
-    // the old shells ran their clock at double speed, half the setting keeps that warning time
-    public static final float LANCE_TIME_MULT = 0.5f;
-    // lead stays at the full setting time like the old shells, so a fleet flying straight is missed
-    public static final float LEAD_TIME_MULT = 1f;
+    public static final float LANCE_TIME_MULT = 0.4f;
+    // lead is twice the fire time like the old double speed shells, so a fleet flying straight is missed
+    public static final float LEAD_TIME_MULT = 0.8f;
 
 
     //dangerSign

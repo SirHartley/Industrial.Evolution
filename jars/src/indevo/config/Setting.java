@@ -67,7 +67,7 @@ public enum Setting {
     ARTILLERY_DRONE_CONE_LENGTH("IndEvo_Artillery_drone_coneLength", 1800.0, 500, 10000),
     ARTILLERY_DEFENSE_FP("IndEvo_Artillery_defense_FP2", 70.0, 1, 1000),
     ARTILLERY_MORTAR_PROJECTILES_PER_SHOT("IndEvo_Artillery_mortar_projectilesPerShot", 8, 1, 30),
-    ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME("IndEvo_Artillery_mortar_projectilesImpactTime", 5.0, 1, 60),
+    ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME("IndEvo_Artillery_mortar_projectilesImpactTime", 4.0, 1, 60),
     ARTILLERY_MORTAR_EXPLOSION_SIZE("IndEvo_Artillery_mortar_explosionSize", 300.0, 1, 1000),
     ARTILLERY_RAILGUN_PROJECTILES_PER_SHOT("IndEvo_Artillery_railgun_projectilesPerShot", 3, 1, 30),
     ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME("IndEvo_Artillery_railgun_projectilesImpactTime", 1.5, 0.5, 60),

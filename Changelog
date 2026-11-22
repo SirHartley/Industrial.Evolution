@@ -509,6 +509,8 @@ Adjusted - Uses vanilla star dialogs for better mod compatibility
 Adjusted - Artillery now targets fleets anywhere in the system (was 12000 units)
 Adjusted - Mortar and missile target markers now always show the same time before impact, at any range
 Note - Shots at you aim again when the marker shows, shots at far NPC fleets miss if they turn
+Adjusted - Mortar warning before impact 5 to 8s -> 4 to 6.4s
+Adjusted - Railgun warning before each shot 20% shorter (first shot 1.25 to 1.75s -> 1 to 1.4s)
 Fixed - Slow fields and forced overloads no longer expire while paused
 Fixed - Watchtowers now properly lock on faster the closer you are
 Fixed - Watchtowers no longer count as stable locations

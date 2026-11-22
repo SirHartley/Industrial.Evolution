@@ -17,7 +17,7 @@ public class StationFireEffect {
 
     private enum Profile {
         MORTAR(new Color(255, 150, 70), new Color(122, 110, 100), 1f, 0.5f, Setting.ARTILLERY_MORTAR_PROJECTILES_PER_SHOT),
-        RAILGUN(new Color(150, 215, 255), new Color(170, 200, 222), 1f, 1f, Setting.ARTILLERY_RAILGUN_PROJECTILES_PER_SHOT),
+        RAILGUN(new Color(150, 215, 255), new Color(170, 200, 222), 1f, 0.8f, Setting.ARTILLERY_RAILGUN_PROJECTILES_PER_SHOT),
         MISSILE(new Color(255, 200, 95), new Color(158, 158, 164), 0.6f, 0.3f, Setting.ARTILLERY_MISSILE_PROJECTILES_PER_SHOT);
 
         final Color hot;
