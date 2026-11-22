@@ -64,7 +64,7 @@ public class RadiationEffectHandler implements LunaCampaignRenderingPlugin {
 
         setActivityLevel(entity, activityLevel);
 
-        if (!entity.isPlayerFleet()) entity.addScript(new RadiationReductionScript(entity));
+        if (!entity.isPlayerFleet() && !entity.hasScriptOfClass(RadiationReductionScript.class)) entity.addScript(new RadiationReductionScript(entity));
         if (entity.isPlayerFleet()) lastIncreaseTimer = 0f;
     }
 

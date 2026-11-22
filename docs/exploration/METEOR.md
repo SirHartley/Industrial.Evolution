@@ -111,7 +111,7 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 
 ### Radiation
 
-`SpicyRockEntity` raises `$IndEvo_RadEffectLevel` by 0.1/s on nearby fleets. Player decay in `RadiationEffectHandler.advance` (0.1/s after 1 s without exposure), NPC decay in `RadiationReductionScript`. `RadioactiveTerrain.applyEffect` turns the level into CR loss and peak performance and CR decay buffs, respecting `CORONA_EFFECT_MULT` and `PROTECTS_FROM_CORONA_IN_BATTLE`.
+`SpicyRockEntity` raises `$IndEvo_RadEffectLevel` by 0.01/s per rock on nearby fleets (`RADIATION_INCREASE_PER_SEC` 0.1 times `ACTIVITY_INCREASE_PER_SECOND` 0.1). Player decay in `RadiationEffectHandler.advance` (0.1/s after 1 s without exposure). NPC decay in one `RadiationReductionScript` per fleet (0.1/s with no delay, so an NPC fleet near fewer than ten rocks stays at 0). `RadioactiveTerrain.applyEffect` turns the level into CR loss and peak performance and CR decay buffs, respecting `CORONA_EFFECT_MULT` and `PROTECTS_FROM_CORONA_IN_BATTLE`.
 
 ### Tutorial
 
