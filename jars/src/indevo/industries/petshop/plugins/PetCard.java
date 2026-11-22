@@ -632,6 +632,18 @@ public class PetCard {
         }
     }
 
+    // To cargo left of right while the pet is young enough for a Cryochamber; returns where the text left of it ends
+    private float boxButton(CustomPanelAPI p, float right, float by, Pet pet) {
+        if (pet.age >= PetConstants.BOX_DAYS) return right;
+        float x = right - 6f - BUTTON_W;
+        ButtonAPI box = UiButtons.button(p, x, by, BUTTON_W, BUTTON_H, "To cargo", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+            PetStatusManager.getInstance().toChamber(pet);
+            panel.refresh();
+        });
+        Ui.tooltip(p, box, "To cargo", "A Cryochamber in the fleet cargo. It does not age there.", "Only a young under a week old fits.");
+        return x;
+    }
+
     static TextFieldAPI nameField(CustomPanelAPI p, float x, float y, float w, String name) {
         TextFieldAPI field = UiButtons.field(p, x, y, w, NAME_H, name, PetConstants.NAME_MAX_CHARS, Ui.ORB20);
         field.setMidAlignment();
@@ -1132,8 +1144,10 @@ public class PetCard {
 
         if (pet.storage != null) {
             float bx = w - 6f - WIDE_W - 6f - BUTTON_W;
-            Ui.text(p, 56f, y + 7f, bx - 64f, "Pet storage");
-            Ui.text(p, 56f, y + 26f, bx - 64f, noShip != null ? noShip : pet.storage.getMarket().getName(), noShip != null ? Ui.neg() : Ui.gray());
+            float tw = boxButton(p, bx, by, pet) - 64f;
+            Ui.text(p, 56f, y + 7f, tw, Ui.fit("Pet storage", Ui.INS15, tw));
+            String where = noShip != null ? noShip : pet.storage.getMarket().getName();
+            Ui.text(p, 56f, y + 26f, tw, Ui.fit(where, Ui.INS15, tw), noShip != null ? Ui.neg() : Ui.gray());
 
             UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Assign...", noShip != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                     noShip != null ? null : () -> panel.popup(new PetPlaceDialog(pet, "Assign", free, null)));
@@ -1147,14 +1161,7 @@ public class PetCard {
 
         float bx = w - 6f - BUTTON_W;
         String reason = shop == null ? noShip : null;
-        if (pet.age < PetConstants.BOX_DAYS) {
-            ButtonAPI box = UiButtons.button(p, bx - 6f - BUTTON_W, by, BUTTON_W, BUTTON_H, "To cargo", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
-                PetStatusManager.getInstance().toChamber(pet);
-                panel.refresh();
-            });
-            Ui.tooltip(p, box, "To cargo", "A Cryochamber in the fleet cargo. It does not age there.", "Only a young under a week old fits.");
-        }
-        float tx = pet.age < PetConstants.BOX_DAYS ? bx - 6f - BUTTON_W : bx;
+        float tx = boxButton(p, bx, by, pet);
         Ui.text(p, 56f, y + 7f, tx - 64f, "Menagerie");
         Ui.text(p, 56f, y + 26f, tx - 64f, reason != null ? reason : "In the fleet, on no ship", reason != null ? Ui.neg() : Ui.gray());
         UiButtons.button(p, bx, by, BUTTON_W, BUTTON_H, "Assign...", reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
