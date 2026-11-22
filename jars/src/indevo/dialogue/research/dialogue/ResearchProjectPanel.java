@@ -109,8 +109,6 @@ public class ResearchProjectPanel {
 
     private void addHelp(TooltipMakerAPI tooltip) {
         tooltip.addPara("Donate accepted items to advance a project. A finished project is redeemed for its reward.", 0f);
-        tooltip.addPara("Repeatable projects can be finished again. With %s on, donations past %s count toward the next reward.", 10f,
-                Misc.getHighlightColor(), OVERFLOW_LABEL, "100%");
         tooltip.addPara("You will be notified when new projects become available.", Misc.getGrayColor(), 10f);
     }
 
