@@ -93,10 +93,13 @@ public final class PetsGuideChecks {
         }
     }
 
+    // text of the card's next heart line, null at 5 hearts
     static String nextHeart(Pet pet) {
         try {
-            return (String) MethodHandles.privateLookupIn(PetCard.class, MethodHandles.lookup())
-                    .findStatic(PetCard.class, "nextHeart", MethodType.methodType(String.class, Pet.class)).invoke(pet);
+            Class<?> line = Class.forName(PetCard.class.getName() + "$HeartLine", false, PetCard.class.getClassLoader());
+            MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(PetCard.class, MethodHandles.lookup());
+            Object next = lookup.findStatic(PetCard.class, "nextHeart", MethodType.methodType(line, Pet.class)).invoke(pet);
+            return next == null ? null : (String) lookup.findVirtual(line, "text", MethodType.methodType(String.class)).invoke(next);
         } catch (Throwable e) {
             throw new IllegalStateException(e);
         }
@@ -278,9 +281,10 @@ public final class PetsGuideChecks {
             for (Pet p : List.of(fresh, three, four, moved, sup))
                 c.note("TIP " + p.name + ": hearts " + p.getHearts() + ", fav " + p.favourite + ", mood " + p.getMood() + " | next: " + nextHeart(p) + " | mood tip: " + moodTip(p));
             c.expect(nextHeart(fresh).startsWith("Next heart in "), "fresh pet: next heart in days");
-            c.expect(nextHeart(three).equals("Star it as a favourite to pass 3 hearts."), "3 hearts, not a favourite: star it");
-            c.expect(nextHeart(four).startsWith("Answer its wants: about "), "favourite at 4: answer its wants");
-            c.expect(nextHeart(moved).equals("Hearts do not grow while it is Unsettled.") && moodTip(moved).equals("Moved to a new ship. Its talents are off for 3 days."), "Unsettled: hearts and mood tip");
+            c.expect(nextHeart(three).equals("Star it to pass 3 hearts"), "3 hearts, not a favourite: star it");
+            c.expect(nextHeart(four).startsWith("Answer its wants, about "), "favourite at 4: answer its wants");
+            c.expect(nextHeart(sup).startsWith("Next heart in ") && nextHeart(sup).endsWith(" (Supplies)"), "on Supplies: next heart line names it");
+            c.expect(nextHeart(moved).equals("Paused while Unsettled") && moodTip(moved).equals("Moved to a new ship. Its talents are off for 3 days."), "Unsettled: hearts and mood tip");
             c.expect(moodTip(sup) != null && moodTip(sup).startsWith("It ate Supplies. Hearts grow at "), "on Supplies: mood tip");
         });
 

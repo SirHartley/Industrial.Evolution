@@ -5,13 +5,14 @@ import com.fs.starfarer.api.impl.BaseSharedJSONFile;
 import java.util.Collection;
 import java.util.Set;
 
-// species and look ids seen and Pets panel tabs unlocked in any game, in the common folder; never referenced from a saved object
+// species and look ids seen, Pets panel tabs unlocked and tab help seen in any game, in the common folder; never referenced from a saved object
 public class PetBestiaryFile extends BaseSharedJSONFile {
 
     public static final String FILE = "IndEvo_pet_bestiary.json";
     static final String SPECIES = "species";
     static final String LOOKS = "looks";
     static final String UNLOCKS = "unlocks";
+    static final String HELP = "help";
 
     private static PetBestiaryFile instance;
 
@@ -55,10 +56,23 @@ public class PetBestiaryFile extends BaseSharedJSONFile {
         return true;
     }
 
-    // unset leaves the set cache alone
-    public void lockAll() {
-        unset(UNLOCKS);
-        setCache.remove(UNLOCKS);
+    // true the first time; the ? of that tab pulses once
+    public boolean seeHelp(String tab) {
+        if (!addToSet(HELP, tab)) return false;
         saveIfNeeded();
+        return true;
+    }
+
+    // locks the tabs and lets every ? pulse again
+    public void lockAll() {
+        clear(UNLOCKS);
+        clear(HELP);
+        saveIfNeeded();
+    }
+
+    // unset leaves the set cache alone
+    private void clear(String key) {
+        unset(key);
+        setCache.remove(key);
     }
 }
