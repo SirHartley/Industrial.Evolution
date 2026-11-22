@@ -122,7 +122,7 @@ public class FabricatorBay extends SettlementFacility {
 
     @Override
     public void addDescriptionToTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addPara("Holds one Variable Production Chip. Each month it deposits %s of what a Variable Assembler on a size 3 colony makes into settlement storage. No demand, no supply.",
+        tooltip.addPara("Holds one Variable Production Chip. Each month it deposits %s of what a Variable Assembler on a size 3 colony makes into settlement storage. It has no demand and no supply.",
                 0f, Misc.getHighlightColor(), "half");
 
         if (!isFunctional()) return;

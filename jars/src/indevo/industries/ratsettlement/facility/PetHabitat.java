@@ -101,7 +101,7 @@ public class PetHabitat extends SettlementFacility {
 
     @Override
     public void addDescriptionToTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addPara("Pet storage and %s habitat for raising young, at the Care of your own Animal Center. No sales or adoption.",
+        tooltip.addPara("Pet storage and %s habitat for raising young, at the Care of your own Animal Center. Pets can not be sold or adopted here.",
                 0f, Misc.getHighlightColor(), String.valueOf(HabitatPetShop.HABITATS));
         tooltip.addPara("An irradiated planet raises the mutation rate %s.", 10f, Misc.getHighlightColor(),
                 "x" + Math.round(PetConstants.IRRADIATED_MUTATION_MULT));

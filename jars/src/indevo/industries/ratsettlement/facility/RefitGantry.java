@@ -35,6 +35,6 @@ public class RefitGantry extends SettlementFacility {
     public void addDescriptionToTooltip(TooltipMakerAPI tooltip) {
         tooltip.addPara("Moves D-mods and S-mods between ships in your fleet and in settlement storage, at Salvage Yards costs. S-mods also cost %s.",
                 0f, Misc.getHighlightColor(), "Relic Components");
-        tooltip.addPara("No ship assembly, no salvage units.", Misc.getGrayColor(), 10f);
+        tooltip.addPara("Has no ship assembly and uses no salvage units.", Misc.getGrayColor(), 10f);
     }
 }
