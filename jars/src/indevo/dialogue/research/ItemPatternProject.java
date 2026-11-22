@@ -23,14 +23,14 @@ public class ItemPatternProject extends ResearchProject {
 
     public static final int REQUIRED_POINTS = 200;
 
-    // the card shows whole sentences on one line, keep each under about 60 characters
+    // the card shows whole sentences on one line (about 420 px), a longer single sentence wraps
     private static final Map<String, String> SHORT_DESC = Map.of(
             ItemIds.SIMULATOR, "If it can simulate a star system, it can simulate itself.",
             ItemIds.LOG_CORE, "Outlawed by the Domain for a reason. Let's make more.",
             ItemIds.NEUAL_COMPOUNDS, "Chemistry swears it won't sample the product this time.",
             ItemIds.SALVAGE_DRONES, "It replicates drones. Time to replicate the replicator.",
-            ItemIds.TRANSMITTER, "Nobody knows how it works. Physics brought a screwdriver.",
-            ItemIds.HOLOBENCH, "Neuroscience has volunteered an intern to plug in first.");
+            ItemIds.TRANSMITTER, "Nobody knows how it works. The physics guys brought a screwdriver.",
+            ItemIds.HOLOBENCH, "The neuroscience department has volunteered an intern to plug in first.");
 
     private final String itemId;
 
@@ -87,7 +87,7 @@ public class ItemPatternProject extends ResearchProject {
 
     @Override
     public String getRedeemLore() {
-        return "The engineers promise to put it back together afterwards. They will not.";
+        return "The engineers promise to put it back together afterwards. They are lying, and you know it.";
     }
 
     @Override
@@ -98,7 +98,7 @@ public class ItemPatternProject extends ResearchProject {
     @Override
     public String getLongDesc() {
         return "A one-off project in which the engineering department takes your perfectly good " + getItemName(itemId) + " apart to see what makes it tick. "
-                + "Relic components pay for the tools. The item will not survive, and the Academy does not do refunds. "
+                + "Requires relic components for the more intricate scanning and replication efforts. The item will not survive, and the Academy does not do refunds. "
                 + "Once done, colony item production can build more.";
     }
 
