@@ -147,7 +147,6 @@ public class PetHusbandry {
                 state = n + " young";
                 parts = new String[]{String.valueOf(n)};
                 color = Ui.text();
-                UiImages.img(t, HAB_W - 33f, 1f, PetCard.MARKER, PetCard.MARKER, PetCard.sprite("pet_marker_want"));
             } else {
                 String days = String.valueOf(Math.max(1, (int) Math.ceil(shop.getDaysLeft(brood))));
                 state = days + (days.equals("1") ? " day left" : " days left");
@@ -166,6 +165,7 @@ public class PetHusbandry {
 
         face(t, 24f, a);
         face(t, 70f, b);
+        if (brood != null && brood.isReady()) UiImages.img(t, HAB_W - 33f, 1f, PetCard.MARKER, PetCard.MARKER, PetCard.sprite("pet_marker_want"));
         String name = a != null && b != null ? a.name + " x " + b.name : a != null ? a.name : "Empty";
         Ui.textIn(t, 5f, 45f, 119f, Ui.LINE_H, Ui.fit(name, Ui.INS15, 119f), Ui.INS15, a != null ? Ui.text() : Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
         if (!state.isEmpty()) Ui.textIn(t, 5f, 62f, 119f, Ui.LINE_H, state, Ui.INS15, color, Ui.CENTER, parts, new Color[]{Ui.hl()});
