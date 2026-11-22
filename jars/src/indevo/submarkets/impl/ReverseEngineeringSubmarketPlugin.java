@@ -28,11 +28,8 @@ import java.util.Set;
 public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
     public static Logger log = Global.getLogger(ReverseEngineeringSubmarketPlugin.class);
 
-    public Set<String> restrictedShips = new HashSet<>();
-    public Set<String> allowedShips = new HashSet<>();
-
-    @Deprecated
-    public Set<String> roleListings = new HashSet<>();
+    private transient Set<String> restrictedShips;
+    private transient Set<String> allowedShips;
 
     public void init(SubmarketAPI submarket) {
         super.init(submarket);
@@ -42,6 +39,16 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
     public void updateCargoPrePlayerInteraction() {
         restrictedShips = getRestrictedHulls();
         allowedShips = getAllowedHulls();
+    }
+
+    private Set<String> allowedShips() {
+        if (allowedShips == null) allowedShips = getAllowedHulls();
+        return allowedShips;
+    }
+
+    private Set<String> restrictedShips() {
+        if (restrictedShips == null) restrictedShips = getRestrictedHulls();
+        return restrictedShips;
     }
 
     public static Set<String> getAllowedHulls() {
@@ -54,18 +61,6 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
                 if (tag.contains("_bp")) allowed.add(spec.getHullId());
             }
         }
-
-        /*
-        //too permissive!
-        for (FactionSpecAPI faction : Global.getSettings().getAllFactionSpecs()) {
-            for (String id : faction.getKnownShips()) {
-                ShipHullSpecAPI spec = Global.getSettings().getHullSpec(id);
-                if (Collections.disjoint(spec.getHints(), Arrays.asList("HIDE_IN_CODEX", "STATION"))
-                        && Collections.disjoint(spec.getTags(), Arrays.asList("restricted", "no_sell", "no_dealer", "threat", "dweller"))) allowedShips.add(id);
-
-                if (!Collections.disjoint(spec.getTags(), Arrays.asList("threat", "dweller"))) restrictedShips.add(id);
-            }
-        }*/
 
         return allowed;
     }
@@ -128,14 +123,11 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
     public String getIllegalTransferText(FleetMemberAPI member, TransferAction action) {
         if (market.hasIndustry(Ids.ENGHUB)) {
 
-            boolean allowed = allowedShips.contains(member.getHullId());
-            boolean baseAllowed = allowedShips.contains(member.getHullSpec().getBaseHullId());
-            boolean restricted = restrictedShips.contains(member.getHullId());
+            boolean allowed = allowedShips().contains(member.getHullId());
+            boolean baseAllowed = allowedShips().contains(member.getHullSpec().getBaseHullId());
+            boolean restricted = restrictedShips().contains(member.getHullId());
             boolean canNotGenerateRSPoints = ((EngineeringHub) market.getIndustry(Ids.ENGHUB)).getResearchValue(member.getVariant()) <= 0f;
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR);
-            //boolean hasNoDefaultRole = !(roleListings.contains(member.getHullId()) || roleListings.contains(member.getHullSpec().getBaseHullId()));
-
-            //if(hasNoDefaultRole) return "Can not be Reverse Engineered - NDR";
             if (restricted || !(allowed || baseAllowed)) return "Can not be Reverse Engineered.";
             if (canNotGenerateRSPoints) return "Too damaged to be of use.";
             if (isPrinted) return "Unusable due to printing defects.";
@@ -153,10 +145,9 @@ public class ReverseEngineeringSubmarketPlugin extends BaseSubmarketPlugin {
             float rsVal = ((EngineeringHub) market.getIndustry(Ids.ENGHUB)).getResearchValue(member.getVariant());
 
             //if illegal, return true
-            boolean notWhitelisted = !isWhitelisted(member.getHullSpec(), allowedShips, restrictedShips);
+            boolean notWhitelisted = !isWhitelisted(member.getHullSpec(), allowedShips(), restrictedShips());
             boolean canNotGenerateRSPoints = rsVal <= 0f; //if it can't generate points, return true
             boolean isPrinted = member.getVariant().hasHullMod(Ids.PRINTING_INDICATOR); //not not printed
-            //boolean hasNoDefaultRole = !(roleListings.contains(member.getHullId()) || roleListings.contains(member.getHullSpec().getBaseHullId()));
 
             return notWhitelisted || canNotGenerateRSPoints || isPrinted;
         }
