@@ -88,6 +88,7 @@ Fixed - Impact dust clouds no longer pile up in saves and slow the game down
 Fixed - Large swarms on screen no longer slow the game down
 Fixed - Swarm warning path and radiation no longer linger from scattered treasure rock debris
 Fixed - A second meteor storm can no longer start alongside the tutorial storm
+Fixed - NPC fleets no longer lose meteor radiation faster than intended
 
 Pets
 Added - Pet moods: Hungry, Unsettled, Shell shocked, Sulking, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel
