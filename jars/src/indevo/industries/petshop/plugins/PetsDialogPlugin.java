@@ -80,6 +80,7 @@ public class PetsDialogPlugin implements InteractionDialogPlugin, EscapeBlocking
         if (!hasScript) Global.getSector().addTransientScript(new EscBlockerMemoryIterator());
 
         PetStatusManager.getInstance().holdMessages(under);
+        PetStatusManager.getInstance().checkUnlocks();
         dialog.setPromptText("");
         dialog.getOptionPanel().clearOptions();
         dialog.hideVisualPanel();

@@ -91,18 +91,18 @@ Fixed - A second meteor storm can no longer start alongside the tutorial storm
 Fixed - NPC fleets no longer lose meteor radiation faster than intended
 
 Pets
-Added - Pet moods: Hungry, Unsettled, Shell shocked, Sulking, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel
+Added - Pet moods: Hungry, Unsettled, Shell shocked, Sulking, Unhappy with its food, Happy, Sleepy or Content, shown in the pet's hullmod tooltip and the Pets panel, where a hover names the fix
 Added - Pets panel: your pets as tiles by ship, detachment, menagerie and storage, with filter and sort, and a card to rename, move, store or euthanize each
 Added - Petting: click a pet's portrait five times in the Pets panel and it is Happy for 3 days
 Added - Rehome: an Animal Center finds a pet a new home for 2,000 credits
 Added - Setting to turn off the petting animation
 Added - A pet on a sold, stored or scuttled ship moves to a free ship in the fleet, flagship first, then the largest
-Added - Console command indevo_pet: list, give and age pets, set hearts and talents, open wants
+Added - Console command indevo_pet: list, give and age pets, set hearts and talents, open wants, unlock the Family tree and Planner
 Added - Pet lines: your pets post short messages in flight, when you dock, jump or fight
 Added - Setting to adjust the days between pet lines (default 14, 0 turns them off)
 Added - Pet icon on its ship in the fleet and refit screens, a click opens the Pets panel
 Added - Pet icon in the ship tooltip
-Added - Pet hearts: a pet on a ship earns up to 3 hearts with time (14, 60 and 180 days), a quarter as fast on Supplies. Its mascot effect starts at 1 heart.
+Added - Pet hearts: a pet on a ship earns up to 3 hearts with time (14, 60 and 180 days), a quarter as fast on Supplies. Its mascot effect starts at 1 heart. The hearts tooltip shows what each heart takes and gives.
 Added - Pet nest: a pet with 4 hearts builds a nest on its ship, +30% mascot effect
 Added - Escape pods: a pet on a destroyed ship survives with a 10% chance per heart
 Added - Hamsters have double the mascot effect and talents
@@ -115,8 +115,8 @@ Added - Signature talents: a Rare or Epic pet may come with one of Time skip, Sm
 Added - Pet titles: Veteran, Navigator, Old Timer, Survivor, Beloved, Pampered, Treasure Hunter, Admiral, Globetrotter and Stargazer, earned from what a pet lives through
 Added - Pet habitats: raise young from two adults of one species at an Animal Center (4 habitats at your own, 2 elsewhere for 3,000 credits a month). Young inherit talents, mutations and flaws (a chart shows the odds), what they got only shows when opened.
 Added - Gene scan: reads every talent and flaw of a pet for 10 Relic Components at an Animal Center
-Added - Family tree in the Pets panel: a pet's parents, young and kin, the shared ancestors of a pair, or every family of a species
-Added - Planner in the Pets panel: plan young over generations, with the odds per wanted trait and the best pairs
+Added - Family tree in the Pets panel: a pet's parents, young and kin, the shared ancestors of a pair, or every family of a species. It unlocks with your first young.
+Added - Planner in the Pets panel: plan young over generations, with the odds per wanted trait and the best pairs. It unlocks when a young you raised grows up. Locked tabs stay grey and say how to unlock them, and unlocks carry over between games.
 Added - Pet looks: young can be born with a new look, and pass it on. 25 looks for 15 species so far.
 Added - Cryochamber: holds new young in the cargo without ageing, can be sold
 Added - Young now have a sale value, raised by read talents, mutations, a look or a titled ancestor

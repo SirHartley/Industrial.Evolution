@@ -7,13 +7,16 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CustomUIPanelPlugin;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
+import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.ItemIds;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
+import indevo.industries.petshop.listener.PetStatusManager.Unlock;
 import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetPlan;
@@ -325,8 +328,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
     private void build(CustomPanelAPI p, float w, float h) {
         List<Group> groups = groups();
-        if (shop == null && view.tab == PetsView.TAB_HUSBANDRY) view.tab = PetsView.TAB_PETS;
-        if ((shop == null || !shop.hasAdoption()) && view.tab == PetsView.TAB_ADOPT) view.tab = PetsView.TAB_PETS;
+        if (lockReason(view.tab) != null) view.tab = PetsView.TAB_PETS;
         addHeader(p, w, groups);
 
         if (view.tab == PetsView.TAB_HUSBANDRY) {
@@ -360,7 +362,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         Ui.vrule(p, LIST_W + 5f, BODY_Y, h - BODY_Y);
 
         if (selected != null) new PetCard(this, view).build(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected);
-        else Ui.text(p, CARD_X, BODY_Y, w - CARD_X, "No pets yet.", Ui.gray());
+        else Ui.wrap(p, CARD_X, BODY_Y, w - CARD_X, "No pets yet. Animal Centers sell Cryochambers and offer pets for adoption.", Ui.gray());
     }
 
     private List<Group> groups() {
@@ -446,22 +448,15 @@ public class PetsPanel extends BaseCustomDialogDelegate {
 
         int count = 0;
         for (Group group : groups) count += group.pets().size();
-        List<Integer> ids = new ArrayList<>(List.of(PetsView.TAB_PETS));
-        List<String> labels = new ArrayList<>(List.of("Pets " + count));
-        if (shop != null) {
-            ids.add(PetsView.TAB_HUSBANDRY);
-            labels.add("Husbandry " + PetHusbandry.busy(shop));
+        List<Integer> ids = List.of(PetsView.TAB_PETS, PetsView.TAB_HUSBANDRY, PetsView.TAB_ADOPT, PetsView.TAB_BEAST, PetsView.TAB_TREE, PetsView.TAB_PLAN);
+        String[] tabs = {"Pets " + count, shop != null ? "Husbandry " + PetHusbandry.busy(shop) : "Husbandry", "Adoption", "Bestiary", "Family tree", "Planner"};
+        boolean[] enabled = new boolean[tabs.length];
+        String[] tips = new String[tabs.length];
+        for (int i = 0; i < tabs.length; i++) {
+            tips[i] = lockReason(ids.get(i));
+            enabled[i] = tips[i] == null;
         }
-        if (shop != null && shop.hasAdoption()) {
-            ids.add(PetsView.TAB_ADOPT);
-            labels.add("Adoption");
-        }
-        ids.add(PetsView.TAB_BEAST);
-        labels.add("Bestiary");
-        ids.addAll(List.of(PetsView.TAB_TREE, PetsView.TAB_PLAN));
-        labels.addAll(List.of("Family tree", "Planner"));
-        String[] tabs = labels.toArray(new String[0]);
-        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, tabWidth(tabs), UiFrame.HEADER_H, tabs, ids.indexOf(view.tab), null, i -> {
+        UiButtons.tabs(p, 0f, UiFrame.HEADER_Y, w, tabWidth(tabs), UiFrame.HEADER_H, tabs, ids.indexOf(view.tab), enabled, tips, i -> {
             int tab = ids.get(i);
             if (tab == PetsView.TAB_TREE && view.tab != PetsView.TAB_TREE) {
                 Pet pet = PetStatusManager.getInstance().get(view.selected);
@@ -481,6 +476,26 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         UiFrame.counter(p, right, UiFrame.HEADER_Y, "", Global.getSettings().getCommoditySpec(ItemIds.RARE_PARTS).getIconName(), String.valueOf(shop.getRelics()));
     }
 
+    // why a tab is grey, null when it opens; every tab is always shown
+    private String lockReason(int tab) {
+        PetStatusManager manager = PetStatusManager.getInstance();
+        return switch (tab) {
+            case PetsView.TAB_HUSBANDRY -> shop == null ? "Pair pets at an Animal Center." : null;
+            case PetsView.TAB_ADOPT -> shop == null || !shop.hasAdoption() ? "Only at Animal Centers with pets for adoption." : null;
+            case PetsView.TAB_TREE -> manager.isOpen(Unlock.TREE) ? null : Unlock.TREE.reason;
+            case PetsView.TAB_PLAN -> manager.isOpen(Unlock.PLAN) ? null : Unlock.PLAN.reason;
+            default -> null;
+        };
+    }
+
+    // a button into the Family tree or the Planner: grey with the unlock reason until that tab opens
+    static ButtonAPI tabButton(CustomPanelAPI p, float x, float y, float w, float h, String label, Unlock unlock, Runnable action) {
+        boolean open = PetStatusManager.getInstance().isOpen(unlock);
+        ButtonAPI button = UiButtons.button(p, x, y, w, h, label, open ? UiButtons.Kind.STD : UiButtons.Kind.OFF, CutStyle.TL_BR, open ? action : null);
+        if (!open) Ui.tooltip(p, button, label, unlock.reason);
+        return button;
+    }
+
     private void addHelp(TooltipMakerAPI tooltip) {
         if (view.tab == PetsView.TAB_BEAST) {
             tooltip.addPara("Every species you owned or saw on offer. It carries over between games.", 0f);
@@ -495,6 +510,18 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         if (view.tab == PetsView.TAB_PLAN) {
             tooltip.addPara("A planned young stands in for a pet you do not have yet.", 0f);
             tooltip.addPara("Chances use known traits only. A planned young counts as a parent with what is wanted from it.", 10f);
+            return;
+        }
+        if (view.tab == PetsView.TAB_HUSBANDRY) {
+            tooltip.addPara("Pair two adults of one species in a free habitat. The young come when the Incubation time runs out.", 0f);
+            tooltip.addPara("Each trait rolls on its own for every young. Hover a dial for what it does.", 10f);
+            tooltip.addPara("Chances use known traits only. A gene scan reads the rest.", 10f);
+            return;
+        }
+        if (view.tab == PetsView.TAB_TREE) {
+            tooltip.addPara("Every pet of a species linked through parents and young, gone pets too.", 0f);
+            tooltip.addPara("Hover a pet to light up the lines to its parents. A gold outline marks the shared ancestors of a pair.", 10f);
+            tooltip.addPara("The closer the kin, the higher the Inbreeding and the chance of malformed young.", 10f);
             return;
         }
 

@@ -276,7 +276,7 @@ public class PetPlanner {
         Ui.heading(p, 0f, PetsPanel.BODY_Y, w, PetDataRepo.get(view.planSpecies).species, n + (n == 1 ? " plan" : " plans"));
         control(p, w, kinds);
         if (plans.isEmpty()) {
-            Ui.text(p, 2f, PetTree.TREE_Y, w, "No plans for this species.", Ui.gray());
+            Ui.wrap(p, 2f, PetTree.TREE_Y, w, "No plans for this species. Use New plan, or Plan pairing on a pet in the Family tree.", Ui.gray());
             return;
         }
 

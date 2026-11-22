@@ -403,7 +403,9 @@ public class Pet {
         float mult = getTalentMult();
 
         if (ages) {
+            boolean raisedYoung = parentA != null && isYoung();
             age += dayAmt;
+            if (raisedYoung && !isYoung()) PetStatusManager.getInstance().checkUnlocks();
             if (age > getData().maxLife) earn(PetTitle.OLD_TIMER);
 
             if (age > getLifetime()) {
