@@ -25,7 +25,7 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 | `entities/MeteorEntity.java` | Base meteor plugin: rotation, movement module, missile hit check, collision with stations and fleets near the viewport, NPC fleet dodge, fade at arc end |
 | `entities/TreasuroidEntity.java` | Sparkling meteor, spawns a random supply/equipment/weapons cache on impact |
 | `entities/IcyRockEntity.java` | Ice rock; radius >= 50 spawns orbiting splinters that fall back to arcing when their focus dies |
-| `entities/IceTreasureoidEntity.java` | Ice rock carrying a derelict wreck (hull value > 20000, recoverable without story point) |
+| `entities/IceTreasureoidEntity.java` | Ice rock carrying a derelict wreck (hull value > 20000). Recovery is rolled by vanilla `SalvageSpecialAssigner.assignSpecialForBattleWreck` in both modes: a free recovery special (weight 10 times `Misc.getDerelictRecoverableFraction()`) or none (10), which leaves the wreck dialog's story point recovery and its Survival mode block (`SalvageEntity blockRecoveryIfExtendedMode`) |
 | `entities/SpicyRockEntity.java` | Irradiated rock: green glow, raises radiation on fleets within `radius * 10` |
 | `entities/TreasuradoidEntity.java` | Large irradiated treasure rock (radius 400), entourage ring, `_loot` research or lab station that frees on impact |
 | `movement/MeteorMovementModuleAPI.java`, `BaseMeteorMovementModule.java` | Movement contract (`init`, `advance`, `isMovementFinished`, arc, velocity) |

@@ -286,6 +286,7 @@ Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices
 | Salvage Yards order budget and scrap value | `ext_playerIndustryCustomProductionMaxValueMult`, `ext_shipBuyPriceMult` | [SALVAGE_YARDS](industries/SALVAGE_YARDS.md) |
 | Meteor and rogue asteroid hits | `ext_environmentalDamageMult` | [METEOR](exploration/METEOR.md) |
 | Emergency Fuel Scoop fuel | divided by `ext_fuelPriceMult` | [CONSUMABLES](items/CONSUMABLES.md) |
+| Ice treasure wreck recovery (both modes) | vanilla battle wreck roll | [METEOR](exploration/METEOR.md) |
 
 ### Shared cross-file constraints
 
