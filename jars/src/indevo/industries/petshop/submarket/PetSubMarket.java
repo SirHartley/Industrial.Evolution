@@ -94,7 +94,7 @@ public class PetSubMarket extends BaseSubmarketPlugin {
 
     @Override
     public String getIllegalTransferText(CargoStackAPI stack, TransferAction action) {
-        return "Only a Cryochamber with a young in it sells here.";
+        return "You can only sell young specimen here.";
     }
 
     @Override
