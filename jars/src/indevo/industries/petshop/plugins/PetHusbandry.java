@@ -578,6 +578,7 @@ public class PetHusbandry {
         });
         if (lit) view.reveal.bar(chip, cw, CHIP_H);
         Ui.textIn(chip, 9f, 0f, CHIP_BAR_X - 14f, CHIP_H, Ui.fit(row.name(), Ui.INS15, CHIP_BAR_X - 14f), Ui.INS15, row.flaw() ? Ui.neg() : Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        Ui.tooltip(chip, chip, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> chipTip(t, row.key()));
 
         List<Result> results = row.results();
         float bw = cw - CHIP_BAR_X - 8f;
@@ -599,6 +600,41 @@ public class PetHusbandry {
             Ui.painted(chip, sx, 9f, Math.max(1f, ex - sx - 1f), 6f, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), c, a), null);
             cx += sw;
         }
+    }
+
+    private static void chipTip(TooltipMakerAPI t, String key) {
+        switch (key) {
+            case LOOK -> {
+                t.addPara("Look", Ui.hl(), 0f);
+                t.addPara("The colours of the pet. It changes only the portrait.", 10f);
+                t.addPara("A young has the look of one parent, or now and then a new one.", 10f);
+            }
+            case DISPOSITION -> {
+                t.addPara("Disposition", Ui.hl(), 0f);
+                t.addPara("A pet with the Captain talent commands its ship with this personality.", 10f);
+                t.addPara("A young has the disposition of one parent.", 10f);
+            }
+            case MALFORMED -> {
+                t.addPara("Malformed", Ui.neg(), 0f);
+                t.addPara("A young of related parents can come out with one new flaw, or one more level of a flaw.", 10f);
+            }
+            default -> {
+                PetDataRepo.Trait trait = PetDataRepo.getTrait(key);
+                if (trait != null) traitTip(t, trait);
+            }
+        }
+    }
+
+    private static void traitTip(TooltipMakerAPI t, PetDataRepo.Trait trait) {
+        Color c = trait.isFlaw() ? Ui.neg() : Ui.hl();
+        t.addPara(trait.name(), c, 0f);
+        t.addPara(trait.isFlaw() ? "Flaw" : trait.isMutation() ? "Mutation" : trait.isFleet() ? "Fleet talent" : trait.isSignature() ? "Signature talent" : "Talent", Ui.gray(), 0f);
+        if (trait.hasLevels()) t.addPara(trait.desc(), 10f, c, trait.format(trait.value(trait.per(), 1f)));
+        else t.addPara(trait.desc(), 10f);
+        if (trait.cap() > 0f) t.addPara("At most %s.", 0f, Ui.hl(), trait.format(trait.cap()));
+        if (trait.isFleet()) t.addPara("Counts once per fleet, from the best pet.", 0f);
+        t.addPara(trait.isTalent() ? "Hearts switch talents on, the best first." : "Always on.", Ui.gray(), 10f);
+        PetPlanner.arrivesWith(t, trait);
     }
 
     // from the first parent, the sum, from the second, nothing; a kept flaw is red
