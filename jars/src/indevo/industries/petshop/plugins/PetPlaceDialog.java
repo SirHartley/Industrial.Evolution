@@ -40,7 +40,7 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
     static final String SORT_FLEET = "Fleet";
     static final List<UiFilter.Item> SIZES = List.of(new UiFilter.Item(ALL, 40f), new UiFilter.Item("Frigate", 72f),
             new UiFilter.Item("Destroyer", 90f), new UiFilter.Item("Cruiser", 74f), new UiFilter.Item("Capital", 74f));
-    static final List<UiFilter.Item> KEYS = List.of(new UiFilter.Item(SORT_FLEET, 66f, "The order of your fleet."),
+    static final List<UiFilter.Item> KEYS = List.of(new UiFilter.Item(SORT_FLEET, 66f),
             new UiFilter.Item("Name", 70f), new UiFilter.Item("Size", 62f));
 
     private final Pet pet;
@@ -246,7 +246,7 @@ public class PetPlaceDialog extends BaseCustomDialogDelegate {
 
     // the popup can not grow, so the open fold takes one row of the ship list
     private void addFiltered(CustomPanelAPI p, float y, float w, List<Integer> shown) {
-        UiFilter.bar(p, 0f, y, filter, "Ship or class", "Filters and sort order of this list.", SIZES, this::size, KEYS, this::filtered, this::refresh);
+        UiFilter.bar(p, 0f, y, filter, "Ship or class", null, SIZES, this::size, KEYS, this::filtered, this::refresh);
         y += barHeight(filter.open);
 
         if (shown.isEmpty()) {

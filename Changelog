@@ -32,6 +32,7 @@ Fixed - IE industries can no longer be built on colonies that allow no industrie
 Fixed - Crash when interacting with a warning beacon in hyperspace
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
+Removed - data/strings/strings.json (text is now in the code, translation packs that replace it no longer work)
 
 Ashes of the Domain
 Added - Research tree: IE industries, specializations and governments are unlocked by research

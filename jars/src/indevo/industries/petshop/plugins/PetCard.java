@@ -556,8 +556,7 @@ public class PetCard {
         String cost = Ui.credits(price);
         ButtonAPI button = UiButtons.button(p, w - ADOPT_W, y, ADOPT_W, BUTTON_H, "Adopt", afford ? UiButtons.Kind.GREEN : UiButtons.Kind.OFF, CutStyle.TL_BR,
                 UiImages.creditsSprite(), cost, afford ? null : Ui.neg(), Ui.ORB12, afford ? () -> panel.popup(PetPlaceDialog.adopt(offer, shop)) : null);
-        if (afford) Ui.tooltip(p, button, "Adopt", "Pick a ship without a pet or Pet storage here, then pay " + cost + ".");
-        else Ui.tooltip(p, button, "Adopt", "Adopting " + offer.name + " costs " + cost + ". You have " + Ui.credits(credits) + ".");
+        if (!afford) Ui.tooltip(p, button, "Adopt", "Adopting " + offer.name + " costs " + cost + ". You have " + Ui.credits(credits) + ".");
     }
 
     static String goneLine(Pet pet) {
@@ -760,7 +759,7 @@ public class PetCard {
 
     private static void titlesTip(TooltipMakerAPI t, List<PetTitle> titles) {
         t.addPara("Titles", Ui.hl(), 0f);
-        if (titles.isEmpty()) t.addPara("None yet. A pet earns titles from what it lives through: battles, jumps, a long life, an escape pod, all five hearts, answered wants, finds in salvage, time on the flagship, many markets and hyperspace.", 10f);
+        if (titles.isEmpty()) t.addPara("None yet.", 10f);
         for (int i = 0; i < titles.size(); i++) {
             PetTitle title = titles.get(i);
             t.addPara("%s: " + title.getReason(), i == 0 ? 10f : 3f, Ui.hl(), title.label);
@@ -846,7 +845,7 @@ public class PetCard {
 
             if (!reveal.known(pet, id)) {
                 talentRow(row, ew, "?", "Unknown", "", null, false);
-                Ui.tooltip(row, row, "Unknown", "A talent it has not shown yet. It shows itself once a heart switches it on, or with a gene scan.");
+                Ui.tooltip(row, row, "Unknown", "It shows itself once a heart switches it on, or with a gene scan.");
                 continue;
             }
 
@@ -876,9 +875,8 @@ public class PetCard {
         CustomPanelAPI mascot = rows.block(UiData.GRID_ROW_H, 0f);
         talentRow(mascot, ew, null, "Mascot effect", effect, on ? value : null, on);
 
-        String rate = Misc.getRoundedValueMaxOneAfterDecimal(PetHullmod.BASE_DECREASE);
         String nest = Math.round((PetConstants.NEST_MULT - 1f) * 100f) + "%";
-        List<String> tip = new ArrayList<>(List.of("Its ship loses combat readiness " + rate + "% slower in battle, from 1 heart. A nest adds " + nest + "."));
+        List<String> tip = new ArrayList<>(List.of("A nest adds " + nest + "."));
         if (pet.getData().isHamster()) tip.add("A hamster counts twice.");
         if (pet.getHearts() >= PetConstants.MASCOT_HEARTS && !pet.isUnsettled() && !pet.isAboard()) tip.add(NO_SHIP);
         Ui.tooltip(mascot, mascot, "Mascot effect", tip.toArray(new String[0]));
@@ -913,7 +911,6 @@ public class PetCard {
         if (reveal.lit(pet, PetReveal.FLAWS)) reveal.bar(row, rows.width(), UiData.GRID_ROW_H);
         if (read) {
             talentRow(row, ew, null, "No flaws", "", null, false);
-            Ui.tooltip(row, row, "No flaws", "A gene scan found no flaws.");
         } else {
             talentRow(row, ew, "?", "Flaws: Unknown", "", null, false);
             Ui.tooltip(row, row, "Flaws: Unknown", "Flaws are read only by a gene scan.");
@@ -937,7 +934,6 @@ public class PetCard {
         if (trait.hasLevels()) t.addPara(trait.desc(), 10f, trait.isFlaw() ? Ui.neg() : Ui.hl(), trait.format(trait.value(trait.per(), 1f)));
         else t.addPara(trait.desc(), 10f);
         if (trait.cap() > 0f) t.addPara("At most %s.", 0f, Ui.hl(), trait.format(trait.cap()));
-        t.addPara(trait.isMutation() ? "A mutation, always known. Young can inherit it." : "A flaw. Young can inherit it.", 0f);
         if (off) t.addPara(NO_SHIP, Ui.gray(), 10f);
         if (!trait.flavour().isEmpty()) t.addPara(trait.flavour().replace("%s", pet.name), 10f);
     }
@@ -959,7 +955,7 @@ public class PetCard {
         t.addPara(trait.desc(), 10f, Ui.hl(), trait.format(trait.value(trait.per(), 1f)));
         if (trait.cap() > 0f) t.addPara("At most %s.", 0f, Ui.hl(), trait.format(trait.cap()));
         if (trait.isFleet()) t.addPara("Counts once per fleet, from the best pet.", 0f);
-        if (trait.isSignature()) t.addPara("A signature talent. Only rare species come with one.", 0f);
+        if (trait.isSignature()) t.addPara("A signature talent.", 0f);
         if (off != null) t.addPara(off, Ui.neg(), 10f);
         if (!trait.flavour().isEmpty()) t.addPara(trait.flavour().replace("%s", pet.name), 10f);
     }
@@ -1091,8 +1087,8 @@ public class PetCard {
         boolean blocked = held != null || broke;
 
         ButtonAPI rehome = UiButtons.button(p, w - 2f * BUTTON_W - 6f, y, BUTTON_W, BUTTON_H, "Rehome", blocked ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
-                blocked ? null : () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Rehome %s for a fee of %s?\n\n%s goes to a new home and does not come back.", 0f,
-                        new Color[]{hl, hl, Ui.text()}, pet.name, fee, pet.name), () -> shop.rehome(pet))));
+                blocked ? null : () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Rehome %s for a fee of %s?", 0f,
+                        new Color[]{hl, hl}, pet.name, fee), () -> shop.rehome(pet))));
         if (held != null) Ui.tooltip(p, rehome, "Rehome", held);
         else if (broke) Ui.tooltip(p, rehome, "Rehome", "Rehoming costs " + fee + ". You have " + Misc.getDGSCredits(credits) + ".");
 
@@ -1124,7 +1120,7 @@ public class PetCard {
         String block = pet.getData().isNoSell() ? "This one does not pair." : pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0 ? "Sterile." : null;
         ButtonAPI button = UiButtons.button(p, x, y, BUTTON_W, BUTTON_H, "Plan pairing", block != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 block != null ? null : () -> panel.newPlan(pet.typeID, pet.id, null));
-        Ui.tooltip(p, button, "Plan pairing", block != null ? block : "A planned young of " + pet.name + " on the Planner tab.");
+        if (block != null) Ui.tooltip(p, button, "Plan pairing", block);
     }
 
     // gone once everything is read; grey while its reveal runs, when the pet is not here, or with too few relics (cost in red)
@@ -1140,7 +1136,7 @@ public class PetCard {
 
         if (held != null) Ui.tooltip(p, button, "Gene scan", held);
         else Ui.tooltip(p, button, "Gene scan", "Reads every talent and flaw of " + pet.name + ".",
-                "Costs " + cost + " " + RelicHelper.getName() + ", taken from storage here first. You have " + shop.getRelics() + ".");
+                "Costs " + cost + " " + RelicHelper.getName() + ". You have " + shop.getRelics() + ".");
     }
 
     // a scan needs the pet here: with the fleet, in storage or a habitat of this center
@@ -1157,7 +1153,7 @@ public class PetCard {
     }
 
     private void euthanize(Pet pet) {
-        panel.popup(new UiConfirm("Confirm", info -> info.addPara("Euthanize %s?\n\nThis cannot be undone.", 0f, Misc.getHighlightColor(), pet.name),
+        panel.popup(new UiConfirm("Confirm", info -> info.addPara("Euthanize %s?", 0f, Misc.getHighlightColor(), pet.name),
                 () -> PetStatusManager.getInstance().reportPetDied(pet, PetStatusManager.PetDeathCause.EUTHANIZED)));
     }
 }

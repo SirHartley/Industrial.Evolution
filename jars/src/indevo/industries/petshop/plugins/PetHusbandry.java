@@ -64,7 +64,7 @@ public class PetHusbandry {
     static final List<UiFilter.Item> KEYS = List.of(
             new UiFilter.Item(SORT_GRADE, 76f, "Best grade of the trait in the field first."),
             new UiFilter.Item(SORT_NAME, 70f),
-            new UiFilter.Item("Hearts", 78f, "Most hearts first."),
+            new UiFilter.Item("Hearts", 78f),
             new UiFilter.Item("Age", 62f));
 
     private final PetsPanel panel;
@@ -218,7 +218,7 @@ public class PetHusbandry {
         }
         toggles.add(new UiFilter.Item(NO_PARTNER, 96f, "Also the adults with no second adult of their species here."));
 
-        float bar = UiFilter.bar(p, 2f, y, filter, "Name or trait", "Filters and sort order of this list.", toggles, this::toggle, KEYS, panel::filtered, panel::refresh);
+        float bar = UiFilter.bar(p, 2f, y, filter, "Name or trait", null, toggles, this::toggle, KEYS, panel::filtered, panel::refresh);
         float top = y + bar + UiFilter.BELOW;
 
         UiScroll.Column list = UiScroll.list(p, 0f, top, PetsPanel.LIST_W, h - top, view.scroll, PetsView.ADULTS);
@@ -283,7 +283,7 @@ public class PetHusbandry {
 
     private void adultTile(CustomPanelAPI p, float x, Pet pet, PetDataRepo.Trait trait, boolean alone, boolean free) {
         String block = alone ? "No second adult of this species here." : shop.parentBlock(pet);
-        if (block == null && !free) block = "This habitat is busy. Pick a free one.";
+        if (block == null && !free) block = "This habitat is busy.";
         boolean picked = free && view.pair.contains(pet.id);
         boolean enabled = block == null;
 
@@ -393,9 +393,8 @@ public class PetHusbandry {
             cross(p, w, h, a, b);
             treeButton(p, h, a, b);
             scanControls(p, w, h, a, b);
-            ButtonAPI plan = UiButtons.button(p, PLAN_X, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Add to plan", UiButtons.Kind.STD, CutStyle.TL_BR,
+            UiButtons.button(p, PLAN_X, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Add to plan", UiButtons.Kind.STD, CutStyle.TL_BR,
                     () -> panel.newPlan(a.typeID, a.id, b.id));
-            Ui.tooltip(p, plan, "Add to plan", "A planned young of " + a.name + " and " + b.name + " on the Planner tab.");
         }
 
         float y = h - 60f;
@@ -423,7 +422,7 @@ public class PetHusbandry {
         ButtonAPI start = UiButtons.button(p, w - START_W, h - PetCard.BUTTON_H, START_W, PetCard.BUTTON_H, "Pair",
                 reason != null ? UiButtons.Kind.OFF : UiButtons.Kind.GREEN, CutStyle.TL_BR, reason != null ? null : () -> start(a, b, habitat));
         if (reason != null) Ui.tooltip(p, start, "Pair", reason);
-        else Ui.tooltip(p, start, "Pair", "Both go into the habitat until the young arrive. They do not age there with a Beta core.");
+        else Ui.tooltip(p, start, "Pair", "Both go into the habitat until the young arrive.");
     }
 
     private String startBlock(Pet a, Pet b, boolean broke, float fee, float credits) {
@@ -817,7 +816,7 @@ public class PetHusbandry {
         Color hl = Misc.getHighlightColor();
         float cw = Math.max(START_W, (float) Math.ceil(Ui.width("Cancel pairing", Ui.ORB12)) + PetCard.BUTTON_H);
         ButtonAPI cancel = UiButtons.button(p, w - cw, h - PetCard.BUTTON_H, cw, PetCard.BUTTON_H, "Cancel pairing", UiButtons.Kind.AMBER, CutStyle.TL_BR,
-                () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Cancel the pairing of %s and %s?\n\nBoth go back to Pet storage. There will be no young.", 0f,
+                () -> panel.popup(new UiConfirm("Confirm", info -> info.addPara("Cancel the pairing of %s and %s?", 0f,
                         new Color[]{hl, hl}, a.name, b.name), () -> shop.cancelBrood(brood))));
         Ui.tooltip(p, cancel, "Cancel pairing", "Both parents go back to Pet storage, Unsettled for " + Math.round(PetConstants.UNSETTLED_DAYS) + " days.");
     }
