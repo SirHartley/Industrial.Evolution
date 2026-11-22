@@ -29,7 +29,6 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     public static final float BOARD_W = 1104f;
     public static final float BOARD_H = 780f;
     static final float DETAIL_W = 295f;
-    static final float COLUMN_GAP = 10f;
     static final float BODY_Y = 64f;
     static final float TAB_W = 210f;
     static final float ROW_H = 60f;
@@ -50,8 +49,8 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     static final float PIP_H = 5f;
     static final float PIP_GAP = 2f;
     static final float SALARY_W = 70f;
-    static final float SKILL_X = 366f;
-    static final float ASSIGN_X = 498f;
+    static final float SKILL_X = 363f;
+    static final float ASSIGN_X = 493f;
     static final float NAME_W = 162f;
     static final float BAR_X = STATE_X + 90f;
 
@@ -126,8 +125,8 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         float rx = w - DETAIL_W;
 
         addHeader(p, w);
-        addList(p, rx - COLUMN_GAP, h - BODY_Y);
-        Ui.vrule(p, rx - 6f, BODY_Y, h - BODY_Y);
+        addList(p, UiScroll.listWidth(0f, rx), h - BODY_Y);
+        Ui.vrule(p, UiScroll.ruleX(rx), BODY_Y, h - BODY_Y);
         new AcademyDetail(academy, view, this).build(p, rx, BODY_Y, DETAIL_W, h - BODY_Y, selected);
     }
 
@@ -325,7 +324,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         // ship slot mirrors the portrait at the right end, salary left of it; six skill cells fit to the pixel
         float shipX = w - PAD - PORTRAIT;
         float salaryX = shipX - 8f - SALARY_W;
-        addSkillIcons(row, SKILL_X, salaryX - 12f, person);
+        addSkillIcons(row, SKILL_X, salaryX - 10f, person);
         addSalary(row, salaryX, Academy.getBaseSalary(person) * (stored ? Academy.getStoredOfficerSalaryMult() : 1f));
         if (stored) return;
 
