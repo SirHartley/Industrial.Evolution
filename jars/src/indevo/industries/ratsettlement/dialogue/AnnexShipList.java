@@ -52,7 +52,7 @@ class AnnexShipList {
         Ui.heading(p, 0f, TOP, w, "Drop off", drop.size() + " of " + enabled);
 
         float y = TOP + Ui.HEADING_H + ROW_GAP;
-        y += UiFilter.bar(p, 0f, y, view.filter, classes ? "Name or hull class" : "Name", "Filters and sort order of this list.", List.of(), null, KEYS,
+        y += UiFilter.bar(p, 0f, y, view.filter, classes ? "Name or hull class" : "Name", null, List.of(), null, KEYS,
                 this::filtered, panel::refresh) + GAP;
 
         float by = h - BUTTON_H;

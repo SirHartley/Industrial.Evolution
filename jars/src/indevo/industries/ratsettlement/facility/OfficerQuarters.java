@@ -82,7 +82,7 @@ public class OfficerQuarters extends SettlementFacility {
 
     @Override
     public void addDescriptionToTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addPara("Stores officers and administrators and trains them, at the rules of your own Academy. No hireable officers, no officer quality bonus.", 0f);
+        tooltip.addPara("Stores officers and administrators and trains them, at the rules of your own Academy. Offers no officers for hire and gives no officer quality bonus.", 0f);
 
         if (academy == null) return;
         tooltip.addPara("Officers in storage: %s, administrators: %s", 10f, Misc.getHighlightColor(),

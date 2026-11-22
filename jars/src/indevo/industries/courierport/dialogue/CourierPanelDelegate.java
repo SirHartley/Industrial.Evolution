@@ -192,7 +192,6 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
         tooltip.addPara("Contracts without selected goods are billed by load: the cost is known on the day the courier leaves.", pad);
         tooltip.addPara("An Alpha Core cuts the cargo and ship cost by %s, a Beta Core cuts the distance multiplier by %s, a Gamma Core lets comm relays reach the Courier Port.", pad, hl,
                 percent(ShippingCostCalculator.TOTAL_FEE_REDUCTION), percent(ShippingCostCalculator.DISTANCE_MULT_REDUCTION));
-        tooltip.addPara("Ship now sends a contract the next day, also when it is inactive.", pad);
         tooltip.addPara("Courier fleets always reach their destination. No one dares attack them, for they would never be able to ship anything, ever again.", pad, Misc.getGrayColor());
     }
 

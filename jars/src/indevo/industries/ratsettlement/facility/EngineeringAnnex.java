@@ -351,7 +351,7 @@ public class EngineeringAnnex extends SettlementFacility implements RelicSpeedUp
     @Override
     public void addDescriptionToTooltip(TooltipMakerAPI tooltip) {
         tooltip.addPara("Reverse engineers one hull class at a time, one ship after the other, at Engineering Hub speed. Blueprint data is shared with your Engineering Hubs.", 0f);
-        tooltip.addPara("At %s, overwrite a ship blueprint of the same hull size or pay %s. No AI cores, no hullmod data.", 10f, Misc.getHighlightColor(),
+        tooltip.addPara("At %s, overwrite a ship blueprint of the same hull size or pay %s. Takes no AI cores and recovers no hullmod data.", 10f, Misc.getHighlightColor(),
                 "100%", RelicHelper.getName());
     }
 }

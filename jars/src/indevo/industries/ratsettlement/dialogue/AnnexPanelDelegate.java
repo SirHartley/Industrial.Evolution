@@ -171,11 +171,11 @@ public class AnnexPanelDelegate extends BaseCustomDialogDelegate {
 
     private void addHelp(TooltipMakerAPI t) {
         Color hl = Misc.getHighlightColor();
-        t.addPara("Works on one hull class at a time. The first ship put in sets the class. Blueprint data is shared with your Engineering Hubs.", 0f);
-        t.addPara("One ship is taken apart at a time, over %s (%s for capital ships). Each adds %s (%s for capital ships), less with D-mods.", 10f, hl,
+        t.addPara("Works on one hull class at a time. Blueprint data is shared with your Engineering Hubs.", 0f);
+        t.addPara("One ship is taken apart at a time, over %s (%s for capital ships). Each pristine disassembled hull adds a maximum of %s (%s for capital ships), with D-mods reducing the amount gained.", 10f, hl,
                 ReverseEngineering.getBaseDays(HullSize.CRUISER) + " days", ReverseEngineering.getBaseDays(HullSize.CAPITAL_SHIP) + "",
                 pct(ReverseEngineering.getCleanValue(HullSize.CRUISER)), pct(ReverseEngineering.getCleanValue(HullSize.CAPITAL_SHIP)));
-        t.addPara("At %s, overwrite a ship blueprint of the same hull size or pay " + RelicHelper.getName() + ". Then the next class can start.", 10f, hl, "100%");
+        t.addPara("At %s, overwrite a ship blueprint of the same hull size or pay " + RelicHelper.getName() + ".", 10f, hl, "100%");
     }
 
     private void addClassCard(CustomPanelAPI p, float w) {
@@ -300,7 +300,7 @@ public class AnnexPanelDelegate extends BaseCustomDialogDelegate {
         ButtonAPI accelerate = UiButtons.relic(card, ax, 6f, aw, BUTTON_H, "Accelerate", cost, RelicHelper.canAfford(market, cost), CutStyle.ALL, reason != null ? null : () -> {
             if (RelicSpeedUpDialog.apply(annex)) refresh();
         });
-        Ui.tooltip(card, accelerate, Ui.TOOLTIP_W, TooltipLocation.BELOW, t -> RelicSpeedUpDialog.addTooltip(t, annex));
+        Ui.tooltip(card, accelerate, Ui.TOOLTIP_W, TooltipLocation.BELOW, t -> RelicSpeedUpDialog.addPanelTooltip(t, annex));
         if (reason != null) Ui.text(card, bx, 30f, w - 8f - bx, reason, Ui.neg(), Ui.RIGHT);
     }
 

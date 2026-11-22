@@ -17,7 +17,6 @@ import indevo.ids.ItemIds;
 import indevo.industries.academy.industry.Academy;
 import indevo.items.installable.SpecialItemEffectsRepo;
 import indevo.utils.helper.BillingHelper;
-import indevo.utils.helper.StringHelper;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 
@@ -247,7 +246,6 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         Color hl = Misc.getHighlightColor();
         float pad = 10f;
         boolean own = academy.ownedByPlayer();
-        String storageFee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
 
         if (!view.admins) {
             String days = academy.getOfficerTrainingDays() + " days";
@@ -257,22 +255,11 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
             String steps = Academy.getStepCountText(academy.getMaxOfficerSteps());
             if (academy.hasAlphaCore()) tooltip.addPara("Up to %s per officer.", pad, hl, steps);
             else tooltip.addPara("%s per officer, %s with an alpha core.", pad, hl, Misc.ucFirst(steps), Academy.getStepCountText(academy.getMaxOfficerSteps(true)));
-
-            if (academy.hasHolobench()) tooltip.addPara(Global.getSettings().getSpecialItemSpec(ItemIds.HOLOBENCH).getName() + ": officers leave training %s. Stored officers gain %s experience per month.", pad, hl, "mentored", Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP));
-
-            String salaryShare = StringHelper.getAbsPercentString(Academy.getStoredOfficerSalaryMult(), false);
-            if (own) tooltip.addPara("Stored officers draw %s of their salary.", pad, hl, salaryShare);
-            else tooltip.addPara("Storage costs %s per month for each officer, plus %s of salary.", pad, hl, storageFee, salaryShare);
-            tooltip.addPara("Aborting a training loses the fee and the progress.", pad);
         } else {
             String days = academy.getAdminTrainingDays() + " days";
 
             if (own) tooltip.addPara("Training is free and takes %s per skill.", 0f, hl, days);
             else tooltip.addPara("Training costs %s and takes %s per skill.", 0f, hl, Misc.getDGSCredits(academy.getAdminTrainingFee()), days);
-
-            if (own) tooltip.addPara("Stored administrators draw %s of their salary.", pad, hl, "10%");
-            else tooltip.addPara("Storage costs %s per month for each administrator, plus %s of salary.", pad, hl, storageFee, "10%");
-            tooltip.addPara("Aborting a training loses the fee and the progress.", pad);
         }
     }
 
@@ -291,9 +278,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         if (active.isEmpty()) empty(list, rw, view.admins ? "No administrators on staff." : "No officers in your fleet.");
 
         boolean own = academy.ownedByPlayer();
-        String note;
-        if (!own) note = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue()) + " storage fee per month each";
-        else note = !view.admins && academy.hasHolobench() ? "reserve drills +" + Misc.getWithDGS(SpecialItemEffectsRepo.HOLOBENCH_MONTHLY_XP) + " XP per month" : null;
+        String note = own ? null : Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue()) + " storage fee per month each";
         heading(list, rw, "Stored here", note, GROUP_GAP);
         List<PersonAPI> stored = stored();
         for (PersonAPI person : stored) addRow(list, rw, person, true);
@@ -362,14 +347,11 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         float textX = ASSIGN_X + PORTRAIT + 8f;
         float textW = w - SALARY_W - 12f - textX;
         MarketAPI governed = stored ? null : Academy.getGovernedMarket(person);
-        if (stored) {
-            Ui.text(row, ASSIGN_X, 7f, textW + textX - ASSIGN_X, "In storage", Ui.gray());
-            Ui.text(row, ASSIGN_X, 26f, textW + textX - ASSIGN_X, "draws 10% of salary", Ui.gray());
-        } else if (governed != null) {
+        if (governed != null) {
             Ui.well(row, ASSIGN_X, 2f, PORTRAIT, PORTRAIT);
             UiImages.planet(row, ASSIGN_X + 5f, 7f, PORTRAIT - 10f, governed);
             Ui.nameLines(row, textX, 7f, 19f, textW, governed.getName(), Ui.text(), getMarketLine(governed, textW), textW);
-        } else {
+        } else if (!stored) {
             Ui.dashbox(row, ASSIGN_X, 2f, PORTRAIT, PORTRAIT);
             Ui.text(row, textX, 16f, textW, "Unassigned", Ui.gray());
         }

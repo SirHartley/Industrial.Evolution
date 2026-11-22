@@ -172,13 +172,9 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         if (!view.ships) {
             tooltip.addPara("Lower quality levels mean fewer defects and D-mods. The minimum is %s.", 0f, hl, "0");
             tooltip.addPara("Cost: %s %s per deployment point and quality level.", 10f, hl, RELICS_PER_TEMPLATE_DP + "", RelicHelper.getName());
-            tooltip.addPara("Templates in the Industrial Supply Store and in storage are listed.", 10f);
         } else {
             tooltip.addPara("Permanently removes the automated ship CR penalty and exempts the ship from the Automated Ships skill limit.", 0f);
-            tooltip.addPara("Cost: %s %s per deployment point.", 10f, hl, RELICS_PER_SHIP_DP + "", RelicHelper.getName());
         }
-
-        tooltip.addPara("%s are taken from storage first, then from your cargo.", 10f, hl, RelicHelper.getName());
     }
 
     private void switchTab(boolean ships) {

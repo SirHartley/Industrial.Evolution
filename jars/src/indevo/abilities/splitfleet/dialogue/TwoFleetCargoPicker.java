@@ -185,7 +185,7 @@ public class TwoFleetCargoPicker {
 
                 //toFleetStatus.currentCrew += (pickedUp != null && pickedUp.isCrewStack() ? pickedUp.getCargo().getCrew() : 0); //adjust for picked up stack - crew is the only one that needs handling, for some reason.
 
-                panel.addPara(take ? "Select the cargo you take with you. Everything else stays with the detachment." : "Select the cargo you would like to load onto the detachment.", opad);
+                panel.addPara(take ? "Everything you do not take with you will stay with the detachment." : "Select the cargo you would like to load onto the detachment.", opad);
 
                 for (FleetStatus status : Arrays.asList(fromFleetStatus, toFleetStatus)) {
                     panel.addSectionHeading(status.fleetName, Alignment.MID, opad);

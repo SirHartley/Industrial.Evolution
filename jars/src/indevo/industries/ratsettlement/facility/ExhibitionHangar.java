@@ -47,7 +47,7 @@ public class ExhibitionHangar extends SettlementFacility {
 
     @Override
     public void addDescriptionToTooltip(TooltipMakerAPI tooltip) {
-        tooltip.addPara("A hangar for rare ships. Each distinct hull stored here adds settlement income at %s the Museum rate. No parades.",
+        tooltip.addPara("A hangar for rare ships. Each distinct hull stored here adds settlement income at %s the Museum rate. It holds no parades.",
                 0f, Misc.getHighlightColor(), "half");
         tooltip.addPara("Store ships through Manage Fleet.", Misc.getGrayColor(), 10f);
 

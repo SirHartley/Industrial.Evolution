@@ -221,7 +221,7 @@ class EdictDetail {
             String label = active.endsOnItsOwn() ? "Ends on its own in" : "Free to remove in";
             UiData.grid(b, 0f, 0f, w, LINE, List.of(GridRow.of(label, left + " " + getDayOrDays(left))));
         } else {
-            UiData.value(b, 0f, 0f, w, LINE, "Minimum term served.", "Can end without penalty", Ui.pos(), new String[0], new Color[0]);
+            Ui.textIn(b, 0f, 0f, w, LINE, "Minimum term served.", Ui.INS15, Ui.text(), Ui.LEFT, new String[0], new Color[0]);
         }
     }
 
@@ -312,13 +312,7 @@ class EdictDetail {
                 affordable ? () -> createBribeConfirm(active, condition).show(panel::refresh) : null);
         if (reason != null) Ui.wrap(b, w - half, BUTTON_H + UiButtons.REASON_GAP, half, reason, Ui.neg());
 
-        MarketAPI market = colony;
-        Ui.tooltip(b, bribe, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.ABOVE, tooltip -> {
-            tooltip.addPara("Removes the Edict now without the early removal unrest.", 0f);
-            if (bribeUnrest > 0) tooltip.addPara("Removal still causes %s.", 3f, Misc.getNegativeHighlightColor(), bribeUnrest + " unrest");
-            RelicHelper.addCostLine(tooltip, market, cost, 10f);
-            tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), 10f);
-        });
+        Ui.tooltip(b, bribe, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.ABOVE, tooltip -> tooltip.addPara(RELIC_LORE, Misc.getGrayColor(), 0f));
     }
 
     private void unrestCell(CustomPanelAPI t, float y, int unrest, boolean halved) {
