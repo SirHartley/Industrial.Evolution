@@ -32,12 +32,20 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     static final float COLUMN_GAP = 10f;
     static final float BODY_Y = 64f;
     static final float TAB_W = 210f;
-    static final float ROW_H = 50f;
+    static final float ROW_H = 60f;
     static final float ROW_GAP = 4f;
     static final float GROUP_GAP = 10f;
     static final float EMPTY_H = 24f;
     static final float PORTRAIT = 46f;
     static final float SKILL = 40f;
+    // portrait, ship and colony box keep the same space on every side
+    static final float PAD = (ROW_H - PORTRAIT) / 2f;
+    static final float SKILL_Y = (ROW_H - SKILL) / 2f;
+    static final float TEXT_X = PAD + PORTRAIT + 9f;
+    static final float STATE_X = TEXT_X + 168f;
+    // two ins15 lines, 19 apart and 17 high
+    static final float LINE_1 = (ROW_H - 36f) / 2f;
+    static final float LINE_2 = LINE_1 + 19f;
     static final float PIP_W = 14f;
     static final float PIP_H = 5f;
     static final float PIP_GAP = 2f;
@@ -45,7 +53,7 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     static final float SKILL_X = 366f;
     static final float ASSIGN_X = 498f;
     static final float NAME_W = 162f;
-    static final float BAR_X = 316f;
+    static final float BAR_X = STATE_X + 90f;
 
     private final Academy academy;
     private final AcademyView view;
@@ -302,28 +310,28 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         boolean selected = person.getId().equals(view.selected);
         CustomPanelAPI row = UiButtons.row(list.block(ROW_H, ROW_GAP), 0f, 0f, w, ROW_H, selected, true, null, () -> select(person));
 
-        UiImages.portrait(row, 3f, 2f, PORTRAIT, person);
+        UiImages.portrait(row, PAD, PAD, PORTRAIT, person);
         if (view.admins) addAdminRow(row, w, person, stored, selected);
         else addOfficerRow(row, w, person, stored, selected);
     }
 
     private void addOfficerRow(CustomPanelAPI row, float w, PersonAPI person, boolean stored, boolean selected) {
         String personality = person.getPersonalityAPI().getId();
-        Ui.text(row, 58f, 7f, NAME_W, person.getNameString(), selected ? Ui.bright() : Ui.text());
-        Ui.text(row, 58f, 26f, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
-        Ui.text(row, 226f, 7f, 80f, getPersonalityName(personality), getPersonalityColor(personality));
-        pips(row, 226f, 31f, personality);
+        Ui.text(row, TEXT_X, LINE_1, NAME_W, person.getNameString(), selected ? Ui.bright() : Ui.text());
+        Ui.text(row, TEXT_X, LINE_2, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
+        Ui.text(row, STATE_X, LINE_1, 80f, getPersonalityName(personality), getPersonalityColor(personality));
+        pips(row, STATE_X, LINE_1 + 24f, personality);
 
-        // ship slot mirrors the portrait at the right end, salary left of it
-        float shipX = w - 3f - PORTRAIT;
-        float salaryX = shipX - 12f - SALARY_W;
+        // ship slot mirrors the portrait at the right end, salary left of it; six skill cells fit to the pixel
+        float shipX = w - PAD - PORTRAIT;
+        float salaryX = shipX - 8f - SALARY_W;
         addSkillIcons(row, SKILL_X, salaryX - 12f, person);
         addSalary(row, salaryX, Academy.getBaseSalary(person) * (stored ? Academy.getStoredOfficerSalaryMult() : 1f));
         if (stored) return;
 
         FleetMemberAPI ship = Academy.getCommandedShip(person);
-        if (ship != null) UiImages.ship(row, shipX, 2f, PORTRAIT, ship, true, false);
-        else Ui.tooltip(row, Ui.dashbox(row, shipX, 2f, PORTRAIT, PORTRAIT), null, "Unassigned");
+        if (ship != null) UiImages.ship(row, shipX, PAD, PORTRAIT, ship, true, false);
+        else Ui.tooltip(row, Ui.dashbox(row, shipX, PAD, PORTRAIT, PORTRAIT), null, "Unassigned");
     }
 
     // null without a Holobench
@@ -337,23 +345,24 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     private void addAdminRow(CustomPanelAPI row, float w, PersonAPI person, boolean stored, boolean selected) {
-        Ui.text(row, 58f, 7f, 164f, person.getNameString(), selected ? Ui.bright() : Ui.text());
-        Ui.text(row, 58f, 26f, 164f, Academy.getAdminSkillCount(person) + " of 2 skills", Ui.gray());
+        Ui.text(row, TEXT_X, LINE_1, 164f, person.getNameString(), selected ? Ui.bright() : Ui.text());
+        Ui.text(row, TEXT_X, LINE_2, 164f, Academy.getAdminSkillCount(person) + " of 2 skills", Ui.gray());
 
         List<Skill> skills = getSkills(person, true);
-        UiImages.iconrow(row, 230f, 5f, ASSIGN_X - 8f - 230f, skills, SKILL, SKILL, 4f, 1, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
-        for (int i = skills.size(); i < 2; i++) Ui.dashbox(row, 230f + i * (SKILL + 4f), 5f, SKILL, SKILL);
+        float skillX = STATE_X + 4f;
+        UiImages.iconrow(row, skillX, SKILL_Y, ASSIGN_X - 8f - skillX, skills, SKILL, SKILL, 4f, 1, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
+        for (int i = skills.size(); i < 2; i++) Ui.dashbox(row, skillX + i * (SKILL + 4f), SKILL_Y, SKILL, SKILL);
 
         float textX = ASSIGN_X + PORTRAIT + 8f;
         float textW = w - SALARY_W - 12f - textX;
         MarketAPI governed = stored ? null : Academy.getGovernedMarket(person);
         if (governed != null) {
-            Ui.well(row, ASSIGN_X, 2f, PORTRAIT, PORTRAIT);
-            UiImages.planet(row, ASSIGN_X + 5f, 7f, PORTRAIT - 10f, governed);
-            Ui.nameLines(row, textX, 7f, 19f, textW, governed.getName(), Ui.text(), getMarketLine(governed, textW), textW);
+            Ui.well(row, ASSIGN_X, PAD, PORTRAIT, PORTRAIT);
+            UiImages.planet(row, ASSIGN_X + 5f, PAD + 5f, PORTRAIT - 10f, governed);
+            Ui.nameLines(row, textX, LINE_1, LINE_2 - LINE_1, textW, governed.getName(), Ui.text(), getMarketLine(governed, textW), textW);
         } else if (!stored) {
-            Ui.dashbox(row, ASSIGN_X, 2f, PORTRAIT, PORTRAIT);
-            Ui.text(row, textX, 16f, textW, "Unassigned", Ui.gray());
+            Ui.dashbox(row, ASSIGN_X, PAD, PORTRAIT, PORTRAIT);
+            oneLine(row, textX, textW, "Unassigned");
         }
 
         addSalary(row, w - SALARY_W - 10f, Misc.getAdminSalary(person) * (stored ? 0.1f : 1f));
@@ -372,18 +381,22 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
     }
 
     private static void addSalary(CustomPanelAPI row, float x, float salary) {
-        Ui.text(row, x, 7f, SALARY_W, Misc.getDGSCredits(salary), Ui.hl(), Ui.RIGHT);
-        Ui.text(row, x, 26f, SALARY_W, "per month", Ui.gray(), Ui.RIGHT);
+        Ui.text(row, x, LINE_1, SALARY_W, Misc.getDGSCredits(salary), Ui.hl(), Ui.RIGHT);
+        Ui.text(row, x, LINE_2, SALARY_W, "per month", Ui.gray(), Ui.RIGHT);
+    }
+
+    private static void oneLine(CustomPanelAPI row, float x, float w, String text) {
+        Ui.textIn(row, x, 0f, w, ROW_H, text, Ui.INS15, Ui.gray(), Ui.LEFT, new String[0], new Color[0]);
     }
 
     private void addSkillIcons(CustomPanelAPI row, float x, float right, PersonAPI person) {
         List<Skill> skills = getSkills(person, false);
         if (skills.isEmpty()) {
-            Ui.text(row, x, 16f, right - x, "No skills", Ui.gray());
+            oneLine(row, x, right - x, "No skills");
             return;
         }
 
-        UiImages.iconrow(row, x, 5f, right - x, skills, SKILL, SKILL, 4f, 1, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
+        UiImages.iconrow(row, x, SKILL_Y, right - x, skills, SKILL, SKILL, 4f, 1, AcademyPanelDelegate::skillCell, AcademyPanelDelegate::skillName);
     }
 
     private static void skillCell(CustomPanelAPI p, float x, float y, float w, float h, Skill skill) {
@@ -398,23 +411,23 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         boolean selected = person.getId().equals(view.selected);
         CustomPanelAPI row = UiButtons.row(block, 0f, 0f, w, ROW_H, selected, true, null, () -> select(person));
 
-        UiImages.portrait(row, 3f, 2f, PORTRAIT, person);
-        Ui.text(row, 58f, 7f, NAME_W, person.getNameString(), selected ? Ui.bright() : Ui.text());
+        UiImages.portrait(row, PAD, PAD, PORTRAIT, person);
+        Ui.text(row, TEXT_X, LINE_1, NAME_W, person.getNameString(), selected ? Ui.bright() : Ui.text());
 
         int total;
         int left;
         if (!view.admins) {
             String from = person.getPersonalityAPI().getId();
             String to = academy.getOfficerTrainingTarget();
-            Ui.text(row, 58f, 26f, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
-            Ui.text(row, 226f, 7f, 84f, getPersonalityName(from), getPersonalityColor(from));
-            Ui.runs(row, 226f, 26f, 84f, Ui.INS15, Ui.gray(), Ui.LEFT, "to " + getPersonalityName(to), new String[]{getPersonalityName(to)}, new Color[]{getPersonalityColor(to)});
+            Ui.text(row, TEXT_X, LINE_2, NAME_W, "Level " + person.getStats().getLevel(), Ui.gray());
+            Ui.text(row, STATE_X, LINE_1, 84f, getPersonalityName(from), getPersonalityColor(from));
+            Ui.runs(row, STATE_X, LINE_2, 84f, Ui.INS15, Ui.gray(), Ui.LEFT, "to " + getPersonalityName(to), new String[]{getPersonalityName(to)}, new Color[]{getPersonalityColor(to)});
             total = academy.getCurrentOfficerTrainingDays();
             left = Math.max(0, academy.getRemainingOfficerTrainingDays());
         } else {
-            Ui.text(row, 58f, 26f, NAME_W, Academy.getAdminSkillCount(person) + " of 2 skills", Ui.gray());
-            Ui.text(row, 226f, 7f, 84f, "Learns one", Ui.gray());
-            Ui.text(row, 226f, 26f, 84f, "random skill", Ui.gray());
+            Ui.text(row, TEXT_X, LINE_2, NAME_W, Academy.getAdminSkillCount(person) + " of 2 skills", Ui.gray());
+            Ui.text(row, STATE_X, LINE_1, 84f, "Learns one", Ui.gray());
+            Ui.text(row, STATE_X, LINE_2, 84f, "random skill", Ui.gray());
             total = academy.getAdminTrainingDays();
             left = Math.max(0, academy.getRemainingAdminTrainingDays());
         }
@@ -422,13 +435,13 @@ public class AcademyPanelDelegate extends BaseCustomDialogDelegate {
         String paused = getPausedReason();
         float barW = 200f;
         float rightX = w - 150f;
-        UiData.bar(row, BAR_X, 8f, barW, 20f, progress(total, left), paused != null ? Ui.barColor("progressBarWarningColor") : Ui.barBlue(), getDayLabel(total, left));
-        if (paused != null) Ui.text(row, BAR_X, 31f, rightX - 8f - BAR_X, "Paused: " + paused, Ui.neg());
-        else Ui.text(row, BAR_X, 31f, rightX - 8f - BAR_X, "Done on " + getDoneDate(left), Ui.gray());
+        UiData.bar(row, BAR_X, LINE_1 + 1f, barW, 20f, progress(total, left), paused != null ? Ui.barColor("progressBarWarningColor") : Ui.barBlue(), getDayLabel(total, left));
+        if (paused != null) Ui.text(row, BAR_X, LINE_1 + 24f, rightX - 8f - BAR_X, "Paused: " + paused, Ui.neg());
+        else Ui.text(row, BAR_X, LINE_1 + 24f, rightX - 8f - BAR_X, "Done on " + getDoneDate(left), Ui.gray());
 
-        Ui.text(row, rightX, 7f, 140f, left + " " + (left == 1 ? "day" : "days") + " left", Ui.hl(), Ui.RIGHT);
+        Ui.text(row, rightX, LINE_1, 140f, left + " " + (left == 1 ? "day" : "days") + " left", Ui.hl(), Ui.RIGHT);
         String steps = view.admins ? "one skill" : getStepsWord(academy.getCurrentOfficerTrainingSteps());
-        Ui.text(row, rightX, 26f, 140f, steps, Ui.gray(), Ui.RIGHT);
+        Ui.text(row, rightX, LINE_2, 140f, steps, Ui.gray(), Ui.RIGHT);
     }
 
     static float progress(int total, int left) {
