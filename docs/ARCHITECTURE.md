@@ -283,6 +283,7 @@ Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices
 | Ship recovery weights in IE special tables (caches, arsenal station, pet center) | `Misc.getDerelictRecoverableFraction()` | [SALVAGE](exploration/SALVAGE.md#assignment) |
 | Credit Stash payout | 30%, fixed (no vanilla key) | [SALVAGE](exploration/SALVAGE.md#specials) |
 | Privateer Base weapon and wing loot | 30%, fixed (no vanilla key) | [PRIVATEER](industries/PRIVATEER.md#loot) |
+| Salvage Yards order budget and scrap value | `ext_playerIndustryCustomProductionMaxValueMult`, `ext_shipBuyPriceMult` | [SALVAGE_YARDS](industries/SALVAGE_YARDS.md) |
 
 ### Shared cross-file constraints
 
