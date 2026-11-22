@@ -212,8 +212,7 @@ public class ChangelingIndustryDialogueDelegate extends BaseCustomDialogDelegate
     }
 
     private void tileTip(TooltipMakerAPI t, Option o) {
-        t.addPara(o.data.name, Ui.hl(), 0f);
-        t.addPara(o.why(), o.research != null ? Ui.gray() : Ui.neg(), 10f);
+        t.addPara(o.why(), o.research != null ? Ui.gray() : Ui.neg(), 0f);
         EffectLines.add(t, TIP_W - 10f, o.effects, 10f);
         t.addPara("Cost: %s", 10f, o.afford ? Ui.hl() : Ui.neg(), Ui.credits(o.cost));
     }
