@@ -45,7 +45,7 @@ Every IE panel follows these rules.
 | `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code (`show`) and popups over a panel (`over`) |
 | `UiConfirm` | The game's confirmation popup over a panel, in its own interaction dialog |
 | `UiTour` | Guided tour step over a whole panel: dims all but one lit rect, pulsing line around it, a box with the text, `n / N`, Next and Skip or Done; eats clicks outside both while blocking. `pulse(time)` is the 0.4 s up, 0.9 s down level it and the `?` glow use |
-| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels to a new texture, `glow`: 1 px rings outward over `reach`, alpha falling with the square of the distance) |
+| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, `ring` (1 px band with 3 px cut corners), dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels to a new texture, `glow`: 1 px rings outward over `reach`, alpha falling with the square of the distance) |
 
 Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordinates and the content, and returns the created element. Panels the kit creates use `UiCanvas`, so a button anywhere below them reports to the nearest kit panel and runs its `Runnable`. No helper keeps global state; view state lives in the panel's state object.
 
@@ -130,7 +130,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `hull(p, x, y, size, spec, framed, dim)` | Same for a `ShipHullSpecAPI` that is no fleet member, hull name and class as tooltip |
 | `wing(p, x, y, size, wingId, framed, dim)` | One fighter hull sprite of the wing (not the vanilla formation picture), wing name and role as tooltip |
 | `shipIcon(p, x, y, size, member)` | Vanilla `addShipList` icon with the stock ship tooltip |
-| `skill(p, x, y, size, spec, elite)` | Skill icon, elite framed in highlight |
+| `skill(p, x, y, size, spec, elite)` | Vanilla skill cell (`obf/coreui/Z.java`, translation of obfuscated code): black, icon 4 px in, two 1 px rings with 3 px cut corners in the aptitude colour mixed 35% toward `tooltipTitleAndLightHighlightColor` at 70%, elite stars from `aptitude_data.csv` at their own size in the middle. Cells are 40 px (56 and 72 take the larger star sprites); smaller inline icons use `icon` |
 | `commodity`, `hullmod`, `item` (ids), `submarket` (`SubmarketAPI`) | Spec icons with name tooltip |
 | `stack(p, x, y, size, sprite, count, extra, name)` | Cargo style cell in a well: sprite inset 6, `count` bottom right in highlight (an int, hidden below 0, or a ready text, hidden when null), `extra` as `+N` top left in positive colour with a lit frame while above 0, `name` tooltip |
 | `planet(p, x, y, size, market)` | Vanilla `showPlanetInfo` for a planet, faction crest for a station; market name tooltip |

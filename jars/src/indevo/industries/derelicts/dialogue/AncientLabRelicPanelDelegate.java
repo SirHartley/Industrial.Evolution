@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.econ.Industry;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.SubmarketAPI;
 import com.fs.starfarer.api.campaign.listeners.DialogCreatorUI;
+import com.fs.starfarer.api.characters.SkillSpecAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -355,7 +356,8 @@ public class AncientLabRelicPanelDelegate extends BaseCustomDialogDelegate {
         }
 
         CustomPanelAPI s = block(20f, 0f);
-        UiImages.skill(s, 0f, 1f, 18f, Global.getSettings().getSkillSpec(Skills.AUTOMATED_SHIPS), false);
+        SkillSpecAPI automated = Global.getSettings().getSkillSpec(Skills.AUTOMATED_SHIPS);
+        UiImages.icon(s, 0f, 1f, 18f, automated.getSpriteName(), automated.getName());
         UiData.value(s, 24f, 0f, cw - 24f, 20f, "Automated Ships limit", "counts > exempt", Ui.text(), new String[]{"counts", ">", "exempt"}, new Color[]{Ui.neg(), Ui.hl(), Ui.pos()});
 
         CustomPanelAPI perm = block(20f, 0f);

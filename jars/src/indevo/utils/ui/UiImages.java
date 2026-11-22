@@ -17,6 +17,9 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.ids.ItemIds;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.lwjgl.BufferUtils;
 
 import javax.imageio.ImageIO;
@@ -43,6 +46,8 @@ public final class UiImages {
     private static final Logger log = Global.getLogger(UiImages.class);
     // one texture per path for the whole game session, never deleted; null after a failed read
     private static final Map<String, Grey> GREYS = new HashMap<>();
+    // aptitude:column to sprite path, data files do not change while the game runs
+    private static final Map<String, String> OVERLAYS = new HashMap<>();
 
     public interface Cell<T> {
         void render(CustomPanelAPI p, float x, float y, float w, float h, T item);
@@ -186,12 +191,53 @@ public final class UiImages {
         return Ui.element(p, x, y, size, size, t -> t.addShipList(1, 1, size, Ui.base(), List.of(member), 0f));
     }
 
+    // vanilla skill cell (coreui Z): black, icon 4 px in, two rings in the aptitude colour at 70%, elite stars at their own size in the middle
     public static CustomPanelAPI skill(CustomPanelAPI p, float x, float y, float size, SkillSpecAPI spec, boolean elite) {
-        CustomPanelAPI icon = img(p, x, y, size, size, spec.getSpriteName());
-        if (elite) Ui.box(p, x - 1f, y - 1f, size + 2f, size + 2f, Ui.hl(), null);
-        if (elite) Ui.tooltip(p, icon, spec.getName(), "Elite");
-        else Ui.tooltip(p, icon, spec.getName());
-        return icon;
+        SpriteAPI icon = Global.getSettings().getSprite(spec.getSpriteName());
+        float iw = icon.getWidth();
+        float ih = icon.getHeight();
+        Color frame = Misc.interpolateColor(spec.getGoverningAptitudeColor(), Global.getSettings().getColor("tooltipTitleAndLightHighlightColor"), 0.35f);
+        String overlay = elite ? eliteOverlay(spec.getGoverningAptitudeId(), size) : null;
+        SpriteAPI stars = overlay == null || overlay.isEmpty() ? null : Global.getSettings().getSprite(overlay);
+
+        CustomPanelAPI cell = Ui.painted(p, x, y, size, size, null, (pos, a) -> {
+            float x0 = UiDraw.left(pos);
+            float y0 = UiDraw.bottom(pos);
+            UiDraw.quad(x0, y0, size, size, Color.BLACK, a);
+            UiDraw.sprite(icon, iw, ih, x0 + 4f, y0 + 4f, size - 8f, size - 8f, Color.WHITE, a);
+            UiDraw.ring(x0, y0, x0 + size, y0 + size, 0, frame, a * 0.7f);
+            UiDraw.ring(x0, y0, x0 + size, y0 + size, 1, frame, a * 0.7f);
+            if (stars == null) return;
+            stars.setNormalBlend();
+            stars.setColor(Color.WHITE);
+            stars.setAlphaMult(a);
+            stars.renderAtCenter(Math.round(x0 + size / 2f), Math.round(y0 + size / 2f));
+        });
+
+        if (elite) Ui.tooltip(p, cell, spec.getName(), "Elite");
+        else Ui.tooltip(p, cell, spec.getName());
+        return cell;
+    }
+
+    // one star sprite per aptitude and cell size (40, 56, 72 and up), the api has no getter for the path
+    private static String eliteOverlay(String aptitudeId, float size) {
+        String column = size - 8f >= 64f ? "elite_overlay" : size - 8f >= 48f ? "elite_overlay_medium" : "elite_overlay_small";
+        String key = aptitudeId + ":" + column;
+        if (OVERLAYS.containsKey(key)) return OVERLAYS.get(key);
+
+        String path = null;
+        try {
+            JSONArray rows = Global.getSettings().getMergedSpreadsheetData("id", "data/characters/skills/aptitude_data.csv");
+            for (int i = 0; i < rows.length(); i++) {
+                JSONObject row = rows.getJSONObject(i);
+                if (aptitudeId.equals(row.getString("id"))) path = row.optString(column, null);
+            }
+        } catch (IOException | JSONException e) {
+            log.warn("could not read elite overlay for " + aptitudeId, e);
+        }
+
+        OVERLAYS.put(key, path);
+        return path;
     }
 
     public static CustomPanelAPI commodity(CustomPanelAPI p, float x, float y, float size, String id) {

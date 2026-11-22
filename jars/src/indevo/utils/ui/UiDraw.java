@@ -11,6 +11,9 @@ import java.nio.ByteBuffer;
 // gl primitives for UiCanvas painters, coordinates are virtual pixels with y up, x and y are the bottom left corner
 public final class UiDraw {
 
+    private static final float CUT = 3f;
+    private static final float CUT_STEP = (float) (Math.sqrt(2) - 1);
+
     private UiDraw() {
     }
 
@@ -96,6 +99,30 @@ public final class UiDraw {
         quad(x, y + h - 1f, w, 1f, c, alpha);
         quad(x, y + 1f, 1f, h - 2f, c, alpha);
         quad(x + w - 1f, y + 1f, 1f, h - 2f, c, alpha);
+    }
+
+    // 1 px band along a rect with 3 px cut corners, ring 0 is the outermost pixel; the inner cut shrinks by sqrt(2) - 1 per pixel so diagonals keep 1 px
+    public static void ring(float x0, float y0, float x1, float y1, int ring, Color c, float alpha) {
+        float[] o = octagon(x0 + ring, y0 + ring, x1 - ring, y1 - ring, Math.max(0f, CUT - ring * CUT_STEP));
+        float[] in = octagon(x0 + ring + 1, y0 + ring + 1, x1 - ring - 1, y1 - ring - 1, Math.max(0f, CUT - (ring + 1) * CUT_STEP));
+
+        begin(c, alpha);
+        GL11.glBegin(GL11.GL_QUADS);
+        for (int e = 0; e < 8; e++) {
+            int i = e * 2;
+            int j = ((e + 1) % 8) * 2;
+            GL11.glVertex2f(o[i], o[i + 1]);
+            GL11.glVertex2f(in[i], in[i + 1]);
+            GL11.glVertex2f(in[j], in[j + 1]);
+            GL11.glVertex2f(o[j], o[j + 1]);
+        }
+        GL11.glEnd();
+        end();
+    }
+
+    private static float[] octagon(float x0, float y0, float x1, float y1, float cut) {
+        return new float[]{x0 + cut, y0, x1 - cut, y0, x1, y0 + cut, x1, y1 - cut,
+                x1 - cut, y1, x0 + cut, y1, x0, y1 - cut, x0, y0 + cut};
     }
 
     // soft glow around a rect: 1 px rings outward to reach, alpha falling off with the square of the distance
