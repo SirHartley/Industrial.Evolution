@@ -46,7 +46,6 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 - `advance()` keeps `IndEvo_EngStorage` through `IndustrySubmarkets.ensure` (`:91`), the shared storage through the `SharedSubmarketUser` base; `notifyBeingRemoved()` releases both through the base ([Submarkets](../core/SUBMARKETS.md#registration-and-lifecycle)).
 - `EngineeringHubOptionProvider.register()` (`indevo/utils/ModPlugin.java`, `setListenersIfNeeded`) adds a transient listener once.
 - `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:413`).
-- `ModUpdater` keeps `currentDeconShipVar` across an industry replacement on mod update (`indevo/utils/update/ModUpdater.java:94,136`).
 
 Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstruction | (done) addProgressToList + message | daysPassed++ -> (finishOnOwn) first hull at >= 1.0 with a blueprint source: consume -> deliver -> storeMapInMemory`.
 

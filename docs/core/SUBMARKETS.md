@@ -27,7 +27,7 @@ Feature submarkets with their plugin outside this package:
 | `IndEvo_PetSubMarket` | `indevo/industries/petshop/submarket/PetSubMarket.java` | [Pets](../industries/PETS.md) |
 | `IndEvo_MuseumStorage` | `indevo/industries/museum/submarket/MuseumSubmarketPlugin.java` (extends `BaseRemovableStorageSubmarketPlugin`) | [Museum](../industries/MUSEUM.md) |
 | `IndEvo_WarehouseStorage_1` to `_5` | `indevo/industries/warehouses/submarket/WarehouseSubmarketPlugin.java` (extends `BaseRemovableStorageSubmarketPlugin`) | [Warehouses](../industries/WAREHOUSES.md) |
-| `IndEvo_tempStorage` | vanilla `StoragePlugin` | `ModUpdater` swap space, see [Utils](UTILS.md#update) |
+| `IndEvo_tempStorage` | vanilla `StoragePlugin` | Unused; row kept so a save that still holds the submarket loads |
 
 ## Data and ids
 

@@ -269,7 +269,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Research (Navi) | Unlocks fairy pet sales | `PetManagementAbilityPlugin.java:34` |
 | Beacons, scoop, smoke cloud, mine belt | Split fleet `OrbitFocus` entity | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `other/legioNuclearOption` | Research `RefitUIOpenChecker` | [MISC](core/MISC.md) |
-| `$IndEvo_ruinsIndustryId` | Read by supercomputer, `LocatorSystemRatingUpdater`, `ModUpdater` | [DERELICTS](industries/DERELICTS.md) |
+| `$IndEvo_ruinsIndustryId` | Read by supercomputer, `LocatorSystemRatingUpdater` | [DERELICTS](industries/DERELICTS.md) |
 
 ### Shared cross-file constraints
 
@@ -289,7 +289,6 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Wormhole complex (`IndEvo_Warphouse`) | CSV row and item commented out | [WAREHOUSES](industries/WAREHOUSES.md) |
 | `ArtilleryStationReplacer` | Never matches: checks `contains("artillery")` against `IndEvo_Artillery_*` ids | [ARTILLERY](industries/ARTILLERY.md) |
 | `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
-| `ModUpdater` | No references | [UTILS](core/UTILS.md) |
 | `devActions()` | Disabled (`&& false`, `ModPlugin.java:151`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.

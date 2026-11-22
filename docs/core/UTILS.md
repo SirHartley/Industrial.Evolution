@@ -15,7 +15,6 @@ Staged campaign animations and LunaLib campaign particle renderers. Users: Cruci
 | `animation/CampaignAnimationScript.java` | interface: `addStage(AnimationStage)`, `loadStages()` | `BaseStagedAnimationScript` |
 | `animation/AnimationStage.java` | abstract stage: ctor `(runtime, delayBySeconds)`; `advance(amt)` waits for the delay, calls `runOnce()` once then `run(amt)` each frame until `isDone()` (`timePassed >= runtime`) | Crucible and derelicts animation scripts |
 | `animation/BaseStagedAnimationScript.java` | `EveryFrameScript`; calls `loadStages()` on first advance, advances all stages in parallel, `done` when all stages are done; `runWhilePaused()` false | `crucible/scripts/CrucibleStartupAnimationScript`, `CrucibleMoveAnimationScript` |
-| `animation/data/CirclePathData.java` | center, radius, start and end angle; ctor from two points and a radius via `TrigHelper.findTwoPointCircle` | none (dead) |
 | `animation/particles/NebulaParticle.java` | one nebula sprite cell: `advance(amt)`, `getCurrentAlpha()` (0.5 s fade in, `smootherstep` fade out), `isExpired()`; inner `LocationData` (radius, angle, center) with `getLocation()`, `incrementRadius()` | the renderers below, `consumables/entities/SmokeCloudEntityPlugin`, `meteor/renderers/MeteorDebrisRenderer` |
 | `animation/particles/RadialDustCloudEjectionRenderer.java` | `LunaCampaignRenderingPlugin`; spawns particles for `spawnDur` then pushes them out radially; fixed 6 s life (`DURATION`), layer `TERRAIN_6A` | Crucible scripts |
 | `animation/particles/DeceleratingDustCloudEjectionRenderer.java` | `LunaCampaignRenderingPlugin`; spawns particles at 60 Hz with logistic slowdown (`logisticDecreasing`); never expires on its own (`expired` flag); pauses unless the center entity is alive, in the current location and tagged `BaseCrucibleEntityPlugin.TAG_ENABLED` | `CrucibleStartupAnimationScript` |
@@ -134,7 +133,6 @@ One shot `EveryFrameScript`s that defer a market change to the next frame (all `
 | Class | Behaviour | Users |
 |---|---|---|
 | `scripts/EntityRemovalScript.java` | Removes a custom entity if the market lacks the prerequisite industry or `forceRemoval` | `relay/industry/MilitaryRelay` |
-| `scripts/SpriteDistorter.java` | `BaseCustomEntityPlugin` with a grid distortion stub behind `if (true) return;` | none (dead) |
 
 Submarket add and remove has its own script: [Submarkets](SUBMARKETS.md).
 
@@ -169,16 +167,10 @@ Shared UI kit for IE panels (`Ui`, `UiButtons`, `UiImages`, `UiData`, `UiFrame`,
 | Class | Members |
 |---|---|
 | `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:297`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with an uncommon ship parts VPC), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
-| `update/ModUpdater.java` | `run()`: removes every script and listener whose class name contains `IndEvo`, re-adds IE submarkets, industries and player market conditions, then runs `NewGameIndustryPlacer`. Not called anywhere (dead) |
 
 ## Known issues and dormant code
 
-| Item | State |
-|---|---|
-| `CirclePathData`, `SpriteDistorter`, `ModUpdater` | Unreferenced |
-| `MagicCampaignTrailPlugin.NicToyCustomCampaignTrailObject` | Unused inner class |
-| `MiscIE.getStorage` (`helper/MiscIE.java:72`) | Logs every call in dev mode |
-| `ModUpdater` | Class name filter `contains("IndEvo")` misses classes without `IndEvo` in the name (package is lowercase `indevo`); restores Academy and hub state onto the removed instance `ind` (`update/ModUpdater.java:302` to `315`) |
+None.
 
 ## Maintenance
 
