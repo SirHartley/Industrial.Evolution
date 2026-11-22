@@ -23,8 +23,8 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
     public static final float BOARD_W = 1104f;
     public static final float BOARD_H = 709f;
     static final float BODY_Y = 64f;
-    static final float LIST_W = 360f;
     static final float EDITOR_X = 372f;
+    static final float LIST_W = UiScroll.listWidth(0f, EDITOR_X);
     static final float ROW_H = 70f;
     static final float ROW_GAP = 4f;
     static final float FIRST_GAP = 6f;
@@ -112,12 +112,12 @@ public class CourierPanelDelegate extends BaseCustomDialogDelegate {
 
         addHeader(p, w);
         addList(p, h - BODY_Y - BUTTON_H - 8f);
-        UiButtons.button(p, 0f, h - BUTTON_H, LIST_W, BUTTON_H, "New contract", UiButtons.Kind.STD, () -> {
+        UiButtons.button(p, 0f, h - BUTTON_H, LIST_W - UiScroll.GUTTER, BUTTON_H, "New contract", UiButtons.Kind.STD, () -> {
             view.startNew();
             refresh();
         });
 
-        Ui.vrule(p, EDITOR_X - 6f, BODY_Y, h - BODY_Y);
+        Ui.vrule(p, UiScroll.ruleX(EDITOR_X), BODY_Y, h - BODY_Y);
         new CourierEditor(this, view, stored).build(p, EDITOR_X, BODY_Y, w - EDITOR_X, h - BODY_Y);
     }
 
