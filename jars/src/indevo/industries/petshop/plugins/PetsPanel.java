@@ -25,6 +25,8 @@ import indevo.industries.petshop.memory.PetBrood;
 import indevo.industries.petshop.memory.PetPlan;
 import indevo.utils.ui.*;
 
+import org.lwjgl.input.Keyboard;
+
 import java.awt.Color;
 import java.util.*;
 
@@ -146,6 +148,8 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     private void close() {
         commitName();
         open = false;
+        view.picked.clear();
+        view.treePicked.clear();
         onLeave.run();
     }
 
@@ -321,9 +325,12 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         refresh();
     }
 
-    // dead branches fold again once the tab is left
+    // dead branches fold again and the tree picks go once the tab is left
     private void tab(int tab) {
-        if (view.tab == PetsView.TAB_TREE && tab != PetsView.TAB_TREE) view.unfolded.clear();
+        if (view.tab == PetsView.TAB_TREE && tab != PetsView.TAB_TREE) {
+            view.unfolded.clear();
+            view.treePicked.clear();
+        }
         view.tab = tab;
     }
 
@@ -386,10 +393,12 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         }
 
         Pet selected = resolveSelection(groups);
-        addList(p, h - BODY_Y, groups, selected);
+        List<Pet> picked = picked(groups);
+        addList(p, h - BODY_Y, groups, selected, picked);
         Ui.vrule(p, LIST_W + 5f, BODY_Y, h - BODY_Y);
 
-        if (selected != null) new PetCard(this, view).build(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected);
+        if (picked.size() > 1) new PetCard(this, view).buildPicked(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, picked);
+        else if (selected != null) new PetCard(this, view).build(p, CARD_X, BODY_Y, w - CARD_X, h - BODY_Y, selected);
         else Ui.wrap(p, CARD_X, BODY_Y, w - CARD_X, "No pets yet. Animal Centers sell Cryochambers and offer pets for adoption.", Ui.gray());
     }
 
@@ -462,6 +471,48 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         return first;
     }
 
+    // the picked pets still listed and pickable, in click order; a pick that went away drops out
+    private List<Pet> picked(List<Group> groups) {
+        Map<String, Pet> listed = new HashMap<>();
+        for (Group group : groups) for (Pet pet : group.pets()) if (pickable(pet)) listed.put(pet.id, pet);
+        view.picked.retainAll(listed.keySet());
+
+        List<Pet> picked = new ArrayList<>();
+        for (String id : view.picked) picked.add(listed.get(id));
+        return picked;
+    }
+
+    // a pet in a habitat or out with a detachment can not be picked
+    static boolean pickable(Pet pet) {
+        return PetCard.habitat(pet) == null && awayFleet(pet) == null;
+    }
+
+    // a tile click: with shift it adds the pet to the picked or takes it out, the shown pet counts as picked first; else it shows one pet
+    void click(Pet pet) {
+        if (!shift()) {
+            view.picked.clear();
+            select(pet);
+            return;
+        }
+        if (!pickable(pet)) return;
+
+        Pet shown = PetStatusManager.getInstance().get(view.selected);
+        if (view.picked.isEmpty() && shown != null && pickable(shown)) view.picked.add(shown.id);
+        if (!view.picked.remove(pet.id)) view.picked.add(pet.id);
+        if (view.picked.size() == 1) view.select(view.picked.iterator().next());
+        view.scroll.reset(PetsView.PICKED);
+        refresh();
+    }
+
+    void clearPicked() {
+        view.picked.clear();
+        refresh();
+    }
+
+    static boolean shift() {
+        return Keyboard.isKeyDown(Keyboard.KEY_LSHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RSHIFT);
+    }
+
     void select(Pet pet) {
         select(pet.id);
     }
@@ -515,7 +566,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
     private String lockReason(int tab) {
         PetStatusManager manager = PetStatusManager.getInstance();
         return switch (tab) {
-            case PetsView.TAB_HUSBANDRY -> shop == null ? "Pair pets at an Animal Center." : null;
+            case PetsView.TAB_HUSBANDRY -> shop == null ? "Pair pets at an Animal Center." : PetHusbandry.open(shop) ? null : PetHusbandry.LOCKED;
             case PetsView.TAB_ADOPT -> shop == null || !shop.hasAdoption() ? "Only at Animal Centers with pets for adoption." : null;
             case PetsView.TAB_TREE -> manager.isOpen(Unlock.TREE) ? null : Unlock.TREE.reason;
             case PetsView.TAB_PLAN -> manager.isOpen(Unlock.PLAN) ? null : Unlock.PLAN.reason;
@@ -593,6 +644,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
             tooltip.addPara("Every pet of a species linked through parents and young, gone pets too.", 0f);
             tooltip.addPara("Hover a pet to light up the lines to its parents. A gold outline marks the shared ancestors of a pair.", 10f);
             tooltip.addPara("The closer the kin, the higher the Inbreeding and the chance of malformed young.", 10f);
+            tooltip.addPara("Shift click two pets to pair or plan them.", 10f);
             return;
         }
 
@@ -603,10 +655,11 @@ public class PetsPanel extends BaseCustomDialogDelegate {
                 String.valueOf(PetConstants.NEST_HEARTS), String.valueOf(PetConstants.MAX_HEARTS), String.valueOf(Math.round(PetConstants.WANT_COOLDOWN_DAYS / 30f)));
         tooltip.addPara("A pet that moves to another ship is Unsettled for %s days, %s if it had a nest. Its effects are off. Hearts stay.", 10f, hl,
                 Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.UNSETTLED_DAYS), Misc.getRoundedValueMaxOneAfterDecimal(PetConstants.NEST_UNSETTLED_DAYS));
+        tooltip.addPara("Shift click selects several pets.", 10f);
     }
 
     // the selected pet keeps its card while the filter hides its tile
-    private void addList(CustomPanelAPI p, float h, List<Group> groups, Pet selected) {
+    private void addList(CustomPanelAPI p, float h, List<Group> groups, Pet selected, List<Pet> picked) {
         UiFilter.State filter = view.filter;
         float top = bar(p, KEYS) + UiFilter.BELOW;
 
@@ -614,6 +667,7 @@ public class PetsPanel extends BaseCustomDialogDelegate {
         float w = list.width();
         boolean first = true;
         boolean filtering = filter.isFiltering();
+        boolean many = picked.size() > 1;
 
         for (Group group : groups) {
             List<Pet> pets = new ArrayList<>();
@@ -636,7 +690,8 @@ public class PetsPanel extends BaseCustomDialogDelegate {
                 CustomPanelAPI b = list.block(TILE_H, row == 0 ? 4f : TILE_GAP);
                 for (int i = row * PER_ROW; i < Math.min(pets.size(), (row + 1) * PER_ROW); i++) {
                     Pet pet = pets.get(i);
-                    PetCard.tile(this, b, 2f + (i % PER_ROW) * TILE_PITCH, 0f, pet, pet == selected);
+                    boolean on = many ? picked.contains(pet) : pet == selected;
+                    PetCard.tile(this, b, 2f + (i % PER_ROW) * TILE_PITCH, 0f, pet, on, many && !pickable(pet));
                 }
             }
         }

@@ -5,6 +5,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
+import com.fs.starfarer.api.ui.PositionAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.petshop.PetGenetics;
@@ -19,7 +20,12 @@ import indevo.industries.petshop.plugins.PetTreeLayout.Item;
 import indevo.industries.petshop.plugins.PetTreeLayout.Node;
 import indevo.utils.ui.*;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.Path2D;
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 // the Family tree tab: one family, a pair opened from the cross, or every family of a species; the clicked pet's card on the right
@@ -59,6 +65,22 @@ public class PetTree {
     static final float DASH_GAP = 3f;
     static final float JOG = 3f;
     static final Color STUB_EDGE = new Color(140, 150, 160, 140);
+    // the row under the tree while pets are picked with shift click
+    static final float PICK_ROW = 44f;
+    static final float PICK_COUNT_W = 86f;
+    static final float PICK_CLEAR_X = 90f;
+    static final float PICK_INBREEDING_X = 162f;
+    static final float PICK_INBREEDING_W = 150f;
+    static final String SECOND = "Shift click a second pet.";
+    // the pick tick: 16 px at 3, 1 with a 2 px black edge, drawn from a 64 px path
+    static final float TICK = 16f;
+    static final float TICK_X = 3f;
+    static final float TICK_Y = 1f;
+    static final float TICK_EDGE = 2f;
+    static final int TICK_TEX = 32;
+    static final float TICK_LINE = 11f;
+    static final float[] TICK_PATH = {8f, 34f, 25f, 51f, 56f, 13f};
+    private static final Map<Integer, Integer> TICKS = new HashMap<>();
 
     private final PetsPanel panel;
     private final PetsView view;
@@ -123,8 +145,74 @@ public class PetTree {
         return pair;
     }
 
+    // the living picks of the shown species; a species switch drops them
+    private List<Pet> picked(String typeId) {
+        List<Pet> picked = new ArrayList<>();
+        for (String id : view.treePicked) {
+            Pet pet = manager.get(id);
+            if (pet != null && !pet.isDead() && pet.typeID.equals(typeId)) picked.add(pet);
+        }
+        view.treePicked.clear();
+        for (Pet pet : picked) view.treePicked.add(pet.id);
+        return picked;
+    }
+
+    // the shared ancestors of two, for the gold outline
+    private static Set<String> gold(Pet a, Pet b) {
+        Set<String> gold = new HashSet<>(shared(a, b).keySet());
+        gold.remove(a.id);
+        gold.remove(b.id);
+        return gold;
+    }
+
+    // the count, Clear, the Inbreeding of two, Add to plan and Pair... at the right end
+    private void pickRow(CustomPanelAPI p, float w, float h, List<Pet> picked) {
+        Ui.rule(p, 0f, h - 36f, w);
+        float y = h - PetCard.BUTTON_H;
+        String count = String.valueOf(picked.size());
+        Ui.runs(p, 0f, y + 4f, PICK_COUNT_W, Ui.INS15, Ui.text(), Ui.LEFT, count + " selected", new String[]{count}, new Color[]{Ui.hl()});
+        UiButtons.button(p, PICK_CLEAR_X, y, PetCard.CLEAR_W, PetCard.BUTTON_H, "Clear", UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+            view.treePicked.clear();
+            panel.refresh();
+        });
+
+        Pet a = picked.get(0);
+        Pet b = picked.size() > 1 ? picked.get(1) : null;
+        if (b != null) {
+            float inbreeding = PetShop.getInbreeding(a, b);
+            String value = percent(inbreeding);
+            Ui.runs(p, PICK_INBREEDING_X, y + 4f, PICK_INBREEDING_W, Ui.INS15, Ui.text(), Ui.LEFT, "Inbreeding " + value, new String[]{value},
+                    new Color[]{inbreeding > 0f ? Ui.neg() : Ui.hl()});
+        }
+
+        String plan = b == null ? SECOND : !manager.isOpen(PetStatusManager.Unlock.PLAN) ? PetStatusManager.Unlock.PLAN.reason
+                : a.getData().isNoSell() ? "This one does not pair." : sterile(a) ? a.name + ": Sterile." : sterile(b) ? b.name + ": Sterile." : null;
+        float x = w - PetCard.BUTTON_W;
+        ButtonAPI planButton = UiButtons.button(p, x - 6f - PetCard.BUTTON_W, y, PetCard.BUTTON_W, PetCard.BUTTON_H, "Add to plan",
+                plan != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR, plan != null ? null : () -> {
+                    view.treePicked.clear();
+                    panel.newPlan(a.typeID, a.id, b.id);
+                });
+        if (plan != null) Ui.bottomTooltip(p, planButton, "Add to plan", plan);
+
+        PetShop shop = panel.shop();
+        String pair = b == null ? SECOND : shop == null ? "Pair pets at an Animal Center." : PetHusbandry.pairReason(shop, a, b);
+        if (pair == null && shop.getBroods().size() >= shop.getHabitatCount()) pair = "Every habitat is busy.";
+        ButtonAPI pairButton = UiButtons.button(p, x, y, PetCard.BUTTON_W, PetCard.BUTTON_H, "Pair...", pair != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD,
+                CutStyle.TL_BR, pair != null ? null : () -> {
+                    view.treePicked.clear();
+                    panel.openCross(a, b);
+                });
+        if (pair != null) Ui.bottomTooltip(p, pairButton, "Pair...", pair);
+    }
+
+    private static boolean sterile(Pet pet) {
+        return pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0;
+    }
+
     private void family(CustomPanelAPI p, float w, float h, Pet root) {
         List<Pet> pair = pair();
+        List<Pet> picked = picked(root.typeID);
         List<Item> species = items(root.typeID);
         Set<String> members = new HashSet<>();
         for (Item item : PetTreeLayout.family(species, root.id)) members.add(item.id());
@@ -148,10 +236,9 @@ public class PetTree {
             Pet b = pair.get(1);
             String inbreeding = percent(PetShop.getInbreeding(a, b));
             Ui.heading(p, 0f, PetsPanel.BODY_Y, LEFT_W, "Family of " + a.name + " and " + b.name, "Inbreeding " + inbreeding, inbreeding);
-            shared.addAll(shared(a, b).keySet());
-            shared.remove(a.id);
-            shared.remove(b.id);
+            shared.addAll(gold(a, b));
         }
+        if (picked.size() == 2) shared.addAll(gold(picked.get(0), picked.get(1)));
         control(p, LEFT_W, root);
 
         Set<String> focus = new HashSet<>(view.treePair);
@@ -160,8 +247,10 @@ public class PetTree {
         if (card != null) focus.add(card.id);
         else if (pair.isEmpty()) focus.add(root.id);
 
+        float th = h - TREE_Y - (picked.isEmpty() ? 0f : PICK_ROW);
         if (result.families().isEmpty() && folded.stubs().isEmpty()) alone(p, root, focus.contains(root.id));
-        else canvas(result, metrics(), false, folded.stubs(), focus, shared).draw(p, 0f, TREE_Y, PetsPanel.LIST_W, h - TREE_Y);
+        else canvas(result, metrics(), false, folded.stubs(), focus, shared).draw(p, 0f, TREE_Y, PetsPanel.LIST_W, th);
+        if (!picked.isEmpty()) pickRow(p, LEFT_W, h, picked);
 
         Ui.vrule(p, PetsPanel.LIST_W + 5f, PetsPanel.BODY_Y, h - PetsPanel.BODY_Y);
         float cw = w - PetsPanel.CARD_X;
@@ -191,13 +280,17 @@ public class PetTree {
         if (card != null && !result.nodes().containsKey(card.id)) card = null;
 
         float tw = card != null ? LEFT_W : w;
+        List<Pet> picked = picked(view.treeSpecies);
+        Set<String> gold = picked.size() == 2 ? gold(picked.get(0), picked.get(1)) : Set.of();
         int families = result.families().size();
         String species = PetDataRepo.get(view.treeSpecies).species;
         Ui.heading(p, 0f, PetsPanel.BODY_Y, tw, species, families + (families == 1 ? " family, " : " families, ") + items.size() + (items.size() == 1 ? " pet" : " pets"));
         control(p, tw, root);
 
         Set<String> focus = card != null ? Set.of(card.id) : Set.of();
-        canvas(result, m, view.treeSmall, folded.stubs(), focus, Set.of()).draw(p, 0f, TREE_Y, card != null ? PetsPanel.LIST_W : w, h - TREE_Y);
+        float th = h - TREE_Y - (picked.isEmpty() ? 0f : PICK_ROW);
+        canvas(result, m, view.treeSmall, folded.stubs(), focus, gold).draw(p, 0f, TREE_Y, card != null ? PetsPanel.LIST_W : w, th);
+        if (!picked.isEmpty()) pickRow(p, tw, h, picked);
         if (card == null) return;
 
         Ui.vrule(p, PetsPanel.LIST_W + 5f, PetsPanel.BODY_Y, h - PetsPanel.BODY_Y);
@@ -434,7 +527,54 @@ public class PetTree {
 
     // a full size tile: portrait, name, hearts; a gone pet dimmed with Dead, Sold or Rehomed in place of the hearts
     private CustomPanelAPI tile(CustomPanelAPI p, float x, float y, Pet pet, boolean focus, boolean small) {
-        return tile(p, x, y, pet, focus, small, () -> click(pet));
+        CustomPanelAPI t = tile(p, x, y, pet, focus, small, () -> click(pet));
+        if (view.treePicked.contains(pet.id)) pickMark(t);
+        return t;
+    }
+
+    // a shift click pick: a 1 px border in the base colour and the tick at the top left
+    private static void pickMark(CustomPanelAPI t) {
+        PositionAPI at = t.getPosition();
+        Ui.painted(t, 0f, 0f, at.getWidth(), at.getHeight(), null, (pos, a) -> {
+            UiDraw.outline(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), Ui.base(), a);
+            paintTick(pos.getX() + TICK_X, pos.getY() + pos.getHeight() - TICK_Y - TICK, a);
+        });
+    }
+
+    // x, y: bottom left of the 16 px box
+    private static void paintTick(float x, float y, float alpha) {
+        Color c = Ui.base();
+        Integer id = TICKS.get(c.getRGB());
+        if (id == null) {
+            id = UiDraw.upload(tick(c), TICK_TEX, TICK_TEX);
+            TICKS.put(c.getRGB(), id);
+        }
+        float s = TICK + 2f * TICK_EDGE;
+        UiDraw.texture(id, s, s, s / TICK_TEX, s / TICK_TEX, x - TICK_EDGE, y - TICK_EDGE, s, s, alpha);
+    }
+
+    // anti aliased: the black edge stroke first, the tick over it
+    private static BufferedImage tick(Color c) {
+        int s = Math.round(TICK + 2f * TICK_EDGE);
+        BufferedImage image = new BufferedImage(s, s, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g.translate(TICK_EDGE, TICK_EDGE);
+        float scale = TICK / 64f;
+        g.scale(scale, scale);
+
+        Path2D.Float path = new Path2D.Float();
+        path.moveTo(TICK_PATH[0], TICK_PATH[1]);
+        for (int i = 2; i < TICK_PATH.length; i += 2) path.lineTo(TICK_PATH[i], TICK_PATH[i + 1]);
+        g.setColor(Color.BLACK);
+        g.setStroke(new BasicStroke(TICK_LINE + 2f * TICK_EDGE / scale, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(path);
+        g.setColor(c);
+        g.setStroke(new BasicStroke(TICK_LINE, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.draw(path);
+        g.dispose();
+        return image;
     }
 
     CustomPanelAPI tile(CustomPanelAPI p, float x, float y, Pet pet, boolean focus, boolean small, Runnable click) {
@@ -453,7 +593,19 @@ public class PetTree {
         return t;
     }
 
+    // with shift it picks a living pet or lets it go, two at most, a third replaces the second; else it opens the card
     private void click(Pet pet) {
+        if (PetsPanel.shift()) {
+            if (pet.isDead()) return;
+            List<String> picked = view.treePicked;
+            if (!picked.remove(pet.id)) {
+                if (picked.size() >= 2) picked.remove(1);
+                picked.add(pet.id);
+            }
+            panel.refresh();
+            return;
+        }
+
         view.select(pet.id);
         view.treeCard = pet.id;
         panel.refresh();

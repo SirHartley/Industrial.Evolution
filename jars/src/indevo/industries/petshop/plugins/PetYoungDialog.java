@@ -20,7 +20,6 @@ import indevo.industries.petshop.memory.PetSheet;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 import org.lazywizard.lazylib.ui.LazyFont;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -28,7 +27,6 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.*;
 
@@ -39,6 +37,9 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     static final float CARD_H = 374f;
     static final float CARD_GAP = 12f;
     static final float CARDS_Y = 46f;
+    static final float BUTTONS_GAP = 16f;
+    static final float PLACE_W = 74f;
+    static final float PLACE_PITCH = 80f;
     static final float MIN_W = 330f;
     static final String TITLE = "New young: ";
     static final float OPEN_W = 96f;
@@ -106,7 +107,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         brood.shown = true;
         UiHost.over(dialog -> {
             this.dialog = dialog;
-            dialog.showCustomDialog(width(), CARDS_Y + CARD_H, this);
+            dialog.showCustomDialog(width(), CARDS_Y + CARD_H + BUTTONS_GAP, this);
         }, onClose);
     }
 
@@ -265,7 +266,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         int key = Objects.hash(back, lattice, outline.getRGB(), Ui.base().getRGB(), Ui.dark().getRGB());
         Integer id = TEXTURES.get(key);
         if (id == null) {
-            id = upload(draw(back, lattice, outline), tw, th);
+            id = UiDraw.upload(draw(back, lattice, outline), tw, th);
             TEXTURES.put(key, id);
         }
         UiDraw.texture(id, back.w, back.h, back.w / tw, back.h / th, x, y, back.w, back.h, a);
@@ -325,18 +326,6 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         return image;
     }
 
-    private static int upload(BufferedImage image, int tw, int th) {
-        ByteBuffer pixels = BufferUtils.createByteBuffer(tw * th * 4);
-        for (int py = 0; py < image.getHeight(); py++) {
-            for (int px = 0; px < image.getWidth(); px++) {
-                int argb = image.getRGB(px, py);
-                int i = (py * tw + px) * 4;
-                pixels.put(i, (byte) (argb >> 16)).put(i + 1, (byte) (argb >> 8)).put(i + 2, (byte) argb).put(i + 3, (byte) (argb >>> 24));
-            }
-        }
-        return UiDraw.upload(pixels, tw, th);
-    }
-
     private static Shape diamond(double cx, double cy, double w, double h) {
         Path2D.Double d = new Path2D.Double();
         d.moveTo(cx, cy - h / 2);
@@ -391,7 +380,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
                 GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition))));
         if (pet.sheet.malformed) {
             Ui.text(p, 88f, 84f, CARD_W - 96f, "Malformed", Ui.neg());
-            Ui.tooltip(p, Ui.panel(p, 88f, 84f, CARD_W - 96f, ROW_H), "Malformed", "Its parents were kin: it came with a new flaw, or one more level of a flaw.");
+            Ui.tooltip(p, Ui.panel(p, 88f, 84f, CARD_W - 96f, ROW_H), "Malformed", "Its parents were kin. It has a new flaw, or one more level of a flaw it inherited.");
         }
 
         float ty = addTalents(p, 130f, pet);
@@ -488,21 +477,53 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         return row(p, y, null, "None", null, false);
     }
 
-    // labels can not turn, so the tag is drawn: box, outline and text around its centre
+    // labels can not turn, so the tag is drawn: the turned box from a java2d texture, the text in a turned gl matrix
     private static void paintTag(PositionAPI pos, float alpha, String tag, Color c) {
-        float w = pos.getWidth();
-        float h = pos.getHeight();
+        int w = Math.round(pos.getWidth());
+        int h = Math.round(pos.getHeight());
+        double tilt = Math.toRadians(TAG_TILT);
+        int iw = (int) Math.ceil(w * Math.cos(tilt) + h * Math.sin(tilt)) + 4;
+        int ih = (int) Math.ceil(w * Math.sin(tilt) + h * Math.cos(tilt)) + 4;
+        int tw = 1;
+        int th = 1;
+        while (tw < iw) tw <<= 1;
+        while (th < ih) th <<= 1;
+        int key = Objects.hash("tag", w, h, c.getRGB());
+        Integer id = TEXTURES.get(key);
+        if (id == null) {
+            id = UiDraw.upload(tagBox(w, h, iw, ih, c), tw, th);
+            TEXTURES.put(key, id);
+        }
+        float cx = Math.round(pos.getCenterX());
+        float cy = Math.round(pos.getCenterY());
+        UiDraw.texture(id, iw, ih, iw / (float) tw, ih / (float) th, cx - iw / 2f, cy - ih / 2f, iw, ih, alpha);
+
         GL11.glPushMatrix();
-        GL11.glTranslatef(pos.getCenterX(), pos.getCenterY(), 0f);
+        GL11.glTranslatef(cx, cy, 0f);
         GL11.glRotatef(-TAG_TILT, 0f, 0f, 1f);
-        UiDraw.quad(-w / 2f, -h / 2f, w, h, Color.BLACK, alpha);
-        UiDraw.outline(-w / 2f, -h / 2f, w, h, c, alpha);
         LazyFont.DrawableString text = tagText(tag);
         if (text != null) {
             text.setBaseColor(Misc.scaleAlpha(c, alpha));
             text.draw(-text.getWidth() / 2f, text.getHeight() / 2f);
         }
         GL11.glPopMatrix();
+    }
+
+    // black box with a 1 px outline, turned clockwise in the middle of an iw x ih image with room for the anti aliased edge
+    private static BufferedImage tagBox(int w, int h, int iw, int ih, Color c) {
+        BufferedImage image = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g.setStroke(new BasicStroke(1f));
+        g.translate(iw / 2.0, ih / 2.0);
+        g.rotate(Math.toRadians(TAG_TILT));
+        g.setColor(Color.BLACK);
+        g.fill(new Rectangle2D.Double(-w / 2.0, -h / 2.0, w, h));
+        g.setColor(c);
+        g.draw(new Rectangle2D.Double(-w / 2.0 + 0.5, -h / 2.0 + 0.5, w - 1, h - 1));
+        g.dispose();
+        return image;
     }
 
     private static LazyFont.DrawableString tagText(String tag) {
@@ -578,8 +599,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
     private void addPlace(CustomPanelAPI p, Pet pet) {
         FleetMemberAPI ship = ships.get(pet.id);
         boolean inCargo = cargo.contains(pet.id);
-        float bw = (float) Math.floor((CARD_W - 16f - 8f) / 3f);
-        UiButtons.button(p, 8f, PLACE_Y, bw, PetCard.BUTTON_H, "Storage", ship == null && !inCargo ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+        UiButtons.area(p, 8f, PLACE_Y, PLACE_W, PetCard.BUTTON_H, "Storage", ship == null && !inCargo, true, null, Ui.CENTER, () -> {
             ships.remove(pet.id);
             cargo.remove(pet.id);
             refresh();
@@ -587,20 +607,19 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
 
         List<FleetMemberAPI> free = PetStatusManager.getInstance().getFreeShips(Global.getSector().getPlayerFleet());
         for (Map.Entry<String, FleetMemberAPI> e : ships.entrySet()) if (!e.getKey().equals(pet.id)) free.remove(e.getValue());
-        String reason = pet.getLifetime() <= 0f ? "It lives only where it does not age: Pet storage with a Beta core."
+        String reason = pet.getLifetime() <= 0f ? "It has no life span left. It only survives in Pet storage with a Beta core, where pets do not age."
                 : free.isEmpty() ? "No ship without a pet." : null;
 
-        ButtonAPI shipButton = UiButtons.button(p, 8f + bw + 4f, PLACE_Y, bw, PetCard.BUTTON_H, "Ship...",
-                reason != null ? UiButtons.Kind.OFF : ship != null ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR,
+        ButtonAPI shipButton = UiButtons.area(p, 8f + PLACE_PITCH, PLACE_Y, PLACE_W, PetCard.BUTTON_H, "Ship...", ship != null, reason == null, null, Ui.CENTER,
                 reason != null ? null : () -> pickShip(pet, free));
         if (reason != null) Ui.tooltip(p, shipButton, "Ship...", reason);
 
-        ButtonAPI cargoButton = UiButtons.button(p, 8f + 2f * (bw + 4f), PLACE_Y, bw, PetCard.BUTTON_H, "Cargo", inCargo ? UiButtons.Kind.HOT : UiButtons.Kind.STD, CutStyle.TL_BR, () -> {
+        ButtonAPI cargoButton = UiButtons.area(p, 8f + 2f * PLACE_PITCH, PLACE_Y, PLACE_W, PetCard.BUTTON_H, "Cargo", inCargo, true, null, Ui.CENTER, () -> {
             ships.remove(pet.id);
             cargo.add(pet.id);
             refresh();
         });
-        Ui.tooltip(p, cargoButton, "Cargo", "It does not age there.");
+        Ui.tooltip(p, cargoButton, "Cargo", "A young in a Cryochamber does not age and can be sold.");
 
         String where = ship != null ? ship.getShipName() + ", " + PetCard.shipClass(ship) : inCargo ? "Cryochamber, fleet cargo" : "Pet storage, " + shop.getMarket().getName();
         Ui.text(p, 8f, PLACE_Y + 30f, CARD_W - 16f, Ui.fit(where, Ui.INS15, CARD_W - 16f), Ui.gray());

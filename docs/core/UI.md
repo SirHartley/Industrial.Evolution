@@ -45,7 +45,7 @@ Every IE panel follows these rules.
 | `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code (`show`) and popups over a panel (`over`) |
 | `UiConfirm` | The game's confirmation popup over a panel, in its own interaction dialog |
 | `UiTour` | Guided tour step over a whole panel: dims all but one lit rect, pulsing line around it, a box with the text, `n / N`, Next and Skip or Done; eats clicks outside both while blocking. `pulse(time)` is the 0.4 s up, 0.9 s down level it and the `?` glow use |
-| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, `ring` (1 px band with 3 px cut corners), dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels to a new texture, `glow`: 1 px rings outward over `reach`, alpha falling with the square of the distance) |
+| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, `ring` (1 px band with 3 px cut corners), dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels or a `BufferedImage` to a new texture, `glow`: 1 px rings outward over `reach`, alpha falling with the square of the distance) |
 
 Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordinates and the content, and returns the created element. Panels the kit creates use `UiCanvas`, so a button anywhere below them reports to the nearest kit panel and runs its `Runnable`. No helper keeps global state; view state lives in the panel's state object.
 

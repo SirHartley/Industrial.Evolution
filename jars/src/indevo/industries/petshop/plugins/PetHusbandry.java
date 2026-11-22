@@ -61,6 +61,8 @@ public class PetHusbandry {
     static final String NO_PARTNER = "No match";
     static final String SORT_GRADE = "Grade";
     static final String SORT_NAME = "Name";
+    static final String LOCKED = "Unlocks with two adults of one species here. A pet is an adult at " + Math.round(PetConstants.YOUNG_DAYS)
+            + " days old, a hamster at " + Math.round(PetConstants.HAMSTER_YOUNG_DAYS) + ".";
     static final List<UiFilter.Item> KEYS = List.of(
             new UiFilter.Item(SORT_GRADE, 76f, "Best grade of the trait in the field first."),
             new UiFilter.Item(SORT_NAME, 70f),
@@ -145,7 +147,6 @@ public class PetHusbandry {
                 state = n + " young";
                 parts = new String[]{String.valueOf(n)};
                 color = Ui.text();
-                UiImages.img(t, HAB_W - 33f, 1f, PetCard.MARKER, PetCard.MARKER, PetCard.sprite("pet_marker_want"));
             } else {
                 String days = String.valueOf(Math.max(1, (int) Math.ceil(shop.getDaysLeft(brood))));
                 state = days + (days.equals("1") ? " day left" : " days left");
@@ -164,6 +165,7 @@ public class PetHusbandry {
 
         face(t, 24f, a);
         face(t, 70f, b);
+        if (brood != null && brood.isReady()) UiImages.img(t, HAB_W - 33f, 1f, PetCard.MARKER, PetCard.MARKER, PetCard.sprite("pet_marker_want"));
         String name = a != null && b != null ? a.name + " x " + b.name : a != null ? a.name : "Empty";
         Ui.textIn(t, 5f, 45f, 119f, Ui.LINE_H, Ui.fit(name, Ui.INS15, 119f), Ui.INS15, a != null ? Ui.text() : Ui.gray(), Ui.CENTER, new String[0], new Color[0]);
         if (!state.isEmpty()) Ui.textIn(t, 5f, 62f, 119f, Ui.LINE_H, state, Ui.INS15, color, Ui.CENTER, parts, new Color[]{Ui.hl()});
@@ -174,11 +176,19 @@ public class PetHusbandry {
         else Ui.dashbox(t, x, 7f, HAB_FACE, HAB_FACE);
     }
 
+    // the tab opens while a habitat is busy or two adults of one species are here
+    static boolean open(PetShop shop) {
+        if (!shop.getBroods().isEmpty()) return true;
+        Set<String> species = new HashSet<>();
+        for (Pet pet : adults(shop)) if (!species.add(pet.typeID)) return true;
+        return false;
+    }
+
     // adults with the player or in storage here
-    private List<Pet> adults() {
+    private static List<Pet> adults(PetShop shop) {
         List<Pet> list = new ArrayList<>();
         List<Pet> stored = shop.getStoredPetsPetsCopy();
-        for (Pet pet : manager.getPets()) {
+        for (Pet pet : PetStatusManager.getInstance().getPets()) {
             if (pet.isDead() || pet.isYoung() || pet.getData().isNoSell()) continue;
             if (pet.isWithPlayer() || stored.contains(pet)) list.add(pet);
         }
@@ -188,7 +198,7 @@ public class PetHusbandry {
 
     private void addAdults(CustomPanelAPI p, float y, float h, int habitat) {
         UiFilter.State filter = view.adults;
-        List<Pet> all = adults();
+        List<Pet> all = adults(shop);
         Map<String, Integer> perSpecies = new LinkedHashMap<>();
         for (Pet pet : all) perSpecies.merge(pet.typeID, 1, Integer::sum);
 
@@ -452,14 +462,20 @@ public class PetHusbandry {
     private String startBlock(Pet a, Pet b, boolean broke, float fee, float credits) {
         if (a == null || b == null) return "Pick two adults of one species.";
 
+        String block = pairReason(shop, a, b);
+        if (block != null) return block;
+        if (broke) return "The fee is " + Misc.getDGSCredits(fee) + " a month. You have " + Misc.getDGSCredits(credits) + ".";
+        return null;
+    }
+
+    // why the two can not pair here, null when they can; the fee is not checked
+    static String pairReason(PetShop shop, Pet a, Pet b) {
         String block = shop.pairBlock(a, b);
         if (block != null) return block;
         block = shop.parentBlock(a);
         if (block != null) return a.name + ": " + block;
         block = shop.parentBlock(b);
-        if (block != null) return b.name + ": " + block;
-        if (broke) return "The fee is " + Misc.getDGSCredits(fee) + " a month. You have " + Misc.getDGSCredits(credits) + ".";
-        return null;
+        return block != null ? b.name + ": " + block : null;
     }
 
     private void start(Pet a, Pet b, int habitat) {
@@ -568,6 +584,7 @@ public class PetHusbandry {
         });
         if (lit) view.reveal.bar(chip, cw, CHIP_H);
         Ui.textIn(chip, 9f, 0f, CHIP_BAR_X - 14f, CHIP_H, Ui.fit(row.name(), Ui.INS15, CHIP_BAR_X - 14f), Ui.INS15, row.flaw() ? Ui.neg() : Ui.text(), Ui.LEFT, new String[0], new Color[0]);
+        Ui.tooltip(chip, chip, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.BELOW, t -> chipTip(t, row.key()));
 
         List<Result> results = row.results();
         float bw = cw - CHIP_BAR_X - 8f;
@@ -589,6 +606,41 @@ public class PetHusbandry {
             Ui.painted(chip, sx, 9f, Math.max(1f, ex - sx - 1f), 6f, (pos, a) -> UiDraw.quad(pos.getX(), pos.getY(), pos.getWidth(), pos.getHeight(), c, a), null);
             cx += sw;
         }
+    }
+
+    private static void chipTip(TooltipMakerAPI t, String key) {
+        switch (key) {
+            case LOOK -> {
+                t.addPara("Look", Ui.hl(), 0f);
+                t.addPara("The colours of the portrait. It has no other effect.", 10f);
+                t.addPara("A young has the look of one parent. The Mutation rate can give it a new one.", 10f);
+            }
+            case DISPOSITION -> {
+                t.addPara("Disposition", Ui.hl(), 0f);
+                t.addPara("A pet with the Captain talent commands its ship with this personality.", 10f);
+                t.addPara("A young has the disposition of one parent.", 10f);
+            }
+            case MALFORMED -> {
+                t.addPara("Malformed", Ui.neg(), 0f);
+                t.addPara("A young of related parents can get a new flaw, or one more level of a flaw it inherited.", 10f);
+            }
+            default -> {
+                PetDataRepo.Trait trait = PetDataRepo.getTrait(key);
+                if (trait != null) traitTip(t, trait);
+            }
+        }
+    }
+
+    private static void traitTip(TooltipMakerAPI t, PetDataRepo.Trait trait) {
+        Color c = trait.isFlaw() ? Ui.neg() : Ui.hl();
+        t.addPara(trait.name(), c, 0f);
+        t.addPara(trait.isFlaw() ? "Flaw" : trait.isMutation() ? "Mutation" : trait.isFleet() ? "Fleet talent" : trait.isSignature() ? "Signature talent" : "Talent", Ui.gray(), 0f);
+        if (trait.hasLevels()) t.addPara(trait.desc(), 10f, c, trait.format(trait.value(trait.per(), 1f)));
+        else t.addPara(trait.desc(), 10f);
+        if (trait.cap() > 0f) t.addPara("At most %s.", 0f, Ui.hl(), trait.format(trait.cap()));
+        if (trait.isFleet()) t.addPara("Counts once per fleet, from the best pet.", 0f);
+        t.addPara(trait.isTalent() ? "Hearts switch talents on, the best first." : "Always on.", Ui.gray(), 10f);
+        PetPlanner.arrivesWith(t, trait);
     }
 
     // from the first parent, the sum, from the second, nothing; a kept flaw is red

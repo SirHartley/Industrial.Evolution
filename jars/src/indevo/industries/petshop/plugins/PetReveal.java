@@ -18,10 +18,10 @@ import java.util.List;
 // the gene scan reveal: the scan reads at once, the rows it read show one by one in real seconds under a green border; never saved
 final class PetReveal {
 
-    // the catch.release reward panel pace: row i at (i + 1) x ROW_TIME, its bar fades in, one tick each
-    static final float ROW_TIME = 0.24f;
-    static final float FADE_TIME = 0.15f;
-    static final float GLOW_TIME = 0.5f;
+    // row i at (i + 1) x ROW_TIME, its bar fades in, one tick each
+    static final float ROW_TIME = 0.72f;
+    static final float FADE_TIME = 0.45f;
+    static final float GLOW_TIME = 1.5f;
     static final String ROW_SOUND = "ui_cargo_supplies";
     static final float GLOW_W = 10f;
     static final float PAD = 5f;
