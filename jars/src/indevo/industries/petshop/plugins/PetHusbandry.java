@@ -61,7 +61,7 @@ public class PetHusbandry {
     static final String NO_PARTNER = "No match";
     static final String SORT_GRADE = "Grade";
     static final String SORT_NAME = "Name";
-    static final String LOCKED = "Unlocks with two adult pets of one species here. A pet is an adult at " + Math.round(PetConstants.YOUNG_DAYS)
+    static final String LOCKED = "Unlocks with two adults of one species here. A pet is an adult at " + Math.round(PetConstants.YOUNG_DAYS)
             + " days old, a hamster at " + Math.round(PetConstants.HAMSTER_YOUNG_DAYS) + ".";
     static final List<UiFilter.Item> KEYS = List.of(
             new UiFilter.Item(SORT_GRADE, 76f, "Best grade of the trait in the field first."),
@@ -612,8 +612,8 @@ public class PetHusbandry {
         switch (key) {
             case LOOK -> {
                 t.addPara("Look", Ui.hl(), 0f);
-                t.addPara("The colours of the pet. It changes only the portrait.", 10f);
-                t.addPara("A young has the look of one parent, or now and then a new one.", 10f);
+                t.addPara("The colours of the portrait. It has no other effect.", 10f);
+                t.addPara("A young has the look of one parent. The Mutation rate can give it a new one.", 10f);
             }
             case DISPOSITION -> {
                 t.addPara("Disposition", Ui.hl(), 0f);
@@ -622,7 +622,7 @@ public class PetHusbandry {
             }
             case MALFORMED -> {
                 t.addPara("Malformed", Ui.neg(), 0f);
-                t.addPara("A young of related parents can come out with one new flaw, or one more level of a flaw.", 10f);
+                t.addPara("A young of related parents can get a new flaw, or one more level of a flaw it inherited.", 10f);
             }
             default -> {
                 PetDataRepo.Trait trait = PetDataRepo.getTrait(key);

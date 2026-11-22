@@ -60,8 +60,8 @@ public class PetCard {
     static final float PET_TIME = 0.5f;
     static final float PET_GROW = 0.2f;
     static final float PORTRAIT = 64f;
-    static final String[] MENAGERIE_TIP = {"It stays with the fleet on no ship. It eats from the fleet cargo and ages.",
-            "No mascot effect or talents. Hearts grow only from answered wants."};
+    static final String[] MENAGERIE_TIP = {"It travels with the fleet without a ship. It eats from the fleet cargo and ages.",
+            "Its mascot effect and talents are off.", "Hearts do not grow with time. A favourite still gains them from answered wants."};
     static final float MARKER = 28f;
     static final float UNKNOWN_BOX = 22f;
     static final float NAME_H = 26f;
@@ -536,8 +536,8 @@ public class PetCard {
                     panel.refresh();
                 } : null);
         if (older.isEmpty()) Ui.bottomTooltip(p, box, "To cargo", "A young in a Cryochamber does not age and can be sold.");
-        else if (older.size() > 3) bottomTip(p, box, "To cargo", "Only a young under a week old fits. %s of the selected pets are older.", String.valueOf(older.size()));
-        else bottomTip(p, box, "To cargo", "Only a young under a week old fits. " + nameList(older.size()) + (older.size() == 1 ? " is older." : " are older."), older.toArray(new String[0]));
+        else if (older.size() > 3) bottomTip(p, box, "To cargo", "Only a young under a week old goes into a Cryochamber. %s of the selected pets are older.", String.valueOf(older.size()));
+        else bottomTip(p, box, "To cargo", "Only a young under a week old goes into a Cryochamber. " + nameList(older.size()) + (older.size() == 1 ? " is older." : " are older."), older.toArray(new String[0]));
 
         float fee = pets.size() * PetConstants.REHOME_FEE;
         String feeText = Misc.getDGSCredits(fee);
@@ -746,7 +746,7 @@ public class PetCard {
             PetStatusManager.getInstance().toChamber(pet);
             panel.refresh();
         });
-        Ui.tooltip(p, box, "To cargo", "A Cryochamber in the fleet cargo. It does not age there.", "Only a young under a week old fits.");
+        Ui.tooltip(p, box, "To cargo", "A Cryochamber in the fleet cargo. It does not age there.", "Only a young under a week old goes into a Cryochamber.");
         return x;
     }
 
