@@ -288,6 +288,7 @@ Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices
 | Emergency Fuel Scoop fuel | divided by `ext_fuelPriceMult` | [CONSUMABLES](items/CONSUMABLES.md) |
 | Ice treasure wreck recovery (both modes) | vanilla battle wreck roll | [METEOR](exploration/METEOR.md) |
 | Forge World ship quality | `ext_shipForSaleQualityMod` | [CHANGELING](industries/CHANGELING.md) |
+| VPC chip deposits (Assembler, Manufactory, Commodity Forge, Convert VPC find, Fabricator Bay) | divided by `ext_<id>PriceMult` | [ASSEMBLER](industries/ASSEMBLER.md#deposits) |
 
 ### Shared cross-file constraints
 

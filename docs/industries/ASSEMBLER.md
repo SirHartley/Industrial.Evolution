@@ -49,9 +49,11 @@ Month end chain: `reportEconomyMonthEnd -> getDepositList -> getDepositAmount ->
 
 ### Deposits
 
-`getDepositAmount` (`VariableAssembler.java:136-146`), static form shared with `ConvertVPCSpecial`:
+`getDepositAmount` (`VariableAssembler.java:138-149`), static form shared with `ConvertVPCSpecial` and the RAT Fabricator Bay:
 
-`round(round((logIncrease * ln(size - 2) + amount) / 10) * 10 * aiCoreMult * timeMult * outputMult * deficitMult)`
+`round(round((logIncrease * ln(size - 2) + amount) / 10) * 10 * aiCoreMult * timeMult * outputMult * deficitMult / priceMult)`
+
+- `priceMult`: the commodity's Survival mode price factor (`ExtModeHelper.commodityPriceMult`, `ext_<id>PriceMult`, 1 in normal mode and for goods without a key). The CSV amounts are a credit budget at normal mode prices, so a good that costs three times more in Survival mode (fuel) deposits a third. Market supply and demand of the chip are not cut.
 
 - `amount`: the industry's column in `vpc_commodities.csv`. `logIncrease`: `getLogIncrease()`, the class `LOG_INCREASE`.
 - `aiCoreMult`: alpha 1.15, beta 1.25, else 1.
