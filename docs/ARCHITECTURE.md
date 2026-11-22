@@ -286,7 +286,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Distress calls, ghost ships | Excluded, does not compile; hullmod rows and rules still load | [DISTRESS](exploration/DISTRESS.md) |
 | Converters | Excluded, does not compile | [WIP](core/WIP.md) |
 | Wormhole complex (`IndEvo_Warphouse`) | CSV row and item commented out | [WAREHOUSES](industries/WAREHOUSES.md) |
-| `indevo/other` | Unregistered except the nuclear option checker | [MISC](core/MISC.md) |
+| `indevo/other` | Unregistered snippets and templates for other mods | [MISC](core/MISC.md) |
 | `devActions()` | Disabled (`&& false`, `ModPlugin.java:149`) | This file |
 
 Each feature doc lists its own dormant classes and suspected bugs under Known issues.

@@ -17,7 +17,7 @@ public class NuclearWeaponCombatListener implements FleetEventListener {
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
         boolean register = true;
         for (FleetEventListener l : fleet.getEventListeners()) {
-            if (l instanceof NuclearWeaponChecker) {
+            if (l instanceof NuclearWeaponCombatListener) {
                 register = false;
                 break;
             }

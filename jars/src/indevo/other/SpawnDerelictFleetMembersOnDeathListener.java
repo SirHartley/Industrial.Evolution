@@ -20,8 +20,11 @@ public class SpawnDerelictFleetMembersOnDeathListener implements FleetEventListe
     //call this from your mod plugin onSaveLoad()
     public static void attachToPlayerFleetIfNotPresent() {
         CampaignFleetAPI fleet = Global.getSector().getPlayerFleet();
-        if (!fleet.hasScriptOfClass(SpawnDerelictFleetMembersOnDeathListener.class))
-            fleet.addEventListener(new SpawnDerelictFleetMembersOnDeathListener());
+        for (FleetEventListener l : fleet.getEventListeners()) {
+            if (l instanceof SpawnDerelictFleetMembersOnDeathListener) return;
+        }
+
+        fleet.addEventListener(new SpawnDerelictFleetMembersOnDeathListener());
     }
 
     @Override

@@ -72,7 +72,6 @@ Theory of Toolbox (`aotd_theory_of_toolbox`), Vaults of Knowledge (`aotd_vok`), 
 
 | Item | State |
 |---|---|
-| `indevo/other/YourMod_PetName_PetHullmod.java:31`, `:48` | Checks `indEvo`, IE's id is `IndEvo` and the check is case sensitive, so the template never runs as written; unregistered. See [Misc](MISC.md) |
 | `indevo/exploration/distress/hullmods/GhostShip.java:15`, `:16` | Old MagicLib packages (`data.scripts.plugins.MagicTrailPlugin`, `data.scripts.util.MagicRender`); folder excluded in `IndEvo.iml` |
 | `indevo/WIP/converters/scripts/IndEvo_TakeoverScriptWithNex.java`, `PlayerFactionSetupNag.java` | Nexerelin imports, unguarded; excluded. See [WIP](WIP.md) |
 
