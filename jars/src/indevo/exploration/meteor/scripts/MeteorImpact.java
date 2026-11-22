@@ -9,6 +9,7 @@ import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.TrigHelper;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -116,7 +117,7 @@ public class MeteorImpact implements EveryFrameScript {
 
         FleetMemberAPI target = picker.pick();
         if (target != null) {
-            float damageMult = Math.max(1f, fleet.getCurrBurnLevel() - Misc.getGoSlowBurnLevel(fleet));
+            float damageMult = Math.max(1f, fleet.getCurrBurnLevel() - Misc.getGoSlowBurnLevel(fleet)) * ExtModeHelper.mult("ext_environmentalDamageMult");
             Misc.applyDamage(target, null, damageMult, true, "asteroid_impact", "Asteroid impact",
                     true, null, target.getShipName() + " suffers damage from an asteroid impact");
         }

@@ -249,7 +249,7 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 
 | From | Uses | Where |
 |---|---|---|
-| Privateer | Current government (`GovernmentCondition.getGovernment`); `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:71,194,203,322` |
+| Privateer | Current government (`GovernmentCondition.getGovernment`); `EngineeringHub.isTiandong/isRoider` | `PrivateerBase.java:72,194,203,322` |
 | Courier port | Gacha stations as targets; RAT settlements | `ShippingTargetHelper.java:56-57`, `ShippingContract.java:88,93` |
 | RAT settlements | Parent industry code: `Academy`, `ReverseEngineering`, Salvage Yards and Courier panels, `Museum` and `RestorationDocks` static helpers, Requisitions Center submarket, `VariableAssembler` deposits, `AmbassadorPersonManager`, `PetShop` (`HabitatPetShop`, `planCenter`) and the Pets panel | [RAT_SETTLEMENTS](industries/RAT_SETTLEMENTS.md) |
 | Courier port | Contracts allowed and billed with a RAT Courier Office | `ShippingManager.java:44`, `:101` |
@@ -270,6 +270,26 @@ IE is released and players keep saves across patch versions. 4.2.a does not load
 | Beacons, scoop, smoke cloud, mine belt | Split fleet `OrbitFocus` entity | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
 | `other/legioNuclearOption` | Research `RefitUIOpenChecker` | [MISC](core/MISC.md) |
 | `$IndEvo_ruinsIndustryId` | Read by supercomputer, `LocatorSystemRatingUpdater` | [DERELICTS](industries/DERELICTS.md) |
+
+### Survival mode
+
+Vanilla Survival mode (extended mode in code, `Misc.isExtended()`) scales prices, drops and pay at its own call sites; IE code that bypasses those sites applies the same `ext_` key itself through `ExtModeHelper` ([UTILS](core/UTILS.md#helper)), tested at call time, never a copied number. Exceptions are noted per feature. Already exempt on purpose: research drops (`DropDataCreator.java:17`), nest relics (`DroneNetScript.java:258`), the hullmod relic price (`RecoveredHullmods.java:65`).
+
+| Feature | Survival mode factor | Doc |
+|---|---|---|
+| Hull Forge print cost | `ext_shipBuyPriceMult` | [DERELICTS](industries/DERELICTS.md#forge-template-loop) |
+| Academy hire rolls at markets the player does not own | `ext_officersAvailableFraction`, `ext_adminAvailableFraction` | [ACADEMY](industries/ACADEMY.md#hireable-spawns-and-officer-quality) |
+| Detachment crew and marine pay | `ext_crewSalaryMult`, `ext_marineSalaryMult` (with `Misc.computeFleetMemberCrewSalary`) | [SPLIT_FLEET](abilities/SPLIT_FLEET.md) |
+| Ship recovery weights in IE special tables (caches, arsenal station, pet center) | `Misc.getDerelictRecoverableFraction()` | [SALVAGE](exploration/SALVAGE.md#assignment) |
+| Credit Stash payout | 30%, fixed (no vanilla key) | [SALVAGE](exploration/SALVAGE.md#specials) |
+| Privateer Base weapon and wing loot | 30%, fixed (no vanilla key) | [PRIVATEER](industries/PRIVATEER.md#loot) |
+| Salvage Yards order budget and scrap value | `ext_playerIndustryCustomProductionMaxValueMult`, `ext_shipBuyPriceMult` | [SALVAGE_YARDS](industries/SALVAGE_YARDS.md) |
+| Meteor and rogue asteroid hits | `ext_environmentalDamageMult` | [METEOR](exploration/METEOR.md) |
+| Emergency Fuel Scoop fuel | divided by `ext_fuelPriceMult` | [CONSUMABLES](items/CONSUMABLES.md) |
+| Ice treasure wreck recovery (both modes) | vanilla battle wreck roll | [METEOR](exploration/METEOR.md) |
+| Forge World ship quality | `ext_shipForSaleQualityMod` | [CHANGELING](industries/CHANGELING.md) |
+| VPC chip deposits (Assembler, Manufactory, Commodity Forge, Convert VPC find, Fabricator Bay) | divided by `ext_<id>PriceMult` | [ASSEMBLER](industries/ASSEMBLER.md#deposits) |
+| Restoration Docks and Restoration Bay price | `ext_partsPriceMult` | [SMALL_INDUSTRIES](industries/SMALL_INDUSTRIES.md) |
 
 ### Shared cross-file constraints
 

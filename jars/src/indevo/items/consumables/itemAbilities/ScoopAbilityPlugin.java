@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.*;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.procgen.StarAge;
 import com.fs.starfarer.api.impl.campaign.procgen.StarSystemGenerator;
 import com.fs.starfarer.api.loading.CampaignPingSpec;
@@ -13,6 +14,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.items.consumables.entities.PlayerTrackingNebulaParticle;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.ExtModeHelper;
 import org.lazywizard.lazylib.VectorUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -174,7 +176,7 @@ public class ScoopAbilityPlugin extends BaseConsumableAbilityPlugin {
         }
 
         float dur = getDurationDays() * Global.getSector().getClock().getSecondsPerDay();
-        float amt = targetType == TargetType.NEBULA ? (MAX_FUEL_AMT / dur) * ageMult : (MAX_FUEL_AMT / dur) * starMult;
+        float amt = (targetType == TargetType.NEBULA ? (MAX_FUEL_AMT / dur) * ageMult : (MAX_FUEL_AMT / dur) * starMult) / ExtModeHelper.commodityPriceMult(Commodities.FUEL);
 
         CargoAPI cargo = getFleet().getCargo();
         cargo.addFuel(Math.min(amt, cargo.getFreeFuelSpace()));

@@ -49,7 +49,7 @@ public class FabricatorBay extends SettlementFacility {
         Map<String, Integer> map = new LinkedHashMap<>();
         float mult = VPCItemPlugin.getDepositMult(vpc) * OUTPUT_MULT;
         for (Commodity c : VPCItemPlugin.getOutputs(vpc)) {
-            int amount = VariableAssembler.getDepositAmount(c.getDeposit(Ids.ADASSEM), VariableAssembler.LOG_INCREASE, SIZE_MULT, mult);
+            int amount = VariableAssembler.getDepositAmount(c.id(), c.getDeposit(Ids.ADASSEM), VariableAssembler.LOG_INCREASE, SIZE_MULT, mult);
             if (amount > 0) map.put(c.id(), amount);
         }
 

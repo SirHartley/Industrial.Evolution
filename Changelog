@@ -34,6 +34,19 @@ Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
 Removed - data/strings/strings.json (text is now in the code, translation packs that replace it no longer work)
 
+Survival Mode
+Adjusted - Hull Forge: print cost follows the Survival mode ship price
+Adjusted - Academy: officers and admins for hire show up as rarely as on vanilla markets at Academies you do not own
+Adjusted - Supply, weapon and equipment caches hold recoverable ships as rarely as vanilla ones
+Adjusted - Credit Stash: 30% of the credits
+Adjusted - Privateer Base: 30% of the raided weapons and wings, blueprints unchanged
+Adjusted - Salvage Yards: order budget x3 like vanilla custom production, scrapped ships count at the Survival mode ship price
+Adjusted - Meteor and rogue asteroid hits deal double damage like vanilla asteroid impacts
+Adjusted - Emergency Fuel Scoop: a third of the fuel, fuel costs three times as much
+Adjusted - Forge World: ships come with more d-mods, like vanilla ships for sale
+Adjusted - VPC deposits: fuel a third, marines a quarter, as those cost that much more
+Adjusted - Restoration Docks and Restoration Bay: double price, like Domain grade parts
+
 Ashes of the Domain
 Added - Research tree: IE industries, specializations and governments are unlocked by research
 Added - IE Ship Components count in the AOTD economy
@@ -78,6 +91,7 @@ Added - Catch.Release harpoons can now break meteors
 Added - NPC fleets now steer out of the way of incoming meteors
 Added - Rogue Asteroids: rare small groups of rocks cross systems without warning, colonies included, sometimes carrying treasure. Now and then a system gets a drizzle of small rocks for 5 to 15 days instead (chance is a setting in the Meteor Swarms tab).
 Adjusted - Meteors now break on stations without damaging or pushing them
+Adjusted - Wrecks frozen in ice now follow the vanilla wreck recovery rules, some need a story point (was always free)
 Fixed - Tutorial intel can no longer show duplicate notifications
 Fixed - Planetoid swarms no longer leave planets, rings and loot stations behind
 Fixed - Rogue planets and swarm rocks no longer vanish right after they spawn
@@ -177,6 +191,7 @@ Added - Accelerate: halve the remaining training time with Relic Components
 Added - Holobench: new Academy item. Officers get one more personality step, leave training mentored and gain 20,000 XP per month while stored.
 Adjusted - Training at your own Academy is now free
 Adjusted - Admin training only teaches skills from academy_admin_skill_whitelist.csv (other mods can add theirs)
+Adjusted - Stored officers cost the vanilla idle rate of 10% of their salary (was full salary)
 Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit
 Fixed - Swapping AI cores no longer keeps the old core's bonuses
@@ -209,6 +224,7 @@ Fixed - Managed Democracy size cap no longer stays after a government change
 Fixed - Forge World stability now follows metals and transplutonics, not luxuries
 Fixed - Rural Polity bonuses now end when leaving it or closing the free port
 Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
+Fixed - Forge World ships now keep their d-mods and no longer add d-mods to other ships of the same type
 
 Specialized Industries
 Adjusted - Mining and Refining keep their own industry when specialized

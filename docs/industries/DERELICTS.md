@@ -57,7 +57,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Hullmod | `IndEvo_print_low`, `IndEvo_print_med`, `IndEvo_print_high` (dmod) | `data/hullmods/hull_mods.csv:2,5,8` |
 | Hullmod | `IndEvo_auto` (`Ids.PRINTING_INDICATOR`) | `data/hullmods/hull_mods.csv:11` |
 | Jump point | id `IndEvo_planet_replacer_<uid>` (rifts from before 4.2.a: `IndEvo_planet_replacer`), tag `IndEvo_artificialRift`, desc `IndEvo_JumpRiftTemporary` (permanent tears from before 4.2.a: `IndEvo_JumpRift`); the jump point dialog prints only text3 (skill `api/impl/campaign/JumpPointInteractionDialogPluginImpl.java:234-236`), so both rows carry the text in text1 and text3 | `RiftRelocator.java:26-29`, `data/strings/descriptions.csv:3-4` |
-| Variant tag | `IndEvo_comp1/2/3` | `HullForge.java:422-424` |
+| Variant tag | `IndEvo_comp1/2/3` | `HullForge.java:423-425` |
 | Variant tag | `IndEvo_hasInbuiltLogMod` | `HullDeconstructor.java:55` |
 | Memory key | `$IndEvo_ruinsIndustryId` (market), `$IndEvo_ruinsPlaced_<marketId>` | `Ruins.java:17`, `RuinsManager` |
 | Variant tag | `no_auto_penalty` (vanilla `Tags.TAG_AUTOMATED_NO_PENALTY`), added by the Ships tab | `AncientLabRelicPanelDelegate.integrate` |
@@ -70,7 +70,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Setting | `IndEvo_derelictDeliverToGathering`, `IndEvo_RG_cooldownTime` (90), `IndEvo_RG_range` (9), `IndEvo_RG_preciseCost` (100), `IndEvo_reslab_autoDeliverToClosestDecon` | `data/config/LunaSettings.csv:156-160` |
 | Setting | `IndEvo_hullDecon_autoDeliverToClosestForge`, `IndEvo_hullDecon_days_*` (10/20/30/40) | `data/config/LunaSettings.csv:153-157` |
 | Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:158-163` |
-| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:28`, read at `HullForge.java:278,444` |
+| Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:28`, read at `HullForge.java:279,444` |
 | Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:19` |
 | Config | `IndEvo_riftBlockedSystemsList` -> `data/config/indEvo/rift_blocked_systems.csv` (system ids, never a target), `IndEvo_riftBlockingEntitiesList` -> `data/config/indEvo/rift_blocking_entities.csv` (custom entity types that block in orbit: `bifrost_gate`, `aotd_pluto_station`) | `data/config/settings.json:25-26` |
 | Rules | `IndEvo_RiftGenTargetOptions`, `IndEvo_RiftTarget_*`, `IndEvo_RiftPrecisePicked`, `IndEvo_RiftPreciseFired`, `IndEvo_FireBaseRGOptionList`, `IndEvo_RiftControlMenuPoint*` | `data/campaign/rules.csv:756-817` |
@@ -104,7 +104,7 @@ Forge template item ids (`IndEvo_ForgeTemplate`, `IndEvo_DegForgeTemplate`, `Ind
 ### Forge template loop
 
 - Deconstructor: ship put into `IndEvo_DeconstStorage` (added in `advance`, `HullDeconstructor.java:72`) -> stripped, N days by hull size -> forge template with 2 or 3 charges (+1 beta), quality base 1, alpha/beta 2, gamma 0. Alpha adds a built in logistics hullmod (`addBuiltInLogisticsHullmods`, `:149`). Gamma: upkeep x0.7 while idle. Optional auto delivery to the closest forge.
-- Forge: one ship per charge into storage. Cost 20% of base value, x0.7 with beta, booked on the "Hull printing" report line ([BillingHelper](../core/UTILS.md#billinghelper)). D-mods via `ForgeTemplateItemPlugin.addPrintDefectDMods` (template quality + forge quality). Alpha: 2 built in hullmods plus `IndEvo_compN` tag (`compensateInbuilts`, `:426`). Spent template: degraded, or empty with 0.6 chance on beta (`EMPTY_FORGE_TEMPLATE_CHANCE`, `:82`).
+- Forge: one ship per charge into storage. Cost 20% of base value, times the Survival mode ship buy price (`ExtModeHelper.shipBuyPriceMult`, vanilla `ext_shipBuyPriceMult` by hull size, 1 in normal mode), x0.7 with beta (`getConstructionCost`, `HullForge.java:436`), booked on the "Hull printing" report line ([BillingHelper](../core/UTILS.md#billinghelper)). D-mods via `ForgeTemplateItemPlugin.addPrintDefectDMods` (template quality + forge quality). Alpha: 2 built in hullmods plus `IndEvo_compN` tag (`compensateInbuilts`, `:426`). Spent template: degraded, or empty with 0.6 chance on beta (`EMPTY_FORGE_TEMPLATE_CHANCE`, `:82`).
 - Lab: degraded template -> empty template, 20 days, 10 with gamma (`initRepair`, `AncientLaboratory.java:113`). Commodity bonus +2 on existing supply of a whitelist commodity; beta +3 on one, alpha +1 on three (`getBonusValue :129`, `setAllCommodityBonuses :140`).
 - Relic speed up: `HullDeconstructor` and `AncientLaboratory` (both Accelerate) are `RelicSpeedUpTarget`s. The industry option halves the days left (adds to `daysPassed`) for 1 Relic Component per remaining day, once per 60 days per industry. See [Economy](../core/ECONOMY.md#relic-speed-up).
 - All three autofeed from the shared storage and deliver to the gathering point when `IndEvo_derelictDeliverToGathering` is on (inferred: `repairInstalledFT :270` pattern repeats in decon and forge).
@@ -166,7 +166,7 @@ Tear lifetime (`RiftTearManager`): `open` stores the tear, the redirected hypers
 | `RuinsCountMap` | Deprecated, unused. |
 | `PlanetJumpListener` | No implementers. |
 | `AncientLaboratory.java:263-275` | Null gathering point returns false, retried daily. |
-| `HullForge.java:283` | NPE if the target market has no storage submarket. |
+| `HullForge.java:284` | NPE if the target market has no storage submarket. |
 | Gas giant jump | The planet gets no gravity well in the new system (inferred, autogen would duplicate every jump point there). |
 | Several open tears | A gamma core (tear x2) or a relic Recharge lets one Generator fire again while its last tear is open. |
 | Changelog_todo | "Change derelict industries to superstructures" (`:140`). The rift warp sounds from "riftgen anim sounds" (`:55,82`) now play. |

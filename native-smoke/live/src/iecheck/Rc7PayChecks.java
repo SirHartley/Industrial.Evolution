@@ -65,7 +65,8 @@ public final class Rc7PayChecks {
             Global.getSector().getPlayerFleet().getFleetData().addOfficer(stored);
             academy.storeOfficer(stored);
             c.expect(academy.getOfficerStorage().contains(stored), "an officer is stored at the Academy");
-            c.put("storedPay", oldSalary(stored));
+            c.put("storedPay", oldSalary(stored) * Misc.getOfficerInactiveSalaryMult());
+            c.expect(Math.abs(Academy.getStoredOfficerSalaryMult() - Misc.getOfficerInactiveSalaryMult()) < 0.0001f, "a stored officer draws the vanilla idle share " + Misc.getOfficerInactiveSalaryMult());
             c.expect(Math.abs(Academy.getBaseSalary(stored) - oldSalary(stored)) < 0.5f, "Academy pay is the old pay (" + Academy.getBaseSalary(stored) + " vs " + oldSalary(stored) + ")");
             PersonAPI merc = OfficerManagerEvent.createOfficer(Global.getSector().getPlayerFaction(), 4);
             Misc.setMercenary(merc, true);
@@ -131,12 +132,17 @@ public final class Rc7PayChecks {
             c.note("academy functional " + ac.isFunctional() + ", stored officers " + ac.getOfficerStorage().size() + ", market player owned " + c.market("a").isPlayerOwned());
             String storage = l.stream().filter(s -> s.contains("Personnel storage")).findFirst().orElse("none");
             float pay = (Float) c.get("storedPay");
-            c.expect(storage.endsWith(" " + Math.round(pay)), "the month report has Personnel storage at the stored officer's pay " + Math.round(pay) + " (" + storage + ")");
+            c.expect(storage.endsWith(" " + Math.round(pay)), "the month report has Personnel storage at the stored officer's idle pay " + Math.round(pay) + " (" + storage + ")");
             String name = DetachmentMemory.getDetachment(1).getFleetData().getMembersListCopy().get(0).getCaptain().getNameString();
             String line = l.stream().filter(s -> s.contains(name + " (")).findFirst().orElse("none");
             float cpay = (Float) c.get("captainPay");
             c.expect(line.contains("(Detachment") || line.contains("(" + DetachmentMemory.getDetachment(1).getName()), "the payroll has a line for the detachment officer (" + line + ")");
             c.near(Float.parseFloat(line.substring(line.lastIndexOf(' ') + 1)), cpay, cpay * 0.05f + 1f, "the detachment officer's month pay is about the vanilla pay");
+            FleetMemberAPI ship = DetachmentMemory.getDetachment(1).getFleetData().getMembersListCopy().get(0);
+            String crewLine = l.stream().filter(s -> s.contains("/Active-duty crew payroll/" + ship.getShipName() + " (")).findFirst().orElse("none");
+            float crewPay = Misc.computeFleetMemberCrewSalary(ship, true);
+            c.expect(!crewLine.equals("none"), "the crew payroll has a line for the detachment ship (" + crewLine + ")");
+            if (!crewLine.equals("none")) c.near(Float.parseFloat(crewLine.substring(crewLine.lastIndexOf(' ') + 1)), crewPay, crewPay * 0.05f + 1f, "the detachment ship's month crew pay is about the vanilla crew pay");
             c.keepDialog(true);
             DetachmentUiChecks.open(c, new DetachmentView());
             c.frames(60);

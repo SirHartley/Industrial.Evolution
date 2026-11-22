@@ -25,7 +25,7 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 | `entities/MeteorEntity.java` | Base meteor plugin: rotation, movement module, missile hit check, collision with stations and fleets near the viewport, NPC fleet dodge, fade at arc end |
 | `entities/TreasuroidEntity.java` | Sparkling meteor, spawns a random supply/equipment/weapons cache on impact |
 | `entities/IcyRockEntity.java` | Ice rock; radius >= 50 spawns orbiting splinters that fall back to arcing when their focus dies |
-| `entities/IceTreasureoidEntity.java` | Ice rock carrying a derelict wreck (hull value > 20000, recoverable without story point) |
+| `entities/IceTreasureoidEntity.java` | Ice rock carrying a derelict wreck (hull value > 20000). Recovery is rolled by vanilla `SalvageSpecialAssigner.assignSpecialForBattleWreck` in both modes: a free recovery special (weight 10 times `Misc.getDerelictRecoverableFraction()`) or none (10), which leaves the wreck dialog's story point recovery and its Survival mode block (`SalvageEntity blockRecoveryIfExtendedMode`) |
 | `entities/SpicyRockEntity.java` | Irradiated rock: green glow, raises radiation on fleets within `radius * 10` |
 | `entities/TreasuradoidEntity.java` | Large irradiated treasure rock (radius 400), entourage ring, `_loot` research or lab station that frees on impact |
 | `movement/MeteorMovementModuleAPI.java`, `BaseMeteorMovementModule.java` | Movement contract (`init`, `advance`, `isMovementFinished`, arc, velocity) |
@@ -36,7 +36,7 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 | `movement/RelativeArcingMovement.java` | Dead: no users |
 | `scripts/MovementModuleRunner.java`, `PayloadOnFinishedModuleRunner.java` | Run a movement module on non-meteor entities (entourage focus, planetoid); payload runs a `Script` in the same `advance()` the arc ends, then `isDone()` |
 | `scripts/PlanetoidDespawnScript.java` | Planetoid payload: fades the planet, its ring bands and every non fleet entity orbiting it; fleets orbiting it lose the orbit and stay |
-| `scripts/MeteorImpact.java`, `IceroidImpact.java` | 0.2 s push on the hit fleet, one ship damaged (weight by hull size, scaled by burn above go-slow), sound, glow, asteroid fragments; station fleets get no push and no damage; ice variant spawns ice fragments |
+| `scripts/MeteorImpact.java`, `IceroidImpact.java` | 0.2 s push on the hit fleet, one ship damaged (weight by hull size, scaled by burn above go-slow and by `ext_environmentalDamageMult` in Survival mode, as vanilla `AsteroidImpact`), sound, glow, asteroid fragments; station fleets get no push and no damage; ice variant spawns ice fragments |
 | `scripts/RadiationReductionScript.java` | NPC radiation decay |
 | `scripts/TutorialEncounterScript.java` | Spawns "Panicked Roiders" (roider or independent `SCAVENGER_SMALL`), makes them intercept the player |
 | `fleet/InterceptPlayerFleetAssignmentAI.java` | Script plus campaign listener: re-issues `INTERCEPT` until the player opens a dialog with the fleet, then returns it to source |
@@ -106,7 +106,7 @@ Rogue asteroids: on a tick with no shower roll, a second roll can send a small f
 
 `MeteorEntity.advance` (`:94`): only when within 1000 of the viewport; targets are stations and fleets minus salvageable entities, built once per frame and location and shared by all meteors (`getCollisionRelevantEntities`, `CollisionTargets`), since a tag lookup walks every entity in the location; hit when centre distance < meteor radius. A meteor hit by a consumable missile (`MissileMemFlags.MEM_CAUGHT_BY_MISSILE` in its memory) collides with a token at the missile location, so treasure drops without hitting a fleet (`:100-110`).
 
-- Station fleets (`isStationMode`): the hit breaks the meteor with sound, glow and fragments, no damage and no push (`MeteorImpact.java:34`, `:66`, `:191`). The push would drop the station's orbit, and only market stations get it back (vanilla `OrbitalStation`).
+- Station fleets (`isStationMode`): the hit breaks the meteor with sound, glow and fragments, no damage and no push (`MeteorImpact.java:35`, `:67`, `:192`). The push would drop the station's orbit, and only market stations get it back (vanilla `OrbitalStation`).
 - Dodge (`warnFleets`, `:149`): in the same near viewport block, every 0.2 s per meteor (`dodgeTimer`), for each fleet target that is not the player, not in station mode, not on an orbit and has a `ModularFleetAIAPI`: `getClosestApproach` (`:164`) takes the point on the meteor's straight course closest to the fleet. If the meteor gets there within 4 s and the point is closer than meteor radius + fleet radius + 150, the fleet gets `getNavModule().avoidLocation(loc, point, range, range + 1, 0.03 days)`. The avoid vector points across the lane; a band of 1 or less gives it weight 2 against the fleet's own heading (starsector-knowledge `obf/campaign/ai/NavigationModule.java:74-87`). `avoidLocation` adds a new entry per call, hence the interval; each entry lasts 0.3 s. Fleets on an orbit do not move by their nav module and still get hit.
 
 ### Radiation

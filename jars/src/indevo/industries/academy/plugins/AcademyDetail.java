@@ -15,6 +15,7 @@ import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.industries.academy.industry.Academy;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.RelicHelper;
+import indevo.utils.helper.StringHelper;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 
@@ -100,7 +101,7 @@ class AcademyDetail {
     }
 
     private void addOfficer(PersonAPI person, boolean stored) {
-        addOfficerInfo(person, stored ? "Stored here" : null);
+        addOfficerInfo(person, stored ? "Stored here" : null, stored ? Academy.getStoredOfficerSalaryMult() : 1f);
         GridRow drills = stored ? panel.getDrillsRow(person) : null;
         if (drills != null) grid(GAP, drills);
 
@@ -147,7 +148,7 @@ class AcademyDetail {
         }
     }
 
-    private void addOfficerInfo(PersonAPI person, String assignment) {
+    private void addOfficerInfo(PersonAPI person, String assignment, float salaryMult) {
         String personality = person.getPersonalityAPI().getId();
         int used = academy.getTrainedSteps(person);
 
@@ -160,7 +161,7 @@ class AcademyDetail {
             UiData.grid(b, GRID_X, 2f, w - GRID_X, GRID_ROW, List.of(
                     GridRow.of("Level", person.getStats().getLevel() + ""),
                     GridRow.of("Personality", AcademyPanelDelegate.getPersonalityName(personality), AcademyPanelDelegate.getPersonalityColor(personality)),
-                    GridRow.of("Salary", Misc.getDGSCredits(Academy.getBaseSalary(person))),
+                    GridRow.of("Salary", Misc.getDGSCredits(Academy.getBaseSalary(person) * salaryMult)),
                     GridRow.of("Steps used", used + " of " + Math.max(used, academy.getMaxOfficerSteps()))));
 
             float lineY = 2f + 4f * GRID_ROW;
@@ -291,7 +292,7 @@ class AcademyDetail {
         float fee;
 
         if (!view.admins) {
-            addOfficerInfo(person, "In training");
+            addOfficerInfo(person, "In training", 1f);
             String from = person.getPersonalityAPI().getId();
             String to = academy.getOfficerTrainingTarget();
             String line = AcademyPanelDelegate.getPersonalityName(from) + " to " + AcademyPanelDelegate.getPersonalityName(to);
@@ -404,7 +405,8 @@ class AcademyDetail {
         String fee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
         String text;
 
-        if (!view.admins) text = own ? "Stored officers draw their full salary." : "Storage costs " + fee + " per month plus full salary.";
+        String salaryShare = StringHelper.getAbsPercentString(Academy.getStoredOfficerSalaryMult(), false);
+        if (!view.admins) text = own ? "Stored officers draw " + salaryShare + " of their salary." : "Storage costs " + fee + " per month plus " + salaryShare + " of salary.";
         else text = own ? "Stored administrators draw 10% of their salary." : "Storage costs " + fee + " per month plus 10% of salary.";
 
         if (governed != null) text += " You take over as governor of " + governed.getName() + ".";

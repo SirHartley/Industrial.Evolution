@@ -27,6 +27,7 @@ public class CreditStashSpecial extends BaseSalvageSpecial {
 
     public static final String OPEN = "open";
     public static final String NOT_NOW = "not_now";
+    public static final float SURVIVAL_CREDIT_MULT = 0.3f;
 
     public static class CreditStashSpecialData implements SalvageSpecialInteraction.SalvageSpecialData {
         public float prob = 0.5f;
@@ -88,6 +89,11 @@ public class CreditStashSpecial extends BaseSalvageSpecial {
         }
     }
 
+    // the hunter odds in data.prob stay on the full amount
+    private float getPayout() {
+        return Math.round(data.creditAmt * (Misc.isExtended() ? SURVIVAL_CREDIT_MULT : 1f));
+    }
+
     private void initEntityLocation() {
         if (random.nextFloat() > data.prob) {
             addText("You clean out the spacers wallet, including around 50 years of compound interest. Seems like everything is coming up your way this cycle!");
@@ -96,8 +102,9 @@ public class CreditStashSpecial extends BaseSalvageSpecial {
             transmitterActivated();
         }
 
-        playerFleet.getCargo().getCredits().add(data.creditAmt);
-        AddRemoveCommodity.addCreditsGainText(Math.round(data.creditAmt), text);
+        float payout = getPayout();
+        playerFleet.getCargo().getCredits().add(payout);
+        AddRemoveCommodity.addCreditsGainText(Math.round(payout), text);
     }
 
     public static final String STOLEN_CREDIT_AMT_KEY = "$IndEvo_stolen_credit_amt";
@@ -116,7 +123,7 @@ public class CreditStashSpecial extends BaseSalvageSpecial {
             fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_PIRATE, true);
             fleet.setName("Impoverished " + (data.params.factionId.equals(Factions.PIRATES) ? "Pirate" : "Mercenary"));
             fleet.getMemoryWithoutUpdate().set("$IndEvo_poor_spacer", true);
-            fleet.getMemoryWithoutUpdate().set(STOLEN_CREDIT_AMT_KEY, data.creditAmt);
+            fleet.getMemoryWithoutUpdate().set(STOLEN_CREDIT_AMT_KEY, getPayout());
             Misc.makeLowRepImpact(fleet, "indEvo_creditSpecial");
 
             float range = data.minRange + random.nextFloat() * (data.maxRange - data.minRange);

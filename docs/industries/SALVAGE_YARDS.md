@@ -114,7 +114,7 @@ Vanilla pickers (`showCustomProductionPicker`, `showFleetMemberPickerDialog`) ne
 The order holds blueprint hulls from `showCustomProductionPicker` (known ships), registry weapons and wings (also offered in the picker), registry hulls (from the Wreck Registry tab) and scrapped ships (`showFleetMemberPickerDialog` on fleet and storage ships). Picks are added to the order; the x on a line's sprite removes the line. `YardsContract` prices it each rebuild:
 
 - Price mult `costMult` = 1.8 - relation, clamped to 0.9..1.5. Line cost = `createSampleItem(...).getBaseCost() * qty * costMult`, rounded per line like `FactionProduction.getTotalCurrentCost`.
-- Capacity = `3 + scrap value + getHullCapacity() * productionCapacityPerSWUnit * (2 with story point)`. Scrapped ships count 30% of base value, less per D-mod. The story point is spent on the button (bonus XP `IndEvo_SYDoubleCapBonusXP`) and kept in `$IndEvo_HasSelectedSP_SY` until a contract is confirmed.
+- Capacity = `3 + scrap value + getHullCapacity() * productionCapacityPerSWUnit * (2 with story point)`, the hull capacity term times `ext_playerIndustryCustomProductionMaxValueMult` in Survival mode (the factor vanilla `FactionProduction.getProductionCapacityForMarket` gives custom production). Scrapped ships count 30% of base value, in Survival mode the hull part times `ext_shipBuyPriceMult` while weapons and wings keep their own mode price, as in vanilla `FleetMember.getBaseBuyValue` (the order prices from `FactionProduction.ItemInProduction.getBaseCost` carry it too), less per D-mod ([ExtModeHelper](../core/UTILS.md#helper)). The story point is spent on the button (bonus XP `IndEvo_SYDoubleCapBonusXP`) and kept in `$IndEvo_HasSelectedSP_SY` until a contract is confirmed.
 - Ship Components reduce the cost by up to 50%; Relic Components reduce D-mods (`SY_BASE_DMODS` minus the filled share of `DP * RARE_PARTS_AMOUNT_PER_DP`, DP as rounded `getSuppliesToRecover`). Both sliders count fleet cargo plus local storage.
 - Confirm needs items, value within capacity, credits and enough salvage units. It charges credits, takes relics and parts (fleet cargo first, then storage), removes scrapped ships, takes registry entries and salvage units, and posts `YardsCustomProductionIntel`, which delivers to local storage after `IndEvo_SYHullDeliveryTime` days with the forecast D-mods (`DModManager.addDMods`) and unlocks storage. It fails if the market decivilizes or loses the yards.
 
@@ -160,7 +160,7 @@ S-mods tab (`TransferTab`, `ModTransfer.Kind.SMOD`), same ship pool and layout a
 | Item | State |
 |---|---|
 | AI core fields not reset (`applyAlphaCoreModifiers` etc., `:502`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
-| Story point bonus (`YardsContract.getCapacity`, `:186`) | multiplies only the hull capacity term (operator precedence) |
+| Story point bonus (`YardsContract.getCapacity`, `:187`) | multiplies only the hull capacity term (operator precedence) |
 | D-mod transfer cost | formula `(1.2^n + 1) / n` differs from `RestorationDocks` `1.2^(n+1) / n` |
 | `modifyPlayerCustomProduction` | dead code |
 

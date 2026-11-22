@@ -17,6 +17,7 @@ import indevo.industries.salvageyards.intel.YardsCustomProductionIntel;
 import indevo.industries.salvageyards.memory.WreckRegistry;
 import indevo.industries.salvageyards.memory.YardsProductionData;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 
 import java.util.*;
@@ -172,8 +173,11 @@ public class YardsContract {
         return market.getMemoryWithoutUpdate().getBoolean(HAS_SP_SELECTED);
     }
 
+    // the mode mult goes on the hull only, weapon and wing values carry their own, as in vanilla getBaseBuyValue
     public static float getScrapValue(FleetMemberAPI member) {
-        return member.getBaseValue() * SCRAP_SHARE * Math.max(0f, 1f - ModTransfer.getDModList(member).size() / 10f);
+        float hull = member.getHullSpec().getBaseValue();
+        float fittings = member.getBaseValue() - hull;
+        return (hull * ExtModeHelper.shipBuyPriceMult(member.getHullSpec().getHullSize()) + fittings) * SCRAP_SHARE * Math.max(0f, 1f - ModTransfer.getDModList(member).size() / 10f);
     }
 
     public float getScrapValue() {
@@ -187,7 +191,8 @@ public class YardsContract {
         float storyPointBonus = isStoryPointUsed() ? 2f : 1f;
         SalvageYards yards = getYards();
         float hullCapacity = yards == null ? 0f : yards.getHullCapacity();
-        return 3 + getScrapValue() + hullCapacity * Global.getSettings().getInt("productionCapacityPerSWUnit") * storyPointBonus;
+        float modeMult = ExtModeHelper.mult("ext_playerIndustryCustomProductionMaxValueMult");
+        return 3 + getScrapValue() + hullCapacity * Global.getSettings().getInt("productionCapacityPerSWUnit") * modeMult * storyPointBonus;
     }
 
     public float getBudgetLeft() {

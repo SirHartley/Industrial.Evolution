@@ -36,6 +36,7 @@ import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.industries.changeling.listener.ShipProductionSummaryMessageHandler;
 import indevo.utils.ModPlugin;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
@@ -275,13 +276,14 @@ x can only be built on very hot worlds
         variant = variant.clone();
         variant.setSource(VariantSource.REFIT);
         variant.setOriginalVariant(null);
+        member.setVariant(variant, false, true);
 
-        float quality = market.getShipQualityFactor();
+        float quality = market.getShipQualityFactor() + ExtModeHelper.mod("ext_shipForSaleQualityMod");
         float averageDmods = DefaultFleetInflater.getAverageDmodsForQuality(quality);
-        int addDmods = DefaultFleetInflater.getNumDModsToAdd(member.getVariant(), averageDmods, random);
+        int addDmods = DefaultFleetInflater.getNumDModsToAdd(variant, averageDmods, random);
 
         if (addDmods > 0) {
-            DModManager.setDHull(member.getVariant());
+            DModManager.setDHull(variant);
             DModManager.addDMods(member, true, addDmods, random);
         }
 
