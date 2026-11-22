@@ -86,6 +86,22 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         REHOMED,
     }
 
+    // Pets panel tabs that open as the player raises pets; id is stored in PetBestiaryFile, never rename
+    public enum Unlock {
+        TREE("tree", "Family tree", "Unlocks with your first young. Pair two pets of one species at an Animal Center."),
+        PLAN("planner", "Planner", "Unlocks when a young you raised grows up.");
+
+        public final String id;
+        public final String tab;
+        public final String reason;
+
+        Unlock(String id, String tab, String reason) {
+            this.id = id;
+            this.tab = tab;
+            this.reason = reason;
+        }
+    }
+
     private Map<String, Float> foodTakenLastMonth = new HashMap<>(); //contains a list of commodity and amount taken last month for feeding purposes
 
     public static PetStatusManager getInstance() {
@@ -167,6 +183,30 @@ public class PetStatusManager extends BaseCampaignEventListener implements Econo
         pets.add(pet);
         if (getFavourites().isEmpty()) pet.setFavourite(true);
         PetBestiaryFile.get().see(List.of(pet.typeID), pet.sheet != null && pet.sheet.look != null ? List.of(pet.sheet.look) : List.of());
+        if (pet.parentA != null) checkUnlocks();
+    }
+
+    public boolean isOpen(Unlock unlock) {
+        return PetBestiaryFile.get().isUnlocked(unlock.id);
+    }
+
+    // from a placed young, a raised young growing up and the Pets panel opening (older saves); unlocks carry over to the next game
+    public void checkUnlocks() {
+        for (Unlock unlock : Unlock.values()) {
+            if (isOpen(unlock) || !earned(unlock)) continue;
+            PetBestiaryFile.get().unlock(unlock.id);
+            message("%s unlocked in Manage Pets.", Misc.getTextColor(), unlock.tab, null, Misc.getHighlightColor(), null);
+        }
+    }
+
+    // a raised pet has parents; the Planner needs one past Young
+    private boolean earned(Unlock unlock) {
+        for (Pet pet : pets) {
+            if (pet.parentA == null) continue;
+            if (unlock == Unlock.TREE || !pet.isYoung()) return true;
+        }
+
+        return false;
     }
 
     public List<Pet> getFavourites() {

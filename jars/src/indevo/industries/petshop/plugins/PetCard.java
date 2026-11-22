@@ -477,7 +477,7 @@ public class PetCard {
         addTalents(p, y + th + PetsPanel.HEAD_GAP, w, listed ? h - 44f : h, pet, true);
         if (!listed) return;
         Ui.rule(p, 0f, h - 36f, w);
-        UiButtons.button(p, 0f, h - BUTTON_H, TREE_W, BUTTON_H, "Family tree", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.showTree(pet));
+        PetsPanel.tabButton(p, 0f, h - BUTTON_H, TREE_W, BUTTON_H, "Family tree", PetStatusManager.Unlock.TREE, () -> panel.showTree(pet));
     }
 
     // a favourite that died in another game: what PetMemorialFile keeps of it
@@ -1170,7 +1170,7 @@ public class PetCard {
     // Family tree on the Pets tab; in the tree it reads Show in Pets, grey for a pet the Pets list here does not show
     private void treeButton(CustomPanelAPI p, float y, Pet pet, CampaignFleetAPI away) {
         if (view.tab != PetsView.TAB_TREE) {
-            UiButtons.button(p, 0f, y, TREE_W, BUTTON_H, "Family tree", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.showTree(pet));
+            PetsPanel.tabButton(p, 0f, y, TREE_W, BUTTON_H, "Family tree", PetStatusManager.Unlock.TREE, () -> panel.showTree(pet));
             return;
         }
 
@@ -1190,6 +1190,7 @@ public class PetCard {
     // a planned young with this pet in the first place, on the Planner tab
     private void planButton(CustomPanelAPI p, float x, float y, Pet pet) {
         String block = pet.getData().isNoSell() ? "This one does not pair." : pet.sheet.isKnown(PetGenetics.STERILE) && pet.sheet.getGrade(PetGenetics.STERILE) > 0 ? "Sterile." : null;
+        if (block == null && !PetStatusManager.getInstance().isOpen(PetStatusManager.Unlock.PLAN)) block = PetStatusManager.Unlock.PLAN.reason;
         ButtonAPI button = UiButtons.button(p, x, y, BUTTON_W, BUTTON_H, "Plan pairing", block != null ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.TL_BR,
                 block != null ? null : () -> panel.newPlan(pet.typeID, pet.id, null));
         if (block != null) Ui.tooltip(p, button, "Plan pairing", block);

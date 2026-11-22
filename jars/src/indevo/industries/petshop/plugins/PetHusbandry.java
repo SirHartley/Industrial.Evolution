@@ -349,7 +349,7 @@ public class PetHusbandry {
     }
 
     private void treeButton(CustomPanelAPI p, float h, Pet a, Pet b) {
-        UiButtons.button(p, 0f, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Family tree", UiButtons.Kind.STD, CutStyle.TL_BR, () -> panel.showPair(a, b));
+        PetsPanel.tabButton(p, 0f, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Family tree", PetStatusManager.Unlock.TREE, () -> panel.showPair(a, b));
     }
 
     // a second adult of another species starts the pair again
@@ -397,7 +397,7 @@ public class PetHusbandry {
             cross(p, w, h, a, b);
             treeButton(p, h, a, b);
             scanControls(p, w, h, a, b);
-            UiButtons.button(p, PLAN_X, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Add to plan", UiButtons.Kind.STD, CutStyle.TL_BR,
+            PetsPanel.tabButton(p, PLAN_X, h - PetCard.BUTTON_H, TREE_W, PetCard.BUTTON_H, "Add to plan", PetStatusManager.Unlock.PLAN,
                     () -> panel.newPlan(a.typeID, a.id, b.id));
         }
 
