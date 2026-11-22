@@ -30,11 +30,27 @@ public class RelicSpeedUpDialog extends RelicConfirmDialog {
     }
 
     public static void addTooltip(TooltipMakerAPI tooltip, RelicSpeedUpTarget target) {
+        addTooltip(tooltip, target, true);
+    }
+
+    // panel buttons show the cost and the blocked reason themselves
+    public static void addPanelTooltip(TooltipMakerAPI tooltip, RelicSpeedUpTarget target) {
+        addTooltip(tooltip, target, false);
+    }
+
+    private static void addTooltip(TooltipMakerAPI tooltip, RelicSpeedUpTarget target, boolean full) {
         tooltip.addPara(getEffect(target), 0f);
-        RelicHelper.addCostLine(tooltip, target.getMarket(), target.getSpeedUpCost(), OPAD);
+        if (full) RelicHelper.addCostLine(tooltip, target.getMarket(), target.getSpeedUpCost(), OPAD);
         tooltip.addPara("Can be used once every %s " + target.getSpeedUpScope() + ".", OPAD, Misc.getHighlightColor(),
                 Math.round(RelicSpeedUpTarget.COOLDOWN_DAYS) + " days");
 
+        if (full) addBlocker(tooltip, target);
+
+        String lore = target.getSpeedUpLore();
+        if (lore != null) tooltip.addPara(lore, Misc.getGrayColor(), OPAD);
+    }
+
+    private static void addBlocker(TooltipMakerAPI tooltip, RelicSpeedUpTarget target) {
         float cooldown = target.getSpeedUpCooldownLeft();
         if (cooldown > 0f) {
             int days = (int) Math.ceil(cooldown);
@@ -42,9 +58,6 @@ public class RelicSpeedUpDialog extends RelicConfirmDialog {
         } else if (!target.canSpeedUp()) {
             tooltip.addPara("Too few days left.", Misc.getNegativeHighlightColor(), OPAD);
         }
-
-        String lore = target.getSpeedUpLore();
-        if (lore != null) tooltip.addPara(lore, Misc.getGrayColor(), OPAD);
     }
 
     public static boolean isAvailable(RelicSpeedUpTarget target) {

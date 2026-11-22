@@ -300,7 +300,7 @@ public class AnnexPanelDelegate extends BaseCustomDialogDelegate {
         ButtonAPI accelerate = UiButtons.relic(card, ax, 6f, aw, BUTTON_H, "Accelerate", cost, RelicHelper.canAfford(market, cost), CutStyle.ALL, reason != null ? null : () -> {
             if (RelicSpeedUpDialog.apply(annex)) refresh();
         });
-        Ui.tooltip(card, accelerate, Ui.TOOLTIP_W, TooltipLocation.BELOW, t -> RelicSpeedUpDialog.addTooltip(t, annex));
+        Ui.tooltip(card, accelerate, Ui.TOOLTIP_W, TooltipLocation.BELOW, t -> RelicSpeedUpDialog.addPanelTooltip(t, annex));
         if (reason != null) Ui.text(card, bx, 30f, w - 8f - bx, reason, Ui.neg(), Ui.RIGHT);
     }
 

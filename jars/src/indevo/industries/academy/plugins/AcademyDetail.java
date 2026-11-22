@@ -358,7 +358,7 @@ class AcademyDetail {
                 panel.refresh();
             });
             if (blocked) Ui.wrap(row, 0f, TRAIN_H + UiButtons.REASON_GAP, w, reason, Ui.neg());
-            Ui.tooltip(row, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> RelicSpeedUpDialog.addTooltip(t, target));
+            Ui.tooltip(row, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> RelicSpeedUpDialog.addPanelTooltip(t, target));
         });
     }
 

@@ -151,7 +151,7 @@ class ReverseEngineeringTab {
             RelicSpeedUpDialog.apply(target);
             panel.refresh();
         });
-        Ui.tooltip(card, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> RelicSpeedUpDialog.addTooltip(t, target));
+        Ui.tooltip(card, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> RelicSpeedUpDialog.addPanelTooltip(t, target));
     }
 
     private void addDropOff(CustomPanelAPI p, float lw) {

@@ -423,7 +423,7 @@ class AssemblyTab {
             });
         }
 
-        Ui.tooltip(row, button, 400f, TooltipMakerAPI.TooltipLocation.BELOW, t -> RelicSpeedUpDialog.addTooltip(t, order));
+        Ui.tooltip(row, button, 400f, TooltipMakerAPI.TooltipLocation.BELOW, t -> RelicSpeedUpDialog.addPanelTooltip(t, order));
     }
 
     private String getAccelerateReason(YardsCustomProductionIntel order) {

@@ -18,7 +18,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 | `indevo/economy/RelicSpeedUpTarget.java` | Interface for one timer: days left and total, `speedUp(days)`, label, lore; defaults for cost, days after, cooldown and the constants |
 | `indevo/economy/listeners/RelicSpeedUpOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: the speed up option on any player owned industry that implements `RelicSpeedUpTarget` and `canSpeedUp()` |
 | `indevo/economy/plugins/RelicConfirmDialog.java` | Shared relic confirm dialog (`CustomDialogDelegate`), laid out like the vanilla story point dialog: requirement line, description, relic counter left of the buttons; static `addRequirement`, `addCounter` |
-| `indevo/economy/plugins/RelicSpeedUpDialog.java` | `RelicConfirmDialog` for every relic speed up, plus static `addBody`, `addTooltip`, `isAvailable`, `apply` |
+| `indevo/economy/plugins/RelicSpeedUpDialog.java` | `RelicConfirmDialog` for every relic speed up, plus static `addBody`, `addTooltip` (cost and blocked reason included, for options and intel), `addPanelTooltip` (without both, for panel buttons that show them), `isAvailable`, `apply` |
 | `indevo/dialogue/rules/IndEvo_CPCExpress.java` | Rule command for Express Delivery: `valid`, `options`, `apply` |
 | `data/campaign/rules.csv` block `# Custom production express delivery` | Express Delivery offer and the two accept paths |
 | `indevo/economy/patches/RelicBuildInPatch.java` | PatchLib patch on `ModPickerDialogV3`: adds the toggle, redirects the story point check, message and payment; nested `Toggle` holds the state and pays |
