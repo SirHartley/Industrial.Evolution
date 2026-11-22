@@ -73,6 +73,8 @@ public final class SurvivalChecks {
         HullForge forge = (HullForge) a.getIndustry(Ids.HULLFORGE);
         v.put("forge", (Float) invoke(method(HullForge.class, "getConstructionCost", float.class, ShipHullSpecAPI.class), forge, hull));
         v.put("scrap", YardsContract.getScrapValue(member));
+        v.put("scrapBase", member.getBaseValue());
+        v.put("hull", hull.getBaseValue());
         v.put("fuel", (float) VariableAssembler.getDepositAmount(Commodities.FUEL, 1000, 0f, 1, 1f));
         v.put("marines", (float) VariableAssembler.getDepositAmount(Commodities.MARINES, 1000, 0f, 1, 1f));
         v.put("docks", RestorationDocks.getSingleDModRepairCost(member, 3, 1f));
@@ -184,7 +186,9 @@ public final class SurvivalChecks {
             float parts = Global.getSettings().getFloat("ext_partsPriceMult");
             float hire = Global.getSettings().getFloat("ext_officersAvailableFraction");
             c.near(s.get("forge"), n.get("forge") * capital, 1f, "survival: Hull Forge cost x" + capital + " for a capital");
-            c.near(s.get("scrap"), n.get("scrap") * capital, 1f, "survival: Salvage Yards scrap value x" + capital + " for a capital");
+            float share = n.get("scrap") / n.get("scrapBase");
+            float scrap = (s.get("hull") * capital + s.get("scrapBase") - s.get("hull")) * share;
+            c.near(s.get("scrap"), scrap, 1f, "survival: Salvage Yards scrap value has the hull x" + capital + " for a capital, weapons and wings at their own price");
             c.near(s.get("fuel"), Math.round(1000f / fuel), 0.5f, "survival: VPC fuel deposit / " + fuel);
             c.near(s.get("marines"), Math.round(1000f / marines), 0.5f, "survival: VPC marine deposit / " + marines);
             c.near(s.get("docks"), n.get("docks") * parts, 1f, "survival: Restoration Docks d-mod cost x" + parts);

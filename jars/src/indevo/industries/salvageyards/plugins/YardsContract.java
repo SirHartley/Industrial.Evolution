@@ -173,8 +173,11 @@ public class YardsContract {
         return market.getMemoryWithoutUpdate().getBoolean(HAS_SP_SELECTED);
     }
 
+    // the mode mult goes on the hull only, weapon and wing values carry their own, as in vanilla getBaseBuyValue
     public static float getScrapValue(FleetMemberAPI member) {
-        return member.getBaseValue() * ExtModeHelper.shipBuyPriceMult(member.getHullSpec().getHullSize()) * SCRAP_SHARE * Math.max(0f, 1f - ModTransfer.getDModList(member).size() / 10f);
+        float hull = member.getHullSpec().getBaseValue();
+        float fittings = member.getBaseValue() - hull;
+        return (hull * ExtModeHelper.shipBuyPriceMult(member.getHullSpec().getHullSize()) + fittings) * SCRAP_SHARE * Math.max(0f, 1f - ModTransfer.getDModList(member).size() / 10f);
     }
 
     public float getScrapValue() {
