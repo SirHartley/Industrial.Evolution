@@ -169,6 +169,22 @@ public final class Groups {
                 return ArtilleryChecks.placement();
             case "shuttle":
                 return ShuttleChecks.steps();
+            case "reelplanet":
+                return ReelChecks.planet();
+            case "reelfog":
+                return ReelChecks.fog();
+            case "reellight":
+                return ReelChecks.lighthouse();
+            case "reelsearch":
+                return ReelChecks.searchlight();
+            case "reeldrones":
+                return ReelChecks.drones();
+            case "reelpets":
+                return ReelChecks.pets();
+            case "reelcolony":
+                return ReelChecks.colony();
+            case "reelflash":
+                return ReelChecks.flash();
             default:
                 throw new IllegalArgumentException("Unknown group " + group);
         }

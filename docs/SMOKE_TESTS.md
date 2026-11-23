@@ -157,10 +157,43 @@ The full set is about 340 checks in 12 minutes and exits 0 only when all pass. A
 | `uistyle` | One dialog with kit headings, the panel strips (heading note, Edict, Research card, Detachment, title), every button kind and the green and amber fills at 100, 75 and 60 % beside widgets built the way vanilla intel builds them, sizes logged as `STYLE` notes; a second dialog (`style-bars`) with every kit bar colour beside the vanilla bar widget `com.fs.starfarer.campaign.ui.N` at 0, 35, 70 and 100 %. Not in the full set |
 | `uiresearch` | Research Tracts side panel at the Galatia Academy (`UiViews.side`, captured as the whole screen): cards, Info open, Project Reforge without a Corrupted Nanoforge, item rows, scrolled with a Stock click, empty. Not in the full set |
 | `holdacademy` ... `holdresearch`, `holdvanilla` | Build one panel's state, open it (`holdvanilla`: a player colony with vanilla industries and 10 officers, no panel), log the click targets and leave the game open (`HELD`) for `gamectl`. Not in the full set |
+| `reelplanet` ... `reelflash` | Sizzle reel takes in real time ([Sizzle reel](#sizzle-reel)). Not in the full set |
 
 Day skips run at 60x. Fleets can overshoot the 50 unit arrival check at that speed and never land, so set `Time.mult = 3f` around a fleet arriving somewhere.
 
 A new check goes in the group of its feature, or in a new `<Feature>Checks.java` listed in `Groups.java`. Run it on the broken build first, so it is known to fail. Repeat anything random in one step: the rogue planet bug passed a single spawn and failed 348 of 4000 arcs. How steps, day skips and reloads work is in the skill's `references/live-game.md`.
+
+## Sizzle reel
+
+The `reel*` groups play the takes of the sizzle reel (Claude Doc "IE sizzle reel shot plan") in real time for a screen recorder: `native-smoke/live/src/iecheck/ReelChecks.java`, director `Reel.java`. Each group builds its scene at 60x, then plays one take at 1x. Flight takes hide the UI and fly heading 45 (up right on screen) at burn 7 (`Reel.steer`), so cuts between them match. A take logs `REEL rolling <take>`, `REEL mark <take> <mark> <s>` and `REEL cut <take> <s> marks {...}`; seconds count from the roll, for the edit. Its only check is that it reached its marks.
+
+| Group | Take | Shots |
+|---|---|---|
+| `reelplanet` | Fleet parked at Chicomoztoc while traffic loads it (`FleetFlights.queueTrade`) and the mortar fires at a pinned token; at 7 s it takes off while the zoom eases 0.6 to 2.0 | 1, 2 |
+| `reelfog` | A fog bank (`FogWeatherManager.spawn`, seed 4207) in an empty system, flown along its densest 6 s line | 3 |
+| `reellight` | A 2 beam lighthouse with the beam pinned at 260, flown through | 4 |
+| `reelsearch` | A searchlight tower passed at 0.6 of its range, cut 1.5 s after the lock | 5 |
+| `reeldrones` | Two spotters 750 su behind the fleet, railgun lances, a turn after the first shot | 6 |
+| `reelpets` | UI on: Pip's play message, the Pets panel, Play, the full family tree (`ReelProbe.tree`), the young dialog with a Sum, a Mutation and a malformed card opened 0.3 s apart | 7 to 10 |
+| `reelcolony` | UI on: Colonies tab, then real cursor clicks on the colony row, the Senate tile and "Visit the Senate...", ending in the Edict panel | 11, 12 |
+| `reelflash` | Stills `check-reel-flash-<n>-<panel>.png`: Academy, Salvage Yards, Change government, Courier Port, Engineering Hub, Ancient Laboratory, Detachments | 13 |
+
+Recording with OBS Studio 28 or newer on Windows:
+
+1. Tools, WebSocket Server Settings: enable the server (port 4455).
+2. Window Capture of the Starsector window, method "Windows 10 (1903 and up)", cursor capture on. Base and output resolution 1600x900, 60 fps.
+3. One take per run:
+
+```bash
+export SMOKE_HIDE=0 SMOKE_PRIORITY=Normal REEL_OBS=127.0.0.1:4455 REEL_OBS_PASSWORD='<obs password, if set>'
+bash "$SKILL/scripts/smoke.sh" checks <checkout> reelplanet
+```
+
+`REEL_OBS` and `REEL_OBS_PASSWORD` become `-Die.reel.obs` and `-Die.reel.obs.password` (`project.sh`). With them each take sends StartRecord at the roll and StopRecord at the cut over obs-websocket 5 (`ReelObs.java`), so every take is one file; `REEL obs StartRecord ok` or `failed: <reason>` shows the link. Without them the take plays the same, record by hand.
+
+`SMOKE_HIDE=0` leaves the game window in front. `reelcolony` clicks with `java.awt.Robot` (`ReelMouse`): it calibrates the cursor at 1.2 s from two moves, so keep the mouse still during the take.
+
+Limits: the runner always runs the game at 1600x900, so takes are 1600x900. Timing is real time, not frame exact. The Play animation is picked at random (Toss, Rock or Bounce); rerun `reelpets` for another.
 
 ## Live sessions
 
