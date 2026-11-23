@@ -83,7 +83,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 ### Panel
 
-One custom dialog (`CourierPanelDelegate`, 1104 x 709 via `UiFrame`) with the contract list on the left and the editor on the right from `EDITOR_X` 372. The list width follows from it (`UiScroll.listWidth`, rows 347): rows, the New contract button and the editor are 12 px from the rule (`UiScroll.ruleX`). Every change rebuilds the panel from `CourierView`; scroll offsets survive the rebuild.
+One custom dialog (`CourierPanelDelegate`, 1108 x 709 via `UiFrame`) with the contract list on the left and the editor on the right from `EDITOR_X` 376. The list width follows from it (`UiScroll.listWidth`, rows 351): rows, the New contract button and the editor are 12 px from the rule (`UiScroll.ruleX`). Every change rebuilds the panel from `CourierView`; scroll offsets survive the rebuild.
 
 - The editor works on `view.draft`, a copy of the stored contract (`CourierPanelDelegate.java:141-142`). Save writes it through `ShippingContractMemory.addOrReplaceContract`, which refuses invalid contracts and replaces by id in place (`ShippingContractMemory.java:26-42`). Cancel, Return and picking another row drop the draft. Active and Ship now write the stored contract at once (`CourierEditor.java:87-90,487-489`).
 - Steps: route (From card, storage tiles, then To), goods (scope or selected cargo and ships), then schedule and cost once the goods are chosen and the draft is valid. Save shows only then. A stored invalid contract shows the reason and Remove only.

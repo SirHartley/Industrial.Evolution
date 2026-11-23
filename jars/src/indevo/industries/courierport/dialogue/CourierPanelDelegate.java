@@ -20,10 +20,10 @@ import java.util.List;
 
 public class CourierPanelDelegate extends BaseCustomDialogDelegate {
 
-    public static final float BOARD_W = 1104f;
+    public static final float BOARD_W = 1108f;
     public static final float BOARD_H = 709f;
     static final float BODY_Y = 64f;
-    static final float EDITOR_X = 372f;
+    static final float EDITOR_X = 376f;
     static final float LIST_W = UiScroll.listWidth(0f, EDITOR_X);
     static final float ROW_H = 70f;
     static final float ROW_GAP = 4f;
