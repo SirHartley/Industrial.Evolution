@@ -1,4 +1,14 @@
 --------------------------- Changelog -----------------------------
+5.0.b
+General
+Fixed - Crash on new game with HMI (mods built against the old IE settings)
+
+Research Projects
+Fixed - New project notices no longer show several times for the same projects
+
+Consumables
+Fixed - Crash when pressing a hotkey slot that holds a removed ability
+
 5.0.a
 General
 Adjusted - Updated for Starsector 0.98.5a
@@ -46,7 +56,7 @@ Adjusted - Salvage Yards: order budget x3, scrapped ships valued at the Survival
 Adjusted - Meteor and rogue asteroid hits deal double damage like vanilla asteroid impacts
 Adjusted - Emergency Fuel Scoop: a third of the fuel, fuel costs three times as much
 Adjusted - Forge World: ships come with more d-mods, like vanilla ships for sale
-Adjusted - VPC deposits: fuel a third, marines a quarter, as those cost that much more
+Adjusted - VPC deposits: fuel a third, marines a quarter (they cost that much more)
 Adjusted - Restoration Docks and Restoration Bay: double price, like Domain grade parts
 
 Ashes of the Domain
@@ -78,7 +88,6 @@ Adjusted - Accepted items show their icon and how many you have
 Fixed - Survival mode no longer thins the rewards of Project Spyglass, Mjölnir and Transistor
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
-Fixed - New project notices no longer show several times for the same projects
 Fixed - Drive Field Tuning modspec no longer drops as random loot
 
 Minefields
@@ -306,7 +315,7 @@ Fixed - D-mod and S-mod transfer tooltips now say why the option is unavailable
 Fixed - D-mod transfer no longer offers hulls whose D-mods are built in and can not be moved
 
 Senate
-Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
+Added - Edict: Mandated Overtime: build menu, queue and tooltips show the halved build times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
 Added - Edict panel: pick a colony and an Edict, see its effects and costs, then enact or remove it
 Added - Bribe Senators: end an Edict early without unrest for 1 Relic Component per remaining day
@@ -385,13 +394,13 @@ Added - Detachment panel: one column per detachment with ships, supplies, behavi
 Added - Detachment orders (Go to, Attack, Trade run) and toggles (Auto-recall, Join fights)
 Added - Take mode: pick what you take with you, the rest stays behind as the detachment
 Added - Detachment intel with location, status and recall, stranded detachments stop and report
-Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
+Adjusted - Detachments now travel with the vanilla fleet AI, also between star systems
 Note - Recall all detachments before updating, active ones break old saves
 Adjusted - Detachment slots reduced from three to two
 Adjusted - Your flagship now always stays with you
 Adjusted - Dormant detachments now only wake up when resupplied
 Adjusted - Detachment crew, marines and officers are now paid like the main fleet, except while dormant
-Note - Spawning a detachment now needs a full month of supplies plus repairs, as the panel says
+Note - Spawning a detachment now needs a full month of supplies plus repairs
 Fixed - Detachments no longer get stuck, drift away or silently lose crew, fuel and cargo
 Fixed - Detachment supply use, repair cost and operating time now show real values
 Fixed - Detachments now leave a wreck for every lost ship, holding all excess cargo
@@ -404,7 +413,6 @@ Added - Explosive and Interceptor missile targeting now shows the flight path up
 Adjusted - Area targeting reticule now uses the thinner updated sprite
 Adjusted - IE missile abilities without a missile plugin now crash with a clear error
 Fixed - Crash when firing a missile by hotkey from a hyperspace-only slot
-Fixed - Crash when pressing a hotkey slot that holds a removed ability
 Fixed - Missiles fired by clicking no longer bloat the save
 Fixed - Smoke cloud size and explosion volume now work as intended
 Fixed - Chaff tooltip now shows the real slowdown values
