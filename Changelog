@@ -78,6 +78,7 @@ Adjusted - Accepted items show their icon and how many you have
 Fixed - Survival mode no longer thins the rewards of Project Spyglass, Mjölnir and Transistor
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
+Fixed - New project notices no longer show several times for the same projects
 Fixed - Drive Field Tuning modspec no longer drops as random loot
 
 Minefields

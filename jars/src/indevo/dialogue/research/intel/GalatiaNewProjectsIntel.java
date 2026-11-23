@@ -1,5 +1,6 @@
 package indevo.dialogue.research.intel;
 
+import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -11,8 +12,11 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.dialogue.research.ResearchProjectTemplateRepo;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
 
@@ -20,14 +24,48 @@ public class GalatiaNewProjectsIntel extends BaseIntelPlugin {
     public float timePassed = 0f;
     public static float TIME_TO_DESPAWN_DAYS = 31f;
 
-    public GalatiaNewProjectsIntel(String... ids) {
-        this.newProjectIds = (Arrays.asList(ids));
+    public GalatiaNewProjectsIntel(List<String> ids) {
+        this.newProjectIds = new ArrayList<>(ids);
     }
 
-    public static void notifyNewProjects(String... ids){
-        GalatiaNewProjectsIntel intel = new GalatiaNewProjectsIntel(ids);
-        Global.getSector().getIntelManager().addIntel(intel);
-        intel.setImportant(true);
+    // unlocks within one frame share one intel, sent on the next frame
+    public static void notifyNewProjects(String... ids) {
+        Batch batch = null;
+        for (EveryFrameScript script : Global.getSector().getTransientScripts()) {
+            if (script instanceof Batch && !script.isDone()) batch = (Batch) script;
+        }
+
+        if (batch == null) {
+            batch = new Batch();
+            Global.getSector().addTransientScript(batch);
+        }
+
+        batch.ids.addAll(Arrays.asList(ids));
+    }
+
+    private static class Batch implements EveryFrameScript {
+        private final Set<String> ids = new LinkedHashSet<>();
+        private boolean done = false;
+
+        @Override
+        public boolean isDone() {
+            return done;
+        }
+
+        @Override
+        public boolean runWhilePaused() {
+            return true;
+        }
+
+        @Override
+        public void advance(float amount) {
+            if (done) return;
+            done = true;
+
+            GalatiaNewProjectsIntel intel = new GalatiaNewProjectsIntel(new ArrayList<>(ids));
+            Global.getSector().getIntelManager().addIntel(intel);
+            intel.setImportant(true);
+        }
     }
 
     protected void addBulletPoints(TooltipMakerAPI info, ListInfoMode mode) {

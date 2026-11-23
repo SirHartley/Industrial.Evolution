@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
+import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.campaign.listeners.ShowLootListener;
 import com.fs.starfarer.api.combat.ShipVariantAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -16,7 +17,9 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
     private static final String HAS_FOUND_GUN_KEY = "$IndEvo_HasFoundDoritoGun";
 
     public static void register(){
-        Global.getSector().getListenerManager().addListener(new DoritoGunFoundChecker(), true);
+        ListenerManagerAPI manager = Global.getSector().getListenerManager();
+        if (manager.hasListenerOfClass(DoritoGunFoundChecker.class)) return;
+        manager.addListener(new DoritoGunFoundChecker(), true);
     }
     public static boolean isGunFound() {
         return Global.getSector().getMemoryWithoutUpdate().getBoolean(HAS_FOUND_GUN_KEY);
@@ -34,7 +37,7 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
         for (CargoAPI.CargoItemQuantity<String> qt : loot.getWeapons()) {
             if (Global.getSettings().getWeaponSpec(qt.getItem()).getTags().contains(Tags.OMEGA)) {
                 setGunFound();
-                break;
+                return;
             }
         }
     }
@@ -46,7 +49,7 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
         for (CargoAPI.CargoItemQuantity<String> qt : Global.getSector().getPlayerFleet().getCargo().getWeapons()) {
             if (Global.getSettings().getWeaponSpec(qt.getItem()).getTags().contains(Tags.OMEGA)) {
                 setGunFound();
-                break;
+                return;
             }
         }
 
@@ -55,7 +58,7 @@ public class DoritoGunFoundChecker implements ShowLootListener, EconomyTickListe
             for (String s : var.getFittedWeaponSlots()) {
                 if (var.getWeaponSpec(s).getTags().contains(Tags.OMEGA)) {
                     setGunFound();
-                    break;
+                    return;
                 }
             }
         }
