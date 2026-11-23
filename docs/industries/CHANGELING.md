@@ -167,7 +167,7 @@ Apply chain, per industry, from `Market.reapplyIndustries` and `BaseIndustry.rea
 | `RuralPolitySubIndustry.fixClosest` | Debug helper, only referenced from a comment |
 | Forge World without spaceport | Suspected: `return` in the unrest branch also skips ship building (`:212`) |
 | Decivilization | Removes the condition without `unapply`, so a Forge World or Managed Democracy listener stays registered (inferred, not tested) |
-| `HandBuiltHullmod` | Repo entries are never pruned, one per hand built ship; ships built before 4.2.a keep their 5 stored effects |
+| `HandBuiltHullmod` | Repo entries are never pruned, one per hand built ship; ships built before 5.0.a keep their 5 stored effects |
 | Changelog_todo | "Choose a government popup on colony establishment", "add some more info/tt/notifications to governments" |
 
 ## Maintenance
