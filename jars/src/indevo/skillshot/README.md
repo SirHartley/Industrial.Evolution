@@ -57,7 +57,7 @@ public class MyMissileAbility extends BaseSkillshotAbility {
 }
 ```
 
-Then add a row to `abilities.csv` with **`IndEvo_skillshot` in the tags column** and the class in the plugin column. The tag is how the hotkey listener finds the ability in the ability bar; without it only the click path works. A tagged ability whose plugin is not a `SkillshotAbility` throws `IllegalStateException` on its hotkey, since only an IE bug gets there.
+Then add a row to `abilities.csv` with **`IndEvo_skillshot` in the tags column** and the class in the plugin column. The tag is how the hotkey listener finds the ability in the ability bar; without it only the click path works. A tagged ability whose plugin is not a `SkillshotAbility` throws `IllegalStateException` on its hotkey, since only an IE bug gets there. A slot id with no ability spec (its mod was removed) is skipped.
 
 Hooks on `BaseSkillshotAbility`:
 
