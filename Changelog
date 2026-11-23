@@ -1,4 +1,14 @@
 --------------------------- Changelog -----------------------------
+5.0.b
+General
+Fixed - Crash on new game with HMI (mods built against the old IE settings)
+
+Research Projects
+Fixed - New project notices no longer show several times for the same projects
+
+Consumables
+Fixed - Crash when pressing a hotkey slot that holds a removed ability
+
 5.0.a
 General
 Adjusted - Updated for Starsector 0.98.5a
@@ -78,7 +88,6 @@ Adjusted - Accepted items show their icon and how many you have
 Fixed - Survival mode no longer thins the rewards of Project Spyglass, Mjölnir and Transistor
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
-Fixed - New project notices no longer show several times for the same projects
 Fixed - Drive Field Tuning modspec no longer drops as random loot
 
 Minefields
@@ -404,7 +413,6 @@ Added - Explosive and Interceptor missile targeting now shows the flight path up
 Adjusted - Area targeting reticule now uses the thinner updated sprite
 Adjusted - IE missile abilities without a missile plugin now crash with a clear error
 Fixed - Crash when firing a missile by hotkey from a hyperspace-only slot
-Fixed - Crash when pressing a hotkey slot that holds a removed ability
 Fixed - Missiles fired by clicking no longer bloat the save
 Fixed - Smoke cloud size and explosion volume now work as intended
 Fixed - Chaff tooltip now shows the real slowdown values
