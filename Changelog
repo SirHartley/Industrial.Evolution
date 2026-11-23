@@ -404,6 +404,7 @@ Added - Explosive and Interceptor missile targeting now shows the flight path up
 Adjusted - Area targeting reticule now uses the thinner updated sprite
 Adjusted - IE missile abilities without a missile plugin now crash with a clear error
 Fixed - Crash when firing a missile by hotkey from a hyperspace-only slot
+Fixed - Crash when pressing a hotkey slot that holds a removed ability
 Fixed - Missiles fired by clicking no longer bloat the save
 Fixed - Smoke cloud size and explosion volume now work as intended
 Fixed - Chaff tooltip now shows the real slowdown values

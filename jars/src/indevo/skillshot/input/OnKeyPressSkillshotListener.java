@@ -7,6 +7,7 @@ import com.fs.starfarer.api.campaign.listeners.CampaignInputListener;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.input.InputEventAPI;
+import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import com.fs.starfarer.api.input.InputEventType;
 import indevo.skillshot.SkillshotFramework;
 import indevo.skillshot.SkillshotSettings;
@@ -118,7 +119,9 @@ public class OnKeyPressSkillshotListener implements SkillshotInputListener, Camp
         String abilityId = fleet.isInHyperspace() ? slot.getInHyperAbilityId() : slot.getAbilityId();
         if (abilityId == null || abilityId.isEmpty()) return null;
 
-        if (!Global.getSettings().getAbilitySpec(abilityId).hasTag(SkillshotSettings.TAG_SKILLSHOT)) return null;
+        // a slot can keep the id of an ability whose mod was removed, getAbilitySpec is null then
+        AbilitySpecAPI spec = Global.getSettings().getAbilitySpec(abilityId);
+        if (spec == null || !spec.hasTag(SkillshotSettings.TAG_SKILLSHOT)) return null;
 
         AbilityPlugin plugin = fleet.getAbility(abilityId);
         if (plugin == null) return null;
