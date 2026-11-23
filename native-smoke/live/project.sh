@@ -38,5 +38,7 @@ stage_mod() {
 java_args() {
     [[ ${LAUNCH:-} == checks ]] && printf '%s\n' "-Die.check=$GROUP"
     [[ -n ${SWITCHES:-} ]] && printf '%s\n' "-Die.switches=$SWITCHES"
+    [[ -n ${REEL_OBS:-} ]] && printf '%s\n' "-Die.reel.obs=$REEL_OBS"
+    [[ -n ${REEL_OBS_PASSWORD:-} ]] && printf '%s\n' "-Die.reel.obs.password=$REEL_OBS_PASSWORD"
     return 0
 }
