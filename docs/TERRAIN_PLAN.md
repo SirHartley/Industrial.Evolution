@@ -1,22 +1,22 @@
 # Industrial.Evolution terrain plan
 
-Tracking doc for new campaign terrain, kept like [NEW_FEATURES.md](NEW_FEATURES.md): numbered items, each with a status line, the plan and the open questions. Plan only, no code. Baseline: IE `dev` at `3410777`, Catch.Release (CR) `master` at `37c1c37` (2026-11-09).
+Tracking doc for new campaign terrain, kept like [NEW_FEATURES.md](NEW_FEATURES.md): numbered items, each with a status line, the plan and the open questions. Plan only, no code. Baseline: IE `dev` at `9d3e8c8` (2026-11-24), Catch.Release (CR) `master` at `37c1c37` (2026-11-09).
 
-- Engine facts: starsector-knowledge skill, Starsector 0.98a-RC8. Vanilla paths are relative to `com/fs/starfarer/api/`, IE paths to `jars/src/`.
+- Engine facts: starsector-knowledge skill, Starsector 0.98.5a-RC4 sources (game jars 0.98.5a-RC7). Vanilla paths are relative to `com/fs/starfarer/api/`, IE paths to `jars/src/`.
 - Nothing here was tested in game. "Confirmed" means traced in code, "inferred" means a reasoned guess.
 - Standing rules: never patch other mods, and no class from CR is referenced by IE (plain id strings are fine). IE stays Java only. Saves may break; items only note it.
 
 ## 0. Shared
 
-Every item below is a terrain plugin under a new package `indevo/exploration/terrain/<feature>/`, a `data/campaign/terrain.json` row and a `descriptions.csv` row, with its own feature doc under `docs/exploration/` once implemented.
+Every item below is a terrain plugin under a new package `indevo/exploration/<feature>/terrain/` (like `fog/terrain`), a `data/campaign/terrain.json` row and a `descriptions.csv` row, with its own feature doc under `docs/exploration/` once implemented.
 
-- Placement: seeded in `ModPlugin.onNewGameAfterEconomyLoad` (`indevo/utils/ModPlugin.java:295`) for new games, never in core worlds (`theme_core`). Existing saves get nothing unless Q2 says otherwise.
+- Placement: seeded in `ModPlugin.onNewGameAfterEconomyLoad` (`indevo/utils/ModPlugin.java:299`) for new games, never in core worlds (`theme_core`). Existing saves get nothing unless Q2 says otherwise.
 - Simulation and rendering run only in the player's location, near the viewport. Everything that moves (cloud drift, rift heightmap phase, vortex debris) is transient and rebuilt from saved params and the clock on load, so saves only hold seeds and params.
 - Layers: vanilla nebula draws in `TERRAIN_2` and `TERRAIN_8` (`impl/campaign/terrain/NebulaTerrainPlugin.java:49`). `TERRAIN_8` is above `FLEETS` (`campaign/CampaignEngineLayers.java`), which is what lets a terrain cover fleets.
 - Each item gets a LunaLib toggle and an intensity setting in the exploration tab (`docs/core/SETTINGS.md`).
 - Damage that hits ships follows the vanilla hyperspace storm strike (`impl/campaign/terrain/HyperspaceTerrainPlugin.java:1455-1550`): CR loss plus armour scaled hull damage, scaled by `Stats.CORONA_EFFECT_MULT` (Solar Shielding), hull never below 1%. Confirmed.
 - Push and pull follow the vanilla corona wind and `WavefrontTerrainPlugin.applyEffect` (`impl/campaign/terrain/WavefrontTerrainPlugin.java:436-500`): a velocity nudge per frame plus a temporary burn modifier. Confirmed.
-- Effect category: `BaseTerrain.advance` applies only one terrain per effect category to a fleet per frame (memory key `$terrain_<category>`, `impl/campaign/terrain/BaseTerrain.java:94-106`, checked in the 0.98.5a-RC4 sources). Each IE terrain here gets its own category (`IndEvo_<terrain>`) unless its item names another, so it never blocks a vanilla terrain and two overlapping clouds of one kind apply once. Confirmed.
+- Effect category: `BaseTerrain.advance` applies only one terrain per effect category to a fleet per frame (memory key `$terrain_<category>`, `impl/campaign/terrain/BaseTerrain.java:94-106`). Each IE terrain here gets its own category (`IndEvo_<terrain>`) unless its item names another, so it never blocks a vanilla terrain and two overlapping clouds of one kind apply once. Confirmed.
 - AI flags: fleet AI reads only `AVOID_VERY_CAREFULLY`, `CR_DRAIN`, `TILE_BASED`, `EFFECT_DIMINISHED_WITH_RANGE`, `DANGEROUS_UNLESS_GO_SLOW` and `NOT_SUPER_DANGEROUS_UNLESS_GO_SLOW` (obf `campaign/ai/TacticalModule`), plus `BREAK_OTHER_ORBITS` (obf `campaign/CampaignState`). The other `TerrainAIFlags` do nothing. `AVOID_VERY_CAREFULLY` makes fleets steer round one circle on the terrain entity, radius `getMaxEffectRadius() + 200`; it cannot avoid a shape inside the terrain. Confirmed, same sources.
 
 ## 1. Planned terrain
@@ -39,7 +39,7 @@ Plan:
 - Inside a whirlpool, debris and asteroids circle its centre, inner ones faster than outer ones.
 - Fleets inside are dragged along the spin and pulled toward the centre, so a fleet that stops spirals in. Pull and drag are scaled down by burn level, so a fleet at full burn can cut across.
 - The core rips: storm strike damage (section 0) while inside the inner third.
-- Asteroids are IE meteors: `MeteorEntity` (`indevo/exploration/meteor/entities/MeteorEntity.java`) with an orbit movement module like `ExternalOrbitMovement`, so they really collide and use `MeteorImpact`. Vanilla belt impacts are only a dice roll per day (`impl/campaign/terrain/AsteroidBeltTerrainPlugin.java:165-186`), which would not give anything to dodge. Meteor collisions only run within 1000 units of the viewport (`MeteorEntity.java:107`), so off screen whirlpools cost little. Asteroids keep the `IndEvo_MeteorSwarm` tag, so CR harpoons and IE missiles work on them as they do on swarms.
+- Asteroids are IE meteors: `MeteorEntity` (`indevo/exploration/meteor/entities/MeteorEntity.java`) with an orbit movement module like `ExternalOrbitMovement`, so they really collide and use `MeteorImpact`. Vanilla belt impacts are only a dice roll per day (`impl/campaign/terrain/AsteroidBeltTerrainPlugin.java:165-186`), which would not give anything to dodge. Meteor collisions only run within 1000 units of the viewport (`MeteorEntity.java:115`), so off screen whirlpools cost little. Asteroids keep the `IndEvo_MeteorSwarm` tag, so CR harpoons and IE missiles work on them as they do on swarms.
 - Debris: a transient Luna renderer drawing a particle spiral per whirlpool, only while on screen.
 - `MaelstromTerrain extends BaseTerrain` with a circular orbit around the black hole; AI flag `AVOID_VERY_CAREFULLY` like the event horizon (`EventHorizonPlugin.java:51`). NPC fleets then steer round the whole whirlpool, not only the core (section 0).
 
