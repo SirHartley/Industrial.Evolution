@@ -1,6 +1,20 @@
 --------------------------- Changelog -----------------------------
-4.2.a - UNRELEASED
+5.0.b
 General
+Fixed - Crash on new game with HMI (mods built against the old IE settings)
+
+Research Projects
+Fixed - New project notices no longer show several times for the same projects
+
+Salvage Specials
+Fixed - Crash when salvaging a story point derelict
+
+Consumables
+Fixed - Crash when pressing a hotkey slot that holds a removed ability
+
+5.0.a
+General
+Adjusted - Updated for Starsector 0.98.5a
 Adjusted - Now requires PatchLib
 Note - Install PatchLib alongside Industrial.Evolution
 Note - Saves from 4.1.b do not load, start a new game
@@ -9,11 +23,14 @@ Added - Quick Settings tab for category toggles
 Added - Refit: Build hullmods in with Relic Components instead of story points (5 per DP, no bonus XP)
 Added - Boost Extraction: pay Relic Components on Tech Mining to double next month's finds
 Added - Settings descriptions updated
-Added - Express Delivery for custom production orders: halves the delivery time for Relic Components
-Added - Shuttle Traffic: small craft fly in traffic lanes between the planets and stations of colonized systems, with pleasure cruises, patrols, mining and salvage runs, scavengers, smugglers, traffic that flees hostile fleets, escape pods from destroyed fleets, service shuttles for fleets in orbit, trade shuttles to your fleet, scavenger survey shuttles, raid dropships, evacuation pods, fighters dogfighting around NPC battles, a flying style per faction, free ports, pirate activity, Pather cells and hidden pirate bases you can spot by their traffic, settlers for new colonies, recovery tugs after battles, couriers, pilgrims, Museum parades, ships towed to Restoration Docks, convoys, rush hours, traffic that keeps clear of meteor swarms, and craft that ease around slow fleets, stall in interdiction pulses and blow up in explosions or under a fleet on sustained burn (visual only, Quick Settings)
-Adjusted - Brought all mentions of solar units in line with vanilla by renaming them from SU to units (for Dodam)
+Added - Express Delivery: halve the delivery time of custom production orders with Relic Components
+Added - Shuttle Traffic: small craft fly lanes between the planets and stations of colonized systems. Also includes Escape pods & raid dropships.
+Added - Celestial Orbits: no orbit lines for mines, meteors and other short lived objects
+Added - 28 MagicLib achievements, most of them dumb
+Adjusted - Solar units now say units instead of SU, like vanilla (for Dodam)
 Adjusted - Industrial Supply Store moves its contents to colony storage when the colony is lost
-Adjusted - Cut redundant UI text and tightened service and panel descriptions
+Adjusted - Shorter UI texts and descriptions
+Adjusted - Relic Component buttons are now green with the relic icon and cost
 Adjusted - Settings tabs re-sorted
 Adjusted - Settings now apply without a game restart
 Adjusted - IE colony items now list under colony items in the codex
@@ -25,14 +42,53 @@ Fixed - Settings no longer accept values below their minimum
 Fixed - Industry storage contents are no longer lost on colonies without storage
 Fixed - Leftover storages of removed industries are now cleaned up on load
 Fixed - Other mods' industry tooltip lines now show on all IE industries
+Fixed - IE industries can no longer be built on colonies that allow no industries
+Fixed - Crash when interacting with a warning beacon in hyperspace
+Fixed - Crash on new game with Wide Horizons (https://github.com/SirHartley/Industrial.Evolution/issues/248)
 Removed - Colony corruption mode (now a separate mod)
 Removed - Unused settings
+Removed - strings.json (text moved into the code, translation packs for it no longer work)
+
+Survival Mode
+Adjusted - Hull Forge: print cost follows the Survival mode ship price
+Adjusted - Academy: officers and admins for hire as rare as vanilla, at Academies you do not own
+Adjusted - Supply, weapon and equipment caches hold recoverable ships as rarely as vanilla ones
+Adjusted - Credit Stash: 30% of the credits
+Adjusted - Privateer Base: 30% of the raided weapons and wings, blueprints unchanged
+Adjusted - Salvage Yards: order budget x3, scrapped ships valued at the Survival mode price
+Adjusted - Meteor and rogue asteroid hits deal double damage like vanilla asteroid impacts
+Adjusted - Emergency Fuel Scoop: a third of the fuel, fuel costs three times as much
+Adjusted - Forge World: ships come with more d-mods, like vanilla ships for sale
+Adjusted - VPC deposits: fuel a third, marines a quarter (they cost that much more)
+Adjusted - Restoration Docks and Restoration Bay: double price, like Domain grade parts
+
+Ashes of the Domain
+Added - Research tree: IE industries, specializations and governments are unlocked by research
+Added - IE Ship Components count in the AOTD economy
+Added - Tenebrian Nanoforge works with Ship Components (stronger than Pristine)
+Added - Project Knockoff: build IE colony items in AOTD production (200 Relic Components and one of the item, no VPCs)
+Fixed - Derelict Watchtowers can be taken over again with Theory of Toolbox
+Fixed - Objectives are found again with Theory of Toolbox
+
+RAT Settlements
+Added - Consulate: slowly raises relations with the planet owner
+Added - Requisition Office: imported weapons and consumable missiles
+Added - Fabricator Bay: makes commodities from a loaded VPC each month
+Added - Exhibition Hangar: stores ships for a small monthly income
+Added - Courier Office: runs Courier Port contracts from the settlement
+Added - Restoration Bay: removes a D-mod from a ship in storage every 31 days
+Added - Refit Gantry: moves D-mods and S-mods between ships
+Added - Officer Quarters: stores and trains officers and administrators
+Added - Engineering Annex: reverse engineers one hull class at a time
+Added - Pet Habitat: pet storage and one habitat, no sales or adoption
+Note - Built in the facility slots of Random Assortment of Things settlements
 
 Research Projects
 Added - Stock toggle: repeatable projects carry extra progress over (PR'd by razenpok, thank you!)
 Added - Project Reforge: turn a Corrupted Nanoforge into a Pristine one for 500 Relic Components
 Adjusted - Projects now show as cards, Info opens in the card with a table of the accepted items
 Adjusted - Accepted items show their icon and how many you have
+Fixed - Survival mode no longer thins the rewards of Project Spyglass, Mjölnir and Transistor
 Fixed - Now sorts highest to lowest progress like god intended
 Fixed - Prospector new project notice now properly shows after a reload
 Fixed - Drive Field Tuning modspec no longer drops as random loot
@@ -42,14 +98,15 @@ Added - Setting to adjust interdict disable time
 Fixed - Mines no longer cluster in one spot of the belt
 
 Fog
-Added - Fog: weather that sometimes covers a nearby system for about a month or sits there as a local bank for months. Sensors are nearly useless inside, so moving fleets show only by the trails they leave. Emergency Burn and Interdiction Pulse blow the fog clear, and pirate or Pather fleets sometimes lie in wait (Quick Settings).
+Added - Fog: banks now and then roll out from a star and blind sensors inside. Some hide a cache or an ambush (Quick Settings).
 
 Meteor Showers
 Added - Setting to make meteor shower spawn immediately instead of having a delay with an intel entry
 Added - Catch.Release harpoons can now break meteors
 Added - NPC fleets now steer out of the way of incoming meteors
-Added - Rogue Asteroids: small groups of rocks in seven shapes cross systems without warning, colonies included, sometimes carrying treasure. Now and then a system gets a drizzle of small rocks for 5 to 15 days instead. Rare, the chance is a setting in the Meteor Swarms tab.
+Added - Rogue Asteroids: rare rock groups cross systems without warning, sometimes with treasure. Also includes rock drizzles.
 Adjusted - Meteors now break on stations without damaging or pushing them
+Adjusted - Frozen wrecks follow vanilla recovery rules, some need a story point (was always free)
 Fixed - Tutorial intel can no longer show duplicate notifications
 Fixed - Planetoid swarms no longer leave planets, rings and loot stations behind
 Fixed - Rogue planets and swarm rocks no longer vanish right after they spawn
@@ -59,16 +116,33 @@ Fixed - Crash when the roider tutorial faction has no markets
 Fixed - Impact dust clouds no longer pile up in saves and slow the game down
 Fixed - Large swarms on screen no longer slow the game down
 Fixed - Swarm warning path and radiation no longer linger from scattered treasure rock debris
+Fixed - A second meteor storm can no longer start alongside the tutorial storm
+Fixed - NPC fleets no longer lose meteor radiation faster than intended
 
 Pets
-Fixed - Animal market now gets correctly removed if Animal Center is removed or pets disabled
-Fixed - Pet storage fees now match the tooltip
-Fixed - Animal Center AI core bonuses now apply and match the description
+Added - Pets panel: all your pets in one screen, to rename, move, store or euthanize them
+Added - Pet Husbandry: Pair your pets to get the traits you want
+Added - Pet hearts: pets earn hearts on their ship, each unlocks a talent. Only 3 favourites go past 3 hearts.
+Added - Pet moods, wants, titles, signature talents and short messages from your pets
+Added - Pet nest: a pet with 4 hearts builds a nest on its ship, +30% mascot effect
+Added - Escape pods: a pet on a destroyed ship survives with a 10% chance per heart
+Added - Family tree, Planner and Bestiary in the Pets panel, young can be born with new looks
+Added - Gene scan: reads every talent and flaw of a pet for 10 Relic Components at an Animal Center
+Added - Animal Centers you do not own offer named pets for adoption, new ones each month
+Added - Rehome: an Animal Center finds a pet a new home for 2,000 credits
+Added - Longevity Syringe: 2 more cycles for a pet. From Project Methuselah (50 Relic Components) and derelict pet centers.
+Added - Longevity treatment at Nomios: 1 to 5 cycles for a pet, paid in Harvested Organs, Recreational Drugs and credits
+Added - Memorial for pets that died, favourites carry over to your other games
+Added - Settings for pet lines, the petting animation, the Husbandry tour and Longevity Syringe cycles
+Added - Console command indevo_pet (list, give and edit pets)
+Adjusted - Pets eat Supplies only when none of their other food is in the cargo
+Adjusted - A moved pet is Unsettled for 30 days (90 with a nest) and has no effect, it keeps its hearts
+Adjusted - Pet storage costs 10% of the species value a month, at least 100 credits, x1.5 on other markets
 Fixed - Nine rare pets missing from the Animal Center shop now spawn
-Fixed - Pet management ability no longer shows active while a detachment is out
-Fixed - Pets on stored ships in storage at a colony now eat food from colony storage instead of dying
-Fixed - Pet naming dialog now properly opens from the cargo screen
-Fixed - Unknown pet boxes no longer crash (the tooltip shows an error)
+Fixed - Animal Center AI core bonuses now apply and match the description
+Fixed - Pets on stored ships at a colony now eat from colony storage instead of dying
+Fixed - Animal market now gets correctly removed if Animal Center is removed or pets disabled
+Fixed - Crash when a pet with no ship and no storage dies
 Removed - Pet food
 
 Museum
@@ -76,6 +150,7 @@ Added - Parade manager and Museum tooltip now show why a parade can't launch
 Added - Museum tooltip shows the days until the next parade
 Adjusted - Unique ships (Ziggy, MK1) are always max value
 Adjusted - Non-purchasable ships have higher value (PR'd by abel1502, thank you!)
+Adjusted - Ship value now ignores ships above 1.5x the priciest vanilla ship of their size (was 2,000,000 for all)
 Fixed - Parade fleet stability bonus no longer stacks
 Fixed - Museum now follows its own setting instead of the meteor shower one
 Fixed - Parades now properly last the chosen duration
@@ -84,7 +159,7 @@ Fixed - Crash when cancelling Museum construction
 Fixed - Museum removal now properly returns ships and removes exhibition storage
 Fixed - Parade bonuses no longer disappear after loading a save
 Fixed - Returning parades no longer end another Museum's parade
-Fixed - Ships no longer stay out on parade forever when a parade can not start or its target colony is lost
+Fixed - Ships no longer get stuck on parade when it can not start or its target colony is lost
 
 Relays
 Fixed - The infamous relay size bug (it was my fault after all!)
@@ -99,9 +174,10 @@ Academy
 Added - Academy panel: train, store and retrieve officers and administrators in one screen
 Added - Officers can train two personality steps at once with an alpha core (time and fee per step)
 Added - Accelerate: halve the remaining training time with Relic Components
-Added - Holobench: new Academy item. Officers get one more personality step, leave training mentored and gain 20,000 XP per month while stored.
+Added - Holobench: Academy item, one more personality step and 20,000 XP a month in storage
 Adjusted - Training at your own Academy is now free
 Adjusted - Admin training only teaches skills from academy_admin_skill_whitelist.csv (other mods can add theirs)
+Adjusted - Stored officers cost the vanilla idle rate of 10% of their salary (was full salary)
 Fixed - Aggression training no longer bills you twice the amount it should
 Fixed - Academy transfers no longer exceed the fleet's officer limit
 Fixed - Swapping AI cores no longer keeps the old core's bonuses
@@ -123,15 +199,27 @@ Adjusted - VPC commodities and outputs moved to data/config/indEvo/vpc_commoditi
 Fixed - Beta core upkeep discount no longer stays active after installing a VPC
 
 Governments
+Adjusted - Governments no longer replace Population & Infrastructure (works with mods that change it)
+Adjusted - Change government dialog: picture tiles and a card for the picked government
+Adjusted - Population tooltip: ongoing government effects on hover, effect list and lore on F1
+Adjusted - Extorted goods of Underworld Governance show as cargo icons
+Adjusted - Long rule texts replaced with short gain and cost lines
 Fixed - Permanent governments can no longer be changed
 Fixed - Size 5 Managed Democracy now gets its two small and one large patrol
 Fixed - Managed Democracy size cap no longer stays after a government change
 Fixed - Forge World stability now follows metals and transplutonics, not luxuries
 Fixed - Rural Polity bonuses now end when leaving it or closing the free port
 Fixed - New Forge World experiment ships now properly roll 4 effects (was 5)
+Fixed - Forge World ships now keep their d-mods and no longer add d-mods to other ships of the same type
+
+Specialized Industries
+Adjusted - Mining and Refining keep their own industry when specialized
+Adjusted - Ashes of the Domain Mining and Refining tiers can now be specialized
+Adjusted - Change specialization dialog uses the new government dialog layout
+Adjusted - Specializations now scale output by percent (was flat +2, -2 or -3)
 
 Courier Port
-Adjusted - Contracts are now managed in one panel with a contract list and a step by step editor
+Adjusted - Contracts now have their own panel with a step by step editor
 Adjusted - Contract edits now apply on Save, cancelling a picker keeps the selection
 Fixed - Invalid contracts now show why they are invalid
 Fixed - Ship transport now charges by deployment points instead of fleet points
@@ -139,19 +227,27 @@ Fixed - Crash when using "Ship now" on a contract that became invalid
 Fixed - Base fee setting maximum is no longer below its default
 
 Derelict Industries
-Added - Ancient Laboratory: relic services to refine Forge Templates and integrate automated ships, with the result shown before you pay
+Added - Ancient Laboratory: refine Forge Templates and integrate automated ships with Relic Components
 Added - Accelerate: halve the remaining Hull Deconstructor time with Relic Components
 Added - Accelerate: halve the remaining Ancient Laboratory repair time with Relic Components
 Added - Recharge: end the Rift Generator cooldown at once for 3 Relic Components per day left
+Added - Rift Generator: shows each jump direction's target area on the map before you fire
+Added - Rift Generator: Precise targeting picks the exact star system (100 Relic Components, setting)
+Adjusted - Rift Generator: the planet jumps with everything in orbit except moons and jump points
+Adjusted - Rift Generator: the Artificial Hyperspace Tear left behind closes after the recharge time
+Adjusted - Rift Generator: the gamma core now keeps the tear open twice as long
+Adjusted - Rift Generator: never jumps into hidden, abyssal or cut off systems (mods can block more)
 Adjusted - Forge Templates now only install in the structure that can use them
-Fixed - Rift Generator planets now move in sync with the warp animation
-Fixed - Rift Generator no longer leaves planetary rings behind
+Fixed - Rift Generator no longer breaks Ashes of the Domain megastructures
+Note - A planet with a megastructure or Bifrost Gate can not jump
+Fixed - Rift Generator no longer leaves rings behind or deletes orbital junk around other planets
 Fixed - Crash when the Rift Generator has only one core system left as a target
 Fixed - Ancient Laboratory alpha core now properly boosts the third commodity
 Fixed - Two ruins in one system no longer roll the same derelict industry
 Fixed - Crash in Hull Forge and Ancient Laboratory after losing the last colony
 Fixed - Old Industrial Ruins no longer offer another colony's derelict industry
 Fixed - Ruins added mid-campaign now properly get a derelict industry
+Fixed - Ruins known from bought or salvaged survey data now show their scan results on a visit
 Fixed - NPC ruins upgrades no longer restart over and over (Nexerelin)
 Fixed - Old Industrial Ruins tooltip now unlocks its Codex entry
 Fixed - 5 charge Forge Templates now show their hull and price
@@ -164,7 +260,7 @@ Fixed - Ruined Infrastructure without a target can now be restored
 Fixed - Ruined Infrastructure tooltip now unlocks its Codex entry
 
 Embassy
-Changed - Only one ambassador per faction can be hired at a time
+Adjusted - Only one ambassador per faction can be hired at a time
 Fixed - Ambassadors can now properly be told to stop sabotaging hostile activity
 Fixed - Luddic Church ambassadors now properly reduce hostile activity
 Fixed - Hostile activity tooltip no longer shows relations above the 40 cap
@@ -172,9 +268,7 @@ Fixed - Can no longer hire more ambassadors than there are embassies
 Fixed - Crash when a colony has a comm contact without a post (Approlight)
 Fixed - Crash when ambassador murder bounty hunters spawn without ships
 Fixed - Ambassador dismissal no longer errors or skips the reputation penalty
-Fixed - Ambassadors stored in a Warehouse no longer count as sold
-Fixed - Ambassadors carried by a detachment no longer count as murdered
-Fixed - Ambassadors shipped by a Courier Port are no longer reported lost
+Fixed - Ambassadors in a Warehouse, detachment or Courier Port shipment no longer count as lost
 Fixed - Embassy reputation penalties no longer repeat every month on their own
 Fixed - Ambassadors no longer appear or have any effect while Embassies are disabled
 Fixed - Removing an Embassy before the ambassador took office no longer loses them
@@ -182,23 +276,19 @@ Fixed - Ambassadors no longer break when another mod moves them
 Fixed - Arrested ambassador message now shows he or she instead of a placeholder
 
 Engineering Hub
+Added - Engineering Hub panel: Reverse engineering and Hullmod Data tabs, opened from the industry
 Added - Hullmod Data: learn hullmods from stripped ships for Relic Components
 Added - Accelerate Research: halve the remaining reverse engineering time with Relic Components
-Added - Engineering Hub panel: Reverse engineering and Hullmod data tabs, opened from the industry
-Added - Reverse engineering tab: ship in work, drop off storage and progress per hull
-Added - Finish: pick the blueprint to overwrite and finish a hull at 100% with one click
-Added - "Finish on its own" option, off by default
-Adjusted - Hulls at 100% now wait for Finish unless "Finish on its own" is ticked
+Added - Finish: pick the blueprint to overwrite and finish a hull at 100% (or tick "Finish on its own")
 Adjusted - Only ship blueprints of the hull's size can be overwritten
 Adjusted - Relic Components are now picked as payment in the panel instead of the item slot
-Adjusted - Expanded tooltip now also shows the normal tooltip below the progress list
 Fixed - Engineering Hub setting now properly controls whether it can be built
 Fixed - Stripped weapons and fighters now go to the production gathering point
 Fixed - Relic Components no longer show up as an item in storage or cargo
 Fixed - Reverse engineering message now says "an Eagle-class" instead of "a Eagle-class"
 
 Orbital Works
-Added - Relic Lattice Work: Orbital Works option, adds one S-mod slot to a ship. Costs relic components, takes 3 months.
+Added - Relic Lattice Work: one more S-mod slot for a ship for Relic Components, takes 3 months
 
 Privateer Base
 Adjusted - Now takes two industry slots itself, also while queued
@@ -207,14 +297,13 @@ Fixed - Raid strength now properly follows colony fleet size modifiers
 Fixed - Build tooltip no longer shows the base as unavailable when it can be built
 
 Salvage Yards
-Added - Move S-mods: transfer S-mods between similar hulls for relic components and credits
+Added - Move S-mods: transfer S-mods between similar hulls for Relic Components and credits
 Note - The target ship needs the hullmod installed and a free S-mod slot
-Added - Accelerate Construction: halve the delivery time of a production order with Relic Components, from the order intel or the Ship assembly tab
+Added - Accelerate Construction: halve the delivery time of a production order with Relic Components
 Added - Salvage Drone Replicator: battles within 6 LY give 50% salvage, lost ships fill a Wreck Registry
-Note - Registry hulls, weapons and wings can be ordered once without a blueprint in the Wreck Registry tab, hulls come fitted
+Note - Wreck Registry hulls, weapons and wings can be ordered once without a blueprint
 Adjusted - Ship assembly, Wreck Registry and both transfers now share one panel with tabs
-Adjusted - Ship assembly shows the order, budget and cost next to each other
-Adjusted - Transfer options stay selectable, the tab shows what is missing
+Adjusted - Relic Components for zero D-mods now count per DP, not FP (this is a nerf for strong hulls)
 Fixed - Salvage Yards now properly get salvage from every raid in their system
 Fixed - Salvage Yards no longer pay out twice after loading a save
 Fixed - Blockades, punitive expeditions and hostile activity raids now give salvage
@@ -229,14 +318,14 @@ Fixed - D-mod and S-mod transfer tooltips now say why the option is unavailable
 Fixed - D-mod transfer no longer offers hulls whose D-mods are built in and can not be moved
 
 Senate
-Added - Edict: Mandated Overtime: build menu, queue, tooltips show halved times
+Added - Edict: Mandated Overtime: build menu, queue and tooltips show the halved build times
 Note - Building Menu Overhaul's build menu and tooltips show the normal time
-Added - New Edict panel: pick a colony and an Edict, see its effect values, supply changes, term, requirements and the cost of ending it early, enact or remove it with a confirm
-Added - Bribe Senators: end an Edict early without the early removal unrest, 1 Relic Component per remaining day
+Added - Edict panel: pick a colony and an Edict, see its effects and costs, then enact or remove it
+Added - Bribe Senators: end an Edict early without unrest for 1 Relic Component per remaining day
 Added - The Senate can now be visited from remote colony screens
-Adjusted - Visiting the Senate manages the Edicts of every colony in its range, colonies without a Senate get "Enact an Edict" for themselves
+Adjusted - The Senate manages the Edicts of all colonies in range, other colonies enact their own
 Adjusted - Edict tooltips now list their requirements and mark the unmet ones
-Adjusted - Shutting down a Senate ends the Edicts in its range right away, unless another Senate covers them
+Adjusted - Shutting down a Senate ends Edicts in its range unless another Senate covers them
 Fixed - Mandated Overtime construction bonus no longer stays after it ends
 Fixed - Mandated Overtime now halves restoration instead of nearly finishing it
 Fixed - Mandated Overtime now properly halves demand instead of raising it
@@ -258,6 +347,7 @@ Fixed - Income bonus no longer stays after removal
 Fixed - Crash in the build menu on colonies without a planet
 
 Centralization Bureau
+Added - Ashes of the Domain farming, mining, refining, light and heavy industry tiers now count
 Adjusted - Military Base and High Command now count for each other, like Heavy Industry and Orbital Works
 Fixed - Bonus now applies right away to newly built, upgraded or restored industries
 Fixed - Heavy Industry and Orbital Works on different colonies now properly get the bonus
@@ -288,7 +378,7 @@ Fixed - Cloud and shield visual changes now show at once, colony screen included
 Automated Shipyards
 Fixed - Automated Shipyard now shows lost components and highlights failures red
 Fixed - Cryosleeper intel no longer shows the Automated Shipyard icon
-Fixed - Relic components in station storage are now properly counted
+Fixed - Relic Components in station storage are now properly counted
 
 Salvage Specials
 Added - Story point derelicts can now be rebuilt with Relic Components instead of a story point (5 per DP)
@@ -303,38 +393,23 @@ Survey Stories
 Fixed - Desert warlords story now properly appears on desert and arid worlds
 
 Detachments
-Added - Detachments out of fuel away from you now stop and report that they are stranded
-Added - Each active detachment now has an intel entry with its location, status and a recall button
-Added - The detachment panel now warns when a detachment has no fuel to leave the system
-Added - Take mode: pick the ships and cargo you take with you, everything else stays behind as the detachment
-Added - Detachment panel: one column per detachment with ships, supplies, behaviour, orders and a deploy checklist
-Added - Detachment orders: Go to a planet, station or jump point in its star system, Attack a hostile fleet you can see, Trade run (comes to you, opens the exchange, then goes back to its orders)
-Added - Detachment toggles: Auto-recall when supplies drop below 15 days, Join fights to take part in your battles nearby
-Added - Load min and Load max buttons in the detachment cargo screen: supplies, fuel and crew for one month or up to capacity
-Adjusted - Detachments now travel with the vanilla fleet AI, across star systems included
+Added - Detachment panel: one column per detachment with ships, supplies, behaviour and orders
+Added - Detachment orders (Go to, Attack, Trade run) and toggles (Auto-recall, Join fights)
+Added - Take mode: pick what you take with you, the rest stays behind as the detachment
+Added - Detachment intel with location, status and recall, stranded detachments stop and report
+Adjusted - Detachments now travel with the vanilla fleet AI, also between star systems
 Note - Recall all detachments before updating, active ones break old saves
 Adjusted - Detachment slots reduced from three to two
-Adjusted - Meeting a detachment now opens the detachment panel instead of a text menu
 Adjusted - Your flagship now always stays with you
-Adjusted - Changing the behaviour of an active detachment now applies at once
-Adjusted - Transport can no longer be picked for an active detachment
 Adjusted - Dormant detachments now only wake up when resupplied
 Adjusted - Detachment crew, marines and officers are now paid like the main fleet, except while dormant
+Note - Spawning a detachment now needs a full month of supplies plus repairs
+Fixed - Detachments no longer get stuck, drift away or silently lose crew, fuel and cargo
+Fixed - Detachment supply use, repair cost and operating time now show real values
+Fixed - Detachments now leave a wreck for every lost ship, holding all excess cargo
 Fixed - Auto-load now takes half the supplies, not all (up to cargo space)
-Fixed - Detachments no longer get stuck when recalled from another star system
-Fixed - A detachment that disappears unexpectedly now returns its ships and cargo to the main force
-Fixed - Transport detachments with a lost target now pick the closest market with storage
-Fixed - Detachment supply use, repair cost and operating time now show real values (supply use was per day)
-Note - Spawning a detachment now needs a full month of supplies plus repairs, as the panel says
-Fixed - Staying or dormant detachments and their wrecks no longer drift to the sun or away from their planet
-Fixed - Detachments no longer silently lose crew, fuel and cargo over capacity
-Note - Loading a detachment past its capacity is now refused
-Fixed - Detachments now leave a wreck for every ship lost in battle
-Fixed - Transport detachments no longer store ships they lost on the way
 Fixed - Marines keep their experience when moved to and from detachments
 Fixed - Detachment preview no longer counts mothballed ships as active (PR'd by fank, thank you!)
-Fixed - Unused orbit markers no longer pile up in saves
-Fixed - Detachment wrecks now properly hold all excess cargo
 
 Consumables
 Added - Explosive and Interceptor missile targeting now shows the flight path up to max range
@@ -353,35 +428,31 @@ Fixed - Crash when an interceptor missile hits a fleet off screen
 Fixed - Warning beacon dialog now opens on top of the cargo screen
 
 Items
+Fixed - Remnant Nexus now drops Relic Components when destroyed (250 to 400, half for a damaged one)
 Fixed - Removing one of two Relay Hypertransmitters no longer turns relays off
 Fixed - Ship parts from wrecks now roll per wreck instead of once per session
 
 Artillery
-Added - Lighthouses: one or two rotating beams guard some derelict artillery systems and spot you at once (new game)
-Note - Planets and Chaff Clouds block the beams, going dark does not help, a hack turns a lighthouse off
-Added - Drone nets: nests launch spotter drones with vision cones in some derelict artillery systems (new game)
-Note - A spotter that sees you follows you, the eye fills twice as fast as under a watchtower
-Note - Planets and Chaff Clouds block the cones, going dark shortens them, a Sensor Decoy pulls spotters away
-Note - Spotters explode when interdicted or hit by a missile or an artillery shell, and take nearby spotters with them
-Note - Nests sweep three searchlights around them, a fast fleet can slip through the gaps
-Note - A nest light that catches you locks on and follows you, reaching 30% further until it loses you
-Note - Shoot a nest for Relic Components, by missile or by flying up to it
-Note - Colonising the system replaces the drone net with watchtowers
-Added - Searchlights: towers sweep orange and purple lights over some derelict artillery systems (new game)
-Note - Orange lights see moving fleets, purple lights see fleets at burn 2 or less, dimmed lights see nothing
-Note - A light that sees you turns red and follows you, stop or start moving to shake it off
-Note - Chaff Clouds block the lights, going dark does not help, a hack turns a tower off
+Added - Lighthouses: rotating beams guard some derelict artillery systems (new game)
+Note - Planets and Chaff Clouds block the beams, a hack turns a lighthouse off
+Added - Drone nets: nests launch spotter drones in some derelict artillery systems (new game)
+Note - Sensor Decoys pull spotters away, interdicts and missiles destroy them
+Note - Destroyed nests drop Relic Components and are rebuilt after two months
+Added - Searchlights: towers sweep lights over some derelict artillery systems (new game)
+Note - Orange lights see moving fleets, purple lights see fleets at burn 2 or less
+Note - Chaff Clouds block the lights, a hack turns a tower off
 Added - Settings for vision type weights, lighthouse beams and drone cones
-Added - Artillery fire animation: muzzle flash and smoke per shot, the station glows hot and vents
-Note - Mortar vents in puffs, Railgun in two streams out the back, Missile in a slow discharge all around
+Added - Artillery fire animation: muzzle flash, smoke and venting per shot
 Added - Mortar shells leave a short trail
+Adjusted - Watchtowers now only guard core worlds, derelict artillery systems get the new guards
+Note - Colonising the system replaces them with watchtowers
 Adjusted - Thinner artillery target lines, shells, missiles and trails
 Adjusted - Railgun now fires an instant beam down its target line instead of shells
-Note - The target line stays until the shot, every fleet on it then is in the line of fire
-Adjusted - Uses vanilla star dialogs for better mod compatibility
+Note - Every fleet on the target line at the shot is hit, flying straight still dodges it
 Adjusted - Artillery now targets fleets anywhere in the system (was 12000 units)
-Adjusted - Mortar and missile target markers now always show the same time before impact, at any range
-Note - Shots at you aim again when the marker shows, shots at far NPC fleets miss if they turn
+Adjusted - Mortar and missile target markers now always show the same time before impact
+Adjusted - Mortar warning before impact 5 to 8s -> 4 to 6.4s
+Adjusted - Railgun warning before each shot 20% shorter (first shot 1.25 to 1.75s -> 1 to 1.4s)
 Fixed - Slow fields and forced overloads no longer expire while paused
 Fixed - Watchtowers now properly lock on faster the closer you are
 Fixed - Watchtowers no longer count as stable locations
@@ -390,7 +461,10 @@ Fixed - Placed stations no longer fire with Artillery turned off
 Fixed - Orbital Artillery tooltip now unlocks its Codex entry
 Fixed - Jumping out of a system now empties the watchtower eye
 Fixed - Artillery missiles no longer launch from beside a moving station
+Fixed - Railgun target markers no longer pile up in saves
+Fixed - Artillery missiles now burst only once when several fleets are close
 Removed - Artillery improvement and the Max Range setting (no range left to improve)
+Removed - Watchtower vision weight setting
 
 Console Commands
 Fixed - SpawnRuins no longer rolls the first planet twice or duplicates ruins

@@ -30,6 +30,7 @@ import java.util.function.DoublePredicate;
 
 public final class RogueAsteroidSpawner {
 
+    public static final String TAG_ROGUE_ROCK = "IndEvo_RogueRock";
     public static final float AIM_AT_PLAYER_CHANCE = 0.3f;
     public static final float TREASURE_CHANCE = 0.2f;
 
@@ -40,8 +41,8 @@ public final class RogueAsteroidSpawner {
     public static final float AIM_RANDOM_RADIUS = 20000f;
     public static final float GRID_MARGIN = 500f;
 
-    public static final float MIN_SPEED = 250f;
-    public static final float MAX_SPEED = 400f;
+    public static final float MIN_SPEED = 150f;
+    public static final float MAX_SPEED = 250f;
     public static final float MIN_FLEET_SPEED = 10f;
     public static final float VIEW_CLEARANCE = 2000f;
     public static final float START_SEARCH_STEP = 250f;
@@ -145,6 +146,7 @@ public final class RogueAsteroidSpawner {
             }
 
             if (entity.getCustomPlugin() instanceof IcyRockEntity && size < ICE_SPLINTER_MIN_SIZE) entity.addTag(IcyRockEntity.TAG_NO_SPLINTERS);
+            entity.addTag(TAG_ROGUE_ROCK);
 
             if (placement != null) {
                 Vector2f loc = placement.arc().getPointForAngle(placement.angle());

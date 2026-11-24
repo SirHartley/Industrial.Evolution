@@ -591,11 +591,11 @@ public class Shuttle {
         return phase;
     }
 
-    public void renderTrail(float alphaMult) {
+    public void renderTrail(float alphaMult, float minWidth) {
         float a = getRenderAlpha(alphaMult);
         if (a <= 0.01f || isTumbling()) return;
 
-        float width = Math.min(look.trailWidth(), 0.5f * hull.width * scale);
+        float width = Math.max(minWidth, Math.min(look.trailWidth(), 0.5f * hull.width * scale));
         trail.render(getRearX(), getRearY(), width, hull.trailColor, hull.additiveTrail, a * look.trailAlpha() * throttle, !isHit());
     }
 

@@ -1,0 +1,3 @@
+id
+# Star system ids the Rift Generator never picks as a target, for both the free modes and Precise targeting.
+# Merged with other mods: add a row with the system id (StarSystemAPI.getId) to keep a system safe.

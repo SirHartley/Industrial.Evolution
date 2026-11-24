@@ -25,6 +25,7 @@ import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.museum.data.MuseumConstants;
 import indevo.industries.museum.data.ParadeFleetProfile;
 import indevo.submarkets.IndustrySubmarkets;
@@ -48,6 +49,8 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     // X - Gamma: Increase income by 30%
     // X - Beta: Increase stability and immigration of local planet by x per 10k?
     // X - Alpha: second parade fleet (if sufficient ships)
+
+    private static Map<ShipAPI.HullSize, Float> hullSizeValueCaps;
 
     //storage
     private SubmarketAPI submarket;
@@ -137,12 +140,18 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
 
     @Override
     public boolean isAvailableToBuild() {
-        return super.isAvailableToBuild() && Setting.MUSEUM_ENABLED.enabled();
+        return super.isAvailableToBuild() && Setting.MUSEUM_ENABLED.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.MUSEUM_ENABLED.enabled();
+        return super.showWhenUnavailable() && Setting.MUSEUM_ENABLED.enabled();
     }
 
     public void setFlyParades(boolean flyParades) {
@@ -257,7 +266,7 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
         Map<ShipHullSpecAPI, Float> specValueMap = new LinkedHashMap<>();
         cargo.initMothballedShips(Factions.PLAYER);
         List<FleetMemberAPI> members = cargo.getMothballedShips().getMembersListCopy();
-        members.sort(Comparator.comparingDouble(this::getValueForShip).reversed());
+        members.sort(Comparator.comparingDouble((FleetMemberAPI m) -> getValueForShip(m)).reversed());
 
         for (FleetMemberAPI member : members) {
             specValueMap.put(member.getHullSpec(), getValueForShip(member));
@@ -304,9 +313,14 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
      * @return value from 0 to 1 relative to the ships value above the average
      */
     public float getValueForShip(FleetMemberAPI member){
+        return getValueForShip(member, hullSizeValueMap);
+    }
+
+    // stats from getShipValueStatistics, also used by the rat settlement Exhibition Hangar
+    public static float getValueForShip(FleetMemberAPI member, Map<ShipAPI.HullSize, Pair<Float, Float>> stats){
         if(member.getVariant().hasTag(Tags.SHIP_UNIQUE_SIGNATURE)) return 1; //unique ships are always max value
 
-        Pair<Float, Float> valuePair = hullSizeValueMap.get(member.getHullSpec().getHullSize()); //one = maxShipValue, two = average for hull size
+        Pair<Float, Float> valuePair = stats.get(member.getHullSpec().getHullSize()); //one = maxShipValue, two = average for hull size
 
         float value = member.getBaseValue();
 
@@ -334,35 +348,49 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
     }
 
     public float getCreditsForValue(float value){
+        return getCreditsForValue(value, incomeMult);
+    }
+
+    public static float getCreditsForValue(float value, float incomeMult){
         return (Setting.MUSEUM_MIN_ADDITIONAL_CREDITS.value() + Setting.MUSEUM_MAX_ADDITIONAL_CREDITS.value() * value) * incomeMult;
     }
 
     public float getTotalShipValue(){
         if (submarket == null) return 0;
+        return getTotalShipValue(submarket.getCargo(), hullSizeValueMap, incomeMult);
+    }
 
+    public static float getTotalShipValue(CargoAPI cargo, Map<ShipAPI.HullSize, Pair<Float, Float>> stats, float incomeMult){
         float val = 0f;
 
-        CargoAPI cargo = submarket.getCargo();
         cargo.initMothballedShips(Factions.PLAYER);
 
         //dirty duplicate removal
         Map<ShipHullSpecAPI, Float> specValueMap = new LinkedHashMap<>();
-        for (FleetMemberAPI member : cargo.getMothballedShips().getMembersListCopy()) specValueMap.put(member.getHullSpec(), getCreditsForValue(getValueForShip(member)));
+        for (FleetMemberAPI member : cargo.getMothballedShips().getMembersListCopy()) specValueMap.put(member.getHullSpec(), getCreditsForValue(getValueForShip(member, stats), incomeMult));
         for (Float value : specValueMap.values()) val += value;
 
         return val;
     }
 
     private void updateShipValueStatistics() {
+        hullSizeValueMap.putAll(getShipValueStatistics());
+    }
+
+    // walks every learnable hull, call it once per use, not per ship
+    public static Map<ShipAPI.HullSize, Pair<Float, Float>> getShipValueStatistics() {
+        Map<ShipAPI.HullSize, Pair<Float, Float>> stats = new HashMap<>();
         List<ShipHullSpecAPI> specList = MiscIE.getAllLearnableShipHulls(); //only learnable cause getting all fucks up the value statistics something fierce
+        Map<ShipAPI.HullSize, Float> caps = getHullSizeValueCaps();
 
         for (ShipAPI.HullSize size : new ArrayList<>(Arrays.asList(ShipAPI.HullSize.FRIGATE, ShipAPI.HullSize.DESTROYER, ShipAPI.HullSize.CRUISER, ShipAPI.HullSize.CAPITAL_SHIP))){
             float total = 0f;
             int specNum = 0;
             Pair<Float, Float> valuePair = new Pair<>(0f,0f); //a = maxShipValue, b = average for hull size
+            float cap = caps.getOrDefault(size, MuseumConstants.FALLBACK_SHIP_VALUE_CAP);
 
             for (ShipHullSpecAPI spec : specList){
-                if (spec.getHullSize() != size || spec.getBaseValue() > 2000000) continue; //any ship worth more than 2 mil gets cut to avoid modded brainrot bloating the statistics
+                if (spec.getHullSize() != size || spec.getBaseValue() > cap) continue; //cut modded outliers so they don't bloat the statistics
 
                 specNum++;
 
@@ -372,8 +400,23 @@ public class Museum extends BaseIndustry implements EconomyTickListener, MarketI
             }
 
             valuePair.two = total / specNum;
-            hullSizeValueMap.put(size, valuePair);
+            stats.put(size, valuePair);
         }
+
+        return stats;
+    }
+
+    private static Map<ShipAPI.HullSize, Float> getHullSizeValueCaps() {
+        if (hullSizeValueCaps != null) return hullSizeValueCaps;
+
+        Map<ShipAPI.HullSize, Float> caps = new HashMap<>();
+        for (ShipHullSpecAPI spec : MiscIE.getAllLearnableShipHulls()) {
+            if (spec.getSourceMod() != null) continue; //vanilla specs have no source mod
+            caps.merge(spec.getHullSize(), spec.getBaseValue() * MuseumConstants.VANILLA_SHIP_VALUE_CAP_MULT, Math::max);
+        }
+
+        hullSizeValueCaps = caps;
+        return caps;
     }
 
     //submarket stuff

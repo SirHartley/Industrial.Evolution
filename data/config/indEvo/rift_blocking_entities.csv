@@ -1,0 +1,5 @@
+id
+# Custom entity types that stop the Rift Generator from firing while one orbits the planet.
+# The block names the entity in the colony menu tooltip. Merged with other mods.
+bifrost_gate
+aotd_pluto_station

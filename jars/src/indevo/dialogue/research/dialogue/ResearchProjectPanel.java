@@ -23,7 +23,7 @@ public class ResearchProjectPanel {
     public static final float WIDTH = 600f;
     public static final float HEIGHT = 600f;
     static final float LIST_Y = 30f;
-    static final float CARD_GAP = 8f;
+    static final float CARD_GAP = 13f;
     static final float HEAD_H = 20f;
     static final float CARD_H = 92f;
     static final float NOTE_H = 20f;
@@ -109,8 +109,6 @@ public class ResearchProjectPanel {
 
     private void addHelp(TooltipMakerAPI tooltip) {
         tooltip.addPara("Donate accepted items to advance a project. A finished project is redeemed for its reward.", 0f);
-        tooltip.addPara("Repeatable projects can be finished again. With %s on, donations past %s count toward the next reward.", 10f,
-                Misc.getHighlightColor(), OVERFLOW_LABEL, "100%");
         tooltip.addPara("You will be notified when new projects become available.", Misc.getGrayColor(), 10f);
     }
 
@@ -394,6 +392,7 @@ public class ResearchProjectPanel {
         CargoAPI cargo = Global.getSector().getPlayerFleet().getCargo();
         CargoAPI rewards = project.getRewards();
         cargo.addAll(rewards.createCopy());
+        project.onRedeem();
 
         if (project.isRepeatable()) {
             project.getProgress().points = Math.max(0f, project.getProgress().points - project.getRequiredPoints());

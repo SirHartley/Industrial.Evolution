@@ -23,7 +23,6 @@ Every IE row of `data/campaign/industries.csv` (plugin column, paths relative to
 | `IndEvo_EngHub` | 42 | `engineeringhub/industry/EngineeringHub` | [Engineering Hub](ENGINEERING_HUB.md) |
 | `IndEvo_PrivatePort` | 45 | `courierport/industry/CourierPortV2` | [Courier Port](COURIER_PORT.md) |
 | `IndEvo_pirateHaven` | 48 | `privateer/industry/PrivateerBase` | [Privateer](PRIVATEER.md) |
-| `IndEvo_SwitchableRefining`, `IndEvo_SwitchableMining`, `IndEvo_SwitchablePopulation` | 51-53 | `changeling/industry/...` | [Changeling](CHANGELING.md) |
 | `IndEvo_PetStore` | 54 | `petshop/industry/PetShop` | [Pets](PETS.md) |
 | `IndEvo_Museum` | 55 | `museum/industry/Museum` | [Museum](MUSEUM.md) |
 | `IndEvo_Warehouse`, `#IndEvo_Warphouse` (commented) | 58, 61 | `warehouses/industry/Warehouses` | [Warehouses](WAREHOUSES.md) |
@@ -44,15 +43,14 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 | File | Owner / role |
 |---|---|
-| `indevo/industries/CentralizationBureau.java` | `IndEvo_AdInfra`: flat supply/demand bonus to local industries duplicated in the system; nested `BureauFactor` (colony factor tooltip) |
-| `indevo/industries/patches/CentralizationBureauApplyPatch.java` | `@After` on every `Industry.apply()`: reapplies the bureau bonus to that industry |
+| `indevo/industries/CentralizationBureau.java` | `IndEvo_AdInfra`: flat supply/demand bonus to local industries duplicated in the system; nested `BureauFactor` (colony factor tooltip), nested `BureauApplyListener` (`IndustryApplyListener`, reapplies the bonus after every industry apply) |
 | `indevo/industries/Supercomputer.java` | `IndEvo_SupCom`: consumes AI cores over time for a system wide income mult; nested `SuperComputerFactor` |
 | `indevo/industries/RestorationDocks.java` | `IndEvo_dryDock`: monthly D-mod removal from ships in its storage; static `getBaseShipHullSpec`, `getListNonBuiltInDMods` used by other features |
 | `indevo/industries/RequisitionCenter.java` | `IndEvo_ReqCenter`: adds the weapon import submarket; tooltip only, stock logic is in `RequisitionsCenterSubmarketPlugin` |
 | `indevo/industries/patches/CommerceBalancePatch.java` | PatchLib hooks on vanilla `TradeCenter` for `IndEvo_CommerceBalanceChanges` |
 | `indevo/industries/patches/DealmakerHolosuitePatch.java` | PatchLib redirect of the Dealmaker Holosuite income bonus for the same setting |
 | `indevo/industries/SharedSubmarketUser.java`, `SharedSubmarketUserAPI.java` | Base class and interface for industries that add and filter the `IndEvo_SharedStore` submarket |
-| `indevo/industries/compatibility/TechTree.java` | Dead, see Known issues |
+| `indevo/industries/compatibility/AotdManager.java`, `ResearchUnlockIndustry.java` | Ashes of the Domain research gate, objective lookups, research unlock stand ins. See [Compatibility](../core/COMPATIBILITY.md#ashes-of-the-domain) |
 
 ## Data and ids
 
@@ -73,8 +71,8 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 ## Registration and lifecycle
 
 - All via CSV plugin column.
-- `BureauFactor` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
-- `CommerceBalancePatch`, `DealmakerHolosuitePatch` and `CentralizationBureauApplyPatch` are `@Patch` classes; PatchLib finds and installs them at startup ([Patches](../ARCHITECTURE.md#patches)). Both read `IndEvo_CommerceBalanceChanges` on every call, so the setting takes effect without a restart.
+- `BureauFactor`, `BureauApplyListener` and `SuperComputerFactor` are registered by `SpecialItemEffectsRepo.initEffectListeners()` ([Installables](../items/INSTALLABLES.md)).
+- `CommerceBalancePatch` and `DealmakerHolosuitePatch` are `@Patch` classes; PatchLib finds and installs them at startup ([Patches](../ARCHITECTURE.md#patches)). Both read `IndEvo_CommerceBalanceChanges` on every call, so the setting takes effect without a restart.
 - `NewGameIndustryPlacer` places Restoration Docks (`NewGameIndustryPlacer.java:77`) and the Requisitions Centre at `baetis` (`:141`) on new game; see [Utils](../core/UTILS.md).
 - Supercomputer, Restoration Docks and Requisitions Centre add themselves as transient listeners in `apply()` and remove themselves in `unapply()`; `ListenerManager.addListener` dedupes the same instance (skill `obf/campaign/ListenerManager.java:29`).
 
@@ -84,11 +82,11 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 
 - `getIndustryExistOnMultipleMap()`: for every whitelisted industry on this market, count same faction markets in the system that have an industry of the same family. With a special item (Logistics Core `IndEvo_log_core`) all faction markets within 12 LY count too. Family (`getFamilyId`): the id after walking `IndustrySpecAPI.getDowngrade()` while the downgrade is whitelisted, so heavy industry and orbital works count for each other, military base and high command too, patrol HQ does not. Recomputed in the bureau's `apply()` only, so a change on another market shows at this market's next reapply (economy step, every 3 days).
 - `applyBonus(ind)` (player only): unmodifies `ind`, then if bureau and `ind` are functional, `ind` is whitelisted and its family is counted, every supply and demand of `ind` with a value above 0 gets `modifyFlatAlways(min(count, max))`. Max: none 0, gamma 1, beta 2, alpha 3, item `LOG_CORE_MAX_BONUS` 4.
-- `applyBonus` runs for every industry on the market in the bureau's `apply()`, and from `CentralizationBureauApplyPatch` after any other industry's `apply()` on the same market. Vanilla reapplies an industry alone (`BaseIndustry.reapply()`, for example when construction finishes, skill `api/impl/campaign/econ/impl/BaseIndustry.java:554`) and some industries clear their supply when not functional (`Mining.java:38`), so without the hook the bonus was missing until the next full reapply, and missing for good on industries that rebuild their supply in every `apply()`.
+- `applyBonus` runs for every industry on the market in the bureau's `apply()`, and from `BureauApplyListener.reportIndustryApplied` after any other industry's `apply()` on the same market. Vanilla reapplies an industry alone (`BaseIndustry.reapply()`, for example when construction finishes, skill `api/impl/campaign/econ/impl/BaseIndustry.java:554`) and some industries clear their supply when not functional (`Mining.java:38`), so without the hook the bonus was missing until the next full reapply, and missing for good on industries that rebuild their supply in every `apply()`.
 - `isFunctional` needs an AI core or the item. Installing the item moves an installed AI core to storage (`:55`).
 - One per system per faction (`isOnlyInstanceInSystemExcludeMarket`). AI markets get a gamma core once (`AImode`).
 - Tooltip: vanilla `createTooltip`. The missing core line comes from `addRightAfterDescriptionSection`, the boosts given to other industries from `addPostSupplySection` and `addPostDemandSection` under their own headings, read from the industries' current stats (`getBoosts`), only while functional. The bureau has no supply or demand of its own, so vanilla's production and demand blocks stay empty. Without a core or item vanilla also prints "Currently under construction" below the core line, because `isFunctional` is false and vanilla shows that line for any non functional industry that is not disrupted (skill `api/impl/campaign/econ/impl/BaseIndustry.java:1095`); accepted, no hook covers it.
-- Whitelist: vanilla `farming` to `highcommand`, Shadowyards `ms_*`, `loa_void_extraction`.
+- Whitelist: vanilla `farming` to `highcommand`, Shadowyards `ms_*`, `loa_void_extraction`, Ashes of the Domain base and upgrade industries (`aotd_*`, `triheavy`, `hegeheavy`). Vaults of Knowledge rewires the vanilla downgrades (`farming` to `aotd_monoculture_plots`, `mining` to `aotd_extractive_operation`, `refining` to `aotd_smelting`, `lightindustry` to `aotd_light_production`, `AoTDDataInserter.setVanilaIndustriesDowngrades`), so with it each vanilla industry and its AOTD tiers form one family. Left out: AOTD megastructures, wonders, citadels, research and black site, commerce, resort, terminus, maglev and Seats of Power buildings.
 
 ### Supercomputer (`IndEvo_SupCom`)
 
@@ -104,9 +102,9 @@ Each industry here is one class with its CSV row and an enable setting of the sa
 ### Restoration Docks (`IndEvo_dryDock`)
 
 - `advance` adds `IndEvo_RepairStorage`; demand `IndEvo_parts` `min(eligible ships, 4)`.
-- `reportEconomyTick` on the last tick of the month (`RestorationDocks.java:107`, before month end because of the report) -> `removeDMods()`.
+- `reportEconomyTick` on the last tick of the month (`RestorationDocks.java:108`, before month end because of the report) -> `removeDMods()`.
 - `removeDMods`: budget = market size (+3 alpha). Per step: pick a ship (beta: fewest D-mods; else random), remove one random non built in D-mod, add `getSingleDModRepairCost` to the ship's total. Gamma: one D-mod per ship. A clean ship is restored to its base hull (`getBaseShipHullSpec`).
-- Cost per D-mod = `(baseValue / 2) * 1.2^(maxD + 1) / maxD * aiCoreBonusMult` (`:304`), where `maxD` is the highest D-mod count seen for that member (`$IndEvo_maxDModMemory`). Beta mult 0.85, alpha upkeep x0.2.
+- Cost per D-mod = `(baseValue / 2) * 1.2^(maxD + 1) / maxD * aiCoreBonusMult * partsPriceMult` (`:306`, also the RAT Restoration Bay), where `partsPriceMult` is the Survival mode price factor of Domain grade parts (`ExtModeHelper.commodityPriceMult(Commodities.PARTS)`, `ext_partsPriceMult`, 1 in normal mode) so the Docks keep their normal mode price relation to buying parts, and `maxD` is the highest D-mod count seen for that member (`$IndEvo_maxDModMemory`). Beta mult 0.85, alpha upkeep x0.2.
 - AI markets (not hostile, or pirates): the player can use the docks there; a hull size fee scaled by `1 - relation` (clamped to +-0.5) is added.
 - The month's total books on the "Ship repairs" report line, the AI market fee on "Dock fees" ([BillingHelper](../core/UTILS.md#billinghelper)). Credits are only checked, not subtracted, during the loop.
 
@@ -142,7 +140,8 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 - Both commerce `@Before` hooks skip the vanilla body on player markets with the setting on. Other mods' redirects inside those two bodies do not run there, and their later `@Before` hooks must check `isSkipOriginal()`; `@After` hooks still run.
 - The commerce alpha tariff uses `getModId(1)` (`ind_commerce_1`), the slot vanilla uses for the alpha income bonus; set and unset must use the same id.
 - Bureau mods use `modifyFlatAlways` under the bureau's `getModId()` on other industries' stats; `unapply` and `applyBonus` clear it on every industry of the market, so a stale map cannot leave a mod behind.
-- `CentralizationBureauApplyPatch` matches `subtype = Industry.class` and hooks the declared `apply()` of every industry class, vanilla and modded; `BaseIndustry` declares none, so it is not patched. It gates on `isMostDerivedCall()` and does nothing on markets without a bureau. Supply that a mod sets outside `apply()` (scripts, `advance`) still only gets the bonus at the next reapply.
+- `BureauApplyListener` (transient) gets every apply the game wraps in `ListenerUtil.reportIndustryApplied`: `Market.addIndustry`, `Market.reapplyIndustries`, `BaseIndustry.reapply()` (skill `api/impl/campaign/econ/impl/BaseIndustry.java:601`) and the build menu supply preview on a temporary market without a bureau (`StarfarerSettings.getIndustrySupply`). It does nothing on markets without a bureau. Supply that a mod sets outside `apply()` (scripts, `advance`) still only gets the bonus at the next reapply.
+- A small RAT settlement version of this industry exists (Requisition Office and Restoration Bay: `RequisitionsCenterSubmarketPlugin.ownedByPlayer()` counts the settlement market; the bay uses the static `RestorationDocks` D-mod helpers); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
 
@@ -151,7 +150,6 @@ Vanilla `TradeCenter` runs unchanged with `IndEvo_CommerceBalanceChanges` off. W
 | `RestorationDocks.aiCoreBonusMult` | only reset by beta and none branches; alpha or gamma after beta keeps 0.85 |
 | `RequisitionCenter.apply` | `addListener(this)` with no listener interface; no effect |
 | Bureau | `Changelog_todo:61`: "Cent Bureau should really run off a condition" |
-| `TechTree` | no reference; Cryo_but_better compat; `researchSaved.get` unboxing NPEs for unknown ids |
 
 ## Maintenance
 

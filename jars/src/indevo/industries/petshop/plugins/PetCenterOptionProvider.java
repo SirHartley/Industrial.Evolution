@@ -9,7 +9,7 @@ import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import indevo.ids.Ids;
-import indevo.industries.petshop.dialogue.PetShopDialogPlugin;
+import indevo.industries.petshop.industry.PetShop;
 import indevo.utils.helper.MiscIE;
 
 import java.awt.*;
@@ -54,19 +54,11 @@ public class PetCenterOptionProvider extends BaseIndustryOptionProvider {
     public void createTooltip(IndustryOptionData opt, TooltipMakerAPI tooltip, float width) {
         if (opt.id == CUSTOM_PLUGIN) {
             tooltip.addSectionHeading("Manage your Pets", Alignment.MID, 0f);
-            tooltip.addPara("Store, move, rename or euthanize your pets at the pet center.", 10f);
-            tooltip.addPara("Most services are provided for free.", 3f);
         }
     }
 
     @Override
     public void optionSelected(IndustryOptionData opt, DialogCreatorUI ui) {
-        if (opt.id == CUSTOM_PLUGIN) {
-            PetShopDialogPlugin plugin = new PetShopDialogPlugin(opt.ind);
-            ui.showDialog(null, plugin);
-
-            /*CustomDialogDelegate delegate = new PetManagerDialogueDelegate(opt.ind);
-            ui.showDialog(PetManagerDialogueDelegate.WIDTH, PetManagerDialogueDelegate.HEIGHT, delegate);*/
-        }
+        if (opt.id == CUSTOM_PLUGIN) ui.showDialog(null, new PetsDialogPlugin((PetShop) opt.ind, new PetsView()));
     }
 }

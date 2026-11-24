@@ -18,6 +18,7 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.Supercomputer;
+import indevo.industries.compatibility.AotdManager;
 import org.lwjgl.util.vector.Vector2f;
 
 import static indevo.ids.Ids.COND_RESSOURCES;
@@ -27,6 +28,7 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
     public static final float MAX_QUALITY_PENALTY = -0.5f;
     public static final float MAX_QUALITY_PENALTY_WITH_CORRUPTED = -0.4f;
     public static final float MAX_QUALITY_PENALTY_WITH_PRISTINE = -0.3f;
+    public static final float MAX_QUALITY_PENALTY_WITH_TENEBRIAN = -0.2f;
 
     @Override
     public void apply(String id) {
@@ -87,16 +89,17 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
 
                 applyPartsSupply((BaseIndustry) ind, supply);
                 applyPartsDemands((BaseIndustry) ind, demand);
-            } else if (ind.getSpec() != null &&
-                    ind.getSpec().hasTag("heavyindustry")
+            } else if (ind instanceof BaseIndustry base
+                    && ind.getSpec() != null
+                    && ind.getSpec().hasTag("heavyindustry")
                     && ind.getSupply(Commodities.SHIPS).getQuantity().getModifiedInt() > 0
                     && ind.getSupply(ItemIds.PARTS).getQuantity().getModifiedInt() <= 0){
 
                 int supply = Math.min(ind.getSupply(Commodities.HEAVY_MACHINERY).getQuantity().getModifiedInt() - 2, 4);
                 int demand = ind.getSupply(Commodities.SHIPS).getQuantity().getModifiedInt() + 2;
 
-                applyPartsSupply((BaseIndustry) ind, supply);
-                applyPartsDemands((BaseIndustry) ind, demand);
+                applyPartsSupply(base, supply);
+                applyPartsDemands(base, demand);
             }
         }
     }
@@ -142,6 +145,10 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
             if (ind.getSpecialItem().getId().equals(Items.PRISTINE_NANOFORGE)) {
                 ind.getSupply(ItemIds.PARTS).getQuantity().modifyFlat(getModId(), -3, "Pristine Nanoforge");
             }
+
+            if (ind.getSpecialItem().getId().equals(AotdManager.TENEBRIAN_NANOFORGE)) {
+                ind.getSupply(ItemIds.PARTS).getQuantity().modifyFlat(getModId(), -6, "Tenebrian Nanoforge");
+            }
         }
 
         Pair<String, Integer> deficit = ind.getMaxDeficit(Commodities.METALS, Commodities.RARE_METALS);
@@ -166,6 +173,11 @@ public class ResourceCondition extends BaseMarketConditionPlugin {
             if (ind.getSpecialItem().getId().equals(Items.PRISTINE_NANOFORGE)) {
                 ind.getDemand(ItemIds.PARTS).getQuantity().modifyFlat(getModId(), -2, "Pristine Nanoforge");
                 qualityPenalty = MAX_QUALITY_PENALTY_WITH_PRISTINE;
+            }
+
+            if (ind.getSpecialItem().getId().equals(AotdManager.TENEBRIAN_NANOFORGE)) {
+                ind.getDemand(ItemIds.PARTS).getQuantity().modifyFlat(getModId(), -3, "Tenebrian Nanoforge");
+                qualityPenalty = MAX_QUALITY_PENALTY_WITH_TENEBRIAN;
             }
         }
         //prod. qual penalty

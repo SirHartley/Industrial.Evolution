@@ -20,14 +20,16 @@ public class SpawnFog implements BaseCommand {
 
         Kind kind = Kind.SPELL;
         boolean ambush = false;
+        boolean cache = false;
         for (String arg : args.trim().toLowerCase().split("\\s+")) {
             switch (arg) {
                 case "" -> {}
                 case "spell" -> kind = Kind.SPELL;
                 case "bank" -> kind = Kind.BANK;
                 case "ambush" -> ambush = true;
+                case "cache" -> cache = true;
                 default -> {
-                    Console.showMessage("Unknown argument " + arg + ". Use [spell] or [bank], optionally [ambush].");
+                    Console.showMessage("Unknown argument " + arg + ". Use [spell] or [bank], optionally [ambush] and, for a bank, [cache].");
                     return CommandResult.BAD_SYNTAX;
                 }
             }
@@ -42,8 +44,9 @@ public class SpawnFog implements BaseCommand {
             return CommandResult.ERROR;
         }
 
-        FogWeatherManager.spawn(system, kind, new Random(), ambush);
-        Console.showMessage("Spawned fog (" + kind.name().toLowerCase() + (ambush ? ", with lurkers" : "") + ") in " + system.getName() + ". It rolls in over " + (int) FogWeatherManager.ROLL_IN_DAYS + " days.");
+        cache &= kind == Kind.BANK;
+        FogWeatherManager.spawn(system, kind, new Random(), ambush, cache);
+        Console.showMessage("Spawned fog (" + kind.name().toLowerCase() + (ambush ? ", with lurkers" : "") + (cache ? ", with a cache" : "") + ") in " + system.getName() + ". It rolls in over " + (int) FogWeatherManager.ROLL_IN_DAYS + " days.");
         return CommandResult.SUCCESS;
     }
 }

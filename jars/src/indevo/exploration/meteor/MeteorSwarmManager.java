@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.PlanetSpecAPI;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.listeners.EconomyTickListener;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
@@ -46,7 +47,11 @@ public class MeteorSwarmManager implements EconomyTickListener {
     public static final String MEM_RANDOM = "$IndEvo_MeteorRandom";
     public static final String MEM_TIMEOUT = "$IndEvo_MeteorTimeout";
     public static final String MEM_ROGUE_TIMEOUT = "$IndEvo_RogueMeteorTimeout";
+    public static final String MEM_SHOWER_PENDING = "$IndEvo_MeteorShowerPending";
+    public static final String MEM_TUTORIAL_FLEET = "$IndEvo_MeteorTutorialFleet";
+    public static final String MEM_TUTORIAL_FLEET_DONE = "$IndEvo_roider_tutorial_complete";
     public static final float ROGUE_LOCATION_TIMEOUT_DAYS = 30f;
+    public static final float SHOWER_PENDING_MARGIN_DAYS = 1f;
 
     public static class MeteorShowerData {
         public float chance;
@@ -87,27 +92,34 @@ public class MeteorSwarmManager implements EconomyTickListener {
 
         LocationAPI loc = Global.getSector().getCurrentLocation();
         Random random = getRandom();
-        boolean showerRolled = false;
+        boolean validMeteorLoc = isValidMeteorLoc(loc);
 
-        if (isValidMeteorLoc(loc)) {
-            boolean spawn = random.nextFloat() < (Global.getSettings().isDevMode() ? 0.1f : Setting.METEOR_BASE_CHANCE_PER_ECONOMY_TICK.value());
-
-            //spawn tutorial if none has been spawned yet
-            MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
-            if (!mem.getBoolean(MEM_METEOR_TUTORIAL)) {
-                Global.getSector().addScript(new TutorialEncounterScript());
-                mem.set(MEM_METEOR_TUTORIAL, true);
-            }
-
-            if (spawn) {
-                spawnShower(loc);
-                showerRolled = true;
-            }
+        //spawn tutorial if none has been spawned yet
+        MemoryAPI mem = Global.getSector().getMemoryWithoutUpdate();
+        if (validMeteorLoc && !mem.getBoolean(MEM_METEOR_TUTORIAL)) {
+            Global.getSector().addScript(new TutorialEncounterScript());
+            mem.set(MEM_METEOR_TUTORIAL, true);
+            return;
         }
 
-        if (!showerRolled && isValidRogueLoc(loc) && random.nextFloat() < Setting.METEOR_ROGUE_CHANCE_PER_ECONOMY_TICK.value()) {
+        // the tutorial shower skips isValidMeteorLoc, so nothing else may roll until the roiders are answered
+        if (isTutorialOpen()) return;
+
+        if (validMeteorLoc && random.nextFloat() < (Global.getSettings().isDevMode() ? 0.1f : Setting.METEOR_BASE_CHANCE_PER_ECONOMY_TICK.value())) {
+            spawnShower(loc);
+            return;
+        }
+
+        if (isValidRogueLoc(loc) && random.nextFloat() < Setting.METEOR_ROGUE_CHANCE_PER_ECONOMY_TICK.value()) {
             spawnRogue((StarSystemAPI) loc, random);
         }
+    }
+
+    public static boolean isTutorialOpen(){
+        if (Global.getSector().hasScript(TutorialEncounterScript.class)) return true;
+
+        SectorEntityToken fleet = Global.getSector().getMemoryWithoutUpdate().getEntity(MEM_TUTORIAL_FLEET);
+        return fleet != null && fleet.isAlive() && !fleet.getMemoryWithoutUpdate().getBoolean(MEM_TUTORIAL_FLEET_DONE);
     }
 
     public static boolean isValidMeteorLoc(LocationAPI loc){
@@ -120,13 +132,14 @@ public class MeteorSwarmManager implements EconomyTickListener {
                 && Misc.getMarketsInLocation(loc).isEmpty();
     }
 
-    //inhabited systems and shower timeouts are fine, a running shower or a recent rogue is not
+    //inhabited systems and shower timeouts are fine, a pending or running shower or a recent rogue is not
     public static boolean isValidRogueLoc(LocationAPI loc){
         MemoryAPI locMem = loc.getMemoryWithoutUpdate();
 
         return loc instanceof StarSystemAPI
                 && isSuitableForRocks(loc)
                 && !locMem.contains(MeteorSwarmWarningPathRenderer.MEM_INSTANCE)
+                && !locMem.getBoolean(MEM_SHOWER_PENDING)
                 && !locMem.getBoolean(MEM_ROGUE_TIMEOUT);
     }
 
@@ -184,8 +197,6 @@ public class MeteorSwarmManager implements EconomyTickListener {
     }
 
     public void spawnShower(LocationAPI loc, float intensityOverride, MeteroidShowerType forceType, boolean withIntel){
-        MemoryAPI locMem = loc.getMemoryWithoutUpdate();
-        MemoryAPI globalMem = Global.getSector().getMemoryWithoutUpdate();
         Random random = getRandom();
 
         WeightedRandomPicker<MeteroidShowerType> picker = new WeightedRandomPicker<>(random);
@@ -236,10 +247,19 @@ public class MeteorSwarmManager implements EconomyTickListener {
             }
         });
 
-        globalMem.set(MEM_TIMEOUT, true, Setting.METEOR_GENERAL_TIMEOUT_AFTER_SPAWN_DAYS.value());
-        locMem.set(MEM_TIMEOUT, true, Setting.METEOR_LOCATION_TIMEOUT_AFTER_SPAWN_DAYS.value());
+        reserveForShower(loc, daysLeft);
 
         if (withIntel) Global.getSector().getIntelManager().addIntel(new MeteorShowerLocationIntel(loc, intensity, type, daysLeft));
+    }
+
+    public static void reserveForShower(LocationAPI loc, float daysUntilStart){
+        MemoryAPI locMem = loc.getMemoryWithoutUpdate();
+
+        Global.getSector().getMemoryWithoutUpdate().set(MEM_TIMEOUT, true, Setting.METEOR_GENERAL_TIMEOUT_AFTER_SPAWN_DAYS.value());
+        locMem.set(MEM_TIMEOUT, true, Setting.METEOR_LOCATION_TIMEOUT_AFTER_SPAWN_DAYS.value());
+
+        // $IndEvo_warningRenderer only exists once the spawner runs, this covers the days before; getExpire is -1 when unset
+        locMem.set(MEM_SHOWER_PENDING, true, Math.max(daysUntilStart + SHOWER_PENDING_MARGIN_DAYS, locMem.getExpire(MEM_SHOWER_PENDING)));
     }
 
     @Override

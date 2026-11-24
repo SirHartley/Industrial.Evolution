@@ -23,7 +23,8 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
     public static final float BASE_NPC_KNOWN_DURATION = 5f;
     public static final float MAX_TIME_TO_TARGET_LOCK = 20f; //10s per day
     public static final float DISTANCE_MOD = 2; //max mult for distance
-    public static final float DRONE_FILL_MULT = 2f;
+    public static final float RAMP_MIN_SECONDS = 0.5f;
+    public static final float RAMP_MAX_SECONDS = 3f;
     public static final float SEARCHLIGHT_FILL_MULT = 4f;
     public static final float DRAIN_RATE = 1f / 1.2f;
     public static final float SEEN_DAYS = 0.6f;
@@ -113,21 +114,18 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
 
-        // a source fills the eye at 1 + the share of its range the player is inside, drones twice and searchlights four times as fast; the fastest source counts
+        // watchtowers fill the eye at 1 + the share of their range the player is inside, searchlights four times as fast, beams and drones by getRampRate; the fastest source counts
         float bestRate = -1f;
 
         DroneNetScript droneNet = DroneNetScript.get(loc);
-        if (droneNet != null && droneNet.getPlayerFraction() >= 0f) bestRate = DRONE_FILL_MULT * (1f + droneNet.getPlayerFraction());
+        if (droneNet != null && droneNet.getPlayerFraction() >= 0f) bestRate = getRampRate(droneNet.getPlayerFraction());
 
         for (SectorEntityToken t : watchtowerList) {
             WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) t.getCustomPlugin();
 
             if (p instanceof LighthouseEntityPlugin lighthouse && lighthouse.isLit()) {
-                if (lighthouse.beamSees(player)) {
-                    elapsed = MAX_TIME_TO_TARGET_LOCK;
-                    isLocked = true;
-                    spotted = true;
-                }
+                float fraction = lighthouse.getBeamFraction(player);
+                if (fraction >= 0f) bestRate = Math.max(bestRate, getRampRate(fraction));
                 continue;
             }
 
@@ -154,6 +152,16 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         }
 
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);
+    }
+
+    // fraction 1 at the source, 0 at the end of its reach: a full eye in RAMP_MIN_SECONDS up to RAMP_MAX_SECONDS
+    public static float getRampRate(float fraction) {
+        float seconds = RAMP_MAX_SECONDS - (RAMP_MAX_SECONDS - RAMP_MIN_SECONDS) * MathUtils.clamp(fraction, 0f, 1f);
+        return MAX_TIME_TO_TARGET_LOCK / seconds;
+    }
+
+    public static boolean isPlayerSpotted() {
+        return Global.getSector().getPlayerFleet().getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
     }
 
     private void cycleActions() {

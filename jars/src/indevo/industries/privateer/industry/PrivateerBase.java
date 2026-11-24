@@ -19,11 +19,13 @@ import com.fs.starfarer.api.loading.WeaponSpecAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.engineeringhub.industry.EngineeringHub;
 import indevo.industries.changeling.industry.population.HelldiversSubIndustry;
-import indevo.industries.changeling.industry.population.SwitchablePopulation;
+import indevo.industries.changeling.conditions.GovernmentCondition;
 import indevo.industries.privateer.intel.PrivateerBaseRaidIntel;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
@@ -41,6 +43,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     public static final float SUCCESS_OUTPUT_FRACT = 0.9f;
     public static final float FAIL_OUTPUT_FRACT = 0.45f;
+    public static final float SURVIVAL_LOOT_FRACTION = 0.3f;
     public RaidIntel currentIntel = null;
     private int raidTimeoutMonths = 0;
     private final int supplyDiminishmentPerMonth = 1;
@@ -68,7 +71,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         super.apply(true);
         debug = Global.getSettings().isDevMode();
 
-        isDemocratic = market.getIndustry(Industries.POPULATION) instanceof SwitchablePopulation && ((SwitchablePopulation) market.getIndustry(Industries.POPULATION)).getCurrent() instanceof HelldiversSubIndustry;
+        isDemocratic = GovernmentCondition.getGovernment(market) instanceof HelldiversSubIndustry;
 
         Global.getSector().getListenerManager().addListener(this, true);
 
@@ -97,7 +100,8 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         return Setting.PIRATEHAVEN.enabled()
                 && getFreeIndustrySlots() >= 2
                 && super.isAvailableToBuild()
-                && getAmountInSystem() < 2;
+                && getAmountInSystem() < 2
+                && AotdManager.isResearched(this);
     }
 
     // BaseIndustry.createTooltip adds this instance to the shared industry list while it builds
@@ -119,11 +123,14 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.PIRATEHAVEN.enabled();
+        return super.showWhenUnavailable() && Setting.PIRATEHAVEN.enabled();
     }
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (getFreeIndustrySlots() < 2) {
             return "Requires two industry slots.";
         }
@@ -162,6 +169,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
                 intel.setIcon(Global.getSettings().getSpriteName("IndEvo", "notification"));
                 intel.setSound(BaseIntelPlugin.getSoundStandardPosting());
                 Global.getSector().getCampaignUI().addMessage(intel, CommMessageAPI.MessageClickAction.COLONY_INFO, this.market);
+                Achievements.complete(Achievements.WORLD_PEACE);
             }
         }
     }
@@ -208,7 +216,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
             RaidTimeout.addRaidedSystem(system, timeout, !market.isPlayerOwned());
             if (market.isPlayerOwned()) spoilsOfWar(system);
             if (isDemocratic) {
-                HelldiversSubIndustry subIndustry = (HelldiversSubIndustry) ((SwitchablePopulation) market.getIndustry(Industries.POPULATION)).getCurrent();
+                HelldiversSubIndustry subIndustry = (HelldiversSubIndustry) GovernmentCondition.getGovernment(market);
                 subIndustry.reportPrivateerBaseRaidFinished(system, true);
             }
 
@@ -217,7 +225,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
             RaidTimeout.addRaidedSystem(raid.getSystem(), 1f, !market.isPlayerOwned());
 
             if (isDemocratic) {
-                HelldiversSubIndustry subIndustry = (HelldiversSubIndustry) ((SwitchablePopulation) market.getIndustry(Industries.POPULATION)).getCurrent();
+                HelldiversSubIndustry subIndustry = (HelldiversSubIndustry) GovernmentCondition.getGovernment(market);
                 subIndustry.reportPrivateerBaseRaidFinished(system, false);
             }
 
@@ -386,6 +394,7 @@ public class PrivateerBase extends BaseIndustry implements EconomyTickListener, 
         for (int i = 0; i < num && !picker.isEmpty(); i++) {
             String id = picker.pickAndRemove();
             if (id == null) continue;
+            if (Misc.isExtended() && random.nextFloat() >= SURVIVAL_LOOT_FRACTION) continue;
 
             if (id.startsWith(weapon)) {
                 cargo.addWeapons(id.substring(weapon.length()), 1);

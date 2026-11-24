@@ -21,6 +21,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.changeling.conditions.GovernmentCondition;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.helper.MiscIE;
@@ -46,9 +47,8 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
         }
 
         public boolean isSuitable(Industry ind) {
-            Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
-            boolean isRural = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof RuralPolitySubIndustry;
-            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isRural;
+            boolean isRural = GovernmentCondition.getGovernment(ind.getMarket()) instanceof RuralPolitySubIndustry;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isRural && !Industries.POPULATION.equals(ind.getId());
         }
 
         @Override
@@ -92,7 +92,7 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
 
         public boolean isSuitable(Industry ind) {
             boolean isPop = ind.getId().equals(Industries.POPULATION);
-            boolean isRural = ind instanceof SwitchablePopulation && ((SwitchablePopulation) ind).getCurrent() instanceof RuralPolitySubIndustry;
+            boolean isRural = GovernmentCondition.getGovernment(ind.getMarket()) instanceof RuralPolitySubIndustry;
             boolean playerOwned = ind.getMarket().isPlayerOwned();
 
             return isPop && isRural && playerOwned;
@@ -120,7 +120,12 @@ public class RuralPolitySubIndustry extends SubIndustry implements MarketImmigra
         @Override
         public void optionSelected(IndustryOptionProvider.IndustryOptionData opt, DialogCreatorUI ui) {
             if (opt.id == OPTION_IMAGE_CHANGE) {
-                ((RuralPolitySubIndustry) ((SwitchablePopulation) opt.ind).getCurrent()).nextImage();
+                GovernmentCondition cond = GovernmentCondition.get(opt.ind.getMarket());
+                if (cond == null || !(cond.getCurrent() instanceof RuralPolitySubIndustry)) return;
+
+                cond.getCurrent().init(opt.ind);
+                ((RuralPolitySubIndustry) cond.getCurrent()).nextImage();
+                cond.updateOverrides(opt.ind);
             }
         }
     }
@@ -154,6 +159,7 @@ Rural Polity
     public static final float LI_SUPPLIES_PER_LUX_GOODS = 1f;
     public static final float FARMING_BASE_BONUS = 1f;
     public static final float LI_WEAPONS_PER_LUX_GOODS = 0.5f;
+    public static final String TOT_TOOLBOX_FOOD_MOD = "aotd_toolbox_food_prod";
 
     public RuralPolitySubIndustry(SubIndustryData data) {
         super(data);
@@ -161,8 +167,7 @@ Rural Polity
 
     @Override
     public void apply() {
-        ((SwitchablePopulation) industry).superApply();
-
+        market.removeImmigrationModifier(this);
         market.addImmigrationModifier(this);
 
         int i = 0;
@@ -171,26 +176,62 @@ Rural Polity
             if (ind.getAICoreId() != null) market.getStability().modifyFlat(getId() + "_" + ind.getId() + "_ai", -INDUSTRY_ITEM_STABILITY_DECREASE, getName() + " - " + Global.getSettings().getCommoditySpec(ind.getAICoreId()).getName());
 
             if (ind.getSpec().getTags().contains("industrial")) {
-                ind.getUpkeep().modifyMult(getId(), INDUSTRIAL_UPKEEP_INCREASE, getName());
                 market.getStability().modifyFlat(getId() + "_" + i, -STABILITY_DECREASE_PER_INDUSTRY, getName() + " - " + ind.getNameForModifier());
             } else if (ind.getSpec().getTags().contains("rural")) {
-                ind.getUpkeep().modifyMult(getId(), RURAL_UPKEEP_DECREASE, getName());
                 market.getStability().modifyFlat(getId() + "_" + i, STABILITY_INCREASE_PER_RURAL, getName() + " - " + ind.getNameForModifier());
             }
 
-            if (ind instanceof Farming) {
-                ind.getSupplyBonusFromOther().modifyFlat(getId(), FARMING_BASE_BONUS, getName());
-                ind.supply(getId(), Commodities.ORGANICS, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_ORGANICS_PER_FOOD), getName());
-                if (market.isFreePort()) ind.supply(getId(), Commodities.DRUGS, (int) Math.ceil(ind.getSupply(Commodities.FOOD).getQuantity().getModifiedValue() * FARMING_DRUGS_PER_FOOD), getName());
-                else clearSupply(ind, Commodities.DRUGS);
-            }
-
-            if (ind instanceof LightIndustry) {
-                ind.supply(getId(), Commodities.HAND_WEAPONS, (int) Math.ceil(ind.getSupply(Commodities.LUXURY_GOODS).getQuantity().getModifiedValue() * LI_WEAPONS_PER_LUX_GOODS), getName());
-                ind.supply(getId(), Commodities.SUPPLIES, (int) Math.ceil(ind.getSupply(Commodities.LUXURY_GOODS).getQuantity().getModifiedValue() * LI_SUPPLIES_PER_LUX_GOODS), getName());
-            }
-
             i++;
+        }
+    }
+
+    @Override
+    public void preApplyToOther(Industry ind) {
+        if (ind instanceof Farming) ind.getSupplyBonusFromOther().modifyFlat(getId(), FARMING_BASE_BONUS, getName());
+    }
+
+    // runs after the industry applied, so farming and light industry output is the current one
+    @Override
+    public void applyToOther(Industry ind) {
+        if (ind.getSpec().getTags().contains("industrial")) {
+            ind.getUpkeep().modifyMult(getId(), INDUSTRIAL_UPKEEP_INCREASE, getName());
+        } else if (ind.getSpec().getTags().contains("rural")) {
+            ind.getUpkeep().modifyMult(getId(), RURAL_UPKEEP_DECREASE, getName());
+        }
+
+        if (ind instanceof Farming) {
+            float food = getFoodWithoutToolbox(ind);
+            ind.supply(getId(), Commodities.ORGANICS, (int) Math.ceil(food * FARMING_ORGANICS_PER_FOOD), getName());
+            if (market.isFreePort()) ind.supply(getId(), Commodities.DRUGS, (int) Math.ceil(food * FARMING_DRUGS_PER_FOOD), getName());
+            else clearSupply(ind, Commodities.DRUGS);
+        }
+
+        if (ind instanceof LightIndustry) {
+            ind.supply(getId(), Commodities.HAND_WEAPONS, (int) Math.ceil(ind.getSupply(Commodities.LUXURY_GOODS).getQuantity().getModifiedValue() * LI_WEAPONS_PER_LUX_GOODS), getName());
+            ind.supply(getId(), Commodities.SUPPLIES, (int) Math.ceil(ind.getSupply(Commodities.LUXURY_GOODS).getQuantity().getModifiedValue() * LI_SUPPLIES_PER_LUX_GOODS), getName());
+        }
+    }
+
+    // tot's toolbox food bonus sits on its own flat key and must not feed the organics and drugs bonus
+    private float getFoodWithoutToolbox(Industry ind) {
+        MutableStat food = ind.getSupply(Commodities.FOOD).getQuantity();
+        MutableStat.StatMod toolbox = food.getFlatMods().get(TOT_TOOLBOX_FOOD_MOD);
+        return food.getModifiedValue() - (toolbox == null ? 0f : toolbox.getValue());
+    }
+
+    @Override
+    public void unapplyFromOther(Industry ind) {
+        ind.getUpkeep().unmodify(getId());
+
+        if (ind instanceof Farming) {
+            ind.getSupplyBonusFromOther().unmodify(getId());
+            clearSupply(ind, Commodities.ORGANICS);
+            clearSupply(ind, Commodities.DRUGS);
+        }
+
+        if (ind instanceof LightIndustry) {
+            ind.supply(getId(), Commodities.HAND_WEAPONS, 0, getName());
+            ind.supply(getId(), Commodities.SUPPLIES, 0, getName());
         }
     }
 
@@ -223,23 +264,6 @@ Rural Polity
         for (Industry ind : market.getIndustries()) {
             market.getStability().unmodify(getId() + "_" + ind.getId());
             market.getStability().unmodify(getId() + "_" + ind.getId() + "_ai");
-
-            if (ind.getSpec().getTags().contains("industrial")) {
-                ind.getUpkeep().unmodify(getId());
-            } else if (ind.getSpec().getTags().contains("rural")) {
-                ind.getUpkeep().unmodify(getId());
-            }
-
-            if (ind instanceof Farming) {
-                ind.getSupplyBonusFromOther().unmodify(getId());
-                clearSupply(ind, Commodities.ORGANICS);
-                clearSupply(ind, Commodities.DRUGS);
-            }
-
-            if (ind instanceof LightIndustry) {
-                ind.supply(getId(), Commodities.HAND_WEAPONS, 0, getName());
-                ind.supply(getId(), Commodities.SUPPLIES, 0, getName());
-            }
         }
 
         for (int i = 0; i < 50; i++) {

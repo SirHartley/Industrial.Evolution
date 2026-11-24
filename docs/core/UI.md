@@ -4,7 +4,7 @@ Shared builder for IE custom panels in `jars/src/indevo/utils/ui/`. Read it befo
 
 Checked against Starsector 0.98a-RC8. Paths below are relative to `jars/src/indevo/utils/ui/`; `obf/` and `api/` paths point into the `starsector-knowledge` skill.
 
-Reference implementation: the Academy panel (`industries/academy/plugins/AcademyPanelDelegate.java`, `AcademyDetail.java`, `AcademyView.java`; [Academy](../industries/ACADEMY.md#panel)). The detachment panel, Salvage Yards, Courier Port, Senate Edict, Ancient Laboratory, Engineering Hub and Research panels are built the same way; their feature docs own the content.
+Reference implementation: the Academy panel (`industries/academy/plugins/AcademyPanelDelegate.java`, `AcademyDetail.java`, `AcademyView.java`; [Academy](../industries/ACADEMY.md#panel)). The detachment panel, Salvage Yards, Courier Port, Senate Edict, Ancient Laboratory, Engineering Hub and Research panels and the government and specialization picker are built the same way; their feature docs own the content.
 
 The helpers mirror the mockup board kit (`kit.py`): a board line `text(58,7,140,name,'ins15',GRAY)` becomes `Ui.text(row, 58, 7, 140, name, Ui.gray())`.
 
@@ -25,7 +25,7 @@ Every IE panel follows these rules.
    - An empty list keeps its heading and one grey line.
    - Interiors stay black: boxes, cards, rows and cells get a 1 px border and no fill. Only a selected row, a button, heading bars and table header strips are filled; vanilla never tints a tile. A panel on the dialog picture or starscape gets the black `Ui.backdrop()` behind it.
 3. Panel size is `min(board, screen - margin)` per axis (`UiFrame.width/height`, margin 100). List regions take up the difference, fixed blocks keep their size. Everything fits 1600 x 900 and stays usable at 1280 x 768.
-4. Native look. Fonts and colours only through `Ui`; raw RGB only for the three state colours `Ui.GREEN`, `Ui.RED`, `Ui.AMBER` (button fills, bars, strips, marks). The fill of a button says what it does: green confirms or starts, red undoes or removes, amber cancels a running order or marks the one action a stalled thing waits for (Lay course to a dormant or stranded detachment), the story colours cost a story point, everything else is the vanilla dark fill; disabled buttons get the engine's own wash. Cuts follow the vanilla roles: `ALL` for a single button and for a Confirm and Cancel pair, `TL_BR` for every button of a bank that sits side by side, `TOP` for tabs. Use vanilla widgets where they fit (`addShipList`, `showPlanetInfo`, `showCargo`, `showCost`, `addSkillPanel`) through `Ui.element` for their stock tooltips and codex links. Hand drawn cells get a tooltip that names the thing. Sprites come by spec, never by path guess.
+4. Native look. Fonts and colours only through `Ui`; raw RGB only for the three state colours `Ui.GREEN`, `Ui.RED`, `Ui.AMBER` (button fills, bars, strips, marks). The fill of a button says what it does: green confirms or starts, red undoes or removes, amber cancels a running order or marks the one action a stalled thing waits for (Lay course to a dormant or stranded detachment), the story colours cost a story point, everything else is the vanilla dark fill; disabled buttons get the engine's own wash. A button whose click costs only Relic Components is always `UiButtons.relic`: green, relic icon, label, amount, the same in every panel; only its cut follows the panel. A commit with several costs (credits, parts, a blueprint) stays a plain green button under its cost rows. Cuts follow the vanilla roles: `ALL` for a single button and for a Confirm and Cancel pair, `TL_BR` for every button of a bank that sits side by side, `TOP` for tabs. Use vanilla widgets where they fit (`addShipList`, `showPlanetInfo`, `showCargo`, `showCost`, `addSkillPanel`) through `Ui.element` for their stock tooltips and codex links. Hand drawn cells get a tooltip that names the thing. Sprites come by spec, never by path guess.
 5. Wording. `?` help icon on the title line holds rules and rates, not the body. A sentence that explains a feature, an option or a rule is the tooltip of the control it explains (`Ui.tooltip`), never a label; lore goes into the tooltip of the action button. The body keeps state, data, red reasons and consequences the player must see before a click. Short labels, standard game wording, no rounded edges. Player text follows the house-style `player-text.md`.
 6. Every view is reachable from code: the panel takes one small view state object (tab, selected id, scroll offsets, armed confirm, open sub view) and has one static entry point that opens it for a market or fleet.
 
@@ -39,10 +39,13 @@ Every IE panel follows these rules.
 | `UiData` | Progress bars, pips, marks and check rows, costs, value grids |
 | `UiFrame` | Dialog sizing, title strip with `?`, header slots and counters |
 | `UiScroll` | Scroll columns and the per panel scroll offsets |
+| `UiFilter` | Filter bar over a big list: text field, Show filters fold with toggles and sort keys, and its state |
 | `UiRoot` | Rebuild host |
 | `UiCanvas` | Plugin of every kit panel: runs a `Runnable` button id, paints below and above children; `shown` holds the fraction a kit progress bar shows, for checks |
-| `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code |
-| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, dashed box, fades, mark, contain fit sprite) |
+| `UiHost` | Interaction dialog that only hosts one custom dialog, for panels opened from code (`show`) and popups over a panel (`over`) |
+| `UiConfirm` | The game's confirmation popup over a panel, in its own interaction dialog |
+| `UiTour` | Guided tour step over a whole panel: dims all but one lit rect, pulsing line around it, a box with the text, `n / N`, Next and Skip or Done; eats clicks outside both while blocking. `pulse(time)` is the 0.4 s up, 0.9 s down level it and the `?` glow use |
+| `UiDraw` | GL primitives for painters (quad, vertical gradient, line with an optional texture, outline, `ring` (1 px band with 3 px cut corners), dashed box, fades, mark, polygon fan, contain fit sprite, contain fit own texture `texture`, `upload` of RGBA8 pixels or a `BufferedImage` to a new texture, `glow`: 1 px rings outward over `reach`, alpha falling with the square of the distance) |
 
 Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordinates and the content, and returns the created element. Panels the kit creates use `UiCanvas`, so a button anywhere below them reports to the nearest kit panel and runs its `Runnable`. No helper keeps global state; view state lives in the panel's state object.
 
@@ -78,6 +81,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `width(s, font)` / `fit(s, font, w)` | Real font width (`SettingsAPI.computeStringWidth`); shorten to `w - 2` with `...` |
 | `nameLines(p, x, y, pitch, w, name, color, second, secondW)` | Name and a grey second line `pitch` below; a name too long for one line wraps to two (ellipsis and tooltip past that) and the second line drops |
 | `lines(s, font, w, n)` | The leading words that wrap into `n` lines, `...` when words are left out |
+| `breakLines(s, font, soft, hard, n)` | Lines for centred labels, one label each: several words on a line stay within `soft`, a lone word may reach `hard` and is hyphenated past it (after a hyphen, before a consonant between vowels, between two consonants that are not one sound), `soft` is raised to `hard` when `n` lines do not hold it, `...` on the last line past that. A label made by `autoSizeToWidth` breaks inside a word and keeps its lines left aligned under `TMID` |
 | `sentences(s, font, w)` | The leading whole sentences that fit `w - 2`; when the first one does not fit, cut at a word with `...` |
 | `text(p, x, y, w, s[, color[, align]])`, `text(p, x, y, w, s, font, color, align)` | One line, fitted, tooltip with the full text when shortened. Align `LEFT`, `RIGHT`, `CENTER` |
 | `runs(p, x, y, w, font, color, align, s, parts, colors)` | One line with coloured runs (first occurrence of each part) |
@@ -85,11 +89,14 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | `wrap(p, x, y, w, s, color)`, `wrap(..., font, color, align, parts, colors)` | Wrapped at `w`; `height(label)` is the measured height |
 | `wrapHeight(s, font, w)` | Height of wrapped text before placing it |
 | `heading(p, x, y, w, title[, align[, color, bg]])` | Section heading, 18 high, exactly `w` wide. Centred: the vanilla heading label. Left or right: a flat bar of the same colour with the text 8 px in |
-| `heading(p, x, y, w, title, note)` | Left heading with a grey orb12 note at the right end |
+| `heading(p, x, y, w, title, font, align, color, bg)` | The flat bar with another font. `ORB12` runs about a sixth wider than `INS15` in the game, so a name on a narrow tile takes `INS15` |
+| `heading(p, x, y, w, title, note, hl...)` | Left heading with a grey orb12 note at the right end; the `hl` parts of the note in the highlight colour |
 | `rule(p, x, y, w[, color])`, `vrule(p, x, y, h)` | 1 px line, `line()` colour |
 | `box(p, x, y, w, h, border, fill)`, `card`, `well`, `dashbox` | Framed box; card (base 0.3 frame, no fill); recessed cell behind pictures; dashed empty slot |
 | `thead(p, x, y, w, labels, xs, ws, aligns)` | Table header strip with orb12 column labels |
 | `tooltip(p, target, title, lines...)` | Text tooltip below any panel, label or button (title in highlight, lines 10 px apart); buttons show it while disabled |
+| `solidTooltip(p, target, title, lines...)` | Same with a solid background (`setBgAlpha(1)`); use it where the tooltip opens over busy content, the default 0.85 lets it show through |
+| `bottomTooltip(p, target, title, lines...)` | Solid and above the target, for buttons on a dialog panel's bottom row: below them the tooltip runs under the dialog's own buttons (Return), which draw over the panel |
 | `tooltip(p, target, width, loc, content)` | Same with free content |
 
 ### UiButtons
@@ -97,31 +104,35 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | Signature | Does |
 |---|---|
 | `button(p, x, y, w, h, label, kind[, cut], action)` | Kinds `STD`, `GREEN` (confirms or starts), `RED` (undoes or removes), `AMBER` (cancels a running order), `STORY` (costs a story point), `HOT` (bright on opaque dark), `OFF` (disabled). GREEN and AMBER fill with their state colour at `FILL` (60 %, `fill(state)`), RED at full; light text on all three. Cut `ALL` by default, `TL_BR` for the buttons of a bank; never `BL_TR` next to `TL_BR`, never `C2_MENU` or `NONE`. `action` null also disables |
-| `button(..., cut, icon, sub, font, action)` | Icon sprite and a highlighted sub text (cost) drawn over the face |
+| `button(..., cut, icon, sub[, subColor], font, action)` | Icon sprite and a sub text (cost) drawn over the face; the icon stays at full alpha on an off button (dark cargo icons such as Relic Components vanish into the grey face when dimmed); the sub is highlight, grey when off, or `subColor` (red for a cost the player cannot pay) |
+| `relic(p, x, y, w, h, label, cost, afford, cut, action)` | The one format for a button that costs only Relic Components: `GREEN`, `UiImages.relicSprite()`, label, `Ui.num(cost)` in highlight. `action` null: grey. `afford` false: the amount in red. The caller places the red reason line |
 | `guarded(p, x, y, w, h, label, kind, reason, action)` | `reason` null: normal button. Else grey button and the red reason wrapped below. Takes `guardHeight(w, h, reason)` (one line reserved when not blocked) |
 | `confirm(p, x, y, w, h, label, kind, state, id, action, refresh[, okLabel, cancelLabel])` | Inline confirm: the button arms `id` in a `Confirm` held by the view state; armed, Confirm and Cancel (or the given labels, so the pair never reads like a neighbouring Cancel) stand in its place |
 | `tab(p, x, y, w, h, label, on, enabled, action)` | `CutStyle.TOP` tab, selected bright on opaque dark |
-| `tabs(p, x, y, w, tabW, h, labels, selected, enabled, onSelect)` | Tab bar (`tabW` 0 splits evenly, gap 4) and a rule below; returns the y under the rule |
+| `tabs(p, x, y, w, tabW, h, labels, selected, enabled[, tips], onSelect)` | Tab bar (`tabW` 0 splits evenly, gap 4) and a rule below; returns the y under the rule. `tips` holds a solid hover per tab (null for none), shown on a disabled tab too |
 | `area(p, x, y, w, h, label, on, enabled, strip, align, action)` | Area checkbox look: checked is the bright frame and fill; optional 4 px colour strip at the left edge |
 | `row(p, x, y, w, h, selected, enabled, strip, action)` | Selectable list row: the area is the click target, content added to the returned panel sits on top |
 | `check(p, x, y, w, label, on, enabled, action)` | Vanilla checkbox with label |
 | `stepper(p, x, y, value, enabled, minus, plus)` | `-` value `+`, 72 wide |
-| `field(p, x, y, w, h, text, maxChars)` | Vanilla text field |
+| `field(p, x, y, w, h, text, maxChars[, font])` | Vanilla text field, `INS15` unless a font is given |
+| `boxed(p, x, y, w, h, field)` | Black interior with a 1 px outline (`base()` at `FIELD_EDGE` 0.45, the board colour) as the boards draw a field. The field fills its whole box with the border colour at alpha 127 to 255 (cursor fade) and lays the bg at alpha 200 over it (`obf/ui/B.java` `renderImpl`), so a coloured border tints the interior: both are set black and the outline is a `Ui.box` painted over the field |
 
 ### UiImages
 
 | Signature | Does |
 |---|---|
 | `img(p, x, y, w, h, sprite[, tint, alpha])`, `tint(...)` | Sprite in a fixed box, contain fit, centred, integer pixels; dimmed is `DIM` 0.4 |
+| `grey(p, x, y, w, h, sprite)` | Same fit, without colour and darker: luma (0.299, 0.587, 0.114) x `GREY_LIGHT` 0.6, alpha kept. Made once per path from the image file (`openStream` and `ImageIO`, padded to power of two sides) as its own GL texture, kept for the session; a file that can not be read logs a warning and draws the sprite at `DIM` |
+| `paint(sprite, grey, x, y, w, h, alpha)` | `img` or `grey` drawn from a painter at GL coordinates, for a picture that changes while its panel stays |
 | `icon(p, x, y, size, sprite, name)` | Square sprite with a name tooltip |
 | `portrait(p, x, y, size, person)` | Portrait with the name as tooltip |
 | `ship(p, x, y, size, member, framed, dim)` | Hand drawn hull sprite in a well, ship name and class as tooltip |
 | `hull(p, x, y, size, spec, framed, dim)` | Same for a `ShipHullSpecAPI` that is no fleet member, hull name and class as tooltip |
 | `wing(p, x, y, size, wingId, framed, dim)` | One fighter hull sprite of the wing (not the vanilla formation picture), wing name and role as tooltip |
 | `shipIcon(p, x, y, size, member)` | Vanilla `addShipList` icon with the stock ship tooltip |
-| `skill(p, x, y, size, spec, elite)` | Skill icon, elite framed in highlight |
+| `skill(p, x, y, size, spec, elite)` | Vanilla skill cell (`obf/coreui/Z.java`, translation of obfuscated code): black, icon 4 px in, two 1 px rings with 3 px cut corners in the aptitude colour mixed 35% toward `tooltipTitleAndLightHighlightColor` at 70%, elite stars from `aptitude_data.csv` at their own size in the middle. Cells are 40 px (56 and 72 take the larger star sprites); smaller inline icons use `icon` |
 | `commodity`, `hullmod`, `item` (ids), `submarket` (`SubmarketAPI`) | Spec icons with name tooltip |
-| `stack(p, x, y, size, sprite, count, extra, name)` | Cargo style cell in a well: sprite inset 6, `count` bottom right in highlight (hidden below 0), `extra` as `+N` top left in positive colour with a lit frame while above 0, `name` tooltip |
+| `stack(p, x, y, size, sprite, count, extra, name)` | Cargo style cell in a well: sprite inset 6, `count` bottom right in highlight (an int, hidden below 0, or a ready text, hidden when null), `extra` as `+N` top left in positive colour with a lit frame while above 0, `name` tooltip |
 | `planet(p, x, y, size, market)` | Vanilla `showPlanetInfo` for a planet, faction crest for a station; market name tooltip |
 | `planet(p, x, y, size, entity)` | `SectorEntityToken`: vanilla render for a planet or star, else the custom entity sprite, else its icon, else the faction crest; entity name tooltip |
 | `iconrow(p, x, y, w, items, cw, ch, gap, rows, cell, name)` | Fixed cells, wraps to `rows`, last cell `+N` with the rest; returns the used height |
@@ -150,7 +161,7 @@ Every helper takes the parent `CustomPanelAPI`, the rectangle in parent coordina
 | Signature | Does |
 |---|---|
 | `width(boardW)`, `height(boardH)` | Content size for `showCustomDialog`: `min(board, screen - 100) - 20` and `- 55` |
-| `title(p, w, title, sub, help)` | Title heading at y 0 with the sub text in grey; `HelpIcon` 20 x 20 at the right end when `help` is set |
+| `title(p, w, title, sub, help)`, `title(p, w, title, sub, help, pulse)` | Title heading at y 0 with the sub text in grey; `HelpIcon` 20 x 20 at the right end when `help` is set, glowing while `pulse` (`HelpIcon.Pulse`) is above 0 |
 | `slot(p, right, y, sprite, text, title, lines...)` | Header item right to left (24 px icon, grey text, tooltip); returns the next right edge |
 | `counter(p, right, y, label, sprite, value)`, `credits(p, right, y)` | Grey label, icon, highlighted value; the player's credits |
 
@@ -165,13 +176,39 @@ Header layout of the boards: title at y 0, tabs at `HEADER_Y` 30 with `HEADER_H`
 | `Column.heading(gapBefore)` | A `Ui.HEADING_H` block for `Ui.heading`; `end()` never ends the viewport on it, so a heading is never shown at rest without the block below it |
 | `Column.end()` | Creates the scroll element (its viewport height is fixed at creation, `obf/ui/newui/int.java` `addUIElement`) at the height of the last block that fits whole, adds the blocks, attaches it and restores its offset |
 | `Offsets` | Offsets by list id: `get`, `set`, `reset(id)` (for example on a new selection), `capture()`, `restore()` |
+| `ruleX(columnX)`, `listWidth(listX, columnX)` | Rule between a scroll list and the column that starts at `columnX`: the rows end `RULE_PAD` (12) left of the rule and the column starts 12 right of it, so both pads match while no scrollbar shows. The 10 px `GUTTER` is part of the left pad and the scrollbar keeps 2 px to the rule. A heading above such a list is `Column.width()` wide, like the rows |
 | `wholeRows(h, lead, rowH, gap)` | Tallest height up to `h` that ends on a whole row, so a fixed pitch list never shows half a row at rest; the rest becomes the gap below |
 
 Blocks need their height before they are built, so detail columns compute each block's height first (`wrapHeight`, `guardHeight`, row counts).
 
+### UiFilter
+
+Every big list gets one (Philipp's rule). The bar takes no list: the caller filters and sorts its own items with the state and builds the list under it.
+
+| Signature | Does |
+|---|---|
+| `State(defaultSort, defaultOn...)` | View state of one bar: typed text, `open`, lit toggles `on`, `sort` key and `reversed`. Kept in the panel's view state, so it lives while the screen is open |
+| `State.matches(values...)` | True when the trimmed text is empty or any value contains it, ignoring case |
+| `State.isFiltering()` | Text typed or toggles not at their default; lists then hide empty groups and count "2 of 11" |
+| `State.sort(list, comparator)` | Sorts by the comparator (null keeps the list order), then reverses when `reversed` |
+| `State.off`, `State.fallback`, `State.sortKey()` | Keys in `off` draw grey and can not be picked; while the picked `sort` is one of them, `sortKey()` returns `fallback`, which is lit in its place. Sort by `sortKey()` |
+| `State.poll()` | True when the typed text changed; call it from the panel plugin's `advance`, then reset the list scroll and refresh |
+| `field(p, x, y, w, state, hint)` | The text field of the bar alone, `H` high, `boxed`, with the grey hint while empty; for a find field with no fold. Poll it with `State.poll()` as the bar |
+| `height(state or open, toggles, keys)` | `H` 26 closed; open adds 30 per row of toggles and of sort keys |
+| `bar(p, x, y, state, hint, showTip, toggles, onToggle, keys, changed, refresh)` | Field 150 x 26 with a grey hint while empty, then the Show filters toggle (108, 124 with the gold count of toggles and sort that differ from the default, "Hide filters" while open). Open: a row of `Item` toggles (`onToggle` null flips one, a radio group passes its own; an `Item` with an `icon` shows the 20 px icon and its `shown` text in the highlight colour in place of its label, which stays the key), then "Sort" and one left aligned key per `Item`, the key in use lit with an 8 x 5 arrow 18 px from its right edge, a second click turns the order. `changed` runs after a filter or sort change, `refresh` after the fold opens or closes. Returns the height used; the list starts `BELOW` 8 px under it |
+
+### UiTour
+
+| Signature | Does |
+|---|---|
+| `State` | Owner's timing state, kept across rebuilds: `alpha()` (fade in and out), `glow()` (0 to 1, constant with motion off), `blocking()` |
+| `Step(x, y, w, h, text, number, index, count, next, skip)` | Target in panel coordinates from the top left; the lit rect is `PAD` 4 larger. `text` null draws no box (fade out); `number` is highlighted in the text |
+| `add(p, w, h, step, state)` | Adds the overlay as the last child of `p`: call it at the end of the build so it draws over and takes input first. 70% black around the lit rect (all of it when `step` is null), glow and 1 px bright line; box `BOX_W` 360, `GAP` 8 right of the rect, else left, top edges level, kept inside `p`; Next 80 and Skip 64, or Done alone on the last step. Panel opacity follows `alpha()` every frame |
+| `pulse(time)` | 0 to 1: 0.4 s up, 0.9 s down, repeating |
+
 ## Rebuild and scroll pattern
 
-A click changes the view state and rebuilds the body; scroll offsets survive. Buttons carry a `Runnable` as their data, so there are no id strings and no per frame polling.
+A click changes the view state and rebuilds the body; scroll offsets survive. Buttons carry a `Runnable` as their data, so there are no id strings and no per frame polling. The one exception is the `UiFilter` text field: a text field has no change callback (`api/ui/TextFieldAPI.java`), so the panel plugin polls it and every typed letter rebuilds the body; the new field takes the focus back.
 
 ```java
 public class FooPanel extends BaseCustomDialogDelegate {
@@ -207,14 +244,14 @@ public class FooPanel extends BaseCustomDialogDelegate {
 }
 ```
 
-`UiRoot.refresh()` captures the live offsets, removes the old body, builds a new one on a `UiCanvas` panel, attaches it and restores the offsets clamped to the new content height. `getCustomPanelPlugin()` can stay null: kit panels handle their own buttons. Text typed into a `field` is read in the action that uses it and kept in the view state before the refresh.
+`UiRoot.refresh()` captures the live offsets, removes the old body, builds a new one on a `UiCanvas` panel, attaches it and restores the offsets clamped to the new content height. `getCustomPanelPlugin()` can stay null: kit panels handle their own buttons. A panel with a clock (`PetsPanel`, for the petting motion) returns a plugin whose `advance(amount)` drives it. Text typed into a `field` is read in the action that uses it and kept in the view state before the refresh.
 
 ## Confirm over a panel
 
 One custom dialog can be open per interaction dialog. Two ways to confirm:
 
 - Inline: `UiButtons.confirm` turns the action button into Confirm and Cancel in place. Use it when the button area can hold two buttons.
-- Real dialog (Edict enact, Research redeem): `industries/senate/dialogue/EdictConfirmDialog.show(onClose)` opens a second interaction dialog with `CampaignUIAPI.showInteractionDialogFromCargo(plugin, null, onClose)`; its plugin's `init` calls `dialog.showCustomDialog(w, h, this)` and Confirm or Cancel call `dialog.dismiss()`; `onClose` rebuilds the panel below. `showCustomDialog` can not stack a second custom dialog in one dialog.
+- Real dialog (Edict enact, Remove and Bribe, pet Euthanize and Rehome): `UiConfirm(confirmText[, height], body, onConfirm).show(onClose)`, 500 wide, the body in the large paragraph font; without a height the panel is as high as the body (measured on a probe tooltip), and the game frame adds 10 px above, 10 px between panel and buttons and 25 px buttons 10 px off the bottom (`obf/ui/newui/O0oo.java:42-58`). `showCustomDialog` can not stack a second custom dialog in one dialog, so a popup over a panel goes through `UiHost.over(opener, onClose)`: a second interaction dialog from `CampaignUIAPI.showInteractionDialogFromCargo(plugin, null, onClose)`, whose `init` runs the opener (`dialog.showCustomDialog(w, h, delegate)`); the delegate's confirm and cancel call `dialog.dismiss()`, and `onClose` rebuilds the panel below. The pet where to popup (`PetPlaceDialog`) uses the same route.
 
 ## Opening a panel
 
@@ -246,11 +283,13 @@ Verified in the decompiled 0.98a-RC8 source unless noted.
 - Non scrolling elements: `addUIElement` sizes the element to `max(getHeightSoFar(), h)` and adds it as is (`obf/ui/newui/int.java:97-100`); panels do not clip children unless `setClipping(true)` (`obf/ui/interfacenew.java:18,174`). So `Ui.element` content past `h` draws over what lies below.
 - `SettingsAPI.getSprite(path)` needs a loaded texture (`api/SettingsAPI.java:115`); for a path never loaded it returns a sprite without texture and 0 x 0 (`obf/_common/graphics/_c7.java:23`, `obf/_common/graphics/Sprite.java:460-470`). `UiImages.planet(entity)` checks the size before it uses a custom entity sprite or icon.
 - Weapon icons have no single sprite: the vanilla cell draws the hardpoint sprite, the hardpoint gun sprite of projectile weapons and, for missile weapons, the missile sprite from the projectile spec, which only obf code reaches (`obf/ui/B/_c172.java:59-105`). The kit has no weapon helper; show weapons through `Ui.element` with `showCargo`, or use `stack` with `getHardpointSpriteName()` and accept missing barrels and missiles.
+- `javax.imageio` is not on the script classloader's blocked list (knowledge skill `docs/concepts/blocked-classes.md`); `VPCItemPlugin` and `UiImages.grey` read sprites with `ImageIO.read(Global.getSettings().openStream(path))`. GL calls run on the main thread, where panels are built and painted, so `grey` makes its texture while it builds.
 - `Misc.renderQuad` does not disable textures; `UiDraw` sets `GL_TEXTURE_2D` off, blend on, and turns textures back on after each primitive (knowledge skill `docs/ui/custom-elements.md` section 2).
 - Credits icon: sprite `fleetScreen/icon_logistics_credits` (`graphics/ui/icons/fleettab/credits_24x24.png`, `data/config/settings.json`). Relic and Ship Components: `CommoditySpecAPI.getIconName()` of `IndEvo_rare_parts` and `IndEvo_parts`.
 - Progress bars: the vanilla bar is `com.fs.starfarer.campaign.ui.N` (cargo screen bars, `obf/campaign/ui/trade/o0OO.java:43`), no API. `UiData.bar` is a translation of its `renderImpl` at rest (`obf/campaign/ui/N.java:481-700`): black over the rect; usable width `w - 8` from `x + 3` (`w - 6` from `x + 2` at 5 px or less); fill `fraction * usable + 1` wide, `h - 2` high, `y + 1`; the empty part `y + 3`, `h - 6` high, from 5 px after the fill end. Fill routine `obf/renderers/O.java:339-381`: the colour 15 % toward white at alpha 0.75, then an additive vertical gradient of the colour, 0 at the edges and 0.75 in the middle; the empty part is the same at 0.65 alpha with a black (alpha 127) gradient on top instead. End lines (`obf/renderers/E.java:386-430`; every bar line is textured with `graphics/hud/line4x4.png`, which vanilla loads at startup, through `UiDraw.line` with a texture): 2 px at x and x + w at 0.5, a 2 px additive line at x + 1 and x + w - 1, 15 px corner stubs along top and bottom fading 1, 0.5, 0; along the empty part 1 px edge lines at y + 1 and y + h - 2 that fade in over 10 px at the right end, and a divider plus an additive white one where it starts; a 1 px line over the full height at `x + fraction * usable + 5.5`, alpha 0.5, 1, 0.5 (`obf/campaign/ui/N.java:716`). Not translated: easing toward the target value, the overflow part and the hover brightness. The frame and line colour is the settings colour `widgetBorderColorBright` (the `N` widget colour default, `obf/O0OO.java:29`). Bars under 2 px get no fill in vanilla, so `thinbar` is a kit bar in the same fill colour.
 - Bar colours are the vanilla settings colours where a meaning exists (`Ui.barColor(key)`): `progressBarStandardColor` (progress, `barBlue`), `progressBarCargoColor`, `progressBarFuelColor`, `progressBarCrewColor` (Detachments), `progressBarOverflowColor` (over capacity, over budget), `progressBarWarningColor` (paused training, an Edict before its minimum term), `progressBarDangerColor` (Detachments short on supplies). Ready or done has no vanilla colour and uses `Ui.GREEN` (Research ready, Hub hull at 100 %, Edict after its term).
 - `showPlanetInfo(planet, w, h, withName, pad)` draws the vanilla planet render at that size; there is no market level planet widget, so `planet(market)` shows the faction crest for a station and `planet(entity)` the entity sprite.
+- Text field (`obf/ui/B.java`, the `TextFieldAPI` implementation): the text sits `pad x 2` in, pad 2 by default (`:15`, `:49`). `setHint` exists only on the obf class and centres a grey hint (`:78-82`), so `UiFilter` draws its own left aligned hint label over the empty field; labels let the click through to the field. `grabFocus(false)` takes the focus without the typing sound (`:284-291`).
 - `CampaignClockAPI.getShortDate()` is `cycle.month.day` and `getDateString()` is `Mon d, cN` (`obf/campaign/CampaignClock.java:30-36`).
 
 ## Known limits

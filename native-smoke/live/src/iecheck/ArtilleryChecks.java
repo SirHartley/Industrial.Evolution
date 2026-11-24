@@ -19,6 +19,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Abilities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.SalvageEntity;
 import com.fs.starfarer.api.impl.campaign.terrain.DebrisFieldTerrainPlugin;
+import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
@@ -259,19 +260,22 @@ public final class ArtilleryChecks {
         float maxJump;
         float firstProj = -1f;
         String projType;
-        int projBefore;
+        final List<SectorEntityToken> projBefore = new ArrayList<>();
         StarSystemAPI system;
         float e1 = -1f;
         float e4 = -1f;
         float minE = Float.MAX_VALUE;
         float maxE;
         boolean flag;
+        final float tickIn;
 
         Probe(StarSystemAPI system, String projType) {
             this.system = system;
             this.projType = projType;
             this.last = eyeElapsed();
-            if (projType != null) projBefore = count(system, projType);
+            IntervalUtil i = eye().checkInterval;
+            this.tickIn = i.intervalElapsed() ? i.getIntervalDuration() : i.getIntervalDuration() - i.getElapsed();
+            if (projType != null) projBefore.addAll(entities(system, projType));
         }
 
         float secs() {
@@ -289,7 +293,7 @@ public final class ArtilleryChecks {
             if (e1 < 0f && t >= 1f) e1 = e;
             if (e4 < 0f && t >= 4f) e4 = e;
             if (playerSeen()) flag = true;
-            if (projType != null && firstProj < 0f && count(system, projType) > projBefore) firstProj = t;
+            if (projType != null && firstProj < 0f && !projBefore.containsAll(entities(system, projType))) firstProj = t;
         }
     }
 
@@ -391,7 +395,6 @@ public final class ArtilleryChecks {
     }
 
     static void weights(VisionType vision) throws Exception {
-        Colony.setting(Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER, vision == VisionType.WATCHTOWER ? 1.0 : 0.0);
         Colony.setting(Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE, vision == VisionType.LIGHTHOUSE ? 1.0 : 0.0);
         Colony.setting(Setting.ARTILLERY_VISION_WEIGHT_DRONES, vision == VisionType.DRONES ? 1.0 : 0.0);
         Colony.setting(Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT, vision == VisionType.SEARCHLIGHT ? 1.0 : 0.0);
@@ -419,6 +422,12 @@ public final class ArtilleryChecks {
         s.addEntity(jp);
         p1.getMarket().getMemoryWithoutUpdate().set(ArtilleryStationScript.TYPE_KEY, type);
         s.autogenerateHyperspaceJumpPoints(false, false);
+
+        // procgen never rolls plain watchtowers, so they are placed by hand
+        if (vision == VisionType.WATCHTOWER) {
+            s.getMemoryWithoutUpdate().set(Ids.MEM_SYSTEM_ARTILLERY_VISION, VisionType.WATCHTOWER.name());
+            ArtilleryStationPlacer.placeTowers(s, Ids.DERELICT_FACTION_ID, WatchtowerEntityPlugin.ENTITY_ID, new java.util.Random());
+        }
 
         ArtilleryStationPlacer.addArtilleryToPlanet(p1, false);
         c.put("sys_" + key, name);
@@ -494,6 +503,20 @@ public final class ArtilleryChecks {
     static WatchtowerEyeIndicator.State eyeState() {
         SectorEntityToken indicator = (SectorEntityToken) ReflectionUtils.get("indicator", eye());
         return ((WatchtowerEyeIndicator) indicator.getCustomPlugin()).state;
+    }
+
+    static String eyeGates(StarSystemAPI s, SectorEntityToken tower) {
+        WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) tower.getCustomPlugin();
+        StringBuilder stations = new StringBuilder();
+        for (SectorEntityToken t : s.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION))
+            stations.append(t.getFaction().getId()).append(t.getFaction().isHostileTo(player().getFaction()) ? " hostile " : " not hostile ");
+        SectorEntityToken indicator = (SectorEntityToken) ReflectionUtils.get("indicator", eye());
+        boolean scheduled = Global.getSector().getScripts().contains(eye());
+        return "artillery on " + Setting.ENABLE_ARTILLERY.enabled() + ", range " + Setting.ARTILLERY_WATCHTOWER_RANGE.value()
+                + ", system tag " + s.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY) + ", disabled " + s.getMemoryWithoutUpdate().getBoolean(Ids.MEM_SYSTEM_DISABLE_WATCHTOWERS)
+                + ", tower " + tower.getFaction().getId() + " hostile " + p.isHostileTo(player()) + " hacked " + p.isHacked() + " functional " + p.isFunctional()
+                + ", stations " + stations.toString().trim() + ", eye scheduled " + scheduled + ", indicator here " + (indicator != null && indicator.getContainingLocation() == s)
+                + ", player " + Math.round(Misc.getDistance(tower, player())) + " su from the tower";
     }
 
     static boolean playerSeen() {
@@ -622,7 +645,7 @@ public final class ArtilleryChecks {
         nestDialog(steps);
         planetFleet(steps);
         steps.add(c -> {
-            for (Setting s : new Setting[]{Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER, Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_DRONES, Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT}) Colony.setting(s, 1.0);
+            for (Setting s : new Setting[]{Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_DRONES, Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT}) Colony.setting(s, 1.0);
             unpinAll();
             zoomReset();
             fastTime();
@@ -898,6 +921,7 @@ public final class ArtilleryChecks {
                 SectorEntityToken st = station(s);
                 pinPlayer(() -> at(tower, Misc.getAngleInDegrees(tower.getLocation(), st.getLocation()), share * range));
                 c.note("E1 " + towers.size() + " towers, station " + Misc.getDistance(station(s), tower) + " su from the tower");
+                c.note("E1 " + pct + "% gates: " + eyeGates(s, tower));
                 resetEye();
                 realTime();
                 probe = new Probe(s, projectile(MORTAR));
@@ -905,6 +929,7 @@ public final class ArtilleryChecks {
             });
             steps.add(c -> {
                 float lo = share < 0.5f ? 10f : 18f;
+                c.note("E1 " + pct + "% first eye tick " + probe.tickIn + " s after the probe start, lock " + (probe.lockAt - probe.tickIn) + " s after that tick");
                 c.expect(probe.lockAt >= lo && probe.lockAt <= lo + 2f, "E1 eye locks in " + lo + " to " + (lo + 2f) + " s at " + pct + "% of IndEvo_Artillery_WatchtowerRange (got " + probe.lockAt + ")");
                 c.expect(probe.maxJump < 1.5f, "E1 eye fills smoothly at " + pct + "% (max jump " + probe.maxJump + ")");
                 float delay = probe.firstProj - probe.lockAt;
@@ -912,6 +937,18 @@ public final class ArtilleryChecks {
                 pinPlayer(() -> HIDE);
                 probe = new Probe(sys(c, "w"), null);
                 c.until(() -> eyeElapsed() <= 0f && !playerSeen(), 3f, "E1 eye drains to 0 outside range", probe::sample);
+            });
+            steps.add(c -> {
+                StarSystemAPI s = sys(c, "w");
+                float tower = Float.MAX_VALUE;
+                for (SectorEntityToken t : entities(s, WatchtowerEntityPlugin.ENTITY_ID)) tower = Math.min(tower, Misc.getDistance(t, player()));
+                StringBuilder fleets = new StringBuilder();
+                for (CampaignFleetAPI f : s.getFleets()) {
+                    if (f.isPlayerFleet()) continue;
+                    fleets.append("; ").append(f.getNameWithFaction()).append(f.isStationMode() ? " station" : "").append(f.isHostileTo(player()) ? " hostile" : "")
+                            .append(" at ").append(Math.round(Misc.getDistance(f, player()))).append(" su").append(Misc.getVisibleFleets(f, false).contains(player()) ? " sees player" : "");
+                }
+                c.note("E1 " + pct + "% drain end: elapsed " + eyeElapsed() + ", seen " + playerSeen() + ", max rise " + probe.maxJump + ", nearest tower " + tower + " su, fleets" + (fleets.length() == 0 ? " none" : fleets.substring(1)));
             });
         }
         steps.add(c -> {
@@ -977,7 +1014,7 @@ public final class ArtilleryChecks {
             c.until(() -> probe.lockAt >= 0f && (probe.firstProj >= 0f || probe.secs() > probe.lockAt + 4f), 1f, "E2 lock in the beam", probe::sample);
         });
         steps.add(c -> {
-            c.expect(probe.lockAt >= 0f && probe.lockAt <= 0.55f, "E2 lit beam on the player locks within one 0.5 s check (got " + probe.lockAt + ")");
+            c.expect(probe.lockAt >= 0.9f && probe.lockAt <= 2.1f, "E2 beam ramp at a third of its length locks in about 1.3 s, not at once (got " + probe.lockAt + ")");
             float delay = probe.firstProj - probe.lockAt;
             c.expect(probe.firstProj >= 0f && delay <= Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value() + 0.5f, "E4 railgun shot spawns within the station delay after the lock (got " + delay + " s)");
             pinPlayer(() -> HIDE);
@@ -1289,9 +1326,8 @@ public final class ArtilleryChecks {
             c.until(() -> probe.lockAt >= 0f && (probe.firstProj >= 0f || probe.secs() > probe.lockAt + 4f), 2.5f, "E3 lock 50 su from a nest", probe::sample);
         });
         steps.add(c -> {
-            float rate = (probe.e4 - probe.e1) / 3f;
-            c.expect(rate >= 1f && rate <= 2f, "E3 nest light fills 1 to 2 per second (got " + rate + ")");
-            c.expect(probe.maxJump < 1.5f, "E3 nest light never instant (max jump " + probe.maxJump + ")");
+            c.expect(probe.lockAt > 0.4f && probe.lockAt <= 1.2f, "E3 nest light 50 su out locks almost at once, on the second check (got " + probe.lockAt + ")");
+            c.expect(probe.maxJump < EyeIndicatorScript.MAX_TIME_TO_TARGET_LOCK, "E3 nest light never fills the eye in one check (max jump " + probe.maxJump + ")");
             float delay = probe.firstProj - probe.lockAt;
             c.expect(probe.firstProj >= 0f && delay <= Setting.ARTILLERY_MAX_DELAY_BETWEEN_SHOTS.value() + 0.5f, "E4 missile carrier spawns within the station delay after the lock (got " + delay + " s)");
             pinPlayer(() -> HIDE);
@@ -1311,9 +1347,8 @@ public final class ArtilleryChecks {
             c.until(() -> probe.secs() >= 4.2f, 1f, "E3 cone sample", probe::sample);
         });
         steps.add(c -> {
-            float rate = (probe.e4 - probe.e1) / 3f;
-            c.expect(rate >= 1f && rate <= 2f, "E3 spotter cone at half length fills 1 to 2 per second (got " + rate + ", cone " + keep.get("e3len") + ")");
-            c.expect(probe.maxJump < 1.5f, "E3 spotter cone never instant (max jump " + probe.maxJump + ")");
+            c.expect(probe.lockAt >= 1.2f && probe.lockAt <= 2.6f, "E3 spotter cone at half length locks in about 1.75 s (got " + probe.lockAt + ", cone " + keep.get("e3len") + ")");
+            c.expect(probe.maxJump < EyeIndicatorScript.MAX_TIME_TO_TARGET_LOCK, "E3 spotter cone never fills the eye in one check (max jump " + probe.maxJump + ")");
             pinPlayer(() -> HIDE);
             resetEye();
             // N2
@@ -1603,7 +1638,7 @@ public final class ArtilleryChecks {
                     }
                     case "mortar" -> {
                         pinPlayer(() -> HIDE);
-                        MortarProjectileEntityPlugin.spawn(s, station(s), new Vector2f(q), 3f, null, null);
+                        MortarProjectileEntityPlugin.spawn(s, station(s), new Vector2f(q), 3f, null, null, false);
                     }
                 }
                 c.until(() -> sp.entity == null, 2f, "D1 " + how + " blows a spotter", () -> {
@@ -1685,11 +1720,11 @@ public final class ArtilleryChecks {
                 c.expect(min >= lo && max <= hi, "D3 debris field holds " + lo + " to " + hi + " " + RELICS + " (6 to 10 x" + easy + ", 40 rolls: " + min + " to " + max + ")");
                 int dmin = Integer.MAX_VALUE, dmax = 0;
                 for (int i = 0; i < 40; i++) {
-                    int n = Math.round(SalvageEntity.generateSalvage(new java.util.Random(), 1f, 1f, 1f, null, List.of(DroneNetScript.createNestDrop())).getCommodityQuantity(RELICS));
+                    int n = Math.round(SalvageEntity.generateSalvage(new java.util.Random(), 1f, 1f, 1f, null, DroneNetScript.createNestDrops()).getCommodityQuantity(RELICS));
                     dmin = Math.min(dmin, n);
                     dmax = Math.max(dmax, n);
                 }
-                c.note("D3 for comparison, DroneNetScript.createNestDrop (the nest dialog's salvage) over 40 rolls: " + dmin + " to " + dmax);
+                c.note("D3 for comparison, DroneNetScript.createNestDrops (the nest dialog's salvage) over 40 rolls: " + dmin + " to " + dmax);
             }
             unpinAll();
             fastTime();
@@ -1707,6 +1742,7 @@ public final class ArtilleryChecks {
             for (DroneNetScript.Spotter sp : live(net)) if (sp.nest == nest) a = sp;
             park(net, List.of());
             keep.put("d5nest", nest);
+            keep.put("d5count", net.getNests().size());
             DroneNetScript.reportBlast(s, new Vector2f(a.entity.getLocation()), 10f);
             DroneNetScript.Spotter dead = a;
             c.until(() -> dead.entity == null, 0.2f, "D5 one spotter blown");
@@ -1765,7 +1801,7 @@ public final class ArtilleryChecks {
             keep.put("d5net", net);
             for (DroneNetScript.Spotter sp : live(net)) DroneNetScript.reportBlast(s, new Vector2f(sp.entity.getLocation()), 10f);
             realTime();
-            c.until(() -> net.isDone() && DroneNetScript.get(s) == null, 0.3f, "D5 destroying every nest and spotter ends the script");
+            c.until(() -> net.getNests().isEmpty() && live(net).isEmpty(), 0.3f, "D5 every nest and spotter destroyed");
         });
         steps.add(c -> hold(c, 0.2f, "D5 explosions fade"));
         steps.add(c -> {
@@ -1773,9 +1809,17 @@ public final class ArtilleryChecks {
             DroneNetScript net = (DroneNetScript) keep.get("d5net");
             boolean listed = false;
             for (EveryFrameScript script : s.getScripts()) if (script == net) listed = true;
-            c.expect(!listed, "D5 drone net script removed from the system");
+            c.expect(listed && !net.isDone(), "D5 drone net script stays while nests wait to respawn");
             c.expect(count(s, DroneNetScript.NEST_ENTITY_ID) == 0 && count(s, DroneNetScript.SPOTTER_ENTITY_ID) == 0, "D5 no nest or spotter entity left");
             fastTime();
+            c.days(DroneNetScript.NEST_RESPAWN_DAYS + 1f);
+        });
+        steps.add(c -> {
+            StarSystemAPI s = sys(c, "dl");
+            DroneNetScript net = (DroneNetScript) keep.get("d5net");
+            int count = (Integer) keep.get("d5count");
+            c.expect(net.getNests().size() == count, "D5 every destroyed nest respawns after 60 days (" + net.getNests().size() + " of " + count + ")");
+            c.expect(live(net).size() == count * DroneNetScript.SPOTTERS_PER_NEST, "D5 respawned nests launch two spotters each (" + live(net).size() + ")");
         });
     }
 
@@ -1985,11 +2029,11 @@ public final class ArtilleryChecks {
     public static List<Step> placement() {
         List<Step> steps = new ArrayList<>();
         steps.add(c -> {
-            c.expect(Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER.value() == 1f && Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value() == 1f && Setting.ARTILLERY_VISION_WEIGHT_DRONES.value() == 1f
+            c.expect(Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value() == 1f && Setting.ARTILLERY_VISION_WEIGHT_DRONES.value() == 1f
                             && Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT.value() == 1f,
-                    "placement ran with vision weights 1/1/1/1");
+                    "placement ran with vision weights 1/1/1");
             Map<String, Integer> types = new LinkedHashMap<>();
-            int one = 0, two = 0, systems = 0, badNets = 0, unlabeled = 0;
+            int one = 0, two = 0, three = 0, systems = 0, badNets = 0, unlabeled = 0;
             StringBuilder nests = new StringBuilder();
             for (StarSystemAPI s : Global.getSector().getStarSystems()) {
                 if (!s.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) continue;
@@ -2001,6 +2045,7 @@ public final class ArtilleryChecks {
                     int n = rolledBeams(h);
                     if (n == 1) one++;
                     if (n == 2) two++;
+                    if (n == 3) three++;
                 }
                 if ("DRONES".equals(type)) {
                     DroneNetScript net = net(s);
@@ -2011,11 +2056,12 @@ public final class ArtilleryChecks {
                 }
             }
             c.note("placement: " + systems + " artillery systems, vision " + types + ", unlabeled " + unlabeled);
-            c.note("H3 lighthouses with 1 beam " + one + ", with 2 beams " + two);
+            c.note("H3 lighthouses with 1 beam " + one + ", with 2 beams " + two + ", with 3 beams " + three);
             c.note("N5 nests per drone system: " + nests.toString().trim());
-            c.expect(one > 0 && two > 0, "H3 lighthouses roll 1 and 2 beams (" + one + " / " + two + ")");
+            c.expect(one > 0 && two > 0, "H3 lighthouses roll 1, 2 and rarely 3 beams (" + one + " / " + two + " / " + three + ")");
             c.expect(badNets == 0 && nests.length() > 0, "N5 every drone system has 3 to 6 nests");
-            c.expect(types.size() >= 4, "every vision type placed with weights 1/1/1/1 (" + types + ")");
+            c.expect(types.size() >= 3, "every new vision type placed with weights 1/1/1 (" + types + ")");
+            c.expect(!types.containsKey(VisionType.WATCHTOWER.name()) || types.get(VisionType.WATCHTOWER.name()) <= 4, "procgen rolls no plain watchtowers, only the 4 core systems keep them (" + types + ")");
         });
         return steps;
     }

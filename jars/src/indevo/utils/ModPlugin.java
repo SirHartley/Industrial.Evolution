@@ -23,13 +23,14 @@ import com.fs.starfarer.api.loading.IndustrySpecAPI;
 import com.fs.starfarer.api.util.Misc;
 import data.scripts.weapons.ai.IndEvo_missileProjectileAI;
 import data.scripts.weapons.ai.IndEvo_mortarProjectileAI;
-import indevo.WIP.mobilecolony.plugins.MobileColonyCampaignPlugin;
 import indevo.abilities.skills.scripts.AdminGovernTimeTracker;
 import indevo.abilities.splitfleet.OrbitFocus;
 import indevo.abilities.splitfleet.SplinterFleetCampignPlugin;
 import indevo.abilities.splitfleet.listeners.DetachmentAbilityAdder;
 import indevo.abilities.splitfleet.listeners.DetachmentPayroll;
+import indevo.achievements.listeners.AchievementCampaignListener;
 import indevo.ambience.shuttletraffic.renderers.ShuttleTrafficRenderer;
+import indevo.exploration.meteor.renderers.RogueRockDustRenderer;
 import indevo.config.PlayerSettings;
 import indevo.config.Setting;
 import indevo.dialogue.beacons.dialogue.BeaconDialogueListener;
@@ -50,14 +51,15 @@ import indevo.exploration.minefields.listeners.RecentJumpListener;
 import indevo.exploration.salvage.utils.IndEvo_SalvageSpecialAssigner;
 import indevo.exploration.stations.DerelictStationPlacer;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
 import indevo.industries.engineeringhub.plugins.EngineeringHubOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
-import indevo.industries.artillery.scripts.ArtilleryStationReplacer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
 import indevo.industries.changeling.industry.population.RuralPolitySubIndustry;
+import indevo.industries.changeling.listener.ChangelingApplyListener;
 import indevo.industries.changeling.listener.ManagedDemocracyNexerelinListenerPlugin;
 import indevo.industries.changeling.listener.MarineLossAmplifcationHullmodEffectListener;
 import indevo.industries.changeling.plugins.ChangelingMiningOptionProvider;
@@ -79,10 +81,11 @@ import indevo.industries.museum.plugins.MuseumManageParadeOptionProvider;
 import indevo.industries.orbitalworks.plugins.OrbitalWorksSlotOptionProvider;
 import indevo.industries.orbitalworks.scripts.OrbitalWorksSlotManager;
 import indevo.industries.warehouses.plugin.WarehouseRemoveSubmarketOptionProvider;
+import indevo.industries.petshop.PetLongevity;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.plugins.PetCampaignPlugin;
 import indevo.industries.petshop.plugins.PetCenterOptionProvider;
-import indevo.industries.petshop.plugins.PetShopCampaignPlugin;
 import indevo.industries.relay.industry.MilitaryRelay;
 import indevo.industries.ruinfra.listener.RuinfraOnDecivListener;
 import indevo.industries.ruinfra.utils.DerelictInfrastructurePlacer;
@@ -137,6 +140,7 @@ public class ModPlugin extends BaseModPlugin {
 
         //Warehouses.adjustWormholeAnchorSpec();
         SpecialItemEffectsRepo.addItemEffectsToVanillaRepo();
+        AotdManager.lockProductionItems();
     }
 
     @Override
@@ -177,10 +181,9 @@ public class ModPlugin extends BaseModPlugin {
         LocatorSystemRatingUpdater.updateAllSystems();
         resetDerelictRep();
 
-        if (newGame) ArtilleryStationReplacer.register();
-
         PlayerSettings.applyCampaignSettings();
         if (newGame && Setting.PETS.enabled()) addLordFoogRep();
+        if (Setting.PETS.enabled()) PetLongevity.placeSyringes();
     }
 
     public void devActions(boolean active){
@@ -431,6 +434,8 @@ public class ModPlugin extends BaseModPlugin {
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ARCOLOGIES_COND_LIST);
         MiscIE.getCSVSetFromMemory(Ids.ACADEMY_SKILL_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.RIFT_BLOCKED_SYSTEMS_LIST);
+        MiscIE.getCSVSetFromMemory(Ids.RIFT_BLOCKING_ENTITIES_LIST);
     }
 
     private void setListenersIfNeeded() {
@@ -458,6 +463,7 @@ public class ModPlugin extends BaseModPlugin {
         InterdictionPulseAbilityListener.register();
         WorldWonderAltImageOptionProvider.register();
         WorldWonderTexChangeOptionProvider.register();
+        ChangelingApplyListener.register();
         ChangelingPopulationOptionProvider.register();
         ChangelingMiningOptionProvider.register();
         ChangelingRefiningOptionProvider.register();
@@ -477,6 +483,7 @@ public class ModPlugin extends BaseModPlugin {
         CamouflageRefitListener.register();
         HasUniqueShipChecker.register();
         CorruptedNanoforgeChecker.register();
+        ItemPatternChecker.register();
         SalvageYardsOptionProvider.register();
         SalvageDronesBattleListener.register();
         CourierPortOptionProvider.register();
@@ -491,8 +498,10 @@ public class ModPlugin extends BaseModPlugin {
         ShieldVisualsOptionProvider.register();
         MilitaryRelay.RelayItemRemovalButtonListener.register();
         MeteorSwarmManager.register();
+        RogueRockDustRenderer.register();
         FogWeatherManager.register();
         ShuttleTrafficRenderer.register();
+        AchievementCampaignListener.register();
         RemoveIndustryOptionWarningProvider.register();
         WarehouseAddSubmarketOptionProvider.register();
         WarehouseRemoveSubmarketOptionProvider.register();
@@ -514,9 +523,8 @@ public class ModPlugin extends BaseModPlugin {
         //Scripts:
         Global.getSector().registerPlugin(new SplinterFleetCampignPlugin());
         Global.getSector().registerPlugin(new GachaStationCampaignPlugin());
-        Global.getSector().registerPlugin(new MobileColonyCampaignPlugin());
-        Global.getSector().registerPlugin(new PetShopCampaignPlugin());
         Global.getSector().registerPlugin(new CorporateGovernanceCampaignPlugin());
+        Global.getSector().registerPlugin(new PetCampaignPlugin());
 
         if (!Global.getSector().hasScript(TimeTracker.class)) {
             Global.getSector().addScript(new TimeTracker());

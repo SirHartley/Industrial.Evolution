@@ -18,7 +18,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 | `indevo/economy/RelicSpeedUpTarget.java` | Interface for one timer: days left and total, `speedUp(days)`, label, lore; defaults for cost, days after, cooldown and the constants |
 | `indevo/economy/listeners/RelicSpeedUpOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: the speed up option on any player owned industry that implements `RelicSpeedUpTarget` and `canSpeedUp()` |
 | `indevo/economy/plugins/RelicConfirmDialog.java` | Shared relic confirm dialog (`CustomDialogDelegate`), laid out like the vanilla story point dialog: requirement line, description, relic counter left of the buttons; static `addRequirement`, `addCounter` |
-| `indevo/economy/plugins/RelicSpeedUpDialog.java` | `RelicConfirmDialog` for every relic speed up, plus static `addBody`, `addTooltip`, `isAvailable`, `apply` |
+| `indevo/economy/plugins/RelicSpeedUpDialog.java` | `RelicConfirmDialog` for every relic speed up, plus static `addBody`, `addTooltip` (cost and blocked reason included, for options and intel), `addPanelTooltip` (without both, for panel buttons that show them), `isAvailable`, `apply` |
 | `indevo/dialogue/rules/IndEvo_CPCExpress.java` | Rule command for Express Delivery: `valid`, `options`, `apply` |
 | `data/campaign/rules.csv` block `# Custom production express delivery` | Express Delivery offer and the two accept paths |
 | `indevo/economy/patches/RelicBuildInPatch.java` | PatchLib patch on `ModPickerDialogV3`: adds the toggle, redirects the story point check, message and payment; nested `Toggle` holds the state and pays |
@@ -32,7 +32,7 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 |---|---|---|
 | Condition | `IndEvo_ressCond` (`Ids.COND_RESSOURCES`), tags `hidden, technical` | `data/campaign/market_conditions.csv:28` |
 | Commodity | `IndEvo_parts` (`ItemIds.PARTS`), `IndEvo_rare_parts` (`ItemIds.RARE_PARTS`) | `data/campaign/commodities.csv:2`, `:3` |
-| Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:97` |
+| Setting | `IndEvo_ScrapYard` (parts on/off) | `data/config/LunaSettings.csv:107` |
 | Memory key | `$IndEvo_reduceBuildTimeCooldown` (market memory, expires after `COOLDOWN_DAYS` 60) | `RelicBuildTimeReductionButtonAdder` |
 | Option ids | `IndEvo_cpcExpress` (`IndEvo_CPCExpress.OPTION_EXPRESS`), `IndEvo_cpcStandard` | rules, `IndEvo_CPCExpress` |
 | Rules | `IndEvo_cpcExpressOffer` (trigger `CPCBlueprintsPicked`, score 100), `IndEvo_cpcStandard`, `IndEvo_cpcStandardBar`, `IndEvo_cpcExpress`, `IndEvo_cpcExpressBar` | `data/campaign/rules.csv:856` |
@@ -43,10 +43,10 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:165`) and `ResourceConditionApplicator.register()` (`:434`, transient listener).
+- `ModPlugin.onGameLoad` -> `ResourceConditionApplicator.applyResourceConditionToAllMarkets()` (`indevo/utils/ModPlugin.java:163`) and `ResourceConditionApplicator.register()` (`:430`, transient listener).
 - Economy tick -> `applyResourceConditionToAllMarkets()` -> `ResourceCondition.applyRessourceCond(m)` adds the condition if `m.isInEconomy()` and missing. The condition itself persists in the market.
-- `RelicBuildTimeReductionButtonAdder.register()` and `RelicSpeedUpOptionProvider.register()` (`indevo/utils/ModPlugin.java:492`, `:496`) add transient listeners.
-- `TechMiningRelicOptionProvider.register()` (`indevo/utils/ModPlugin.java:497`) adds a transient listener; one instance is both the option provider and the `EconomyTickListener`.
+- `RelicBuildTimeReductionButtonAdder.register()` and `RelicSpeedUpOptionProvider.register()` (`indevo/utils/ModPlugin.java:488`, `:492`) add transient listeners.
+- `TechMiningRelicOptionProvider.register()` (`indevo/utils/ModPlugin.java:493`) adds a transient listener; one instance is both the option provider and the `EconomyTickListener`.
 - `RelicBuildInPatch` and `RelicBuildInCounterPatch` need no registration; PatchLib installs them when the refit build in dialog first loads. The toggle state is transient, nothing is saved.
 
 ## Flow
@@ -59,10 +59,10 @@ Every market in the economy gets the hidden condition `IndEvo_ressCond` (`Resour
 |---|---|---|
 | `instanceof HeavyIndustry` (vanilla `heavyindustry` and `orbitalworks`, both use that plugin in vanilla `data/campaign/industries.csv`) | `min(size - 3, 3)` | `size` |
 | Shadowyards `MS_modularFac` / `MS_fabUpgrader`, only if `shadow_ships` enabled | `MODULARFACTORIES` size-3, `PARALLEL_PRODUCTION` size-2 | `MILITARY_LINES` size-4, `SHIPYARDS` size-2 |
-| Other industry tagged `heavyindustry` that supplies ships and no parts | `min(machinery - 2, 4)` | ships supply + 2 |
+| Other `BaseIndustry` tagged `heavyindustry` that supplies ships and no parts (other plugin classes are skipped) | `min(machinery - 2, 4)` | ships supply + 2 |
 
 - Supply: Corrupted Nanoforge -1, Pristine -3; metals or rare metals deficit cuts parts supply (`applyPartsSupply`).
-- Demand: Corrupted -1, Pristine -2. A parts shortfall gives a production quality penalty `deficit / demand * maxPenalty` (-0.5, -0.4 corrupted, -0.3 pristine) and cuts ship output by at most 2 (`applyPartsDemands`, `ResourceCondition.java:152`).
+- Demand: Corrupted -1, Pristine -2. A parts shortfall gives a production quality penalty `deficit / demand * maxPenalty` (-0.5, -0.4 corrupted, -0.3 pristine) and cuts ship output by at most 2 (`applyPartsDemands`, `ResourceCondition.java:153`).
 
 ### Supercomputer income
 
@@ -86,7 +86,7 @@ Shared by construction and the IE timers. Constants on `RelicSpeedUpTarget`: `RE
 - `canSpeedUp()` needs more than 1 day left; the industry option only shows then. `RelicSpeedUpDialog.isAvailable` adds the cooldown check, the option or button is disabled while it runs.
 - `RelicSpeedUpDialog.apply` checks availability and relics again, takes the cost through `RelicHelper.take(getMarket(), cost)` (colony storage, then fleet cargo, [Utils](UTILS.md#helper)), calls `speedUp(left - after)` and starts the cooldown.
 - Cooldowns: market memory per timer by default (`getSpeedUpCooldownLeft`, `startSpeedUpCooldown`). Construction keeps `$IndEvo_reduceBuildTimeCooldown` (per colony, "on this colony"). Salvage Yards orders keep a clock timestamp on the intel (`relicSpeedUpTimestamp`, "on this order"). Default scope text "here".
-- Dialog: `RelicConfirmDialog` sizes itself to its text (`getHeight`) and draws the counter "Relic Components: N" below its own panel, left of the dialog buttons. Without enough relics the only button is Return; Confirm checks the relics again before `apply()`. Subclasses pay in `apply()`.
+- Dialog: `RelicConfirmDialog` sizes itself to its text (`getHeight`) and draws the counter "Relic Components: N" below its own panel, left of the dialog buttons. The engine right aligns the 150 px buttons (`O0oo`), so `getWidth` widens the dialog past `WIDTH` when the measured counter would reach them. Without enough relics the only button is Return; Confirm checks the relics again before `apply()`. Subclasses pay in `apply()`.
 - Text: the dialog writes the requirement line, the effect with time remaining before and after, and the relic counter. `addBody` writes the same for the intel confirm prompt. `addTooltip` writes effect, cost line, the cooldown rule (`getSpeedUpScope()`), the cooldown left or "Too few days left" and the gray lore (`getSpeedUpLore()`, Philipp's text, RELIC_PLAN section 6; construction has none) for the option or button hover.
 - Construction: `ConstructionTarget` reads private `buildTime` via `StarReflectionUtils.get(ind, "buildTime", float.class, true)`; days left `round(buildTime - buildProgress)`; `speedUp` adds the days to `BaseIndustry.setBuildProgress`. `isSuitable`: a `BaseIndustry` that is building, or upgrading with an upgrade spec.
 
@@ -130,22 +130,23 @@ One off Relic Component (`IndEvo_rare_parts`) payments. Each feature owns its co
 | Construction speed up | 1 per remaining day | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | IE timer speed up (Accelerate, Salvage Yards Accelerate Construction) | 1 per remaining day, halves it | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
 | Rift Generator recharge (Recharge) | 3 per remaining day, ends the cooldown | colony storage, then fleet cargo | [Relic speed up](#relic-speed-up) |
+| Rift Generator Precise targeting | `IndEvo_RG_preciseCost` (100) per jump | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#rift-generator-move) |
 | Early Edict removal | 1 per remaining day | colony storage, then fleet cargo | [Senate](../industries/SENATE.md#runtime-and-penalties) |
 | Express Delivery | 1 per delivery day (60 at vanilla) | fleet cargo | [Custom production Express Delivery](#custom-production-express-delivery) |
 | Story point derelict recovery | 5 per DP of each recovered ship | fleet cargo | [Salvage](../exploration/SALVAGE.md#relic-recovery) |
-| Salvage Yards S-mod transfer | 5 x target DP per S-mod, plus credits | local storage, then fleet cargo | [Salvage Yards](../industries/SALVAGE_YARDS.md#s-mod-transfer) |
+| Salvage Yards S-mod transfer | 3 x target DP per S-mod, plus credits | local storage, then fleet cargo | [Salvage Yards](../industries/SALVAGE_YARDS.md#s-mod-transfer) |
 | Project Reforge (Galatia research) | 500, plus 1 Corrupted Nanoforge on Redeem | fleet cargo (relics as points) | [Research](../dialogue/RESEARCH.md#projects) |
-| Forge Template refining | 2 per hull FP per quality level | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
+| Forge Template refining | 2 per hull DP per quality level | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 | Automated ship integration | 10 per hull DP | colony storage, then fleet cargo | [Derelicts](../industries/DERELICTS.md#ancient-laboratory-relic-services) |
 | Hullmod extraction | `max(25, round(baseValue / 100))` per hullmod | colony storage, then fleet cargo | [Engineering Hub](../industries/ENGINEERING_HUB.md#hullmod-extraction) |
-| Relic Lattice Work (Orbital Works) | 20 per hull DP, +1 S-mod slot after 93 days | colony storage, then fleet cargo | [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) |
+| Relic Lattice Work (Orbital Works) | 10 per hull DP, +1 S-mod slot after 93 days | colony storage, then fleet cargo | [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) |
 | Refit build in | 5 per DP of the ship, per S-mod | market storage, then fleet cargo | [Relic build in](#relic-build-in) |
 | Tech Mining Boost Extraction | `max(5, round(20 x ruin size x find level))` | colony storage, then fleet cargo | [Tech Mining boost](#tech-mining-boost) |
 
 ## Contracts
 
 - The condition applies to every economy market including NPC ones, so parts and the Supercomputer bonus affect AI factions too (`ResourceConditionApplicator.java:13`).
-- `unapply` resets `IndEvo_parts` supply and demand to 0 on every `BaseIndustry` of the market (`ResourceCondition.java:112`); any other source of parts on these industries must reapply after this condition. Inferred from the code: condition unapply order relative to industries is engine controlled.
+- `unapply` resets `IndEvo_parts` supply and demand to 0 on every `BaseIndustry` of the market (`ResourceCondition.java:113`); any other source of parts on these industries must reapply after this condition. Inferred from the code: condition unapply order relative to industries is engine controlled.
 - Reflection on `buildTime` (`RelicBuildTimeReductionButtonAdder.java:114`) depends on the `BaseIndustry` field name; `Edict_FastBuild` writes the same field through `ReflectionUtils`. See [Utils](UTILS.md#helper), [Senate](../industries/SENATE.md).
 - Express Delivery has to run after the accept: `BaseHubMission.setCurrentStage` resets the new stage's `elapsed` to 0 (vanilla `BaseHubMission.java:1219`).
 - The IE accept rows copy vanilla `cpcBPPicked` / `cpcBPPickedBar` (`$option = contact_accept 0`, `FireBest DialogOptionSelected`, `Call $cpc_ref repSuccess`, `Call $cpc_ref addContacts`). A game update that changes those rows needs the copy checked.

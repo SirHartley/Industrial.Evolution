@@ -6,7 +6,6 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.econ.MarketImmigrationModifier;
 import com.fs.starfarer.api.campaign.listeners.BaseIndustryOptionProvider;
 import com.fs.starfarer.api.campaign.listeners.ListenerManagerAPI;
-import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseIndustry;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
@@ -17,6 +16,7 @@ import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.industries.changeling.conditions.GovernmentCondition;
 import indevo.industries.changeling.industry.SubIndustry;
 import indevo.industries.changeling.industry.SubIndustryData;
 import indevo.utils.helper.StringHelper;
@@ -65,9 +65,8 @@ x•	increase military upkeep by x3
         }
 
         public boolean isSuitable(Industry ind) {
-            Industry pop = ind.getMarket().getIndustry(Industries.POPULATION);
-            boolean isCorpo = pop instanceof SwitchablePopulation && ((SwitchablePopulation) pop).getCurrent() instanceof CorporateGovernanceSubIndustry;
-            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isCorpo;
+            boolean isCorpo = GovernmentCondition.getGovernment(ind.getMarket()) instanceof CorporateGovernanceSubIndustry;
+            return !Setting.GOVERNMENT_LARP_MODE.enabled() && isCorpo && !Industries.POPULATION.equals(ind.getId());
         }
 
         @Override
@@ -95,22 +94,18 @@ x•	increase military upkeep by x3
     public void apply() {
         CorpoPolityTooltipAdder.register();
 
-        MarketAPI market = industry.getMarket();
-        SwitchablePopulation population = ((SwitchablePopulation) industry);
-
-        population.superApply(); //applies default pop&Infra
-
-        applyIndustryEffects();
-        modifyStability(industry, market, population.getModId(3));
+        modifyStability(modId(3));
+        market.removeImmigrationModifier(this);
         market.addImmigrationModifier(this);
 
         resetSupplyProfile();
 
-        if (population.locked) {
+        if (GovernmentCondition.isLocked(market)) {
             market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).modifyFlat(getId(), getMaxIndustries(10) - getMaxIndustries(market.getSize()), null); //this gets max market industries immediately
         }
 
-        modifyStability2(industry, market, population.getModId(3)); //overmax industry stability
+        modifyStability2(industry, market, modId(3)); //overmax industry stability, after the max industries bonus
+
         market.getMemoryWithoutUpdate().set(MemFlags.MARKET_CAN_ALWAYS_INCENTIVIZE_GROWTH, true);
 
         int maxSize = Misc.getMaxMarketSize(market);
@@ -128,33 +123,29 @@ x•	increase military upkeep by x3
 
         market.removeImmigrationModifier(this);
 
-        SwitchablePopulation population = ((SwitchablePopulation) industry);
-
-        market.getIncomeMult().unmodify(population.getModId(1));
-        market.getIncomeMult().unmodify(population.getModId(2));
-        market.getIncomeMult().unmodify(population.getModId(3));
-
-        for (Industry industry : market.getIndustries()) {
-            if (industry.getSpec().getTags().contains("military")) {
-                industry.getUpkeep().unmodify(getId());
-            }
-        }
+        market.getIncomeMult().unmodify(modId(1));
+        market.getIncomeMult().unmodify(modId(2));
+        market.getIncomeMult().unmodify(modId(3));
 
         market.removeTag(MAX_GROWTH_TAG);
-        industry.getMarket().getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).unmodifyFlat(getId());
+        market.getStats().getDynamic().getMod(Stats.MAX_INDUSTRIES).unmodifyFlat(getId());
         market.getMemoryWithoutUpdate().unset(MemFlags.MARKET_CAN_ALWAYS_INCENTIVIZE_GROWTH);
         //market.getStats().getDynamic().getMod(Stats.MAX_MARKET_SIZE).unmodify(getId());
     }
 
-    public void applyIndustryEffects(){
-        for (Industry industry : market.getIndustries()) {
-            if (industry.getSpec().getTags().contains("military")) {
-                industry.getUpkeep().modifyMult(getId(), MIL_UPKEEP_INCREASE, getName());
-            }
-
-            if (industry.isDisrupted() && industry.getDisruptedDays() > MAX_DISRUPTION_DAYS)
-                industry.setDisrupted(MAX_DISRUPTION_DAYS);
+    @Override
+    public void applyToOther(Industry ind) {
+        if (ind.getSpec().getTags().contains("military")) {
+            ind.getUpkeep().modifyMult(getId(), MIL_UPKEEP_INCREASE, getName());
         }
+
+        if (ind.isDisrupted() && ind.getDisruptedDays() > MAX_DISRUPTION_DAYS)
+            ind.setDisrupted(MAX_DISRUPTION_DAYS);
+    }
+
+    @Override
+    public void unapplyFromOther(Industry ind) {
+        ind.getUpkeep().unmodify(getId());
     }
 
     public void resetSupplyProfile(){
@@ -187,24 +178,18 @@ x•	increase military upkeep by x3
         ind.supply(Commodities.ORGANS, size - 4);
     }
 
-    public static void modifyStability(Industry industry, MarketAPI market, String modId) {
-        SwitchablePopulation population = ((SwitchablePopulation) industry);
-
-        market.getIncomeMult().unmodifyMult(population.getModId()); //clear the old base mult set by normal pop&infra
+    // overwrites the host's stability base value and income mult under its own keys
+    public void modifyStability(String modId) {
+        market.getIncomeMult().unmodifyMult(modId()); //clear the old base mult set by normal pop&infra
         market.getIncomeMult().unmodifyMult(modId); //clear the default stability mult
 
-        market.getIncomeMult().modifyMultAlways(population.getModId(2), BASE_INCOME_MULT, "Base (Corporate Governance)");
+        market.getIncomeMult().modifyMultAlways(modId(2), BASE_INCOME_MULT, "Base (Corporate Governance)");
 
         float income = market.getNetIncome();
         double stab = income > 0 ? Math.min(Math.floor(income / INCOME_PER_STAB), MAX_STAB_BONUS) : 0;
 
         market.getStability().modifyFlat(modId, (float) stab, "Stability (Corporate Governance)");
         market.getIncomeMult().modifyMultAlways(modId, getIncomeStabilityMult(market.getPrevStability()), "Stability (Corporate Governance)");
-
-        //clear existing stability base mults so it's 0
-        for (MutableStat.StatMod mod : market.getStability().getFlatMods().values()) {
-            if (mod.desc.toLowerCase().contains("_ms")) market.getStability().unmodify(mod.source);
-        }
 
         //set it again so it _remains_ 0
         market.getStability().modifyFlat("_" + modId + "_ms", BASE_STAB, "Base value");

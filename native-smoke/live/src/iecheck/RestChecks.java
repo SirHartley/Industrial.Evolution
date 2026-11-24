@@ -53,7 +53,9 @@ import indevo.ids.ItemIds;
 import indevo.industries.RequisitionCenter;
 import indevo.industries.courierport.ShippingCostCalculator;
 import indevo.industries.derelicts.industry.RiftGenerator;
-import indevo.industries.derelicts.scripts.PlanetMovingScript;
+import indevo.industries.derelicts.RiftRelocator;
+import indevo.industries.derelicts.RiftTargetArea;
+import indevo.industries.derelicts.RiftTargetMode;
 import indevo.industries.embassy.industry.Embassy;
 import indevo.industries.embassy.listeners.AmbassadorPersonManager;
 import indevo.industries.petshop.industry.PetShop;
@@ -330,10 +332,12 @@ public final class RestChecks {
             c.near(shop.getUpkeep().getModifiedValue() - upkeep, cost, 1f, "1002 player colony bills the listed fee as upkeep");
             c.expect(tooltip(shop).contains(Misc.getDGSCredits(cost)), "1002 tooltip shows that fee (" + Misc.getDGSCredits(cost) + ")");
 
+            float own = shop.getTotalStorageCost();
+            c.near(own, Math.max(PetShop.MIN_STORAGE_FEE, pet.getData().value * PetShop.STORAGE_FEE_FRACT), 1f, "1002 fee is a share of the species value");
             a.setPlayerOwned(false);
             a.reapplyIndustries();
             float fee = shop.getTotalStorageCost();
-            c.expect(fee > PetShop.FLAT_MANAGEMENT_FEE, "npc colony adds the management fee");
+            c.near(fee, own * PetShop.NPC_STORAGE_FEE_MULT, 1f, "npc colony adds the management share");
             c.expect(tooltip(shop).contains(Misc.getDGSCredits(fee)), "1002 npc colony tooltip shows that fee (" + Misc.getDGSCredits(fee) + ")");
             MonthlyReport report = SharedData.getData().getCurrentReport();
             MonthlyReport.FDNode node = report.getNode(report.getNode(report.getNode(BillingHelper.SERVICES_NODE), a.getId()), shop.getId() + "_storage");
@@ -416,25 +420,23 @@ public final class RestChecks {
         steps.add(c -> {
             MarketAPI a = c.market("a");
             RiftGenerator rift = (RiftGenerator) a.getIndustry(Ids.RIFTGEN);
-            Vector2f center = Global.getSector().getStarSystem("Askonia").getLocation();
-            List<StarSystemAPI> core = new ArrayList<>();
-            for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-                if (system != a.getStarSystem() && Misc.getDistanceLY(center, system.getLocation()) <= 6f) core.add(system);
-            }
-            c.note("core systems " + core.size());
-            StarSystemAPI last = core.remove(0);
+            RiftTargetArea area = rift.getTargets().getArea(RiftTargetMode.CORE);
+            c.note("core area " + area.systems.size() + " systems");
+            c.expect(!area.isEmpty(), "604 rift generator finds a core area");
+            if (area.isEmpty()) return;
+
             List<JumpPointAPI> marks = new ArrayList<>();
-            for (StarSystemAPI system : core) {
-                JumpPointAPI mark = Global.getFactory().createJumpPoint(PlanetMovingScript.ARTIFICIAL_RIFT_ID + "_check_" + system.getId(), "Check rift");
+            for (StarSystemAPI system : Global.getSector().getStarSystems()) {
+                if (system == a.getStarSystem()) continue;
+                JumpPointAPI mark = Global.getFactory().createJumpPoint(RiftRelocator.RIFT_ID_PREFIX + "_check_" + system.getId(), "Check rift");
+                mark.addTag(RiftRelocator.RIFT_TAG);
                 system.addEntity(mark);
                 marks.add(mark);
             }
-            Object target = null;
-            for (int i = 0; i < 40; i++) {
-                target = call(MethodType.methodType(StarSystemAPI.class, RiftGenerator.TargetMode.class), RiftGenerator.class, "getTarget", rift, RiftGenerator.TargetMode.CORE);
-            }
-            c.note("target " + target + ", last core system " + last);
-            c.expect(target != null, "604 rift generator picks a target with one core system left");
+
+            RiftTargetArea again = rift.getTargets().getArea(RiftTargetMode.CORE);
+            c.note("core area with a tear everywhere " + again.systems.size() + " systems");
+            c.expect(again.systems.equals(area.systems), "604 a tear in a star system does not block it as a target");
             for (JumpPointAPI mark : marks) mark.getContainingLocation().removeEntity(mark);
         });
 

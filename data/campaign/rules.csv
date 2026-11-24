@@ -413,6 +413,19 @@ The hack will eventually be picked up and cleared out by maintenance subroutines
 IndEvo_derelictWatchtower_disableControlUnderAI,COB_DisableIndividualOptions,"$IndEvo_isArtilleryActive score:2000
 $tag:IndEvo_watchtower","SetEnabled COB_takeControl false
 SetTooltip COB_takeControl ""Any attempts at taking control of the $entityName get stifled by a heavily AI-backed counter-hack. Your engineers concede defeat after a few minutes to avoid a network breach.""",,,
+IndEvo_watchtower_aotdOpenDialog,OpenInteractionDialog,"$tag:IndEvo_watchtower
+$tag:aotd_objective","ShowDefaultVisual
+Objectives printDescription
+FireAll COB_AddOptions
+FireBest COB_DisableOptionsIfNeeded
+FireAll COB_DisableIndividualOptions
+FireBest IndEvo_WatchtowerTakeControl",,,"Ashes of the Domain (ToT) swaps objective for aotd_objective and disables COB_takeControl on every objective. Same open flow as cob_openDialog, then IndEvo_WatchtowerTakeControl turns take control back on for watchtowers."
+IndEvo_watchtower_takeControlEnable,IndEvo_WatchtowerTakeControl,,SetEnabled COB_takeControl true,,,
+IndEvo_watchtower_takeControlArtillery,IndEvo_WatchtowerTakeControl,$IndEvo_isArtilleryActive,SetEnabled COB_takeControl false,,,
+IndEvo_watchtower_takeControlHostile,IndEvo_WatchtowerTakeControl,HostileFleetNearbyAndAware,SetEnabled COB_takeControl false,,,
+IndEvo_watchtower_takeControlFaction,IndEvo_WatchtowerTakeControl,FactionFleetNearbyAndAware $faction.id,SetEnabled COB_takeControl false,,,
+IndEvo_watchtower_takeControlInactive,IndEvo_WatchtowerTakeControl,"!Objectives canActivate
+$objectiveNonFunctional",SetEnabled COB_takeControl false,,,"Same checks as vanilla cob_disableOpts, cob_disableOpts2, cob_disableActivateOnly and IE's disableControlUnderAI, so turning take control back on never overrides them."
 IndEvo_droneNest_open,OpenInteractionDialog,$tag:IndEvo_droneNest score:1000,"ShowDefaultVisual
 SetShortcut defaultLeave ""ESCAPE""","The $entityName is little more than a ring of launch cradles around an old Domain fabricator. It does not answer hails, and a short range sensor sweep passes over your hull every few seconds.
 
@@ -741,40 +754,47 @@ IndEvo_IntitiateAcademyMenu_GA,DialogOptionSelected,$option == IndEvo_IntitiateA
 #END Academy,,,,,,
 ,,,,,,
 # Rift Generator,,,,,,
-IndEvo_RiftTarget_COLONY,IndEvo_RiftGenTargetOptions,IndEvo_MoreThanTwoColonies,,,1:IndEvo_RiftTarget_COLONY_panel:Move towards other colony,
-IndEvo_RiftTarget_COLONY_disabled,IndEvo_RiftGenTargetOptions,!IndEvo_MoreThanTwoColonies,"SetEnabled IndEvo_RiftTarget_COLONY_panel false
-SetTooltip IndEvo_RiftTarget_COLONY_panel ""You do not have another colonized star system.""",,1:IndEvo_RiftTarget_COLONY_panel:Move towards other colony,
+IndEvo_RiftTarget_COLONY,IndEvo_RiftGenTargetOptions,,,,1:IndEvo_RiftTarget_COLONY_panel:Move towards other colony,
 IndEvo_RiftTarget_CORE,IndEvo_RiftGenTargetOptions,,,,2:IndEvo_RiftTarget_CORE_panel:Move towards the core systems,
 IndEvo_RiftTarget_FRINGE,IndEvo_RiftGenTargetOptions,,,,3:IndEvo_RiftTarget_FRINGE_panel:Move towards the fringe,
 IndEvo_RiftTarget_RANDOM,IndEvo_RiftGenTargetOptions,,,,4:IndEvo_RiftTarget_RANDOM_panel:Move into a random direction,
+IndEvo_RiftTarget_PRECISE,IndEvo_RiftGenTargetOptions,,,,5:IndEvo_RiftTarget_PRECISE_pick:Target a specific star system,
 IndEvo_RiftTarget_return,IndEvo_RiftGenTargetOptions,,"SetShortcut IndEvo_SelectreturnToMenu ""ESCAPE""",,9:IndEvo_SelectreturnToMenu:Return,
-IndEvo_RiftTarget_COLONY_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_COLONY_panel,,"Setting up a targeting device on another planet allows the Generator to plot a course towards it. 
+IndEvo_RiftTarget_setup,IndEvo_RiftGenTargetOptions,,IndEvo_RiftGen setupTargetMenu,,,"runs after the option rows above, FireAll runs scripts in load order"
+IndEvo_RiftTarget_COLONY_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_COLONY_panel,IndEvo_RiftGen showArea COLONY,"Setting up a targeting device on another planet allows the Generator to plot a course towards it. 
 
 This will move the planet towards the your closest colony in another system.","1:IndEvo_RiftTarget_COLONY_init:Initiate the Rift
 2:IndEvo_IntitiateRiftGenMenu:Return",
-IndEvo_RiftTarget_CORE_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_CORE_panel,,"Setting the target to the largest blips on the displays will plot a course towards the core worlds. 
+IndEvo_RiftTarget_CORE_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_CORE_panel,IndEvo_RiftGen showArea CORE,"Setting the target to the largest blips on the displays will plot a course towards the core worlds. 
 
 This will move the planet towards the core worlds.","1:IndEvo_RiftTarget_CORE_init:Initiate the Rift
 2:IndEvo_IntitiateRiftGenMenu:Return",
-IndEvo_RiftTarget_FRINGE_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_FRINGE_panel,,"Targeting the space in the opposite direction of the activity blips will plot a course away from the core.
+IndEvo_RiftTarget_FRINGE_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_FRINGE_panel,IndEvo_RiftGen showArea FRINGE,"Targeting the space in the opposite direction of the activity blips will plot a course away from the core.
 
 This will move the planet towards the fringe of the sector.","1:IndEvo_RiftTarget_FRINGE_init:Initiate the Rift
 2:IndEvo_IntitiateRiftGenMenu:Return",
-IndEvo_RiftTarget_RANDOM_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_RANDOM_panel,,"The engineer starts mashing seemingly random buttons. He does not seem to know what he is doing. Did he just drool on that panel? 
+IndEvo_RiftTarget_RANDOM_panel,DialogOptionSelected,$option == IndEvo_RiftTarget_RANDOM_panel,IndEvo_RiftGen showArea RANDOM,"The engineer starts mashing seemingly random buttons. He does not seem to know what he is doing. Did he just drool on that panel? 
 
 Just pull the lever, you know you want it.","1:IndEvo_RiftTarget_RANDOM_init:Pull the lever
 2:IndEvo_IntitiateRiftGenMenu:Chicken out",
+IndEvo_RiftTarget_PRECISE_pick,DialogOptionSelected,$option == IndEvo_RiftTarget_PRECISE_pick,IndEvo_RiftGen pickTarget,,,"opens the map picker, keeps the menu on screen for cancel"
+IndEvo_RiftPrecisePicked,IndEvo_RiftPrecisePicked,,"IndEvo_RiftGen showPick
+SetShortcut IndEvo_IntitiateRiftGenMenu ""ESCAPE""",,"1:IndEvo_RiftTarget_PRECISE_init:Initiate the Rift
+2:IndEvo_RiftTarget_PRECISE_pick:Choose another system
+3:IndEvo_IntitiateRiftGenMenu:Return",fired by RiftPrecisePicker after a pick
 ,,,,,,
-IndEvo_RiftTarget_COLONY_init,DialogOptionSelected,$option == IndEvo_RiftTarget_COLONY_init,"IndEvo_RiftInit COLONY
+IndEvo_RiftTarget_COLONY_init,DialogOptionSelected,$option == IndEvo_RiftTarget_COLONY_init,"IndEvo_RiftGen fire COLONY
 FireBest AddRiftgenLeaveOption","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
-IndEvo_RiftTarget_CORE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_CORE_init,"IndEvo_RiftInit CORE
+IndEvo_RiftTarget_CORE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_CORE_init,"IndEvo_RiftGen fire CORE
 FireBest AddRiftgenLeaveOption","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
-IndEvo_RiftTarget_FRINGE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_FRINGE_init,"IndEvo_RiftInit FRINGE
+IndEvo_RiftTarget_FRINGE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_FRINGE_init,"IndEvo_RiftGen fire FRINGE
 FireBest AddRiftgenLeaveOption","Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
-IndEvo_RiftTarget_RANDOM_init,DialogOptionSelected,$option == IndEvo_RiftTarget_RANDOM_init,"IndEvo_RiftInit RANDOM
+IndEvo_RiftTarget_RANDOM_init,DialogOptionSelected,$option == IndEvo_RiftTarget_RANDOM_init,"IndEvo_RiftGen fire RANDOM
 FireBest AddRiftgenLeaveOption","You time the pull for dramatic effect. Whatever the guy was doing with the control console, it is probably less important than having style.
 
 There is a muted explosion in another room.",,
+IndEvo_RiftTarget_PRECISE_init,DialogOptionSelected,$option == IndEvo_RiftTarget_PRECISE_init,IndEvo_RiftGen confirmPrecise,,,"relic confirm popup; Cancel keeps this page, Confirm fires IndEvo_RiftPreciseFired"
+IndEvo_RiftPreciseFired,IndEvo_RiftPreciseFired,,FireBest AddRiftgenLeaveOption,"Ancient relays click into place. The crackling of raw energy drowns out any other sound as the machinery spools up, preparing for a jump.",,
 ,,,,,,
 IndEvo_RiftTarget_EngageLeave,AddRiftgenLeaveOption,,"SetShortcut IndEvo_RiftTargetCloseDialogue ""ESCAPE""",,1:IndEvo_RiftTargetCloseDialogue:Leave,
 IndEvo_RiftTargetCloseDialogue,DialogOptionSelected,$option == IndEvo_RiftTargetCloseDialogue,DismissDialog,,,
@@ -787,38 +807,9 @@ IndEvo_RiftControlMenuPoint,PopulateOptions,"$hasMarket
 $menuState == main
 IndEvo_marketIsPlayerOwned
 IndEvo_marketHasIndustry IndEvo_RiftGen
-!IndEvo_requiresColonyMenuPoint
-IndEvo_GeneratorReadyToFire
-IndEvo_GeneratorAllowedToFire",,,99:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
+!IndEvo_requiresColonyMenuPoint",IndEvo_RiftGen gate IndEvo_IntitiateRiftGenMenu,,99:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
 IndEvo_RiftControlMenuPoint2,IndEvo_ColonyOptionPoint,"IndEvo_marketHasIndustry IndEvo_RiftGen
-IndEvo_GeneratorReadyToFire
-IndEvo_GeneratorAllowedToFire
-IndEvo_marketIsPlayerOwned",,,3:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
-IndEvo_RiftControlMenuPoint_disabled,PopulateOptions,"$hasMarket
-$menuState == main
-IndEvo_marketIsPlayerOwned
-IndEvo_marketHasIndustry IndEvo_RiftGen
-!IndEvo_requiresColonyMenuPoint
-!IndEvo_GeneratorReadyToFire
-IndEvo_GeneratorAllowedToFire","SetEnabled IndEvo_IntitiateRiftGenMenu false
-SetTooltip IndEvo_IntitiateRiftGenMenu ""The Rift Generator is not ready to fire yet.""",,99:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
-IndEvo_RiftControlMenuPoint2_disabled,IndEvo_ColonyOptionPoint,"IndEvo_marketHasIndustry IndEvo_RiftGen
-!IndEvo_GeneratorReadyToFire
-IndEvo_GeneratorAllowedToFire
-IndEvo_marketIsPlayerOwned","SetEnabled IndEvo_IntitiateRiftGenMenu false
-SetTooltip IndEvo_IntitiateRiftGenMenu ""The Rift Generator is not ready to fire yet.""",,3:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
-IndEvo_RiftControlMenuPoint_disabled2,PopulateOptions,"$hasMarket
-$menuState == main
-IndEvo_marketIsPlayerOwned
-IndEvo_marketHasIndustry IndEvo_RiftGen
-!IndEvo_requiresColonyMenuPoint
-!IndEvo_GeneratorAllowedToFire
-IndEvo_marketIsPlayerOwned","SetEnabled IndEvo_IntitiateRiftGenMenu false
-SetTooltip IndEvo_IntitiateRiftGenMenu ""There is an entity disrupting the targeting process, prohibiting the Generator from firing. It is probably something in orbit around the planet.""",,99:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
-IndEvo_RiftControlMenuPoint2_disabled2,IndEvo_ColonyOptionPoint,"IndEvo_marketHasIndustry IndEvo_RiftGen
-!IndEvo_GeneratorAllowedToFire
-IndEvo_marketIsPlayerOwned","SetEnabled IndEvo_IntitiateRiftGenMenu false
-SetTooltip IndEvo_IntitiateRiftGenMenu ""There is an entity disrupting the targeting process, prohibiting the Generator from firing. It is probably something in orbit around the planet.""",,3:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
+IndEvo_marketIsPlayerOwned",IndEvo_RiftGen gate IndEvo_IntitiateRiftGenMenu,,3:IndEvo_IntitiateRiftGenMenu:Rift Generator Control,
 IndEvo_IntitiateRiftGenMenu,DialogOptionSelected,$option == IndEvo_IntitiateRiftGenMenu,FireAll IndEvo_RiftGenTargetOptions,"The claustrophobic control center, while restored, still looks ancient. A seemingly permanent layer of dust covers the alien looking control panels, dimming the light emitted by hundreds of gauges and indicators. It is unclear if they are actually working.
 
 The lead engineer stops beating a display with a wrench as you enter.",,
@@ -896,3 +887,18 @@ IndEvo_CPCExpress apply $cpc_ref
 Call $cpc_ref repSuccess
 Call $cpc_ref addContacts",,,
 ,,,,,,
+# Pets,,,,,,
+IndEvo_petDockingLine,PopulateOptions,"$hasMarket
+$menuState == main",IndEvo_PetDockingLine,,,"pet line when the market menu shows, cadence in PetStatusManager.sayDocking (PopulateOptions is FireAll, MarketPostOpen is FireBest)"
+IndEvo_nomiosLongevityOption,PopulateOptions,"$hasMarket
+$menuState == main
+$market.id == nomios
+IndEvo_PetTreatment available",IndEvo_PetTreatment option,,20:IndEvo_NomiosLongevity:Ask about the longevity treatment,pet longevity treatment at Nomios; greyed with a tooltip when no pet is with the fleet
+IndEvo_nomiosLongevityOpen,DialogOptionSelected,$option == IndEvo_NomiosLongevity,IndEvo_PetTreatment open,,,prints the intro and opens PetTreatDialog; its Confirm and Cancel print their text and fire PopulateOptions
+IndEvo_petCenterMenuPoint,PopulateOptions,"$hasMarket
+$menuState == main
+IndEvo_marketHasIndustry IndEvo_PetStore
+!IndEvo_requiresColonyMenuPoint
+RepIsAtWorst $faction.id INHOSPITABLE",,,99:IndEvo_openPetCenter:Visit the Animal Center,
+IndEvo_petCenterColonyOptionMenu,IndEvo_ColonyOptionPoint,IndEvo_marketHasIndustry IndEvo_PetStore,,,4:IndEvo_openPetCenter:Visit the Animal Center,
+IndEvo_openPetCenter,DialogOptionSelected,$option == IndEvo_openPetCenter,IndEvo_ShowPetCenter IndEvo_SelectreturnToMenu,,,opens the Pets panel in this dialog; its Return selects IndEvo_SelectreturnToMenu

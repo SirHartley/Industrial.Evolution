@@ -15,6 +15,7 @@ import indevo.economy.plugins.RelicSpeedUpDialog;
 import indevo.industries.academy.industry.Academy;
 import indevo.utils.helper.BillingHelper;
 import indevo.utils.helper.RelicHelper;
+import indevo.utils.helper.StringHelper;
 import indevo.utils.ui.*;
 import indevo.utils.ui.UiData.GridRow;
 
@@ -100,7 +101,7 @@ class AcademyDetail {
     }
 
     private void addOfficer(PersonAPI person, boolean stored) {
-        addOfficerInfo(person, stored ? "Stored here" : null);
+        addOfficerInfo(person, stored ? "Stored here" : null, stored ? Academy.getStoredOfficerSalaryMult() : 1f);
         GridRow drills = stored ? panel.getDrillsRow(person) : null;
         if (drills != null) grid(GAP, drills);
 
@@ -118,9 +119,6 @@ class AcademyDetail {
 
             if (blocker == null && !BillingHelper.canAfford(fee)) blocker = "Not enough credits.";
         }
-        // reference only, the list row shows them too, so they are what scrolls
-        addSkills(person, false);
-
         pin();
         if (view.rung != null) {
             grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)),
@@ -145,12 +143,12 @@ class AcademyDetail {
                     academy.storeOfficer(person);
                     panel.refresh();
                 });
-                Ui.tooltip(b, store, null, getStoreTooltip(null));
+                Ui.tooltip(b, store, null, getStoreTooltip());
             });
         }
     }
 
-    private void addOfficerInfo(PersonAPI person, String assignment) {
+    private void addOfficerInfo(PersonAPI person, String assignment, float salaryMult) {
         String personality = person.getPersonalityAPI().getId();
         int used = academy.getTrainedSteps(person);
 
@@ -163,7 +161,7 @@ class AcademyDetail {
             UiData.grid(b, GRID_X, 2f, w - GRID_X, GRID_ROW, List.of(
                     GridRow.of("Level", person.getStats().getLevel() + ""),
                     GridRow.of("Personality", AcademyPanelDelegate.getPersonalityName(personality), AcademyPanelDelegate.getPersonalityColor(personality)),
-                    GridRow.of("Salary", Misc.getDGSCredits(Misc.getOfficerSalary(person))),
+                    GridRow.of("Salary", Misc.getDGSCredits(Academy.getBaseSalary(person) * salaryMult)),
                     GridRow.of("Steps used", used + " of " + Math.max(used, academy.getMaxOfficerSteps()))));
 
             float lineY = 2f + 4f * GRID_ROW;
@@ -174,27 +172,10 @@ class AcademyDetail {
         });
     }
 
-    private void addSkills(PersonAPI person, boolean admin) {
-        List<AcademyPanelDelegate.Skill> skills = AcademyPanelDelegate.getSkills(person, admin);
-        heading("Skills", SECTION_GAP);
-
-        if (skills.isEmpty()) add(LINE, GAP, b -> Ui.text(b, 0f, 3f, w, admin ? "No administrator skills." : "No skills.", Ui.gray()));
-
-        // one block per row, so the column ends on a whole row
-        for (int i = 0; i < skills.size(); i++) {
-            AcademyPanelDelegate.Skill skill = skills.get(i);
-            add(LINE, i == 0 ? GAP : 0f, b -> {
-                UiImages.skill(b, 2f, 1f, 22f, skill.spec(), skill.elite());
-                Ui.text(b, 32f, 3f, w - 32f - (skill.elite() ? 48f : 0f), skill.spec().getName());
-                if (skill.elite()) Ui.text(b, w - 44f, 3f, 44f, "Elite", Ui.hl(), Ui.RIGHT);
-            });
-        }
-    }
-
     private void addLadder(PersonAPI person, String current) {
         List<String> ladder = new ArrayList<>(Academy.COLOURS_BY_PERSONALITY.keySet());
         List<String> reachable = academy.getReachablePersonalities(person);
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
 
         // one block per rung, so the column ends on a whole rung
         for (int i = 0; i < ladder.size(); i++) {
@@ -260,7 +241,6 @@ class AcademyDetail {
         int days = academy.getAdminTrainingDays();
         heading("Administrator training", SECTION_GAP);
         grid(GAP, GridRow.of("Gains", "One random skill"));
-        if (Academy.getAdminSkillCount(person) > 0) addSkills(person, true);
 
         pin();
         if (blocker == null) grid(0f, GridRow.of("Duration", days + " " + getDayOrDays(days)), GridRow.of("Away until", AcademyPanelDelegate.getDoneDate(days)));
@@ -276,7 +256,7 @@ class AcademyDetail {
             panel.refresh();
         });
         else {
-            guarded("Store", UiButtons.Kind.STD, STORE_H, null, GAP, getStoreTooltip(governed), () -> {
+            guarded("Store", UiButtons.Kind.STD, STORE_H, null, GAP, getStoreTooltip(), () -> {
                 academy.storeAdmin(person);
                 panel.refresh();
             });
@@ -298,7 +278,6 @@ class AcademyDetail {
             float lineY = 2f + 3f * GRID_ROW + 4f;
             if (stored) {
                 Ui.text(b, GRID_X, lineY, w - GRID_X, "Stored here", Ui.gray());
-                Ui.text(b, GRID_X, lineY + GRID_ROW, w - GRID_X, "draws 10% of salary", Ui.gray());
             } else if (governed != null) {
                 UiImages.planet(b, GRID_X, lineY, 30f, governed);
                 Ui.text(b, GRID_X + 36f, lineY + 7f, w - GRID_X - 36f, AcademyPanelDelegate.getMarketLine(governed, w - GRID_X - 36f), Ui.gray());
@@ -312,7 +291,7 @@ class AcademyDetail {
         float fee;
 
         if (!view.admins) {
-            addOfficerInfo(person, "In training");
+            addOfficerInfo(person, "In training", 1f);
             String from = person.getPersonalityAPI().getId();
             String to = academy.getOfficerTrainingTarget();
             String line = AcademyPanelDelegate.getPersonalityName(from) + " to " + AcademyPanelDelegate.getPersonalityName(to);
@@ -338,7 +317,7 @@ class AcademyDetail {
                 AcademyPanelDelegate.getDayLabel(total, left)));
         if (paused != null) text("Paused: " + paused, Ui.neg(), 4f);
 
-        boolean own = academy.getMarket().isPlayerOwned();
+        boolean own = academy.ownedByPlayer();
         List<GridRow> rows = new ArrayList<>();
         rows.add(GridRow.of("Days left", left + ""));
         rows.add(GridRow.of("Done on", AcademyPanelDelegate.getDoneDate(left)));
@@ -374,13 +353,12 @@ class AcademyDetail {
 
         boolean blocked = reason != null;
         add(UiButtons.guardHeight(w, TRAIN_H, reason), GAP, row -> {
-            ButtonAPI button = UiButtons.button(row, 0f, 0f, w, TRAIN_H, target.getSpeedUpLabel(), blocked ? UiButtons.Kind.OFF : UiButtons.Kind.STD, CutStyle.ALL,
-                    UiImages.relicSprite(), null, Ui.ORB12, blocked ? null : () -> {
-                        RelicSpeedUpDialog.apply(target);
-                        panel.refresh();
-                    });
+            ButtonAPI button = UiButtons.relic(row, 0f, 0f, w, TRAIN_H, target.getSpeedUpLabel(), cost, RelicHelper.canAfford(market, cost), CutStyle.ALL, blocked ? null : () -> {
+                RelicSpeedUpDialog.apply(target);
+                panel.refresh();
+            });
             if (blocked) Ui.wrap(row, 0f, TRAIN_H + UiButtons.REASON_GAP, w, reason, Ui.neg());
-            Ui.tooltip(row, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> RelicSpeedUpDialog.addTooltip(t, target));
+            Ui.tooltip(row, button, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> RelicSpeedUpDialog.addPanelTooltip(t, target));
         });
     }
 
@@ -388,21 +366,14 @@ class AcademyDetail {
         String blocker = view.admins ? Academy.getAdminSlotBlocker() : Academy.getOfficerSlotBlocker();
         heading("Abort", SECTION_GAP);
 
-        String who = view.admins ? "administrator" : "officer";
         String lost = "The fee and the progress are lost.";
         float half = Math.round((w - 7f) / 2f);
         add(UiButtons.guardHeight(w, STORE_H, blocker), GAP, row -> {
             ButtonAPI fleet = UiButtons.button(row, 0f, 0f, half, STORE_H, "Abort to fleet", blocker != null ? UiButtons.Kind.OFF : UiButtons.Kind.RED, CutStyle.TL_BR,
                     blocker != null ? null : () -> abort(false));
-            Ui.tooltip(row, fleet, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
-                t.addPara("Ends the training and returns the " + who + " to you.", 0f);
-                t.addPara(lost, 10f);
-            });
+            Ui.tooltip(row, fleet, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> t.addPara(lost, 0f));
             ButtonAPI storage = UiButtons.button(row, w - half, 0f, half, STORE_H, "Abort to storage", UiButtons.Kind.RED, CutStyle.TL_BR, () -> abort(true));
-            Ui.tooltip(row, storage, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> {
-                t.addPara("Ends the training and stores the " + who + " here.", 0f);
-                t.addPara(lost, 10f);
-            });
+            Ui.tooltip(row, storage, Ui.TOOLTIP_W, TooltipMakerAPI.TooltipLocation.LEFT, t -> t.addPara(lost, 0f));
             if (blocker != null) Ui.wrap(row, 0f, STORE_H + UiButtons.REASON_GAP, w, blocker, Ui.neg());
         });
     }
@@ -415,21 +386,20 @@ class AcademyDetail {
 
     private void addFee(float fee) {
         add(UiData.COST_ROW_H, 4f, b -> {
-            if (academy.getMarket().isPlayerOwned()) {
+            if (academy.ownedByPlayer()) {
                 UiData.value(b, 0f, 0f, w, UiData.COST_ROW_H, "Fee", "Free own Academy", Ui.gray(), new String[]{"Free"}, new Color[]{Ui.pos()});
             } else UiData.creditsRow(b, 0f, 0f, w, "Fee", fee);
         });
     }
 
-    private String getStoreTooltip(MarketAPI governed) {
-        boolean own = academy.getMarket().isPlayerOwned();
+    private String getStoreTooltip() {
+        boolean own = academy.ownedByPlayer();
         String fee = Misc.getDGSCredits(Setting.MONTHLY_AI_STORAGE_COST.intValue());
         String text;
 
-        if (!view.admins) text = own ? "Stored officers draw their full salary." : "Storage costs " + fee + " per month plus full salary.";
+        String salaryShare = StringHelper.getAbsPercentString(Academy.getStoredOfficerSalaryMult(), false);
+        if (!view.admins) text = own ? "Stored officers draw " + salaryShare + " of their salary." : "Storage costs " + fee + " per month plus " + salaryShare + " of salary.";
         else text = own ? "Stored administrators draw 10% of their salary." : "Storage costs " + fee + " per month plus 10% of salary.";
-
-        if (governed != null) text += " You take over as governor of " + governed.getName() + ".";
         return text;
     }
 

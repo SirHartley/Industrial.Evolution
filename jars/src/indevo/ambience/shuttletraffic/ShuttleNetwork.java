@@ -24,6 +24,7 @@ import com.fs.starfarer.api.util.WeightedRandomPicker;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.exploration.meteor.rogue.RogueDrizzleSpawner;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.util.ArrayList;
@@ -327,7 +328,7 @@ public class ShuttleNetwork {
 
             if (market.hasIndustry(Ids.EMBASSY)) getRoute(ShuttleRoute.Kind.DIPLOMAT, anchor, null, random).chancePerDay = DIPLOMAT_CHANCE;
 
-            if (market.hasIndustry(Industries.MINING) || market.hasIndustry(Ids.SWITCHABLE_MINING)) {
+            if (hasMining(market)) {
                 ShuttleTarget target = findMiningTarget(location, primary);
                 if (target != null) {
                     ShuttleRoute route = getRoute(ShuttleRoute.Kind.MINING, anchor, null, random);
@@ -479,7 +480,7 @@ public class ShuttleNetwork {
 
     // comm relays, nav buoys, sensor arrays, IE watchtowers and artillery stations; the owner is the entity's faction
     private void addMaintenance(LocationAPI location, Random random) {
-        List<SectorEntityToken> objectives = new ArrayList<>(location.getEntitiesWithTag(Tags.OBJECTIVE));
+        List<SectorEntityToken> objectives = AotdManager.getObjectives(location);
         objectives.addAll(location.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION));
         for (SectorEntityToken objective : objectives) {
             if (!objective.hasTag(Tags.COMM_RELAY) && !objective.hasTag(Tags.NAV_BUOY) && !objective.hasTag(Tags.SENSOR_ARRAY)
@@ -712,6 +713,12 @@ public class ShuttleNetwork {
         }
 
         return !market.isHidden() || ShuttleFactionRepo.isPirate(market.getFaction());
+    }
+
+    // vanilla mining or any mod tier that carries the vanilla tag
+    private static boolean hasMining(MarketAPI market) {
+        for (Industry ind : market.getIndustries()) if (ind.getSpec().hasTag(Industries.MINING)) return true;
+        return false;
     }
 
     private static boolean isPortDisrupted(MarketAPI market) {

@@ -11,6 +11,8 @@ public class DeathData {
     public boolean inStorage;
     public String marketName;
     public String shipName;
+    // clock timestamp, 0 for deaths from before the Memorial section
+    public long timestamp;
 
     public DeathData(String name, String date, float age, float serveTime, PetStatusManager.PetDeathCause cause, boolean inStorage, String marketName, String shipName) {
         this.name = name;

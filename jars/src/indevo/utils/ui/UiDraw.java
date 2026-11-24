@@ -2,12 +2,19 @@ package indevo.utils.ui;
 
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.ui.PositionAPI;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 
 // gl primitives for UiCanvas painters, coordinates are virtual pixels with y up, x and y are the bottom left corner
 public final class UiDraw {
+
+    private static final float CUT = 3f;
+    private static final float CUT_STEP = (float) (Math.sqrt(2) - 1);
 
     private UiDraw() {
     }
@@ -96,6 +103,38 @@ public final class UiDraw {
         quad(x + w - 1f, y + 1f, 1f, h - 2f, c, alpha);
     }
 
+    // 1 px band along a rect with 3 px cut corners, ring 0 is the outermost pixel; the inner cut shrinks by sqrt(2) - 1 per pixel so diagonals keep 1 px
+    public static void ring(float x0, float y0, float x1, float y1, int ring, Color c, float alpha) {
+        float[] o = octagon(x0 + ring, y0 + ring, x1 - ring, y1 - ring, Math.max(0f, CUT - ring * CUT_STEP));
+        float[] in = octagon(x0 + ring + 1, y0 + ring + 1, x1 - ring - 1, y1 - ring - 1, Math.max(0f, CUT - (ring + 1) * CUT_STEP));
+
+        begin(c, alpha);
+        GL11.glBegin(GL11.GL_QUADS);
+        for (int e = 0; e < 8; e++) {
+            int i = e * 2;
+            int j = ((e + 1) % 8) * 2;
+            GL11.glVertex2f(o[i], o[i + 1]);
+            GL11.glVertex2f(in[i], in[i + 1]);
+            GL11.glVertex2f(in[j], in[j + 1]);
+            GL11.glVertex2f(o[j], o[j + 1]);
+        }
+        GL11.glEnd();
+        end();
+    }
+
+    private static float[] octagon(float x0, float y0, float x1, float y1, float cut) {
+        return new float[]{x0 + cut, y0, x1 - cut, y0, x1, y0 + cut, x1, y1 - cut,
+                x1 - cut, y1, x0 + cut, y1, x0, y1 - cut, x0, y0 + cut};
+    }
+
+    // soft glow around a rect: 1 px rings outward to reach, alpha falling off with the square of the distance
+    public static void glow(float x, float y, float w, float h, float reach, Color c, float alpha) {
+        for (int i = 1; i <= reach; i++) {
+            float f = (reach + 1f - i) / (reach + 1f);
+            outline(x - i, y - i, w + 2 * i, h + 2 * i, c, alpha * f * f);
+        }
+    }
+
     public static void dashed(float x, float y, float w, float h, Color c, float alpha) {
         float dash = 3f;
         for (float i = 0f; i < w; i += dash * 2f) {
@@ -162,6 +201,21 @@ public final class UiDraw {
         end();
     }
 
+    // filled polygon given in a box of box units with y down, scaled to size at x, y; a fan from cx, cy, so the shape must be star shaped around it
+    public static void fan(float x, float y, float size, float box, float[] pts, float cx, float cy, Color c, float alpha) {
+        float s = size / box;
+
+        begin(c, alpha);
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+        GL11.glVertex2f(x + cx * s, y + size - cy * s);
+        for (int i = 0; i <= pts.length / 2; i++) {
+            int n = i % (pts.length / 2);
+            GL11.glVertex2f(x + pts[2 * n] * s, y + size - pts[2 * n + 1] * s);
+        }
+        GL11.glEnd();
+        end();
+    }
+
     // contain fit inside the box, centred, at integer pixels
     public static void sprite(SpriteAPI sprite, float srcW, float srcH, float x, float y, float w, float h, Color tint, float alpha) {
         if (sprite == null || srcW <= 0f || srcH <= 0f) return;
@@ -175,6 +229,60 @@ public final class UiDraw {
         sprite.setAlphaMult(alpha);
         sprite.setNormalBlend();
         sprite.render(Math.round(x + (w - dw) / 2f), Math.round(y + (h - dh) / 2f));
+    }
+
+    // own gl texture with the image in its top left srcW x srcH pixels, u and v its share of the texture; row 0 is the image top
+    public static void texture(int id, float srcW, float srcH, float u, float v, float x, float y, float w, float h, float alpha) {
+        if (id == 0 || srcW <= 0f || srcH <= 0f) return;
+
+        float scale = Math.min(w / srcW, h / srcH);
+        float dw = Math.round(srcW * scale);
+        float dh = Math.round(srcH * scale);
+        float dx = Math.round(x + (w - dw) / 2f);
+        float dy = Math.round(y + (h - dh) / 2f);
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glColor4f(1f, 1f, 1f, Math.max(0f, Math.min(1f, alpha)));
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f(0f, v);
+        GL11.glVertex2f(dx, dy);
+        GL11.glTexCoord2f(0f, 0f);
+        GL11.glVertex2f(dx, dy + dh);
+        GL11.glTexCoord2f(u, 0f);
+        GL11.glVertex2f(dx + dw, dy + dh);
+        GL11.glTexCoord2f(u, v);
+        GL11.glVertex2f(dx + dw, dy);
+        GL11.glEnd();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+    }
+
+    // an image into the top left of a new tw x th texture, power of two sides
+    public static int upload(BufferedImage image, int tw, int th) {
+        ByteBuffer pixels = BufferUtils.createByteBuffer(tw * th * 4);
+        for (int py = 0; py < image.getHeight(); py++) {
+            for (int px = 0; px < image.getWidth(); px++) {
+                int argb = image.getRGB(px, py);
+                int i = (py * tw + px) * 4;
+                pixels.put(i, (byte) (argb >> 16)).put(i + 1, (byte) (argb >> 8)).put(i + 2, (byte) argb).put(i + 3, (byte) (argb >>> 24));
+            }
+        }
+        return upload(pixels, tw, th);
+    }
+
+    // rgba8 pixels, rows top first, power of two sides; linear filter, clamped
+    public static int upload(ByteBuffer pixels, int w, int h) {
+        int id = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, w, h, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        return id;
     }
 
     public static float left(PositionAPI pos) {

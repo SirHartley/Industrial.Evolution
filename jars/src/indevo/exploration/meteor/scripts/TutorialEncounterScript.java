@@ -78,6 +78,7 @@ public class TutorialEncounterScript implements EveryFrameScript {
         fleet.setName("Panicked Roiders");
         fleet.getMemoryWithoutUpdate().set("$IndEvo_supplyTradeAmt", Math.min(100, (int) Math.ceil(player.getCargo().getSupplies() * 0.1f))); //10% of player supplies
         fleet.getMemoryWithoutUpdate().set("$IndEvo_roider_tutorial", true);
+        Global.getSector().getMemoryWithoutUpdate().set(MeteorSwarmManager.MEM_TUTORIAL_FLEET, fleet);
 
         fleet.getAI().setActionTextOverride("Seeking immediate assistance");
 

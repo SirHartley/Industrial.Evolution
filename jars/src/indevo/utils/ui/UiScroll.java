@@ -13,6 +13,8 @@ public final class UiScroll {
 
     // the scrollbar sits in the last 3 px and widens on hover (com.fs.starfarer.ui.g), blocks stay clear of it
     public static final float GUTTER = 10f;
+    // rows left of a column rule and the column right of it sit this far from the rule; the gutter is part of the left pad
+    public static final float RULE_PAD = 12f;
 
     // scroll offsets per list id, part of the panel's view state; capture before a rebuild, restore after it
     public static final class Offsets {
@@ -131,6 +133,16 @@ public final class UiScroll {
     }
 
     private UiScroll() {
+    }
+
+    // x of the rule between a list and the column that starts at columnX
+    public static float ruleX(float columnX) {
+        return columnX - RULE_PAD - 1f;
+    }
+
+    // width of a list whose rows end RULE_PAD left of the rule
+    public static float listWidth(float listX, float columnX) {
+        return ruleX(columnX) - RULE_PAD + GUTTER - listX;
     }
 
     // tallest height up to h that ends on a whole row: lead (blocks above the first row), then rows of rowH with gap between

@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin.Installa
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ItemPatternProject;
 
 import static indevo.items.installable.SpecialItemEffectsRepo.LOG_CORE_MAX_BONUS;
 import static indevo.items.installable.SpecialItemEffectsRepo.RANGE_LY_TWELVE;
@@ -30,5 +31,7 @@ public class LogCoreEffect extends BaseInstallableItemEffect {
         text.addPara(pre + "All industries within " + RANGE_LY_TWELVE + "LY will be counted for Bureau bonuses," +
                         " and the maximum bonus effect is increased to " + LOG_CORE_MAX_BONUS,
                 pad, Misc.getHighlightColor(), RANGE_LY_TWELVE + "LY", LOG_CORE_MAX_BONUS + "");
+
+        ItemPatternProject.addCargoNote(text, id, mode);
     }
 }

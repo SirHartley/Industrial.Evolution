@@ -13,7 +13,7 @@ The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player 
 | File | Owner / role |
 |---|---|
 | `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: option, option tooltip with the lore text, abort dialog, Orbital Works "Current Project" tooltip section (normal tooltip mode only; vanilla `ListenerUtil.addToIndustryTooltip` places it after the installed items; the tooltip runs on a market clone, so `OrbitalWorksSlotManager.getJob` matches by market id) |
-| `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotPanelDelegate.java` | Ship picker dialog (`ButtonReportingDialogueDelegate`), cost (`COST_PER_DP` 20 per hull DP), relic count and payment, start of the work |
+| `indevo/industries/orbitalworks/plugins/OrbitalWorksSlotPanelDelegate.java` | Ship picker dialog (`ButtonReportingDialogueDelegate`), cost (`COST_PER_DP` 10 per hull DP), relic count and payment, start of the work |
 | `indevo/industries/orbitalworks/scripts/OrbitalWorksSlotManager.java` | Persistent `NewDayListener`: job list, day count, finish, abort, colony loss, messages; `DAYS_REQUIRED` 93 |
 | `indevo/industries/orbitalworks/data/OrbitalWorksSlotJob.java` | Saved job: `market`, `member`, `daysDone` |
 | `indevo/industries/orbitalworks/patches/OrbitalWorksRemovedPatch.java` | PatchLib `@After` on `BaseIndustry.notifyBeingRemoved` (vanilla Orbital Works, `HeavyIndustry`, inherits it): calls `OrbitalWorksSlotManager.onWorksRemoved` with the interaction mode when an Orbital Works is shut down |
@@ -29,7 +29,7 @@ The option shows on vanilla Orbital Works (`Industries.ORBITALWORKS`) on player 
 
 ## Registration and lifecycle
 
-- `OrbitalWorksSlotManager.getInstanceOrRegister()` (`indevo/utils/ModPlugin.java:492`): persistent listener, saved with the sector.
+- `OrbitalWorksSlotManager.getInstanceOrRegister()` (`indevo/utils/ModPlugin.java:488`): persistent listener, saved with the sector.
 - `OrbitalWorksSlotOptionProvider.register()` (`:493`): transient listener, added on every load.
 - `TimeTracker` calls `OrbitalWorksSlotManager.onNewDay()` once per day ([UTILS](../core/UTILS.md)).
 

@@ -24,7 +24,7 @@ import com.fs.starfarer.api.ui.ValueDisplayMode;
 import com.fs.starfarer.api.util.ListMap;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import com.fs.starfarer.campaign.rules.Memory;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.exploration.gacha.intel.GachaStationIntel;
 import indevo.ids.ItemIds;
@@ -219,7 +219,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
                 break;
             case CARGO:
                 HashMap<String, MemoryAPI> map = new HashMap<>();
-                map.put(MemKeys.LOCAL, new Memory());
+                map.put(MemKeys.LOCAL, Global.getFactory().createMemory());
                 FireBest.fire(null, dialog,map, "IndEvo_GachaStationCargoOpen");
                 break;
         }
@@ -300,7 +300,9 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
         CargoAPI storage = Misc.getStorage(dialog.getInteractionTarget().getMarket()).getCargo();
 
         float totalDP = 0;
+        Set<String> fedHulls = new HashSet<>();
         for (FleetMemberAPI member : selectedShips) {
+            fedHulls.add(member.getHullSpec().getBaseHullId());
             totalDP += member.getDeploymentPointsCost();
             stripShipToCargoAndReturnVariant(member, cargo);
             member.updateStats();
@@ -373,6 +375,7 @@ public class GachaStationDialoguePlugin implements InteractionDialogPlugin {
             text.addPara("The machine mind has deemed your offerings sufficient.");
 
             FleetMemberAPI ship = createAndPrepareMember(bestID, 3);
+            if (fedHulls.contains(ship.getHullSpec().getBaseHullId())) Achievements.complete(Achievements.REFUND_POLICY);
 
             dialog.getVisualPanel().showFleetMemberInfo(ship, true);
             playerFleet.getFleetData().addFleetMember(ship);

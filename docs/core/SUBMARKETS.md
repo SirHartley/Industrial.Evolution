@@ -17,7 +17,7 @@ Each IE submarket is a row in `data/campaign/submarkets.csv` with a plugin class
 | `indevo/submarkets/impl/RestorationDocksSubmarketPlugin.java` | `IndEvo_RepairStorage`: fleet screen only; accepts ships with removable D-mods that are not `VARIANT_UNRESTORABLE`/`HULL_UNRESTORABLE`; tooltip shows the cost prediction from `RestorationDocks`. Feature: [Small industries](../industries/SMALL_INDUSTRIES.md) |
 | `indevo/submarkets/impl/RequisitionsCenterSubmarketPlugin.java` | `IndEvo_ReqCenterMarket`: open weapons market, buy only, 35000 credit unlock on non player markets, stock by faction standing, ambassador and AI core. Feature: [Small industries](../industries/SMALL_INDUSTRIES.md), [Embassy](../industries/EMBASSY.md) |
 | `indevo/submarkets/impl/DeconstructorSubmarketPlugin.java` | `IndEvo_DeconstStorage`: fleet screen only; ship whitelist from `Ids.PRINT_LIST`, blacklist prism and Vayra boss ships. Feature: [Derelicts](../industries/DERELICTS.md) |
-| `indevo/submarkets/impl/ReverseEngineeringSubmarketPlugin.java` | `IndEvo_EngStorage`: fleet screen only; whitelist `Ids.REVERSE_LIST` plus any hull with a `_bp` tag unless strict; blacklists `threat`/`dweller`, prism, Vayra; tooltip shows research progress. Feature: [Engineering Hub](../industries/ENGINEERING_HUB.md) |
+| `indevo/submarkets/impl/ReverseEngineeringSubmarketPlugin.java` | `IndEvo_EngStorage`: fleet screen only; whitelist `Ids.REVERSE_LIST` plus any hull with a `_bp` tag unless strict; blacklists `threat`/`dweller`, prism, Vayra; both lists are transient, rebuilt in `updateCargoPrePlayerInteraction` or on first use after a load; tooltip shows research progress. Feature: [Engineering Hub](../industries/ENGINEERING_HUB.md) |
 | `indevo/submarkets/impl/SharedSubmarketPlugin.java` | `IndEvo_SharedStore`: cargo screen only, free transfer; an item is legal if any industry on the market implementing `SharedSubmarketUserAPI` accepts it. Users: `indevo/industries/SharedSubmarketUser.java`, [Assembler](../industries/ASSEMBLER.md) `CommodityForge` |
 
 Feature submarkets with their plugin outside this package:
@@ -27,7 +27,7 @@ Feature submarkets with their plugin outside this package:
 | `IndEvo_PetSubMarket` | `indevo/industries/petshop/submarket/PetSubMarket.java` | [Pets](../industries/PETS.md) |
 | `IndEvo_MuseumStorage` | `indevo/industries/museum/submarket/MuseumSubmarketPlugin.java` (extends `BaseRemovableStorageSubmarketPlugin`) | [Museum](../industries/MUSEUM.md) |
 | `IndEvo_WarehouseStorage_1` to `_5` | `indevo/industries/warehouses/submarket/WarehouseSubmarketPlugin.java` (extends `BaseRemovableStorageSubmarketPlugin`) | [Warehouses](../industries/WAREHOUSES.md) |
-| `IndEvo_tempStorage` | vanilla `StoragePlugin` | `ModUpdater` swap space, see [Utils](UTILS.md#update) |
+| `IndEvo_tempStorage` | vanilla `StoragePlugin` | Unused; row kept so a save that still holds the submarket loads |
 
 ## Data and ids
 
@@ -56,9 +56,9 @@ Feature submarkets with their plugin outside this package:
 | `IndEvo_SharedStore` | any `SharedSubmarketUserAPI` industry | yes | moved |
 | `IndEvo_WarehouseStorage_1` to `_5` | `IndEvo_Warehouse` | yes | moved |
 
-- Add: owner `advance()` -> `IndustrySubmarkets.ensure(this, id)` (`:46`) -> `market.addSubmarket(id)` while the industry is functional; the engine skips an id already present (`obf/campaign/econ/Market.java:505`), so the per frame call is cheap. Callers: `RestorationDocks.java:73`, `RequisitionCenter.java:42`, `HullDeconstructor.java:74`, `EngineeringHub.java:79`, `SharedSubmarketUser.java:13` (shared storage for every subclass), `CommodityForge.java:77`, `PetShop.java:176` (while `IndEvo_pets` is on, `remove` otherwise), `Museum.java:128` (while player owned).
+- Add: owner `advance()` -> `IndustrySubmarkets.ensure(this, id)` (`:46`) -> `market.addSubmarket(id)` while the industry is functional; the engine skips an id already present (`obf/campaign/econ/Market.java:505`), so the per frame call is cheap. Callers: `RestorationDocks.java:74`, `RequisitionCenter.java:42`, `HullDeconstructor.java:74`, `EngineeringHub.java:79`, `SharedSubmarketUser.java:13` (shared storage for every subclass), `CommodityForge.java:77`, `PetShop.java:146` (while `IndEvo_pets` is on, `remove` otherwise), `Museum.java:128` (while player owned).
 - Ownership loss: `ensure` for a player only id on a market that is no longer player owned calls `remove` instead. Museum checks ownership itself first and runs its own `notifyBeingRemoved` (parades).
-- Remove: owner `notifyBeingRemoved(mode, forUpgrade)` -> `IndustrySubmarkets.release(this)` (`:55`) -> `remove` for every id the industry owns that no other industry on the market owns. The leaving industry is still in the market's list at that point (`Market.java:259-270`), so it is skipped by identity. Callers: `RestorationDocks.java:79`, `RequisitionCenter.java:48`, `SharedSubmarketUser.java:19` (decon, eng hub and shared storage), `CommodityForge.java:83`, `PetShop.java:183`, `Museum.java:351`.
+- Remove: owner `notifyBeingRemoved(mode, forUpgrade)` -> `IndustrySubmarkets.release(this)` (`:55`) -> `remove` for every id the industry owns that no other industry on the market owns. The leaving industry is still in the market's list at that point (`Market.java:259-270`), so it is skipped by identity. Callers: `RestorationDocks.java:80`, `RequisitionCenter.java:48`, `SharedSubmarketUser.java:19` (decon, eng hub and shared storage), `CommodityForge.java:83`, `PetShop.java:153`, `Museum.java:420`.
 - `remove(market, id)` (`:66`): for cargo keeping ids moves cargo and mothballed ships to `MiscIE.getStorage(market)` and unlocks it, then `market.removeSubmarket(id)`. Warehouses call it for their player driven removal (`Warehouses.java:159`) and drop their data only when it returns true.
 - Load: `ModPlugin.onGameLoad` -> `IndustrySubmarkets.removeOrphans()` (`:75`) removes every registered submarket whose market has no owner industry.
 
@@ -98,9 +98,6 @@ Max weapon tier by standing (`getMaxTier`): <0.5 -> 0, <0.7 -> 1, <0.9 -> 2, els
 
 | Item | State |
 |---|---|
-| `ReverseEngineeringSubmarketPlugin.roleListings` | `@Deprecated`, unused |
-| `ReverseEngineeringSubmarketPlugin.java:57` | `getHullSpec(id)` for every faction known ship; throws on a missing hull id (engine fact: spec getters throw on missing ids, knowledge base `docs/concepts/spec-loading.md`) |
-| `RestorationDocksSubmarketPlugin.createTooltipAfterDescription` (`:120`) | Casts `market.getIndustry(REPAIRDOCKS)` without a null check |
 | Changelog_todo | "museum storage gets placed before building complete", "museum storage doesn't remove properly", "warehouse storage linking", "implement 5 more shared storage variants", "check resto dock billing for bugs", "Requisition center RAT settlement plugin" |
 
 ## Maintenance

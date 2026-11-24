@@ -13,9 +13,11 @@ import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.compatibility.AotdManager;
 import indevo.items.VPCItemPlugin;
 import indevo.items.installable.NamedItemSlotPlugin;
 import indevo.items.memory.VPCCommodityRepo.Commodity;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 import org.apache.log4j.Logger;
@@ -137,11 +139,12 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
         int deficit = getMaxDeficitAllDemand().two;
         float deficitMult = 1 - (deficit / (getSupply(commodity.id()).getQuantity().getModifiedValue() + deficit));
 
-        return getDepositAmount(commodity.getDeposit(getId()), getLogIncrease(), market.getSize() - 2, aiCoreMult * getTimeMult() * outputMult * deficitMult);
+        return getDepositAmount(commodity.id(), commodity.getDeposit(getId()), getLogIncrease(), market.getSize() - 2, aiCoreMult * getTimeMult() * outputMult * deficitMult);
     }
 
-    public static int getDepositAmount(int base, float logIncrease, int sizeMult, float mult) {
-        int total = Math.round((Math.round(((logIncrease * Math.log(sizeMult)) + base) / 10) * 10) * mult);
+    // deposits are a credit budget at normal mode prices, survival mode price factors would multiply it
+    public static int getDepositAmount(String commodityId, int base, float logIncrease, int sizeMult, float mult) {
+        int total = Math.round((Math.round(((logIncrease * Math.log(sizeMult)) + base) / 10) * 10) * mult / ExtModeHelper.commodityPriceMult(commodityId));
         return Math.max(0, total);
     }
 
@@ -165,11 +168,17 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.ADASSEM.enabled();
+        return super.isAvailableToBuild() && Setting.ADASSEM.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     public boolean showWhenUnavailable() {
-        return Setting.ADASSEM.enabled();
+        return super.showWhenUnavailable() && Setting.ADASSEM.enabled();
     }
 
     private void applyOutputReduction() {
@@ -177,13 +186,13 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
         for (MutableCommodityQuantity sup : getAllSupply()) {
             if (sup.getQuantity().getModifiedInt() > 3) {
-                sup.getQuantity().modifyFlat(getModId(), 3 - sup.getQuantity().getModifiedInt(), StringHelper.getString(getId(), "outputRestriction"));
+                sup.getQuantity().modifyFlat(getModId(), 3 - sup.getQuantity().getModifiedInt(), "Assembler capacity insufficient");
             }
         }
 
         for (MutableCommodityQuantity dem : getAllDemand()) {
             if (dem.getQuantity().getModifiedInt() > 4) {
-                dem.getQuantity().modifyFlat(getModId(), 4 - dem.getQuantity().getModifiedInt(), StringHelper.getString(getId(), "outputRestriction"));
+                dem.getQuantity().modifyFlat(getModId(), 4 - dem.getQuantity().getModifiedInt(), "Assembler capacity insufficient");
             }
         }
     }
@@ -251,7 +260,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
             Color bad = Misc.getNegativeHighlightColor();
 
             if (currTooltipMode.equals(IndustryTooltipMode.ADD_INDUSTRY) || !hasVPC()) {
-                tooltip.addPara("%s", opad, highlight, StringHelper.getString("IndEvo_VarInd", "vpcNotice"));
+                tooltip.addPara("%s", opad, highlight, "This structure requires a Variable Production Chip (VPC) to function");
             }
 
             if (isFunctional()
@@ -259,7 +268,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
                     && currTooltipMode.equals(IndustryTooltipMode.NORMAL)) {
 
                 if (!rampUpExpired) {
-                    tooltip.addPara(StringHelper.getString("IndEvo_VarInd", "rampUp"), 10, bad, StringHelper.getAbsPercentString(RAMP_UP_REDUCTION_MULT, true));
+                    tooltip.addPara("Production ramp up: output temporarily decreased by %s", 10, bad, StringHelper.getAbsPercentString(RAMP_UP_REDUCTION_MULT, true));
                 }
 
                 addOutputLine(tooltip, opad);
@@ -287,7 +296,7 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
             boolean deficit = getAllDeficit().size() > 0;
 
             if (deficit) {
-                tooltip.addPara("%s", pad, h, StringHelper.getString("IndEvo_VarInd", "shortageTooltip"));
+                tooltip.addPara("%s", pad, h, "Reduced commodity output due to shortage.");
             }
         }
     }
@@ -337,9 +346,9 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
     protected void addAlphaCoreDescription(TooltipMakerAPI tooltip, AICoreDescriptionMode mode) {
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "aCoreAssigned" + suffix);
-        String effect = StringHelper.getString("IndEvo_AdAssem", "aCoreEffect");
+        boolean shortForm = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP;
+        String pre = shortForm ? "Alpha-level AI core. " : "Alpha-level AI core currently assigned. ";
+        String effect = "Reduces upkeep cost by %s. Increases commodity output by %s.";
         String[] highlightString = new String[]{StringHelper.getAbsPercentString(ALPHA_CORE_UPKEEP_RED_MULT, true), StringHelper.getAbsPercentString(ALPHA_CORE_OUTPUT_MULT, true)};
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -356,9 +365,9 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "bCoreAssigned" + suffix);
-        String effect = StringHelper.getString("IndEvo_AdAssem", "bCoreEffect");
+        boolean shortForm = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP;
+        String pre = shortForm ? "Beta-level AI core. " : "Beta-level AI core currently assigned. ";
+        String effect = "Increases commodity output by %s.";
         String highlightString = StringHelper.getAbsPercentString(BETA_CORE_OUTPUT_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -375,9 +384,9 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
         float opad = 10.0F;
         Color highlight = Misc.getHighlightColor();
 
-        String suffix = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP ? "Short" : "Long";
-        String pre = StringHelper.getString("IndEvo_AICores", "gCoreAssigned" + suffix);
-        String effect = StringHelper.getString("IndEvo_VarInd", "gCoreEffect");
+        boolean shortForm = mode == AICoreDescriptionMode.MANAGE_CORE_DIALOG_LIST || mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP;
+        String pre = shortForm ? "Gamma-level AI core. " : "Gamma-level AI core currently assigned. ";
+        String effect = "Reduces upkeep cost by %s.";
         String highlightString = StringHelper.getAbsPercentString(GAMMA_CORE_UPKEEP_RED_MULT, true);
 
         if (mode == AICoreDescriptionMode.INDUSTRY_TOOLTIP) {
@@ -407,11 +416,11 @@ public class VariableAssembler extends BaseIndustry implements EconomyTickListen
 
         switch (MiscIE.getAiCoreIdNotNull(this)) {
             case Commodities.ALPHA_CORE:
-                name = StringHelper.getString("IndEvo_AICores", "aCoreStatModAssigned");
+                name = "Alpha Core assigned";
                 getUpkeep().modifyMult("ind_core", ALPHA_CORE_UPKEEP_RED_MULT, name);
                 break;
             case Commodities.GAMMA_CORE:
-                name = StringHelper.getString("IndEvo_AICores", "gCoreStatModAssigned");
+                name = "Gamma Core assigned";
                 getUpkeep().modifyMult("ind_core", GAMMA_CORE_UPKEEP_RED_MULT, name);
                 break;
             default:

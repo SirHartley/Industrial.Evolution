@@ -4,6 +4,7 @@ import com.fs.starfarer.api.EveryFrameScript;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.items.consumables.itemAbilities.missiles.ArtilleryRemoteAbilityPlugin;
 import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -21,6 +22,7 @@ public class MortarShotScript implements EveryFrameScript {
     public SectorEntityToken target;
     public SectorEntityToken origin;
     public int amt;
+    public boolean remote;
 
     public boolean done = false;
 
@@ -28,6 +30,7 @@ public class MortarShotScript implements EveryFrameScript {
         this.origin = origin;
         this.target = target;
         this.amt = amt;
+        this.remote = ArtilleryRemoteAbilityPlugin.isRemoteTarget(target);
     }
 
     @Override
@@ -48,8 +51,8 @@ public class MortarShotScript implements EveryFrameScript {
         SectorEntityToken track = target.isPlayerFleet() ? target : null;
 
         for (Vector2f t : getTargetList(target, center, getLeadSeconds(origin, target))) {
-            float warningSeconds = (float) (Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value() + 3f * random());
-            MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, warningSeconds, track, Vector2f.sub(t, center, null));
+            float warningSeconds = (float) (Setting.ARTILLERY_MORTAR_PROJECTILES_IMPACT_TIME.value() + MortarProjectileEntityPlugin.WARNING_SPREAD * random());
+            MortarProjectileEntityPlugin.spawn(origin.getContainingLocation(), origin, t, warningSeconds, track, Vector2f.sub(t, center, null), remote);
         }
 
         done = true;

@@ -2,6 +2,7 @@ package iecheck;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
+import com.fs.starfarer.api.campaign.JumpPointAPI;
 import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.StarSystemAPI;
@@ -12,10 +13,14 @@ import com.fs.starfarer.api.combat.MutableStat;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.fleet.FleetMemberType;
 import com.fs.starfarer.api.impl.campaign.ids.Commodities;
+import com.fs.starfarer.api.impl.campaign.ids.Entities;
+import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Industries;
 import com.fs.starfarer.api.impl.campaign.ids.Terrain;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
+import com.fs.starfarer.api.impl.campaign.terrain.MagneticFieldTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
+import com.fs.starfarer.campaign.CircularOrbitPointDown;
 import indevo.abilities.pets.PetManagementAbilityPlugin;
 import indevo.ids.Ids;
 import indevo.industries.changeling.hullmods.HandBuiltEffectMemoryRepo;
@@ -25,7 +30,9 @@ import indevo.industries.courierport.ShippingContractMemory;
 import indevo.industries.courierport.listeners.ShippingManager;
 import indevo.industries.derelicts.industry.AncientLaboratory;
 import indevo.industries.derelicts.industry.Ruins;
-import indevo.industries.derelicts.scripts.PlanetMovingScript;
+import indevo.industries.derelicts.RiftRelocator;
+import indevo.industries.derelicts.listeners.RiftTearManager;
+import indevo.industries.derelicts.scripts.RiftJumpScript;
 import indevo.industries.derelicts.utils.RuinsManager;
 import indevo.utils.helper.MiscIE;
 
@@ -151,8 +158,16 @@ public final class ContentChecks {
             }
             c.put("target", target.getId());
             c.put("from", planet.getContainingLocation().getId());
+            StarSystemAPI from = (StarSystemAPI) planet.getContainingLocation();
+            SectorEntityToken mirror = from.addCustomEntity(null, "Test mirror", Entities.STELLAR_MIRROR, Factions.NEUTRAL);
+            mirror.setCircularOrbitPointingDown(planet, planet.getCircularOrbitAngle() + 30f, planet.getRadius() + 270f, planet.getCircularOrbitPeriod());
+            c.put("mirror", mirror.getId());
+            PlanetAPI moon = from.addPlanet("IndEvo_smokeRiftMoon", planet, "Test moon", "barren", 0f, 40f, planet.getRadius() + 600f, 40f);
+            c.put("moon", moon.getId());
+
             b.addIndustry(Ids.RIFTGEN);
-            Global.getSector().addScript(new PlanetMovingScript(b, target));
+            planet.getMemoryWithoutUpdate().set("$IndEvo_smokeRiftMarker", true);
+            Global.getSector().addScript(new RiftJumpScript(b, target, 5));
             c.days(3f);
         });
         steps.add(c -> {
@@ -164,6 +179,40 @@ public final class ContentChecks {
                 if (terrain.getPlugin() instanceof BaseRingTerrain && ((BaseRingTerrain) terrain.getPlugin()).getRelatedEntity() == b.getPrimaryEntity()) moved = true;
             }
             c.expect(moved, "607 ring terrain moved with the planet");
+            c.expect(b.getPlanetEntity().getMemoryWithoutUpdate().getBoolean("$IndEvo_smokeRiftMarker"), "rift jump keeps the planet object and its memory");
+
+            PlanetAPI planet = b.getPlanetEntity();
+            SectorEntityToken mirror = target.getEntityById((String) c.get("mirror"));
+            c.expect(mirror != null && mirror.getOrbit() instanceof CircularOrbitPointDown, "mirror moved and still points down");
+            if (mirror != null) c.expect(Math.abs(mirror.getCircularOrbitPeriod() - planet.getCircularOrbitPeriod()) < 0.01f,
+                    "mirror period " + mirror.getCircularOrbitPeriod() + " follows the planet " + planet.getCircularOrbitPeriod());
+
+            StarSystemAPI from = Global.getSector().getStarSystem((String) c.get("from"));
+            JumpPointAPI tear = null;
+            for (SectorEntityToken e : from.getJumpPoints()) {
+                if (e.hasTag(RiftRelocator.RIFT_TAG) && e instanceof JumpPointAPI jp) tear = jp;
+            }
+            c.expect(tear != null, "tear left in " + from.getName());
+            if (tear == null) return;
+            c.note("tear name " + tear.getName());
+            c.expect(tear.getName().contains("(closes in"), "tear names its closing time");
+            c.expect(RiftTearManager.getInstanceOrRegister().getDaysLeft(tear) > 0, "tear is open");
+            SectorEntityToken moon = from.getEntityById((String) c.get("moon"));
+            c.expect(moon != null && moon.getOrbitFocus() == tear, "moon stays behind and orbits the tear");
+            c.put("tear", tear.getId());
+            c.days(4f);
+        });
+        steps.add(c -> {
+            StarSystemAPI from = Global.getSector().getStarSystem((String) c.get("from"));
+            c.expect(from.getEntityById((String) c.get("tear")) == null, "tear closed after its lifetime");
+            SectorEntityToken moon = from.getEntityById((String) c.get("moon"));
+            c.expect(moon != null && moon.getOrbitFocus() == from.getCenter(), "moon orbits the star again");
+            boolean field = false;
+            for (CampaignTerrainAPI terrain : from.getTerrainCopy()) {
+                if (terrain.getPlugin() instanceof MagneticFieldTerrainPlugin mag && mag.getRelatedEntity() != null
+                        && mag.getRelatedEntity().getId().equals(c.get("tear"))) field = true;
+            }
+            c.expect(!field, "the tear's magnetic field closed with it");
         });
         return steps;
     }

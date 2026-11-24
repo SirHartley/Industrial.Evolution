@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCampaignObjectivePlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
@@ -17,6 +18,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
+import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import org.lazywizard.lazylib.MathUtils;
 
 import static indevo.industries.artillery.scripts.EyeIndicatorScript.WAS_SEEN_BY_HOSTILE_ENTITY;
@@ -123,6 +125,19 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
             phase--;
         }
+    }
+
+    // no single callback covers colonizing and taking a market, checked on the tower's vision tick
+    protected boolean replacedForPlayerColony() {
+        if (!entity.hasTag(Ids.TAG_WATCHTOWER)) return true;
+
+        for (MarketAPI market : Misc.getMarketsInLocation(entity.getContainingLocation())) {
+            if (!market.isPlayerOwned()) continue;
+            ArtilleryStationPlacer.replaceWithWatchtower(entity);
+            return true;
+        }
+
+        return false;
     }
 
     // lights of a lighthouse or searchlight tower are on: working, not hacked, hostile to the player, and an artillery needs the vision

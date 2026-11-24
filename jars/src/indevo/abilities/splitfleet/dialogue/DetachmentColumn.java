@@ -14,12 +14,14 @@ import com.fs.starfarer.api.ui.ButtonAPI;
 import com.fs.starfarer.api.ui.CustomPanelAPI;
 import com.fs.starfarer.api.ui.CutStyle;
 import com.fs.starfarer.api.util.Misc;
+import indevo.abilities.splitfleet.listeners.DetachmentPayroll;
 import indevo.abilities.splitfleet.FleetUtils;
 import indevo.abilities.splitfleet.fleetAssignmentAIs.DetachmentAI;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour;
 import indevo.abilities.splitfleet.fleetManagement.Behaviour.FleetBehaviour;
 import indevo.abilities.splitfleet.fleetManagement.DetachmentMemory;
 import indevo.abilities.splitfleet.fleetManagement.LoadoutMemory;
+import indevo.ids.Ids;
 import indevo.industries.academy.plugins.AcademyPanelDelegate;
 import indevo.utils.ui.*;
 
@@ -208,11 +210,9 @@ class DetachmentColumn {
             float bw = met ? MOVE_CARGO_W : LAY_COURSE_W;
             boolean targeted = player.getInteractionTarget() != null && fleet.getId().equals(player.getInteractionTarget().getId());
 
-            ButtonAPI button;
-            if (met) button = UiButtons.button(b, w - bw, 0f, bw, ROW_H, "Move cargo...", UiButtons.Kind.STD, () -> panel.showCargoExchange(slot));
-            else button = UiButtons.button(b, w - bw, 0f, bw, ROW_H, "Lay course", dormant || stranded ? UiButtons.Kind.AMBER : UiButtons.Kind.STD,
+            if (met) UiButtons.button(b, w - bw, 0f, bw, ROW_H, "Move cargo...", UiButtons.Kind.STD, () -> panel.showCargoExchange(slot));
+            else UiButtons.button(b, w - bw, 0f, bw, ROW_H, "Lay course", dormant || stranded ? UiButtons.Kind.AMBER : UiButtons.Kind.STD,
                     targeted ? null : () -> panel.layCourse(slot));
-            Ui.tooltip(b, button, null, met ? "Move cargo between your fleet and the detachment." : "Set a course to the detachment.");
 
             String deployed = getDeployedText();
             String distance = met ? null : getDistanceText(fleet);
@@ -221,8 +221,7 @@ class DetachmentColumn {
             return;
         }
 
-        ButtonAPI send = UiButtons.area(b, 0f, 0f, SEND_W, ROW_H, "Send", !take, true, null, Ui.CENTER, () -> panel.setTakeMode(slot, false));
-        Ui.tooltip(b, send, null, "Select ships and cargo for the detachment.");
+        UiButtons.area(b, 0f, 0f, SEND_W, ROW_H, "Send", !take, true, null, Ui.CENTER, () -> panel.setTakeMode(slot, false));
         ButtonAPI keep = UiButtons.area(b, SEND_W + 2f, 0f, SEND_W, ROW_H, "Take", take, true, null, Ui.CENTER, () -> panel.setTakeMode(slot, true));
         Ui.tooltip(b, keep, null, "Select ships and cargo to keep; the rest form the detachment. Your flagship stays with you.");
 
@@ -418,8 +417,7 @@ class DetachmentColumn {
 
         CustomPanelAPI b = column.block(ROW_H, GAP);
         if (!live) {
-            ButtonAPI button = UiButtons.button(b, w - SET_TARGET_W, 0f, SET_TARGET_W, ROW_H, "Set target...", UiButtons.Kind.STD, () -> panel.showTransportTargetPicker(slot));
-            Ui.tooltip(b, button, null, "Pick the planet to store the ships and cargo at.");
+            UiButtons.button(b, w - SET_TARGET_W, 0f, SET_TARGET_W, ROW_H, "Set target...", UiButtons.Kind.STD, () -> panel.showTransportTargetPicker(slot));
 
             float tw = w - SET_TARGET_W - 8f;
             if (target != null) addTargetLine(b, tw, player);
@@ -477,7 +475,7 @@ class DetachmentColumn {
         String why = getJoinFightsBlocker();
         float jx = bw + 6f;
         ButtonAPI join = UiButtons.check(b, jx, 0f, CHECK_W, "Join fights", why == null && loadout.joinFights, why == null, () -> panel.toggleJoinFights(slot));
-        Ui.tooltip(b, join, null, "Join nearby battles involving the main force. Unavailable while hiding, transporting or travelling on orders.");
+        Ui.tooltip(b, join, null, "Join nearby battles involving the main force.");
 
         float rx = jx + CHECK_W + 6f;
         if (why != null && !why.isEmpty()) Ui.textIn(b, rx, 0f, w - rx, CHECK_ROW, why, Ui.INS15, Ui.gray(), Ui.RIGHT, new String[0], new Color[0]);
@@ -562,7 +560,7 @@ class DetachmentColumn {
         List<FleetMemberAPI> led = new ArrayList<>();
         for (FleetMemberAPI m : members) {
             PersonAPI officer = m.getCaptain();
-            if (officer != null && !officer.isDefault() && !officer.isAICore() && !officer.isPlayer()) led.add(m);
+            if (officer != null && !officer.isDefault() && !officer.isAICore() && !officer.isPlayer() && !officer.hasTag(Ids.TAG_PET_CAPTAIN)) led.add(m);
         }
 
         if (led.isEmpty()) Ui.text(column.block(OFFICER_ROW, GAP), 0f, 2f, w, "No officers.", Ui.gray());
@@ -581,7 +579,7 @@ class DetachmentColumn {
             Ui.runs(b, 40f, y + 17f, tw, Ui.INS15, Ui.gray(), Ui.LEFT, m.getHullSpec().getHullName() + " · " + personalityName,
                     new String[]{personalityName}, new Color[]{AcademyPanelDelegate.getPersonalityColor(personality)});
 
-            String salary = Misc.getDGSCredits(Misc.getOfficerSalary(officer));
+            String salary = Misc.getDGSCredits(DetachmentPayroll.getSalary(officer, (fleet != null ? fleet : player).getContainingLocation()));
             Ui.runs(b, w - SALARY_W, y + 8f, SALARY_W, Ui.INS15, Ui.gray(), Ui.RIGHT, salary + " per month", new String[]{salary}, new Color[]{Ui.hl()});
         }
     }

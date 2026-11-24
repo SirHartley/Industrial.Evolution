@@ -4,7 +4,6 @@ import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogPlugin;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.combat.EngagementResultAPI;
-import indevo.industries.petshop.dialogue.PetNameAndAssignDialogueDelegate;
 import indevo.items.consumables.itemAbilities.BeaconAbilityPlugin;
 
 import java.util.Map;
@@ -36,7 +35,7 @@ public class BeaconDelegateLaunchpadDialoguePlugin implements InteractionDialogP
     public void optionSelected(String optionText, Object optionData) {
         if (optionData == BeaconDelegateLaunchpadDialoguePlugin.OptionID.INIT) {
 
-            dialog.showCustomDialog(PetNameAndAssignDialogueDelegate.WIDTH,
+            dialog.showCustomDialog(BeaconMessageSetterDialogueDelegate.WIDTH,
                     100f,
                     new BeaconMessageSetterDialogueDelegate(dialog, plugin));
         }

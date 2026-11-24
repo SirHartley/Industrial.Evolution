@@ -57,7 +57,12 @@ public class RecoveredHullmods {
     }
 
     public static int getCost(HullModSpecAPI spec) {
-        return Math.max(MIN_COST, Math.round(spec.getBaseValue() / BASE_VALUE_PER_RELIC));
+        return Math.max(MIN_COST, Math.round(spec.getBaseValue() / getExtendedPriceMult() / BASE_VALUE_PER_RELIC));
+    }
+
+    // getBaseValue has ext_hullmodPriceMult baked in, survival mode must not raise the relic price
+    private static float getExtendedPriceMult() {
+        return Misc.isExtended() ? Global.getSettings().getFloat("ext_hullmodPriceMult") : 1f;
     }
 
     public static void learn(MarketAPI market, String id) {

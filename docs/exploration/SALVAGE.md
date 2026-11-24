@@ -31,14 +31,14 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:7`; `ModPlugin.java:298` |
+| Setting | `IndEvo_Enable_Derelicts` (runs the assigner) | `LunaSettings.csv:7`; `ModPlugin.java:294` |
 | Setting | `IndEvo_SpecialApplicationChance` (0.9) | `LunaSettings.csv:21`; `init:51` |
 | Setting | `IndEvo_shipPickerRowCount` (8) | `LunaSettings.csv:14`; ship pickers in DModRepair, PrintShip, ShipRoulette |
 | Drop groups | `rare_tech` (vanilla), `indEvo_tech_event` | `data/campaign/procgen/drop_groups.csv:75-81`; item pool for `ItemChoiceSpecial` |
 | Config | `IndEvo_ComForge` column of the VPC commodity table (per commodity base amounts) | `data/config/indEvo/vpc_commodities.csv`; `ConvertVPCSpecial.getDepositList` |
 | Item ids | `IndEvo_ForgeTemplate*`, `IndEvo_DegForgeTemplate`, `IndEvo_vpc`, `IndEvo_vpc_rare`, `IndEvo_vpc_ultra`, `IndEvo_debug` fallback | `indevo/ids/ItemIds.java`; see [Installables](../items/INSTALLABLES.md) |
-| Memory (fleet) | `$IndEvo_poor_spacer`, `$IndEvo_stolen_credit_amt` | `CreditStashSpecial:118-119`; read by rules `IndEvo_ImpoverishedSpacerGreeting` and following (`data/campaign/rules.csv`, rule cmds `indevo/dialogue/rules/IndEvo_AddSpacerFineMenuPoint.java`, `IndEvo_DeductSpacerCreditsAndSetNeutral.java`) |
-| Rep impact ids | `indEvo_creditSpecial`, `csSpecial` | `CreditStashSpecial:120`, `:155` |
+| Memory (fleet) | `$IndEvo_poor_spacer`, `$IndEvo_stolen_credit_amt` | `CreditStashSpecial:125-126`; read by rules `IndEvo_ImpoverishedSpacerGreeting` and following (`data/campaign/rules.csv`, rule cmds `indevo/dialogue/rules/IndEvo_AddSpacerFineMenuPoint.java`, `IndEvo_DeductSpacerCreditsAndSetNeutral.java`) |
+| Rep impact ids | `indEvo_creditSpecial`, `csSpecial` | `CreditStashSpecial:127`, `:162` |
 | CR event id | `indEvo_explosion` | `ExtraFuelSpecial:193` |
 | Option id | `IndEvo_relicRecover` | `RelicDerelictRecoveryPatch.OPTION_ID` |
 | `PatchData` keys (per special instance, transient) | `IndEvo_relicRecoverPickerOpening`, `IndEvo_relicRecoverPayFrom` | `RelicDerelictRecoveryPatch` |
@@ -46,7 +46,7 @@ On a new game `IndEvo_SalvageSpecialAssigner` walks every salvageable entity and
 
 ## Registration and lifecycle
 
-- `ModPlugin.onNewGameAfterEconomyLoad()` calls `new IndEvo_SalvageSpecialAssigner().init()` after `DerelictStationPlacer.init()` (`indevo/utils/ModPlugin.java:298-300`). New game only; existing saves keep whatever specials they rolled.
+- `ModPlugin.onNewGameAfterEconomyLoad()` calls `new IndEvo_SalvageSpecialAssigner().init()` after `DerelictStationPlacer.init()` (`indevo/utils/ModPlugin.java:294-296`). New game only; existing saves keep whatever specials they rolled.
 - Special data objects are saved on the entity (vanilla salvage special memory). They are `final`-field POJOs; renaming or moving a data class breaks old saves (inferred from XStream class names).
 - Plugins are created per dialog by `SalvageSpecialData.createSpecialPlugin()`; they hold no state across dialogs except what they write back into the data object (`JuicyRumorsSpecial`, `ItemChoiceSpecial` repair their data on open).
 
@@ -78,6 +78,8 @@ Order: `onNewGameAfterEconomyLoad -> DerelictStationPlacer.init -> IndEvo_Salvag
 | `IndEvo_abandonedPetCenter` | nothing 30, item choice 2, credit stash 2, rumors 10, vanilla ship recovery (civilian) 8, vanilla transmitter trap 5 |
 | Weapons, supply and equipment caches (all sizes) | nothing 30 plus vanilla creators (sleeper pods, ship recovery, cargo manifest, transmitter trap); IE extras: fuel 20 (supply cache), rumors 10 and credit stash 2 (equipment caches) |
 
+Every vanilla ship recovery weight above is multiplied by `Misc.getDerelictRecoverableFraction()` (1 in normal mode, `ext_derelictShipRecoverableFraction` in Survival mode), as vanilla `SalvageSpecialAssigner` does for its own tables.
+
 Factions: recoverable ships from vanilla `getNearbyFactions` (remnant systems: Tri-Tachyon, Hegemony, independent); trap fleets pirates, remnants in suppressed or resurgent remnant systems.
 
 ### Specials
@@ -85,8 +87,8 @@ Factions: recoverable ships from vanilla `getNearbyFactions` (remnant systems: T
 All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSalvageSpecial`. "Not now" sets `showAgain(true)` so the special returns on the next visit, except in `ItemChoiceSpecial` where declining destroys the item.
 
 - `ChooseBlueprintSpecial`: hull ids rolled at creation from `MiscIE.getAllRareShipHulls()` of the picked size (`ChooseBlueprintSpecialCreator` weights frigate 0.4, destroyer 0.3, cruiser 0.3, capital 0.15, each times 0.8, and 0.2 for the maximum size). Adds `SpecialItemData(SHIP_BP, hullId)`.
-- `ConvertVPCSpecial`: lists every valid VPC stack in the player cargo by its name; amount `round(round((logIncrease * ln 7 + base) / 10) * 10 * outputMult * quality)` per output commodity (`:129-138`) through the static `VariableAssembler.getDepositAmount`, with `CommodityForge.LOG_INCREASE` and `VPCItemPlugin.getDepositMult` ([Assembler](../industries/ASSEMBLER.md)).
-- `CreditStashSpecial`: fleet from `FleetParamsV3` with combat points `rand(min,max) * 5`, faction pirates or independent (coin flip at creation), spawned 2500 to 5000 units away, transponder off, named "Impoverished Pirate/Mercenary", flagged pirate, made aggressive and hostile for 30 days with an `INTERCEPT` assignment (`:105-163`).
+- `ConvertVPCSpecial`: lists every valid VPC stack in the player cargo by its name; amount `round(round((logIncrease * ln 7 + base) / 10) * 10 * outputMult * quality / priceMult)` per output commodity (`:129-138`) through the static `VariableAssembler.getDepositAmount`, with `CommodityForge.LOG_INCREASE` and `VPCItemPlugin.getDepositMult` ([Assembler](../industries/ASSEMBLER.md)).
+- `CreditStashSpecial`: pays `creditAmt`, 30% of it in Survival mode (`SURVIVAL_CREDIT_MULT`, Philipp's number, not a vanilla key; `getPayout`). The hunter chance stays `creditAmt / 100000` and the refund the hunters ask for (`$IndEvo_stolen_credit_amt`) is the paid amount. Hunter fleet from `FleetParamsV3` with combat points `rand(min,max) * 5`, faction pirates or independent (coin flip at creation), spawned 2500 to 5000 units away, transponder off, named "Impoverished Pirate/Mercenary", flagged pirate, made aggressive and hostile for 30 days with an `INTERCEPT` assignment (`:112-170`).
 - `DModRepairSpecial`: removes `dModRemovalAmt` (+1 corrupted, +3 pristine forge) random non-built-in d-mods across chosen ships using `RestorationDocks.getListNonBuiltInDMods` and restores the base hull spec when none remain ([Small industries](../industries/SMALL_INDUSTRIES.md)).
 - `ExtraFuelSpecial`: explosion picks a member weighted against frigates and low-CR ships, applies CR loss (capped to keep emergency burn usable) and armor-based hull damage, hull floor 1%.
 - `ItemChoiceSpecial`: on take, if `random < explodeChance`: crew loss `min(ceil(crew * 0.3 * r * explodeChance), 500)`, `ExplosionScript` on the location, and `setShouldAbortSalvageAndRemoveEntity(true)` on exit. The item is picked from the `rare_tech` and `indEvo_tech_event` rows that name an item id (`pickItemRow`, `:99-110`); the row's params are stored in `itemParams` and resolved on open through the item plugin's `resolveDropParamsToSpecificItemData`, so forge templates get a hull and VPCs a tier roll. A forge template without params (older saves) resolves as `{charges:2}`, and one with no qualifying hull becomes an empty template. Invalid item ids fall back to `IndEvo_debug`.
@@ -98,13 +100,13 @@ All specials call `setDone/setShowAgain/setEndWithContinue` per vanilla `BaseSal
 
 On a story point derelict (vanilla `ShipRecoverySpecial` with `storyPointRecovery`), `RelicDerelictRecoveryPatch` adds "Rebuild with relic components (N)" between the engineer's report option and "consider my options". N is `5 x unmodified DP` summed over every ship in the special, paid from fleet cargo. The option is disabled when fleet cargo cannot cover N, because the recovery picker cannot limit picks. Its hover tooltip shows the effect, the cost line (`Cost: N Relic Components (Available: Y)`, green or red) and the lore line in gray.
 
-`addStoryOptions` `@After` (adds the option, re-adds `NOT_NOW` with the vanilla text below it) -> pick -> `optionSelected` `@Before` sets `IndEvo_relicRecoverPickerOpening`, stores `recovered.size()` and swaps the option to `RECOVER` -> `isStoryPointRecovery` `@After` returns false while the flag is set, so vanilla puts every ship in the normal pool and the picker shows no story point cost -> `optionSelected` `@After` clears the flag and calls `addStoryOptions` again, so a cancelled picker leaves the story point options -> `RECOVERY_FINISHED` `@Before` takes `5 x DP` for each ship added to `recovered` since the picker opened and shows the loss text. Any other option drops the pending payment, so a later story point recovery is never charged relics.
+`addStoryOptions` `@After` (removes `NOT_NOW`, rebuilds the panel with `restoreSavedOptions` because `removeOption` leaves the removed last button as the next anchor ("May only anchor on siblings", see [Beacons](../dialogue/BEACONS.md)), sets the story colour on `RECOVER` again, adds the option, re-adds `NOT_NOW` with the vanilla text below it) -> pick -> `optionSelected` `@Before` sets `IndEvo_relicRecoverPickerOpening`, stores `recovered.size()` and swaps the option to `RECOVER` -> `isStoryPointRecovery` `@After` returns false while the flag is set, so vanilla puts every ship in the normal pool and the picker shows no story point cost -> `optionSelected` `@After` clears the flag and calls `addStoryOptions` again, so a cancelled picker leaves the story point options -> `RECOVERY_FINISHED` `@Before` takes `5 x DP` for each ship added to `recovered` since the picker opened and shows the loss text. Any other option drops the pending payment, so a later story point recovery is never charged relics.
 
 ## Contracts
 
 - Special data is created at world gen and stored in the save; its constructors run hull and item lookups at that time (`ChooseBlueprintSpecialData`, `ShipRouletteSpecialData`, `JuicyRumorsSpecialData`). A mod list change after world gen can leave stale hull or faction ids; only `ItemChoiceSpecial` and `JuicyRumorsSpecial` repair their data on open.
 - `CreditStashSpecial` flags the spawned fleet with `$IndEvo_poor_spacer`, which the rules greeting matches at score 10000.
-- `RelicDerelictRecoveryPatch` targets `ShipRecoverySpecial` by `subtype` with API impl names (`addStoryOptions`, `isStoryPointRecovery`, `optionSelected`, fields `members`, `recovered`, `options`, `text`), all stable. Nothing is skipped; vanilla runs unchanged unless the relic option is picked. "Not now" after a relic picker keeps the story point rules (no extra salvage, `ShipRecoverySpecial.java:635-638`). Check the `Installed a hook patch site at ...ShipRecoverySpecial` log line after the first salvage dialog.
+- `RelicDerelictRecoveryPatch` targets `ShipRecoverySpecial` by `subtype` with API impl names (`addStoryOptions`, `isStoryPointRecovery`, `optionSelected`, fields `members`, `recovered`, `options`, `dialog`, `text`), all stable. Nothing is skipped; vanilla runs unchanged unless the relic option is picked. "Not now" after a relic picker keeps the story point rules (no extra salvage, `ShipRecoverySpecial.java:635-638`). Check the `Installed a hook patch site at ...ShipRecoverySpecial` log line after the first salvage dialog.
 - Shared helpers: `MiscIE.getAllRareShipHulls`, `getAllLearnableShipHulls`, `stripShipNoCargo`, `stripShipToCargoAndReturnVariant`, `addOrIncrement` ([Utils](../core/UTILS.md)).
 
 ## Known issues and dormant code

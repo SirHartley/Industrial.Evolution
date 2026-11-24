@@ -9,6 +9,7 @@ import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.terrain.HyperspaceTerrainPlugin;
 import com.fs.starfarer.api.util.Misc;
+import indevo.achievements.Achievements;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -35,6 +36,7 @@ public class MineImpact implements EveryFrameScript {
 
     public MineImpact(CampaignFleetAPI fleet) {
         this.fleet = fleet;
+        if (fleet.isPlayerFleet()) Achievements.add(Achievements.MINESWEEPER, 1);
 
         //System.out.println("ADDING IMPACT TO " + fleet.getName() + " " + fleet.getId());
 

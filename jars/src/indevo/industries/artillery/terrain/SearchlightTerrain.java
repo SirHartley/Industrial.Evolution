@@ -12,6 +12,7 @@ import indevo.config.Setting;
 import indevo.industries.artillery.renderers.LightConeRenderer;
 import indevo.industries.artillery.renderers.SearchlightRenderer;
 import indevo.industries.artillery.scripts.DroneNetScript;
+import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.VisionBlockers;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -46,7 +47,6 @@ public class SearchlightTerrain extends BaseRingTerrain {
     public static final float SEEING_BOOST = 0.3f;
     public static final float HALO_TINT = 0.45f;
     public static final float DUST_TINT = 0.5f;
-    public static final float EMITTER_TINT = 0.7f;
     public static final float RIM_ALPHA = 0.24f;
     public static final float NEAR_START_SHARE = 0.7f;
     public static final float NEAR_WIDTH_SHARE = 0.6f;
@@ -172,11 +172,12 @@ public class SearchlightTerrain extends BaseRingTerrain {
         for (int i = 0; i < spots.length; i++) advanceSpot(spots[i], getHome(i, range), player, range, amount);
     }
 
-    // a spot that sees the player leaves its path and follows, out to TRACK_RANGE_MULT times the tower range
+    // a spot that sees the spotted player leaves its path and follows, out to TRACK_RANGE_MULT times the tower range
     private void advanceSpot(Spot spot, Vector2f goal, CampaignFleetAPI player, float range, float amount) {
         spot.sees = player != null && seesPlayer(spot, player);
 
-        if (spot.sees) {
+        // a spot only starts to follow once the eye is full
+        if (spot.sees && (spot.locked || EyeIndicatorScript.isPlayerSpotted())) {
             if (!spot.locked) startLock(spot);
             spot.locked = true;
             spot.lost = 0f;
@@ -307,6 +308,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
         float radius = getSpotRadius();
         Vector2f tower = entity.getLocation();
         boolean drawEmitters = viewport.isNearViewport(tower, EMITTER_RENDER_RANGE);
+        if (drawEmitters) SearchlightRenderer.clearSpikes();
 
         for (Spot spot : spots) {
             float strength = getStrength(spot.type);
@@ -322,7 +324,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
             float near = SearchlightRenderer.smooth((dist - radius * NEAR_START_SHARE) / (radius * NEAR_WIDTH_SHARE));
             float angle = (float) Math.atan2(spot.y, spot.x);
 
-            if (drawEmitters) SearchlightRenderer.drawEmitter(tower, angle, dist, radius, Misc.interpolateColor(WARM, color, EMITTER_TINT), halo * near);
+            if (drawEmitters) SearchlightRenderer.addSpike(angle, dist, radius, color, halo * near);
 
             Vector2f loc = getLocation(spot);
             if (!viewport.isNearViewport(loc, radius * LightConeRenderer.DRAWN_LENGTH_MULT)) continue;
@@ -337,6 +339,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
             if (spot.ring < RING_SECONDS) SearchlightRenderer.drawRing(loc, radius, spot.ring / RING_SECONDS, DroneConeTerrain.LOCK_COLOR, alpha);
         }
 
+        if (drawEmitters) SearchlightRenderer.drawSpikes(tower, dustTime, alpha);
         if (drawEmitters) SearchlightRenderer.drawGlow(tower, LAMP_RADIUS,
                 Misc.interpolateColor(ORANGE, PURPLE, SearchlightRenderer.smooth(still)), alpha * LAMP_ALPHA);
     }
@@ -384,7 +387,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
         tooltip.addTitle("Searchlight");
         tooltip.addPara("Orange lights see fleets that %s, purple lights see fleets that %s. Only the bright ones see your fleet.",
                 10f, Misc.getHighlightColor(), "move", "hold at burn " + Math.round(STOPPED_BURN) + " or less");
-        tooltip.addPara("A light that sees a fleet %s, follows it and sends its position to the artillery in this system.",
+        tooltip.addPara("A light that sees a fleet sends its position to the artillery in this system. Once the fleet is spotted, the light %s and follows it.",
                 10f, Misc.getNegativeHighlightColor(), "turns red");
         tooltip.addPara("Chaff clouds block the lights.", 10f);
     }

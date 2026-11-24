@@ -131,7 +131,6 @@ public class ArtilleryStationPlacer {
                 if (r.nextFloat() < planetMod) {
                     if (hasRemnantStation) p.getMarket().getMemoryWithoutUpdate().set(TYPE_KEY, ArtilleryStationEntityPlugin.TYPE_MISSILE);
 
-                    //addTestArtilleryToPlanet(p);
                     addArtilleryToPlanet(p, false);
 
                     ModPlugin.log("Placed artillery at " + p.getName() + " system: " + s.getName());
@@ -169,32 +168,6 @@ public class ArtilleryStationPlacer {
         }
     }
 
-    public static class ArtilleryStationInteractionConfigGen implements FleetInteractionDialogPluginImpl.FIDConfigGen {
-        public FleetInteractionDialogPluginImpl.FIDConfig createConfig() {
-            FleetInteractionDialogPluginImpl.FIDConfig config = new FleetInteractionDialogPluginImpl.FIDConfig();
-
-            config.alwaysAttackVsAttack = true;
-            config.leaveAlwaysAvailable = true;
-            config.showFleetAttitude = false;
-            config.showTransponderStatus = false;
-            config.showEngageText = false;
-
-            config.delegate = new FleetInteractionDialogPluginImpl.BaseFIDDelegate() {
-                public void postPlayerSalvageGeneration(InteractionDialogAPI dialog, FleetEncounterContext context, CargoAPI salvage) {
-                    new RemnantSeededFleetManager.RemnantFleetInteractionConfigGen().createConfig().delegate.
-                            postPlayerSalvageGeneration(dialog, context, salvage);
-                }
-                public void notifyLeave(InteractionDialogAPI dialog) {
-                }
-                public void battleContextCreated(InteractionDialogAPI dialog, BattleCreationContext bcc) {
-                    bcc.aiRetreatAllowed = false;
-                    bcc.objectivesAllowed = false;
-                }
-            };
-            return config;
-        }
-    }
-
     public static void placeVision(StarSystemAPI system, String factionId) {
         MemoryAPI mem = system.getMemoryWithoutUpdate();
         if (mem.contains(Ids.MEM_SYSTEM_ARTILLERY_VISION) || !system.getEntitiesWithTag(Ids.TAG_WATCHTOWER).isEmpty()) return;
@@ -213,13 +186,25 @@ public class ArtilleryStationPlacer {
 
     private static VisionType pickVisionType(Random random) {
         WeightedRandomPicker<VisionType> picker = new WeightedRandomPicker<>(random);
-        picker.add(VisionType.WATCHTOWER, Setting.ARTILLERY_VISION_WEIGHT_WATCHTOWER.value());
         picker.add(VisionType.LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value());
         picker.add(VisionType.DRONES, Setting.ARTILLERY_VISION_WEIGHT_DRONES.value());
         picker.add(VisionType.SEARCHLIGHT, Setting.ARTILLERY_VISION_WEIGHT_SEARCHLIGHT.value());
 
         VisionType type = picker.pick();
-        return type != null ? type : VisionType.WATCHTOWER;
+        return type != null ? type : VisionType.LIGHTHOUSE;
+    }
+
+    // player colonies use plain watchtowers, a lighthouse or searchlight tower is swapped in place
+    public static void replaceWithWatchtower(SectorEntityToken tower) {
+        LocationAPI loc = tower.getContainingLocation();
+        SectorEntityToken t = loc.addCustomEntity(Misc.genUID(), null, WatchtowerEntityPlugin.ENTITY_ID, tower.getFaction().getId(), null);
+
+        if (tower.getOrbit() != null) t.setOrbit(tower.getOrbit().makeCopy());
+        else t.setLocation(tower.getLocation().x, tower.getLocation().y);
+
+        tower.removeTag(Ids.TAG_WATCHTOWER);
+        Misc.fadeAndExpire(tower, 1f);
+        loc.getMemoryWithoutUpdate().set(Ids.MEM_SYSTEM_ARTILLERY_VISION, VisionType.WATCHTOWER.name());
     }
 
     public static void placeLighthouses(StarSystemAPI system, String factionId, Random random) {

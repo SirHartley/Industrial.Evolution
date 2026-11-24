@@ -142,38 +142,52 @@ public class MissileAIReactionManager {
         if (filter.accept(reactingFleet)) {
             //if (!mem.getBoolean(MissileMemFlags.HAS_SEEN_PLAYER_USE_MISSILE_SHORT_TERM)) reactingFleet.addFloatingText("Missile use detected", reactingFleet.getIndicatorColor(), 1f);
 
-            //if the player is not vis after a day we abort the chase so it's not infinite
-            reactingFleet.addScript(new EveryFrameScript() {
-                final float CHASE_NO_VIS_DUR_DAYS = 1f;
-
-                final CampaignFleetAPI fleet = reactingFleet;
-                final CampaignFleetAPI targetFleet = offenderFleet;
-                float elapsedNoVis = 0f;
-
-                @Override
-                public boolean isDone() {
-                    return elapsedNoVis > Global.getSector().getClock().convertToSeconds(CHASE_NO_VIS_DUR_DAYS);
+            for (EveryFrameScript script : reactingFleet.getScripts()) {
+                if (script instanceof ChaseScript chase && chase.targetFleet == offenderFleet) {
+                    chase.elapsedNoVis = 0f;
+                    return;
                 }
+            }
 
-                @Override
-                public boolean runWhilePaused() {
-                    return false;
-                }
-
-                @Override
-                public void advance(float amount) {
-                    if (targetFleet.getVisibilityLevelTo(fleet) == SectorEntityToken.VisibilityLevel.NONE) elapsedNoVis += amount;
-                    else elapsedNoVis = 0f;
-
-                    MemoryAPI mem = fleet.getMemoryWithoutUpdate();
-                    Misc.setFlagWithReason(mem, MemFlags.MEMORY_KEY_PURSUE_PLAYER, "missileReaction", true, 1f);
-                    Misc.setFlagWithReason(mem, MemFlags.MEMORY_KEY_STICK_WITH_PLAYER_IF_ALREADY_TARGET, "missileReaction", true, TIME_TO_FORGET_SHORT_TERM);
-                    mem.set(MissileMemFlags.HAS_SEEN_PLAYER_USE_MISSILE_SHORT_TERM, true, TIME_TO_FORGET_SHORT_TERM);
-                    if (targetFleet.isPlayerFleet()) mem.set(MissileMemFlags.CHASING_PLAYER_DUE_TO_MISSILE_USE, true, TIME_TO_FORGET_SHORT_TERM);
-                }
-            });
+            reactingFleet.addScript(new ChaseScript(reactingFleet, offenderFleet));
 
             //todo unset these on all in-system fleets once the player is caught so no other fleets do dupe encounters
+        }
+    }
+
+    // ends a day after losing sight of the target so the chase is not infinite
+    public static class ChaseScript implements EveryFrameScript {
+        public static final float CHASE_NO_VIS_DUR_DAYS = 1f;
+
+        private final CampaignFleetAPI fleet;
+        private final CampaignFleetAPI targetFleet;
+        private float elapsedNoVis = 0f;
+
+        public ChaseScript(CampaignFleetAPI fleet, CampaignFleetAPI targetFleet) {
+            this.fleet = fleet;
+            this.targetFleet = targetFleet;
+        }
+
+        @Override
+        public boolean isDone() {
+            return elapsedNoVis > Global.getSector().getClock().convertToSeconds(CHASE_NO_VIS_DUR_DAYS);
+        }
+
+        @Override
+        public boolean runWhilePaused() {
+            return false;
+        }
+
+        @Override
+        public void advance(float amount) {
+            if (targetFleet.getVisibilityLevelTo(fleet) == SectorEntityToken.VisibilityLevel.NONE) elapsedNoVis += amount;
+            else elapsedNoVis = 0f;
+
+            MemoryAPI mem = fleet.getMemoryWithoutUpdate();
+            Misc.setFlagWithReason(mem, MemFlags.MEMORY_KEY_PURSUE_PLAYER, "missileReaction", true, 1f);
+            Misc.setFlagWithReason(mem, MemFlags.MEMORY_KEY_STICK_WITH_PLAYER_IF_ALREADY_TARGET, "missileReaction", true, TIME_TO_FORGET_SHORT_TERM);
+            mem.set(MissileMemFlags.HAS_SEEN_PLAYER_USE_MISSILE_SHORT_TERM, true, TIME_TO_FORGET_SHORT_TERM);
+            if (targetFleet.isPlayerFleet()) mem.set(MissileMemFlags.CHASING_PLAYER_DUE_TO_MISSILE_USE, true, TIME_TO_FORGET_SHORT_TERM);
         }
     }
 }

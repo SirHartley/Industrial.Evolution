@@ -36,14 +36,12 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
         ACTIVE, MET, UNMET
     }
 
-    public static final float BOARD_W = 1004f;
-    public static final float SINGLE_BOARD_W = 744f;
+    public static final float BOARD_W = 1016f;
+    public static final float SINGLE_BOARD_W = 750f;
     public static final float BOARD_H = 712f;
     static final float BODY_Y = 64f;
     static final float LIST_Y = 88f;
-    static final float COLONY_W = 280f;
-    static final float EDICT_W = 280f;
-    static final float COLUMN_GAP = 10f;
+    static final float COLUMN_W = 296f;
     static final float COLONY_ROW_H = 74f;
     static final float EDICT_ROW_H = 32f;
     static final float UNMET_ROW_H = 44f;
@@ -153,14 +151,14 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
 
         float x = 0f;
         if (senateScope) {
-            addColonies(p, x, h, colony);
-            x += COLONY_W + COLUMN_GAP;
-            Ui.vrule(p, x - 5f, BODY_Y, h - BODY_Y);
+            addColonies(p, x, UiScroll.listWidth(x, x + COLUMN_W), h, colony);
+            x += COLUMN_W;
+            Ui.vrule(p, UiScroll.ruleX(x), BODY_Y, h - BODY_Y);
         }
 
-        addEdicts(p, x, h, colony, edict);
-        x += EDICT_W + COLUMN_GAP;
-        Ui.vrule(p, x - 5f, BODY_Y, h - BODY_Y);
+        addEdicts(p, x, UiScroll.listWidth(x, x + COLUMN_W), h, colony, edict);
+        x += COLUMN_W;
+        Ui.vrule(p, UiScroll.ruleX(x), BODY_Y, h - BODY_Y);
 
         new EdictDetail(this, view).build(p, x, BODY_Y, w - x, h - BODY_Y, colony, edict);
     }
@@ -267,10 +265,10 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
         if (!senateScope) tooltip.addPara("Visit the Senate to manage the Edicts of every colony in its range.", Misc.getGrayColor(), pad);
     }
 
-    private void addColonies(CustomPanelAPI p, float x, float h, MarketAPI selected) {
-        Ui.heading(p, x, BODY_Y, COLONY_W, "Colonies");
-        UiScroll.Column list = UiScroll.list(p, x, LIST_Y, COLONY_W, h - LIST_Y, view.scroll, EdictView.COLONIES);
+    private void addColonies(CustomPanelAPI p, float x, float w, float h, MarketAPI selected) {
+        UiScroll.Column list = UiScroll.list(p, x, LIST_Y, w, h - LIST_Y, view.scroll, EdictView.COLONIES);
         float rw = list.width();
+        Ui.heading(p, x, BODY_Y, rw, "Colonies");
 
         float gap = 0f;
         for (MarketAPI colony : colonies) {
@@ -316,10 +314,10 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
         return line + ", " + Misc.getRoundedValueMaxOneAfterDecimal(dist) + " LY";
     }
 
-    private void addEdicts(CustomPanelAPI p, float x, float h, MarketAPI colony, String selected) {
-        Ui.heading(p, x, BODY_Y, EDICT_W, "Edicts for " + colony.getName());
-        UiScroll.Column list = UiScroll.list(p, x, LIST_Y, EDICT_W, h - LIST_Y, view.scroll, EdictView.EDICTS);
+    private void addEdicts(CustomPanelAPI p, float x, float w, float h, MarketAPI colony, String selected) {
+        UiScroll.Column list = UiScroll.list(p, x, LIST_Y, w, h - LIST_Y, view.scroll, EdictView.EDICTS);
         float rw = list.width();
+        Ui.heading(p, x, BODY_Y, rw, "Edicts for " + colony.getName());
 
         MarketConditionAPI activeCondition = EdictHelper.getActiveEdict(colony);
         String activeId = activeCondition == null ? null : activeCondition.getId();

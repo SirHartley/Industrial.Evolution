@@ -37,7 +37,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_PrivatePort` (`Ids.PORT`) | `data/campaign/industries.csv:45`, `indevo/ids/Ids.java:73` |
+| Industry | `IndEvo_PrivatePort` (`Ids.PORT`) | `data/campaign/industries.csv:45`, `indevo/ids/Ids.java:72` |
 | Faction | `IndEvo_couriers` (courier fleets) | `data/world/factions/IndEvo_couriers.faction` |
 | Setting | `IndEvo_PrivatePort` (build toggle and new game placement) | `data/config/LunaSettings.csv:105` |
 | Setting | `IndEvo_courier_costPerSpace` (5), `IndEvo_courier_costPerShip` (170), `IndEvo_courier_baseFee` (1000), `IndEvo_courier_costPerLyMult` (1.0) | `data/config/LunaSettings.csv:191-194`, read at use time in `ShippingCostCalculator` |
@@ -48,7 +48,7 @@ The Courier Port is a structure with no supply or demand. While the player owns 
 
 ## Registration and lifecycle
 
-- `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:438,472`).
+- `ModPlugin.setListenersIfNeeded()`: `ShippingManager.getInstanceOrRegister()` (persistent listener, one instance) and `CourierPortOptionProvider.register()` (transient) (`indevo/utils/ModPlugin.java:434,468`).
 - `NewGameIndustryPlacer.placeCourierPorts()` puts one port per faction per star system at new game when the setting is on (`indevo/utils/update/NewGameIndustryPlacer.java:100-126`).
 - `NewDayListener` calls come from `TimeTracker`, which collects listeners from the listener manager and sector listeners; see [Utils](../core/UTILS.md).
 - Entry points into the dialog: market menu and colony option point rules, the industry option (fires trigger `IndEvo_FireBaseSPOptionList` with `$IndEvo_closeDialogueOnNextReturn`), and comm relays when `CourierPortIsDisplayInRelay` is true. All end in `CourierPortDialoguePlugin.execute`, which swaps itself in as the dialog plugin and restores the original on Return. Code and tests open the panel with `CourierPortDialoguePlugin.show(entity, view)` (`CourierPortDialoguePlugin.java:47`), with a view from `CourierView.contract(id)` or `CourierView.newContract(fromMarketId, fromSubmarketId, toMarketId, toSubmarketId, scope)` (`CourierView.java:27,34`); null ids leave that step open, a null scope leaves the goods open. Return then dismisses the dialog.
@@ -83,7 +83,7 @@ Run chain: `TimeTracker -> ShippingManager.onNewDay -> performShippingActions ->
 
 ### Panel
 
-One custom dialog (`CourierPanelDelegate`, 1104 x 709 via `UiFrame`) with the contract list on the left and the editor on the right. Every change rebuilds the panel from `CourierView`; scroll offsets survive the rebuild.
+One custom dialog (`CourierPanelDelegate`, 1108 x 709 via `UiFrame`) with the contract list on the left and the editor on the right from `EDITOR_X` 376. The list width follows from it (`UiScroll.listWidth`, rows 351): rows, the New contract button and the editor are 12 px from the rule (`UiScroll.ruleX`). Every change rebuilds the panel from `CourierView`; scroll offsets survive the rebuild.
 
 - The editor works on `view.draft`, a copy of the stored contract (`CourierPanelDelegate.java:141-142`). Save writes it through `ShippingContractMemory.addOrReplaceContract`, which refuses invalid contracts and replaces by id in place (`ShippingContractMemory.java:26-42`). Cancel, Return and picking another row drop the draft. Active and Ship now write the stored contract at once (`CourierEditor.java:87-90,487-489`).
 - Steps: route (From card, storage tiles, then To), goods (scope or selected cargo and ships), then schedule and cost once the goods are chosen and the draft is valid. Save shows only then. A stored invalid contract shows the reason and Remove only.
@@ -108,6 +108,8 @@ The planet, cargo and ship pickers are vanilla sub dialogs and only open while t
 - `ShippingContract` and `ShippingTargetHelper` import `assortment_of_things` classes directly; calls are guarded by `isModEnabled("assortment_of_things")` and the JVM resolves the class lazily (inferred). See [Compatibility](../core/COMPATIBILITY.md).
 - The Embassy ambassador tracker reads `Shipment.cargo` and `Shipment.done` of every `Shipment` listener to find ambassadors in transit ([Embassy](EMBASSY.md#hire-and-transport)). Keep both fields and the listener registration.
 - `ShippingContract.equals` compares ids but `hashCode` is not overridden; it is used as a `HashMap` key in `CourierPortV2.getShipmentWithDayList` (identity hash, works because the same objects are used).
+- A small RAT settlement version of this industry exists (Courier Office: contracts without a port, billed to the settlement market, `CourierPortDialoguePlugin(title, subtitle, onReturn)`, titled "Courier Office" with the settlement name); see [RAT settlements](RAT_SETTLEMENTS.md).
+- `Shipment.init` compares the contract cost with the cargo base value for an achievement ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).
 
 ## Known issues and dormant code
 

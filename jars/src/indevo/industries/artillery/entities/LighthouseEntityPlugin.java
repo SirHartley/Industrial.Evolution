@@ -10,6 +10,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.industries.artillery.terrain.LighthouseBeamTerrain;
+import org.lazywizard.lazylib.MathUtils;
 
 public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
 
@@ -18,15 +19,25 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
 
     protected SectorEntityToken beam;
     protected boolean lit = false;
-    protected int beamCount = 1 + Misc.random.nextInt(LighthouseBeamTerrain.MAX_BEAMS);
+    protected int beamCount = rollBeamCount();
     protected float sinceCheck = CHECK_SECONDS;
+
+    // 30% one beam, 60% two, 10% three
+    private static int rollBeamCount() {
+        float roll = Misc.random.nextFloat();
+        if (roll < 0.3f) return 1;
+        if (roll < 0.9f) return 2;
+        return 3;
+    }
 
     // unlit it works as a plain watchtower, lit only the beams see
     @Override
     protected void advanceVision(float amount) {
+        sinceCheck += amount;
+        if (sinceCheck >= CHECK_SECONDS && replacedForPlayerColony()) return;
+
         LighthouseBeamTerrain terrain = getOrCreateBeam();
 
-        sinceCheck += amount;
         if (sinceCheck >= CHECK_SECONDS) {
             sinceCheck = 0f;
             lit = shouldBeLit();
@@ -43,6 +54,12 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
 
     public boolean beamSees(SectorEntityToken target) {
         return lit && beam != null && getBeamPlugin().sees(target.getLocation(), target.getRadius(), CHECK_SECONDS);
+    }
+
+    // 1 at the lighthouse, 0 at the end of the beam, below 0 outside every beam
+    public float getBeamFraction(SectorEntityToken target) {
+        if (!beamSees(target)) return -1f;
+        return MathUtils.clamp(1f - Misc.getDistance(entity, target) / LighthouseBeamTerrain.getLength(), 0f, 1f);
     }
 
     private void markFleetsInBeam(LighthouseBeamTerrain terrain) {

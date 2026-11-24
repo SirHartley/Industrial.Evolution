@@ -13,6 +13,7 @@ import indevo.exploration.meteor.entities.IcyRockEntity;
 import indevo.exploration.meteor.entities.MeteorEntity;
 import indevo.exploration.meteor.helper.MeteorFactory;
 import indevo.exploration.meteor.movement.ArcingMovementModule;
+import indevo.exploration.meteor.renderers.MeteorSwarmWarningPathRenderer;
 import indevo.utils.ModPlugin;
 import indevo.utils.helper.CircularArc;
 import org.lwjgl.util.vector.Vector2f;
@@ -35,8 +36,8 @@ public class RogueDrizzleSpawner implements EveryFrameScript {
 
     public static final float MIN_ROCK_SIZE = 20f;
     public static final float MAX_ROCK_SIZE = 48f;
-    public static final float MIN_SPEED = 200f;
-    public static final float MAX_SPEED = 500f;
+    public static final float MIN_SPEED = 120f;
+    public static final float MAX_SPEED = 300f;
     public static final float MAX_LANE_SPREAD = 8f;
     public static final int MIN_LANE_SETS = 2;
     public static final int MAX_LANE_SETS = 3;
@@ -89,7 +90,8 @@ public class RogueDrizzleSpawner implements EveryFrameScript {
     public void advance(float amount) {
         if (done) return;
 
-        if (Global.getSector().getClock().getElapsedDaysSince(startTimestamp) >= durationDays) {
+        if (Global.getSector().getClock().getElapsedDaysSince(startTimestamp) >= durationDays
+                || location.getMemoryWithoutUpdate().contains(MeteorSwarmWarningPathRenderer.MEM_INSTANCE)) {
             done = true;
             return;
         }
@@ -159,6 +161,7 @@ public class RogueDrizzleSpawner implements EveryFrameScript {
         if (rock.getCustomPlugin() instanceof IcyRockEntity && size < RogueAsteroidSpawner.ICE_SPLINTER_MIN_SIZE) rock.addTag(IcyRockEntity.TAG_NO_SPLINTERS);
 
         rock.addTag(TAG_ROCK);
+        rock.addTag(RogueAsteroidSpawner.TAG_ROGUE_ROCK);
         rock.setLocation(p.x, p.y);
         rocks.add(rock);
     }

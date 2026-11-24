@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.econ.InstallableIndustryItemPlugin.Installa
 import com.fs.starfarer.api.impl.campaign.econ.impl.BaseInstallableItemEffect;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.dialogue.research.ItemPatternProject;
 import indevo.utils.helper.StringHelper;
 
 import static indevo.items.installable.SpecialItemEffectsRepo.SALVAGE_DRONES_RANGE_LY;
@@ -36,5 +37,7 @@ public class SalvageDronesEffect extends BaseInstallableItemEffect {
                         + "Hulls, weapons and fighter wings lost in battles here or in range go into a Wreck Registry: each can be ordered once from the ship assembly contract without a blueprint. "
                         + "Registry hulls cost %s salvage units per fleet point and can come as fitted.",
                 pad, Misc.getHighlightColor(), range, share, "" + SALVAGE_DRONES_SP_PER_FP);
+
+        ItemPatternProject.addCargoNote(text, id, mode);
     }
 }

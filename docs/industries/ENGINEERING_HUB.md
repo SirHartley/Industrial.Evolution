@@ -15,6 +15,7 @@ When the hub strips a ship it also records the ship's learnable hullmods. The pa
 | File | Owner / role |
 |---|---|
 | `indevo/industries/engineeringhub/industry/EngineeringHub.java` | Industry: daily deconstruction state machine, progress map, payment sources (`getBlueprintSources`, `paysFor`), `finish`, delivery, installed blueprint slot, "Finish on its own" flag, AI cores, tooltip sections. `RelicSpeedUpTarget` (Accelerate Research) |
+| `indevo/industries/engineeringhub/ReverseEngineering.java` | Static rules shared with the RAT [Engineering Annex](RAT_SETTLEMENTS.md#engineering-annex): progress map read and write, base hull, value of a ship, base days, relic cost, payment item and `paysFor`, Tiandong and Roider checks, delivery with its message. The hub calls it; its own fields stay |
 | `indevo/industries/engineeringhub/memory/RecoveredHullmods.java` | Hullmod extraction: record on strip, learnable filter, cost, payment, learning |
 | `indevo/industries/engineeringhub/plugins/EngineeringHubOptionProvider.java` | `BaseSimpleBaseIndustryOptionProvider`: "Visit the Engineering Hub..." option, opens the panel |
 | `indevo/industries/engineeringhub/dialogue/EngineeringHubPanelDelegate.java` | Hub panel (`BaseCustomDialogDelegate` on the [UI kit](../core/UI.md)): header, tabs, Hullmod data tab. Static `show(market, view)` opens it in its own interaction dialog (nested `Host`) |
@@ -27,16 +28,16 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Industry | `IndEvo_EngHub` (`Ids.ENGHUB`, structure, `unraidable`) | `data/campaign/industries.csv:42`, `indevo/ids/Ids.java:65` |
+| Industry | `IndEvo_EngHub` (`Ids.ENGHUB`, structure, `unraidable`) | `data/campaign/industries.csv:42`, `indevo/ids/Ids.java:64` |
 | Submarket | `IndEvo_EngStorage` (`Ids.ENGSTORAGE`), `IndEvo_SharedStore` (`Ids.SHAREDSTORAGE`) | `indevo/ids/Ids.java:44-45` |
-| Memory key | `$IndEvo_researchProgress` (sector, `Map<String, Float>` base hull id -> progress) | `EngineeringHub.java:44` |
+| Memory key | `$IndEvo_researchProgress` (sector, `Map<String, Float>` base hull id -> progress) | `ReverseEngineering.java:20` |
 | Memory key | `$IndEvo_engHubHullmodData` (market memory, `LinkedHashMap<String, String>` hullmod id -> source hull id) | `RecoveredHullmods.MEM_KEY` |
 | Setting | `IndEvo_AutoshipBPToGatheringPoint` (deliver to gathering point) | `data/config/LunaSettings.csv:137`, read in `EngineeringHub.getDeliveryMarket` |
 | Setting | `IndEvo_EngHubStrictWhitelist`, `IndEvo_EngHubIgnoreWhitelists` (intake) | `data/config/LunaSettings.csv:135-136`, read in `ReverseEngineeringSubmarketPlugin` |
-| Setting | `IndEvo_EngHub` (build toggle) | `data/config/LunaSettings.csv:104`; read in `isAvailableToBuild()` and `showWhenUnavailable()` (`EngineeringHub.java:68-75`). A hub already built stays |
+| Setting | `IndEvo_EngHub` (build toggle) | `data/config/LunaSettings.csv:104`; read in `isAvailableToBuild()` and `showWhenUnavailable()` (`EngineeringHub.java:61-68`). A hub already built stays |
 | Config CSV | `IndEvo_reverseList`: manual hull whitelist | `data/config/settings.json:12`, `data/config/indEvo/reverse_engineering_whitelist.csv` |
 | Item | `ItemIds.RARE_PARTS` (relic components) | `indevo/ids/ItemIds.java` |
-| Item | `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp` (output and consumed input) | `EngineeringHub.java:276-298` (`deliverReverseEngineered`), `getPaymentItemId`, `:746-751` |
+| Item | `ship_bp`, `tiandong_retrofit_bp`, `roider_retrofit_bp` (output and consumed input) | `ReverseEngineering.java:145` (`deliver`), `getPaymentItemId` (`:102`), `EngineeringHub.isLegalOnSharedSubmarket` (`:624`) |
 | Sprite | category `IndEvo`: `revBP` (finish message icon) | `data/config/settings.json` |
 
 ## Registration and lifecycle
@@ -44,8 +45,7 @@ Neighbours used: `indevo/industries/SharedSubmarketUser.java` (base class), `ind
 - Industry plugin from `industries.csv`. While functional and player owned, `apply()` adds the hub as a transient listener; `TimeTracker` then calls `onNewDay` ([Utils](../core/UTILS.md)). `unapply()` removes it (`EngineeringHub.java:78-99`).
 - `advance()` keeps `IndEvo_EngStorage` through `IndustrySubmarkets.ensure` (`:91`), the shared storage through the `SharedSubmarketUser` base; `notifyBeingRemoved()` releases both through the base ([Submarkets](../core/SUBMARKETS.md#registration-and-lifecycle)).
 - `EngineeringHubOptionProvider.register()` (`indevo/utils/ModPlugin.java`, `setListenersIfNeeded`) adds a transient listener once.
-- `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:413`).
-- `ModUpdater` keeps `currentDeconShipVar` across an industry replacement on mod update (`indevo/utils/update/ModUpdater.java:94,136`).
+- `ModPlugin.loadTransientMemory()` warms the `IndEvo_reverseList` cache (`indevo/utils/ModPlugin.java:409`).
 
 Daily chain: `TimeTracker -> EngineeringHub.onNewDay -> (idle) initDeconstruction | (done) addProgressToList + message | daysPassed++ -> (finishOnOwn) first hull at >= 1.0 with a blueprint source: consume -> deliver -> storeMapInMemory`.
 
@@ -55,12 +55,12 @@ Panel chain: "Visit the Engineering Hub..." -> `EngineeringHubPanelDelegate.show
 
 ### Intake and deconstruction
 
-- Intake: `ReverseEngineeringSubmarketPlugin.isIllegalOnSubmarket` allows a hull if it is on `IndEvo_reverseList` or (unless strict) has any tag containing `_bp`, is not a Prism or Vayra boss hull or tagged `threat` / `dweller`, has research value above 0 and is not printed. `IndEvo_EngHubIgnoreWhitelists` drops the list checks; dev mode allows anything (`ReverseEngineeringSubmarketPlugin.java:42-164`). The list checks are the static `getAllowedHulls`, `getRestrictedHulls` and `isWhitelisted`, also used by the Salvage Yards Wreck Registry ([Salvage Yards](SALVAGE_YARDS.md#wreck-registry)).
-- `initDeconstruction()` takes the first ship in `IndEvo_EngStorage` whose base hull is below 100%, strips weapons and fighters into the gathering point storage (local storage if the gathering point has none) with `MiscIE.stripShipToCargoAndReturnVariant`, removes the ship and stores its variant in `currentDeconShipVar` (`EngineeringHub.java:340-361`).
+- Intake: `ReverseEngineeringSubmarketPlugin.isIllegalOnSubmarket` allows a hull if it is on `IndEvo_reverseList` or (unless strict) has any tag containing `_bp`, is not a Prism or Vayra boss hull or tagged `threat` / `dweller`, has research value above 0 and is not printed. `IndEvo_EngHubIgnoreWhitelists` drops the list checks; dev mode allows anything (`ReverseEngineeringSubmarketPlugin.java:39-155`). The list checks are the static `getAllowedHulls`, `getRestrictedHulls` and `isWhitelisted`, also used by the Salvage Yards Wreck Registry ([Salvage Yards](SALVAGE_YARDS.md#wreck-registry)).
+- `initDeconstruction()` takes the first ship in `IndEvo_EngStorage` whose base hull is below 100%, strips weapons and fighters into the gathering point storage (local storage if the gathering point has none) with `MiscIE.stripShipToCargoAndReturnVariant`, removes the ship and stores its variant in `currentDeconShipVar` (`EngineeringHub.java:275`).
 - Days: `getBaseDays`, `round(sizeValue * 57) - 5` = 15 (frigate to cruiser) or 21 (capital), x0.7 beta, x0.85 alpha, truncated to int.
 - Accelerate Research: `EngineeringHub` is a `RelicSpeedUpTarget`. The industry option and the panel's Accelerate button halve the days left of the current hull (adds to `daysPassed`) for 1 Relic Component per remaining day, once per 60 days. See [Economy](../core/ECONOMY.md#relic-speed-up).
-- Value: 0.35 (frigate to cruiser) or 0.45 (capital), minus `0.05n * (1 + 0.05n * n)` for `n` non built in D-mods (alpha ignores one), rounded to 0.01, floored at 0 (`:406-432`).
-- Base hull: D-hull parent or `getBaseHull()` for restore to base hulls, so skins and D variants share progress (`:380-400`).
+- Value: 0.35 (frigate to cruiser) or 0.45 (capital), minus `0.05n * (1 + 0.05n * n)` for `n` non built in D-mods (alpha ignores one), rounded to 0.01, floored at 0 (`ReverseEngineering.getValue`, `:72`).
+- Base hull: D-hull parent or `getBaseHull()` for restore to base hulls, so skins and D variants share progress (`ReverseEngineering.getBaseHullSpec`, `:52`).
 
 ### Completion
 
@@ -68,13 +68,13 @@ Panel chain: "Visit the Engineering Hub..." -> `EngineeringHubPanelDelegate.show
 - Relic payment: `getRelicCost` = `round(suppliesToRecover * 10)` relic components from `IndEvo_SharedStore` only (`getRelicStock`); not `RelicHelper`, which reads local storage and fleet cargo.
 - `finish(hullId, source)` (panel Finish): reloads the progress map, checks the hull is at >= 100%, takes one item from the source (null: the relic cost), removes the hull from the map, delivers and stores the map. Returns false and takes nothing when the payment is gone.
 - "Finish on its own" (`finishOnOwn`, saved per hub, off by default; panel checkbox): the daily step finishes at most one hull at >= 100% with its first payment source. Never pays with relic components. Off: a hull stays at 100% until finished in the panel.
-- Output (`deliverReverseEngineered`, unchanged): `ship_bp` with the hull id, or the retrofit item, to the storage of `getDeliveryMarket()` (the gathering point when `IndEvo_AutoshipBPToGatheringPoint` is on and it has storage, else the hub's market), with a campaign message. Overflow above 1.0 is clamped on save.
+- Output (`ReverseEngineering.deliver`): `ship_bp` with the hull id, or the retrofit item, to the storage of `getDeliveryMarket()` (the gathering point when `IndEvo_AutoshipBPToGatheringPoint` is on and it has storage, else the hub's market), with a campaign message. Overflow above 1.0 is clamped on save.
 
 ### Panel
 
 Board 13 and 14, 1004 x 640 or less on small screens; the title `?` holds the rules and rates of the open tab.
 
-- Reverse engineering tab, left: "In work" card with the hull, what it adds (`getResearchValue`, D-mods counted), a day bar, days left and Accelerate (relic icon and cost; grey with the reason in red under it: "Unavailable for another N days.", "Too few days left.", "Not enough Relic Components."; tooltip `RelicSpeedUpDialog.addTooltip`). "Waiting in the drop off": the `IndEvo_EngStorage` ships as one icon row ending in `+N`. "Blueprint progress": scrolling rows with hull, size, a progress bar (green at 100%) and Next: "Ready to finish", "In work" or "N more ships" (`ceil((1 - progress) / clean value)`, ships without D-mods). Ready hulls sort on top, then by progress.
+- Reverse engineering tab, left: "In work" card with the hull, what it adds (`getResearchValue`, D-mods counted), a day bar, days left and Accelerate (`UiButtons.relic`: green, relic icon and cost; grey with the reason in red under it: "Unavailable for another N days.", "Too few days left.", "Not enough Relic Components."; tooltip `RelicSpeedUpDialog.addPanelTooltip`). "Waiting in the drop off": the `IndEvo_EngStorage` ships as one icon row ending in `+N`. "Blueprint progress": scrolling rows with hull, size, a progress bar (green at 100%) and Next: "Ready to finish", "In work" or "N more ships" (`ceil((1 - progress) / clean value)`, ships without D-mods). Ready hulls sort on top, then by progress.
 - Right, hull at 100%: "Blueprint to overwrite" (or "Retrofit item to overwrite") as a scrolling list of the payment sources with item icon, written hull and where it is; one fixed row "Relic Components instead" with cost and stock. One row is picked, nothing is taken before Finish. Below: You get, You lose, "Delivered to", a green Finish (grey with the reason when nothing can pay) and the "Finish on its own" checkbox with its tooltip.
 - Right, hull below 100%: progress, what a clean ship adds, ships needed, status, and the checkbox.
 
@@ -83,10 +83,10 @@ Board 13 and 14, 1004 x 640 or less on small screens; the title `?` holds the ru
 - Record: `initDeconstruction()` calls `RecoveredHullmods.record(market, variant)` before stripping. It adds every hullmod of the ship and its station modules that is learnable and not built into that hull, keyed by hullmod id with the source hull id; an id already recorded keeps its first source.
 - Learnable: the `FleetEncounterContext.lootHullMods` filter (not known to the player faction, not hidden, not hidden everywhere, no `no_drop` tag) plus no `dmod` tag (`RecoveredHullmods.isLearnable`).
 - `getLearnable` drops ids that stopped being learnable (learned elsewhere, mod removed) and writes the map back. The option tooltip and the panel both call it.
-- Cost: `max(25, round(baseValue / 100))` relic components (`MIN_COST`, `BASE_VALUE_PER_RELIC`); vanilla learnable hullmods cost 25 to 100.
+- Cost: `max(25, round(baseValue / 100))` relic components (`MIN_COST`, `BASE_VALUE_PER_RELIC`); vanilla learnable hullmods cost 25 to 100. In survival mode `HullModSpecAPI.getBaseValue()` includes `ext_hullmodPriceMult` (x7), so `getCost` divides it back out and the price matches normal mode.
 - Payment: colony storage first, then fleet cargo, also when the option is used from the remote colony screen. Learning an id that is not learnable or not affordable throws (the panel never offers it). Learning calls `FactionAPI.addKnownHullMod`, removes the entry and shows a campaign message. No processing time.
 - Option: "Visit the Engineering Hub..." on a functional, player owned hub, always enabled. Tooltip: what the panel does, recovered count, lore text in gray.
-- Panel, Hullmod data tab (board 13): title with `?` (where the data comes from, minimum cost, where relics are taken), the Relic Components stock right. Left: scrolling rows with the hullmod icon, name, OP per hull size (`4 / 8 / 15 / 25 OP`), the source hull sprite and name, cost with the relic icon (red when short). Right: scrolling detail with the vanilla description (`HullModSpecAPI.getDescription` for the source hull size; empty if the effect throws with a null ship), the OP table and the source hull; pinned below it and never scrolling, the cost row and a green Learn (grey with "Not enough Relic Components." when short, lore text as tooltip). Empty list: heading and "No recovered hullmod data.", detail heading "Hullmod". The panel is rebuilt after each learn and keeps its scroll offsets.
+- Panel, Hullmod data tab (board 13): title with `?` (where the data comes from), the Relic Components stock right. Left: scrolling rows with the hullmod icon, name, OP per hull size (`4 / 8 / 15 / 25 OP`), the source hull sprite and name, cost with the relic icon (red when short). Right: scrolling detail with the vanilla description (`HullModSpecAPI.getDescription` for the source hull size; empty if the effect throws with a null ship), the OP table and the source hull; pinned below it and never scrolling, the cost row and Learn (`UiButtons.relic`: green, relic icon and cost; grey with "Not enough Relic Components." when short, lore text as tooltip). Empty list: heading and "No recovered hullmod data.", detail heading "Hullmod". The panel is rebuilt after each learn and keeps its scroll offsets.
 
 ### AI cores
 
@@ -94,12 +94,13 @@ Gamma: upkeep x0.2 while idle. Beta: x0.7 time. Alpha: x0.85 time, one D-mod ign
 
 ## Contracts
 
-- Progress is sector wide: every hub reads `$IndEvo_researchProgress` at the start of `onNewDay` and writes it back at the end, so several hubs share and race on one map (each writes its full copy; inferred safe because calls are sequential on the campaign thread).
-- `getMapFromMemory` returns a sorted copy, not the stored map; always write back with `storeMapInMemory` (`indevo/utils/helper/MiscIE.java:320-342`).
+- Progress is sector wide and shared with the RAT Engineering Annex, which reads and writes it through `ReverseEngineering` within one call ([RAT settlements](RAT_SETTLEMENTS.md#engineering-annex)). Every hub reads `$IndEvo_researchProgress` at the start of `onNewDay` and writes it back at the end, so several hubs share and race on one map (each writes its full copy; inferred safe because calls are sequential on the campaign thread).
+- `getMapFromMemory` returns a sorted copy, not the stored map; always write back with `storeMapInMemory` (`indevo/utils/helper/MiscIE.java:316-338`).
 - Saved per hub: `currentDeconShipVar`, `daysRequired`, `daysPassed`, `blueprintItem`, `finishOnOwn`. Recovered hullmods are saved per market in `$IndEvo_engHubHullmodData` and stay when the hub is removed; the option only shows on a hub.
 - `getSpecialItem` / `setSpecialItem` are overridden to the `blueprintItem` field; removing the hub refunds it unless upgrading.
-- Tooltip: vanilla `createTooltip`. The override only stores `expanded` in a transient field for the hooks (`:668`). Collapsed: current project after upkeep (`addPostUpkeepSection`, `:598`). Expanded (`NORMAL` mode only): progress list and current project right after the description (`addRightAfterDescriptionSection`, `:584`), vanilla body below.
-- `isTiandong` / `isRoider` are also used by Privateer loot (`indevo/industries/privateer/industry/PrivateerBase.java:322-324`); see [Privateer](PRIVATEER.md).
+- Tooltip: vanilla `createTooltip`. The override only stores `expanded` in a transient field for the hooks (`:546`). Collapsed: current project after upkeep (`addPostUpkeepSection`, `:476`). Expanded (`NORMAL` mode only): progress list and current project right after the description (`addRightAfterDescriptionSection`, `:462`), vanilla body below.
+- `isTiandong` / `isRoider` are also used by Privateer loot (`indevo/industries/privateer/industry/PrivateerBase.java:323-325`); see [Privateer](PRIVATEER.md).
+- A small RAT settlement version of this industry exists (Engineering Annex, sharing the progress map); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
 

@@ -13,13 +13,30 @@ public class BillingHelper {
     public static final String SERVICES_NODE = "IndEvo_node_services";
 
     public static void charge(Industry ind, String line, String label, float amount) {
-        if (amount <= 0) return;
-        getLineNode(ind, line, label).upkeep += amount;
+        charge(ind.getMarket(), ind.getId(), ind, line, label, amount);
     }
 
     public static void pay(Industry ind, String line, String label, float amount) {
+        pay(ind.getMarket(), ind.getId(), ind, line, label, amount);
+    }
+
+    // owner without an industry (rat settlement facilities), ownerId keeps the line apart from other owners
+    public static void charge(MarketAPI market, String ownerId, String line, String label, float amount) {
+        charge(market, ownerId, null, line, label, amount);
+    }
+
+    public static void pay(MarketAPI market, String ownerId, String line, String label, float amount) {
+        pay(market, ownerId, null, line, label, amount);
+    }
+
+    private static void charge(MarketAPI market, String ownerId, Industry ind, String line, String label, float amount) {
         if (amount <= 0) return;
-        getLineNode(ind, line, label).income += amount;
+        getLineNode(market, ownerId, ind, line, label).upkeep += amount;
+    }
+
+    private static void pay(MarketAPI market, String ownerId, Industry ind, String line, String label, float amount) {
+        if (amount <= 0) return;
+        getLineNode(market, ownerId, ind, line, label).income += amount;
     }
 
     public static boolean canAfford(float amount) {
@@ -32,15 +49,14 @@ public class BillingHelper {
         credits.subtract(amount);
     }
 
-    private static FDNode getLineNode(Industry ind, String line, String label) {
-        MarketAPI market = ind.getMarket();
+    private static FDNode getLineNode(MarketAPI market, String ownerId, Industry ind, String line, String label) {
         MonthlyReport report = SharedData.getData().getCurrentReport();
         FDNode parent = market.isPlayerOwned() ? report.getMarketNode(market) : getServicesMarketNode(report, market);
 
         // own node per industry and line, never shares a vanilla node, so writes add up any time in the month
-        FDNode node = report.getNode(parent, ind.getId() + "_" + line);
+        FDNode node = report.getNode(parent, ownerId + "_" + line);
         node.name = label;
-        node.custom = ind;
+        node.custom = ind != null ? ind : market;
         node.mapEntity = market.getPrimaryEntity();
         return node;
     }

@@ -1,5 +1,6 @@
 package indevo.industries.petshop.item;
 
+import com.fs.starfarer.api.GameState;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoStackAPI;
 import com.fs.starfarer.api.campaign.CargoTransferHandlerAPI;
@@ -12,9 +13,14 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.industries.petshop.dialogue.PetPickerInteractionDialoguePlugin;
+import indevo.ids.ItemIds;
+import indevo.industries.academy.industry.Academy;
+import indevo.industries.petshop.listener.PetStatusManager;
+import indevo.industries.petshop.memory.Pet;
 import indevo.industries.petshop.memory.PetData;
 import indevo.industries.petshop.memory.PetDataRepo;
+import indevo.industries.petshop.plugins.PetCard;
+import indevo.industries.petshop.plugins.PetPlaceDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,12 +29,36 @@ import java.util.Random;
 
 public class PetItemPlugin extends BaseSpecialItemPlugin {
 
+    // item data: the species id for a new pet, <species id>:<pet id> for a registered young in a Cryochamber
+    public static final String SEPARATOR = ":";
+
     protected PetData pet;
+    protected String youngId;
 
     @Override
     public void init(CargoStackAPI stack) {
         super.init(stack);
-        pet = PetDataRepo.get(stack.getSpecialDataIfSpecial().getData());
+        String data = stack.getSpecialDataIfSpecial().getData();
+        int split = data != null ? data.indexOf(SEPARATOR) : -1;
+        pet = PetDataRepo.get(split >= 0 ? data.substring(0, split) : data);
+        youngId = split >= 0 ? data.substring(split + 1) : null;
+    }
+
+    public static String chamberData(Pet pet) {
+        return pet.typeID + SEPARATOR + pet.id;
+    }
+
+    // the registered pet in a Cryochamber stack, null for any other stack
+    public static Pet chamberPet(CargoStackAPI stack) {
+        if (!stack.isSpecialStack() || !ItemIds.PET_CHAMBER.equals(stack.getSpecialDataIfSpecial().getId())) return null;
+        String data = stack.getSpecialDataIfSpecial().getData();
+        int split = data != null ? data.indexOf(SEPARATOR) : -1;
+        return split >= 0 ? PetStatusManager.getInstance().get(data.substring(split + 1)) : null;
+    }
+
+    // null in the codex and for a new pet
+    protected Pet young() {
+        return youngId != null && Global.getSector() != null && Global.getSector().getPlayerFleet() != null ? PetStatusManager.getInstance().get(youngId) : null;
     }
 
     @Override
@@ -37,7 +67,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
         if (pet == null) return;
 
-        SpriteAPI sprite = Global.getSettings().getSprite(pet.icon);
+        Pet young = young();
+        SpriteAPI sprite = Global.getSettings().getSprite(young != null ? young.getIcon() : pet.icon);
         float dim = 30f;
 
         Color bgColor = Global.getSector().getPlayerFaction().getDarkUIColor();
@@ -101,6 +132,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public int getPrice(MarketAPI market, SubmarketAPI submarket) {
+        Pet young = young();
+        if (young != null) return Math.round(PetStatusManager.getInstance().getSaleValue(young));
         if (pet != null) {
             return (int) (pet.value);
         }
@@ -110,6 +143,8 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
     @Override
     public String getName() {
+        Pet young = young();
+        if (young != null) return pet.species + " Cryochamber: " + young.name;
         if (pet != null) {
             //return ship.getHullName() + " Blueprint";
             return pet.species + " Cryochamber";
@@ -141,17 +176,36 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
 
         PetData pet = this.pet != null ? this.pet : PetDataRepo.get("hampter");
 
-        Pair<String, Color> rpair = pet.getRarityDesc();
+        Pet young = young();
+        if (young != null) {
+            String disposition = Misc.ucFirst(young.sheet.disposition);
+            tooltip.addPara("Contains %s, a young %s, %s.", opad, new Color[]{h, h, Academy.COLOURS_BY_PERSONALITY.get(young.sheet.disposition)},
+                    young.name, PetCard.species(young), disposition);
+            tooltip.addPara("It does not age in the Cryochamber.", opad);
+            addCostLabel(tooltip, opad, transferHandler, stackSource);
+            if (isFleetCargo()) tooltip.addPara("Right-click to open", b, opad);
+            else tooltip.addPara("Can only be opened from fleet cargo", n, opad);
+            return;
+        }
+
+        // the codex shows item tooltips outside a campaign too
+        if (this.pet != null && Global.getCurrentState() == GameState.CAMPAIGN) PetStatusManager.getInstance().seeSpecies(this.pet.id);
 
         tooltip.addPara("Contains a %s", opad, h, pet.species);
-        tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);
-        tooltip.addPara(pet.desc, opad);
-        tooltip.addPara(pet.species + "s tend to live for about " + getYearDescription(Math.round(pet.maxLife / 31f)), opad);
+        addSpeciesInfo(tooltip, pet, pad);
 
         addCostLabel(tooltip, opad, transferHandler, stackSource);
 
         if (isFleetCargo()) tooltip.addPara("Right-click to assign", b, opad);
         else tooltip.addPara("Can only be assigned from fleet cargo", n, opad);
+    }
+
+    // also the species hover of the Pets panel
+    public static void addSpeciesInfo(TooltipMakerAPI tooltip, PetData pet, float pad) {
+        Pair<String, Color> rpair = pet.getRarityDesc();
+        tooltip.addPara("Rarity: %s", pad, rpair.two, rpair.one);
+        tooltip.addPara(pet.desc, 10f);
+        tooltip.addPara(pet.species + "s tend to live for about " + getYearDescription(Math.round(pet.maxLife / 31f)), 10f);
     }
 
     public static String getYearDescription(int months) {
@@ -175,7 +229,7 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
         return pet == null && stack.getCargo() != null;
     }
 
-    public boolean isFleetCargo() {
+    public static boolean isFleetCargo() {
         boolean isOpen = CoreUITabId.CARGO.equals(Global.getSector().getCampaignUI().getCurrentCoreTab());
         boolean noInteraction = Global.getSector().getCampaignUI().getCurrentInteractionDialog() == null;
 
@@ -190,6 +244,13 @@ public class PetItemPlugin extends BaseSpecialItemPlugin {
     @Override
     public void performRightClickAction(RightClickActionHelper helper) {
         if (pet == null) throw new IllegalStateException("IndEvo pet box without valid pet data, id " + stack.getSpecialDataIfSpecial().getData());
-        Global.getSector().getCampaignUI().showInteractionDialogFromCargo(new PetPickerInteractionDialoguePlugin(pet, helper), null, null);
+        if (youngId == null) {
+            PetPlaceDialog.chamber(pet, helper).show(() -> {});
+            return;
+        }
+
+        Pet young = young();
+        if (young == null || !young.inChamber) throw new IllegalStateException("IndEvo Cryochamber holds no young in a chamber, id " + youngId);
+        PetPlaceDialog.chamber(young, helper).show(() -> {});
     }
 }

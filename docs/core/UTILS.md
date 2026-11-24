@@ -14,8 +14,7 @@ Staged campaign animations and LunaLib campaign particle renderers. Users: Cruci
 |---|---|---|
 | `animation/CampaignAnimationScript.java` | interface: `addStage(AnimationStage)`, `loadStages()` | `BaseStagedAnimationScript` |
 | `animation/AnimationStage.java` | abstract stage: ctor `(runtime, delayBySeconds)`; `advance(amt)` waits for the delay, calls `runOnce()` once then `run(amt)` each frame until `isDone()` (`timePassed >= runtime`) | Crucible and derelicts animation scripts |
-| `animation/BaseStagedAnimationScript.java` | `EveryFrameScript`; calls `loadStages()` on first advance, advances all stages in parallel, `done` when all stages are done; `runWhilePaused()` false | `derelicts/scripts/WarpEffectAnimationScript`, `crucible/scripts/CrucibleStartupAnimationScript`, `CrucibleMoveAnimationScript` |
-| `animation/data/CirclePathData.java` | center, radius, start and end angle; ctor from two points and a radius via `TrigHelper.findTwoPointCircle` | none (dead) |
+| `animation/BaseStagedAnimationScript.java` | `EveryFrameScript`; calls `loadStages()` on first advance, advances all stages in parallel, `done` when all stages are done; `runWhilePaused()` false | `crucible/scripts/CrucibleStartupAnimationScript`, `CrucibleMoveAnimationScript` |
 | `animation/particles/NebulaParticle.java` | one nebula sprite cell: `advance(amt)`, `getCurrentAlpha()` (0.5 s fade in, `smootherstep` fade out), `isExpired()`; inner `LocationData` (radius, angle, center) with `getLocation()`, `incrementRadius()` | the renderers below, `consumables/entities/SmokeCloudEntityPlugin`, `meteor/renderers/MeteorDebrisRenderer` |
 | `animation/particles/RadialDustCloudEjectionRenderer.java` | `LunaCampaignRenderingPlugin`; spawns particles for `spawnDur` then pushes them out radially; fixed 6 s life (`DURATION`), layer `TERRAIN_6A` | Crucible scripts |
 | `animation/particles/DeceleratingDustCloudEjectionRenderer.java` | `LunaCampaignRenderingPlugin`; spawns particles at 60 Hz with logistic slowdown (`logisticDecreasing`); never expires on its own (`expired` flag); pauses unless the center entity is alive, in the current location and tagged `BaseCrucibleEntityPlugin.TAG_ENABLED` | `CrucibleStartupAnimationScript` |
@@ -29,9 +28,11 @@ Renderers keep the sprite in a `transient` field and fetch it lazily in `render`
 | Class | Role |
 |---|---|
 | `helper/MiscIE.java` | General campaign helpers, table below |
+| `helper/Settings.java` | 4.x settings getters kept for other mods, not for IE code: use `Setting` ([Compatibility](COMPATIBILITY.md#contracts)) |
 | `helper/BillingHelper.java` | Monthly report lines and immediate credit charges, section below |
+| `helper/ExtModeHelper.java` | Survival mode (extended mode in code) factors, read from the vanilla `ext_` keys at call time behind `Misc.isExtended()`: `mult(key)` (1 in normal mode), `mod(key)` (0 in normal mode), `shipBuyPriceMult(hullSize)` (`ext_shipBuyPriceMult`, which hull `getBaseValue()` lacks), `commodityPriceMult(commodityId)` (`ext_<id>PriceMult`, default 1, the factor `CommoditySpecAPI.getBasePrice()` bakes in). Never cache a result. Users: [ARCHITECTURE](../ARCHITECTURE.md#survival-mode) |
 | `helper/RelicHelper.java` | Relic Component payments for colony side sinks: `getName()`, `getAvailable(market)` (colony storage through `MiscIE.getStorageCargo`, so RAT settlement storage counts, plus fleet cargo; `market` null means fleet cargo only), `canAfford(market, amount)`, `take(market, amount)` (storage first, throws when short, call `canAfford` first), `addCostLine(info, market, cost, pad)` (`Cost: X Relic Components (Available: Y)`, cost green or red). Users: [Economy](ECONOMY.md#relic-speed-up) relic speed up and refit build in (`RelicBuildInPatch`), Tech Mining Boost Extraction, the Senate Edict, Academy, Ancient Laboratory, Salvage Yards and Engineering Hub panels, Orbital Works slot, the kit's relic cost rows (`UiData`) |
-| `helper/StringHelper.java` | String lookup and token substitution, table below |
+| `helper/StringHelper.java` | Number and grammar formatting, table below |
 | `helper/TrigHelper.java` | Geometry, table below |
 | `helper/Circle.java` | `center`, `radius`; `getPointForAngle(angle)`, `getAngleForPoint(point)` (strict `atan2`: `Misc.getAngleInDegrees` reads a lookup table that is off by up to about 0.06 degrees, hundreds of su on the rogue asteroid arcs of radius 150000 to 400000) |
 | `helper/CircularArc.java` | `Circle` plus normalized `startAngle`, `endAngle`; travel direction is the short way round (`getAngleTravelDir()` 1 or -1) |
@@ -53,7 +54,7 @@ Two reflection helpers exist. Prefer `StarReflectionUtils` for new code (ambigui
 | Market queries | `isMilitary(industry)` 80, `marketHasMilitary(market, onlyFunctional)` 634, `marketHasMilitaryIncludeRelays(market[, onlyFunctional])` 616, `getFactionMarkets(faction)` 371 (skips `SalvageMarket` ids), `getMarketsInLocation(loc[, factionId])` 473/484 (skips hidden), `getClosestMarketWithIndustry(market, id)` 284, `getClosestPlayerMarketWithIndustryFromSet` 302, `getAiCoreIdNotNull(ind)` 248 (`"none"`) |
 | System industry counts | `systemHasIndustry(id, system, faction[, withUnfinished])` 675/705, `systemHasIndustryExcludeNotFunctional` 689, `getAmountOfIndustryInSystem` 724, `isOnlyInstanceInSystem` 748, `isOnlyInstanceInSystemExcludeMarket` 648 (both count the construction queue) |
 | Economy | `applyDeficitToProduction(ind, index, deficit, commodities...)` 85. Billing and credits: [BillingHelper](#billinghelper) |
-| Planets | `planetHasRings(planet or market)` 439/455 (uses `derelicts/scripts/PlanetMovingScript.getEntitiesWithOrbitTarget`), `getEntitiesInRange(entity, range)` 45 |
+| Planets | `planetHasRings(planet)` 438 (a `RingBandAPI` with the planet as focus or orbit focus), `getEntitiesInRange(entity, range)` 45 |
 | Sector memory maps | `getMapFromMemory(key)` 320 (sorted copy, creates the key), `storeMapInMemory(map, key)` 340, `getClampedMap` 330, `sortByLargestValue` 349, `addOrIncrement(map, id, by)` 173/183 |
 | Math and lists | `smootherstep(e0, e1, x)` 97, `customLog(base, x)` 344, `getRandomInRange(min, max, random)` 55, `splitList(list or set, perPage)` 194/207, `getDaysOfCurrentMonth()` 242 |
 
@@ -65,10 +66,11 @@ Owner of IE costs and income: monthly report lines and dialog purchases. Do not 
 |---|---|
 | `charge(ind, line, label, amount)` | Adds `amount` to the upkeep of the line node. Callable any time in the month; writes add up, nothing is reset. `amount <= 0` adds nothing |
 | `pay(ind, line, label, amount)` | Same node, adds to income |
+| `charge(market, ownerId, line, label, amount)`, `pay(...)` | Same for an owner without an `Industry` (RAT settlement facilities): node id `<ownerId>_<line>`, `custom` the market |
 | `canAfford(amount)` | Player credits `>= amount`. Every dialog checks it before it offers a purchase |
 | `chargeNow(amount)` | Subtracts credits immediately for dialog purchases; throws `IllegalStateException` when the player cannot afford it (the caller skipped `canAfford`) |
 
-Node layout in `SharedData.getCurrentReport()`, node id `<industry id>_<line>`, `name` the label, `custom` the industry (the income tab then draws the industry image, shows the industry tooltip and opens the market on the map on click; obfuscated `com.fs.starfarer.campaign.command.IntelIncomePanel` and its row class):
+Node layout in `SharedData.getCurrentReport()`, node id `<industry id or ownerId>_<line>`, `name` the label, `custom` the industry (the income tab then draws the industry image, shows the industry tooltip and opens the market on the map on click; obfuscated `com.fs.starfarer.campaign.command.IntelIncomePanel` and its row class):
 
 | Market | Path |
 |---|---|
@@ -83,18 +85,13 @@ Users: Academy (storage; training on NPC markets is `chargeNow`, own markets tra
 
 ### StringHelper
 
-Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/strings/strings.json:2`.
+Adapted from Histidine (Nexerelin). Player text lives in the code; there is no string lookup.
 
 | Methods | Notes |
 |---|---|
-| `getString(category, id[, ucFirst])`, `getString(id[, ucFirst])` | Missing key logs a warning and returns `"[INVALID]" + id` |
-| `substituteToken(s, token, replace[, ucFormToo])`, `substituteTokens(s, map or pair list)` | `replaceAll` with the `$` escaped |
-| `getStringAndSubstituteToken(...)`, `getStringAndSubstituteTokens(...)` | Lookup plus substitution |
-| `substituteFactionTokens(s, faction)`, `getFactionHighlights(faction)`, `getFactionShortName(faction)`, `addFactionNameTokensCustom(tokens, prefix, faction)`, `factionIdListToFactionNameList` | Faction name tokens `$faction`, `$theFaction` and capitalized forms |
-| `getFleetAssignmentString(id, target[, missionType])` | Category `indEvo_fleetAssignments` |
-| `getShipOrFleet(fleet)`, `getDayOrDays(n)`, `getHeOrShe`, `getHimOrHer`, `writeStringCollection(strings[, and, oxford])` | Grammar helpers |
 | `getAbsPercentString(f, oneMinus)`, `getFloatToIntStrx100(f)`, `getRepIntTooltipPair(faction)` | Number formatting |
-| `ucFirstIgnore$`, `lcFirst`, `flattenToAscii`, constant `HR` | Misc |
+| `getDayOrDays(n)`, `getHeOrShe(person)`, `getHimOrHer(gender)` | Grammar helpers |
+| `lcFirst` | Keeps a leading acronym: "CR recovery" |
 
 ### TrigHelper
 
@@ -116,7 +113,7 @@ Adapted from Histidine (Nexerelin). Default category is `IndEvo_misc` in `data/s
 |---|---|
 | `memory/SessionTransientMemory.java` | Transient `GenericPlugin` key value cache: `getInstance()`, `set(key, obj)` (key must start with `$`, else throws), `get`, `unset`, `contains`, `getSet`, `getString`, `getBoolean` |
 
-`getInstance()` adds the plugin with `addPlugin(plugin, true)` (`memory/SessionTransientMemory.java:21`; `isTransient` overload in `api/campaign/GenericPluginManagerAPI.java:65`), so the cache is rebuilt each session and never saved. Use it for data derived from specs and CSVs. Users: `MiscIE`, `petshop/memory/PetDataRepo`, `surveystories/memory/FileLoader`, `senate/EdictRepo`. `ModPlugin.loadTransientMemory()` (`ModPlugin.java:405`) warms it on game load.
+`getInstance()` adds the plugin with `addPlugin(plugin, true)` (`memory/SessionTransientMemory.java:21`; `isTransient` overload in `api/campaign/GenericPluginManagerAPI.java:65`), so the cache is rebuilt each session and never saved. Use it for data derived from specs and CSVs. Users: `MiscIE`, `petshop/memory/PetDataRepo`, `surveystories/memory/FileLoader`, `senate/EdictRepo`. `ModPlugin.loadTransientMemory()` (`ModPlugin.java:401`) warms it on game load.
 
 ## plugins
 
@@ -129,7 +126,7 @@ Industry option buttons (the "..." menu on an industry) through `IndustryOptionP
 | `plugins/SingleIndustrySimpifiedOptionProvider.java` | `isSuitable` = functional industry with `getTargetIndustryId()` on the market of the open dialog |
 | `plugins/TagBasedSimplifiedIndustryOptionProvider.java` | `isSuitable` = industry spec tagged `getTargetTag()` on the market of the open dialog |
 
-Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:426`). Users: Courier Port, Senate (overrides `isSuitable` without the open dialog check, so it also shows on remote colony screens), Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`, `RelicSpeedUpOptionProvider` and `TechMiningRelicOptionProvider`, [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) `OrbitalWorksSlotOptionProvider` (also on remote colony screens).
+Subclasses register themselves as listeners from `ModPlugin.setListenersIfNeeded()` (`ModPlugin.java:422`). Users: Courier Port, Senate (overrides `isSuitable` without the open dialog check, so it also shows on remote colony screens), Warehouses, Military Relay, Museum, derelicts `RemoveIndustryOptionWarningProvider`, [Economy](ECONOMY.md) `RelicBuildTimeReductionButtonAdder`, `RelicSpeedUpOptionProvider` and `TechMiningRelicOptionProvider`, [Orbital Works slot](../industries/ORBITAL_WORKS_SLOT.md) `OrbitalWorksSlotOptionProvider` (also on remote colony screens).
 
 ## scripts
 
@@ -138,7 +135,6 @@ One shot `EveryFrameScript`s that defer a market change to the next frame (all `
 | Class | Behaviour | Users |
 |---|---|---|
 | `scripts/EntityRemovalScript.java` | Removes a custom entity if the market lacks the prerequisite industry or `forceRemoval` | `relay/industry/MilitaryRelay` |
-| `scripts/SpriteDistorter.java` | `BaseCustomEntityPlugin` with a grid distortion stub behind `if (true) return;` | none (dead) |
 
 Submarket add and remove has its own script: [Submarkets](SUBMARKETS.md).
 
@@ -147,7 +143,7 @@ Submarket add and remove has its own script: [Submarkets](SUBMARKETS.md).
 | Class | Members |
 |---|---|
 | `timers/NewDayListener.java` | interface `onNewDay()` |
-| `timers/TimeTracker.java` | Persistent sector script added once in `ModPlugin.setScriptsIfNeeded()` (`ModPlugin.java:500`). Detects a day change from `CampaignClockAPI.getDay()` and calls `onNewDay()` on every `NewDayListener` in the listener manager and in `getAllListeners()`. Also keeps market "time tags" (`ident + days`): `addMarketTimeTagTracker`, `removeMarketTimeTagTracker`, static `getTimeTagPassed`, `marketHasTimeTag`, `getTagNum`, `incrementTagNum`, `removeTimeTag`, `getTimeTrackerInstance()`. Trackers match by market and `ident.equals`, one entry per pair; `ident` is the condition mod id, a new `String` after every load |
+| `timers/TimeTracker.java` | Persistent sector script added once in `ModPlugin.setScriptsIfNeeded()` (`ModPlugin.java:496`). Detects a day change from `CampaignClockAPI.getDay()` and calls `onNewDay()` on every `NewDayListener` in the listener manager and in `getAllListeners()`. Also keeps market "time tags" (`ident + days`): `addMarketTimeTagTracker`, `removeMarketTimeTagTracker`, static `getTimeTagPassed`, `marketHasTimeTag`, `getTagNum`, `incrementTagNum`, `removeTimeTag`, `getTimeTrackerInstance()`. Trackers match by market and `ident.equals`, one entry per pair; `ident` is the condition mod id, a new `String` after every load |
 | `timers/IntervalTracker.java` | Transient script with shared 1 s and 2 s `IntervalUtil`s, runs while paused: `getInstance()`, `isElapsed1s()`, `getIntervalFraction1s()`, `isElapsed2s()`, `getIntervalFraction2s()`. User: `consumables/itemPlugins/BaseConsumableItemPlugin` |
 | `timers/RaidTimeout.java` | Transient `EconomyTickListener`: per system raid cooldown in months. `register()`, `addRaidedSystem(system, months, ai)` (keeps the smaller value), `containsSystem(system, ai)`. Decrements on the last economy tick of the month. Memory keys `$IndEvo_RaidTimeout`, `$IndEvo_RaidTimeout_AI` (sector memory, `Map<String, Float>`). User: [Privateer](../industries/PRIVATEER.md); console: `indevo_printRaidTimeout` |
 
@@ -159,10 +155,10 @@ Fixed copy of MagicLib's campaign trail plugin (Nicke535, fix by President Matt 
 
 | Class | Members |
 |---|---|
-| `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:504`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
+| `trails/MagicCampaignTrailPlugin.java` | Persistent sector script, `register()` once (`ModPlugin.java:500`). Static API: `getUniqueID()`, `AddTrailMemberSimple(...)`, `AddTrailMemberAdvanced(...)`, `AddTrailMemberAnimated(...)`, `cutTrailsOnEntity(entity)` (call before teleporting). Builds `org.magiclib.util.MagicTrailObject`s; trails only tick and render in the player's location |
 | `trails/MagicCustomCampaignTrailEntityScript.java` | Plugin of custom entity `IndEvo_campaign_trail_custom_entity` (`data/config/custom_entities.json`); forwards `render` to the trail plugin. The plugin moves this entity to the player's location each frame |
 
-Users: artillery projectiles (`MortarProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`, WIP `MobileColonyEntityPlugin`.
+Users: artillery projectiles (`MortarProjectileEntityPlugin`, `MissileSubmunitionEntity`, `MissileCarrierEntityPlugin`), `consumables/entities/BaseMissileEntityPlugin`.
 
 ## ui
 
@@ -172,17 +168,11 @@ Shared UI kit for IE panels (`Ui`, `UiButtons`, `UiImages`, `UiData`, `UiFrame`,
 
 | Class | Members |
 |---|---|
-| `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:297`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with an uncommon ship parts VPC), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
-| `update/ModUpdater.java` | `run()`: removes every script and listener whose class name contains `IndEvo`, re-adds IE submarkets, industries and player market conditions, then runs `NewGameIndustryPlacer`. Not called anywhere (dead) |
+| `update/NewGameIndustryPlacer.java` | `run()` from `ModPlugin.onNewGameAfterEconomyLoad()` (`ModPlugin.java:293`): places IE industries on fixed core world markets if the industry setting is on and the market is not player owned. Market ids and cores: `placeDryDocks` (13 markets), `placeAcademy` (`eochu_bres` beta, `fikenhild`), `placeReqCenter` (`baetis`), `placeSalvageYards` (`donn`, `agreus`, `suddene`), `placeManufactories` (`eochu_bres` with an uncommon ship parts VPC), `placePetShops` (`jangala`, `gilead`, `fikenhild`). `placeCourierPorts` is not called |
 
 ## Known issues and dormant code
 
-| Item | State |
-|---|---|
-| `CirclePathData`, `SpriteDistorter`, `ModUpdater` | Unreferenced |
-| `MagicCampaignTrailPlugin.NicToyCustomCampaignTrailObject` | Unused inner class |
-| `MiscIE.getStorage` (`helper/MiscIE.java:72`) | Logs every call in dev mode |
-| `ModUpdater` | Class name filter `contains("IndEvo")` misses classes without `IndEvo` in the name (package is lowercase `indevo`); restores Academy and hub state onto the removed instance `ind` (`update/ModUpdater.java:302` to `315`) |
+None.
 
 ## Maintenance
 

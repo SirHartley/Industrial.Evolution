@@ -8,6 +8,7 @@ import com.fs.starfarer.api.impl.campaign.ids.Entities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
+import com.fs.starfarer.api.impl.campaign.procgen.themes.SalvageSpecialAssigner;
 import com.fs.starfarer.api.impl.campaign.rulecmd.salvage.special.ShipRecoverySpecial;
 import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
@@ -99,12 +100,9 @@ public class IceTreasureoidEntity extends IcyRockEntity {
 
         relatedWreck = BaseThemeGenerator.addSalvageEntity(entity.getContainingLocation(), Entities.WRECK, Factions.NEUTRAL, params);
 
-        //this is required or it'll always be a SP recovery for some reason
-        ShipRecoverySpecial.ShipRecoverySpecialData data = new ShipRecoverySpecial.ShipRecoverySpecialData("caught in ice, now freed");
-        data.addShip(params.ship);
-        data.storyPointRecovery = false;
-
-        Misc.setSalvageSpecial(relatedWreck, data);
+        // vanilla battle wreck roll: free recovery or nothing, which leaves the story point option of the wreck dialog
+        SalvageSpecialAssigner.assignSpecialForBattleWreck(relatedWreck);
+        if (Misc.getSalvageSpecial(relatedWreck) instanceof ShipRecoverySpecial.ShipRecoverySpecialData data) data.desc = "caught in ice, now freed";
     }
 
     @Override

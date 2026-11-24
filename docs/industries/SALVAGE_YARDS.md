@@ -43,11 +43,11 @@ The yards collect salvage points (SP, called salvage units in the UI): fleet poi
 | Memory key | `$IndEvo_closeDialogueOnNextReturn` | interaction target memory, set by the option provider |
 | Memory key | `$IndEvo_HasSelectedSP_SY` | market memory: story point double capacity bought but not yet used |
 | Setting | `IndEvo_ScrapYard` | enables the industry; `isFunctional()` also checks it |
-| Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerFP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read at use time in the panel classes; a contract keeps the delivery time it was accepted with (`YardsCustomProductionIntel.deliveryTime`, saved) |
+| Setting | `IndEvo_SYBaseDMods`, `IndEvo_SYPartValueMult`, `IndEvo_SYHullDeliveryTime`, `IndEvo_RarePartsAmountPerDP`, `IndEvo_SYDModMoveBaseCostMult`, `IndEvo_shipPickerRowCount` | read at use time in the panel classes; a contract keeps the delivery time it was accepted with (`YardsCustomProductionIntel.deliveryTime`, saved) |
 
 ## Registration and lifecycle
 
-- CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` and `SalvageDronesBattleListener` (`ModPlugin.java:478-479`).
+- CSV plugin column. `ModPlugin.setListenersIfNeeded()` registers `SalvageYardsOptionProvider` and `SalvageDronesBattleListener` (`ModPlugin.java:474-475`).
 - `apply()` (functional only) registers itself as transient listener (`EconomyTickListener`, `NewDayListener`) and adds itself as `FleetEventListener` to every fleet currently in the system, skipping fleets that carry a `LuddicPathCellsIntel` listener to avoid a vanilla `ConcurrentModificationException` (`SalvageYards.java:195`).
 - `advance` keeps the shared submarket present; `unapply` removes listener, submarket and production quality mod.
 - Dialog commands are found through `ruleCommandPackages` (see [Rule commands](../dialogue/RULE_COMMANDS.md)).
@@ -114,11 +114,11 @@ Vanilla pickers (`showCustomProductionPicker`, `showFleetMemberPickerDialog`) ne
 The order holds blueprint hulls from `showCustomProductionPicker` (known ships), registry weapons and wings (also offered in the picker), registry hulls (from the Wreck Registry tab) and scrapped ships (`showFleetMemberPickerDialog` on fleet and storage ships). Picks are added to the order; the x on a line's sprite removes the line. `YardsContract` prices it each rebuild:
 
 - Price mult `costMult` = 1.8 - relation, clamped to 0.9..1.5. Line cost = `createSampleItem(...).getBaseCost() * qty * costMult`, rounded per line like `FactionProduction.getTotalCurrentCost`.
-- Capacity = `3 + scrap value + getHullCapacity() * productionCapacityPerSWUnit * (2 with story point)`. Scrapped ships count 30% of base value, less per D-mod. The story point is spent on the button (bonus XP `IndEvo_SYDoubleCapBonusXP`) and kept in `$IndEvo_HasSelectedSP_SY` until a contract is confirmed.
-- Ship Components reduce the cost by up to 50%; Relic Components reduce D-mods (`SY_BASE_DMODS` minus the filled share of `FP * RARE_PARTS_AMOUNT_PER_FP`). Both sliders count fleet cargo plus local storage.
+- Capacity = `3 + scrap value + getHullCapacity() * productionCapacityPerSWUnit * (2 with story point)`, the hull capacity term times `ext_playerIndustryCustomProductionMaxValueMult` in Survival mode (the factor vanilla `FactionProduction.getProductionCapacityForMarket` gives custom production). Scrapped ships count 30% of base value, in Survival mode the hull part times `ext_shipBuyPriceMult` while weapons and wings keep their own mode price, as in vanilla `FleetMember.getBaseBuyValue` (the order prices from `FactionProduction.ItemInProduction.getBaseCost` carry it too), less per D-mod ([ExtModeHelper](../core/UTILS.md#helper)). The story point is spent on the button (bonus XP `IndEvo_SYDoubleCapBonusXP`) and kept in `$IndEvo_HasSelectedSP_SY` until a contract is confirmed.
+- Ship Components reduce the cost by up to 50%; Relic Components reduce D-mods (`SY_BASE_DMODS` minus the filled share of `DP * RARE_PARTS_AMOUNT_PER_DP`, DP as rounded `getSuppliesToRecover`). Both sliders count fleet cargo plus local storage.
 - Confirm needs items, value within capacity, credits and enough salvage units. It charges credits, takes relics and parts (fleet cargo first, then storage), removes scrapped ships, takes registry entries and salvage units, and posts `YardsCustomProductionIntel`, which delivers to local storage after `IndEvo_SYHullDeliveryTime` days with the forecast D-mods (`DModManager.addDMods`) and unlocks storage. It fails if the market decivilizes or loses the yards.
 
-Orders in progress lists the market's waiting intel with day progress and Accelerate (two clicks). Accelerate is off with the reason under it on cooldown, with too few days left or with too few relics; the tooltip is `RelicSpeedUpDialog.addTooltip`. Confirm halves the days left for 1 Relic Component per remaining day from the yards market's storage, then fleet cargo, once per 60 days per order (`relicSpeedUpTimestamp`). The intel keeps its own `Accelerate Construction` button. See [Economy](../core/ECONOMY.md#relic-speed-up).
+Orders in progress lists the market's waiting intel with day progress and Accelerate (`UiButtons.relic`: green, relic icon and cost; two clicks). Accelerate is off with the reason under it on cooldown, with too few days left or with too few relics; the tooltip is `RelicSpeedUpDialog.addPanelTooltip`. Confirm halves the days left for 1 Relic Component per remaining day from the yards market's storage, then fleet cargo, once per 60 days per order (`relicSpeedUpTimestamp`). The intel keeps its own `Accelerate Construction` button. See [Economy](../core/ECONOMY.md#relic-speed-up).
 
 ### Wreck Registry orders
 
@@ -140,7 +140,7 @@ S-mods tab (`TransferTab`, `ModTransfer.Kind.SMOD`), same ship pool and layout a
 - Target: same hull size and manufacturer (`ModTransfer.isSameSizeAndTechtype`), below its S-mod cap (`Misc.getCurrSpecialMods` against `Misc.getMaxPermanentMods(member, playerStats)`), with the S-mod already installed as a normal hullmod (in `getHullMods`, not a perma mod, not built into the hull). The campaign has no `ShipAPI` for `HullModEffect.isApplicableToShip`, so the vanilla refit's install check stands in for it.
 - The selection stops at the target's free slots; other rows show why they can not be picked. The slot boxes show built in, incoming and free slots; a row holds as many boxes as the longest mod name allows, up to three rows.
 - `getUnavailableReason` names the first missing step: no S-mods, no matching hull, no free slot, hullmod not installed on a matching hull.
-- Cost per S-mod: `RELICS_PER_DP` (5) x target `getUnmodifiedDeploymentPointsCost()` Relic Components, plus credits from the D-mod transfer formula (`ModTransfer.getCreditCostPerMod`) with n = origin S-mod count. Relics come from local storage first, then fleet cargo; credits through `BillingHelper.chargeNow`.
+- Cost per S-mod: `RELICS_PER_DP` (3) x target `getUnmodifiedDeploymentPointsCost()` Relic Components, plus credits from the D-mod transfer formula (`ModTransfer.getCreditCostPerMod`) with n = origin S-mod count. Relics come from local storage first, then fleet cargo; credits through `BillingHelper.chargeNow`.
 - Apply: both variants are cloned to custom `REFIT` variants; origin `removePermaMod` and `removeMod`, target `addPermaMod(id, true)`. No bonus XP.
 
 ## Contracts
@@ -153,13 +153,14 @@ S-mods tab (`TransferTab`, `ModTransfer.Kind.SMOD`), same ship pool and layout a
 - The industry only counts battles of fleets present when `apply()` last ran; new arrivals are added on the next reapply.
 - `isFunctional()` returns false while the setting is off, which also stops a saved yards from producing. The card goes dark; the tooltip shows "Salvage Yards are turned off in the mod settings." (`addRightAfterDescriptionSection`, `SalvageYards.java:423`, `NORMAL` mode, not while building) and vanilla's "Currently under construction" line below it, since vanilla prints that for any non functional industry that is not disrupted.
 - `custom_production_mod` handling (`modifyPlayerCustomProduction`) is never called; only the unmodify runs. Output reaches custom production through heavy industry `ships` supply instead (inferred from the "now adds onto heavy industry directly" comment, `:76`).
+- A small RAT settlement version of this industry exists (Refit Gantry: `SalvageYardsPanel` in transfer only mode, `SalvageYardsDialogPlugin` with `onReturn`); see [RAT settlements](RAT_SETTLEMENTS.md).
 
 ## Known issues and dormant code
 
 | Item | State |
 |---|---|
 | AI core fields not reset (`applyAlphaCoreModifiers` etc., `:502`) | `BaseIndustry.applyAICoreModifiers` calls only one branch (`api/impl/campaign/econ/impl/BaseIndustry.java:246`); switching alpha to beta keeps alpha decay, beta to gamma keeps 90 SP per unit |
-| Story point bonus (`YardsContract.getCapacity`, `:186`) | multiplies only the hull capacity term (operator precedence) |
+| Story point bonus (`YardsContract.getCapacity`, `:187`) | multiplies only the hull capacity term (operator precedence) |
 | D-mod transfer cost | formula `(1.2^n + 1) / n` differs from `RestorationDocks` `1.2^(n+1) / n` |
 | `modifyPlayerCustomProduction` | dead code |
 

@@ -24,6 +24,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
         public float duration;
         public LocationAPI loc;
         public FactionAPI faction;
+        public boolean remote;
 
         public MissileSubmunitionParams(LocationAPI loc, FactionAPI faction, Vector2f origin, Vector2f target, float duration) {
             this.origin = origin;
@@ -56,6 +57,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
     public Vector2f origin;
     public Vector2f target;
     public float duration;
+    public boolean remote;
     public float cadence;
     public float startAngle;
 
@@ -79,6 +81,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
             this.origin = ((MissileSubmunitionParams) pluginParams).origin;
             this.target = ((MissileSubmunitionParams) pluginParams).target;
             this.duration = ((MissileSubmunitionParams) pluginParams).duration;
+            this.remote = ((MissileSubmunitionParams) pluginParams).remote;
 
             startAngle = Misc.getAngleInDegrees(origin, target);
             cadence = MathUtils.getRandomNumberInRange(SINE_WAVE_MAX_VARIANCE * 0.5f, SINE_WAVE_MAX_VARIANCE);
@@ -139,24 +142,6 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
 
             addTrailToProj();
         }
-    }
-
-    @Deprecated
-    public void advanceProjectileTowardsEnemy(float amount) {
-        //FRONT TOWARDS ENEMY
-
-        float dist = PROJECTILE_VELOCITY * amount;
-        float turn = MAX_ANGLE_TURN_DIST_PER_SECOND * amount;
-        float currAngle = Misc.getAngleInDegrees(entity.getLocation(), currentTarget.getLocation());
-        float angleDiff = Misc.getAngleDiff(currAngle, entity.getFacing());
-
-        if (angleDiff < turn) turn = angleDiff;
-        float nextAngle = entity.getFacing() + turn * (currAngle > entity.getFacing() ? 1 : -1);
-
-        //ModPlugin.log("current angle " + currAngle + " current diff " + angleDiff + " TURN " + turn + " next angle " + nextAngle);
-        Vector2f nextPos = MathUtils.getPointOnCircumference(entity.getLocation(), dist, nextAngle);
-        entity.setLocation(nextPos.x, nextPos.y);
-        entity.setFacing(nextAngle);
     }
 
     public void advanceProjectileTowardsEnemyV2(float amount) {
@@ -225,6 +210,7 @@ public class MissileSubmunitionEntity extends BaseCustomEntityPlugin {
                 Setting.ARTILLERY_MISSILE_DURATION.value(),
                 Setting.ARTILLERY_MISSILE_EXPLOSION_RADIUS.value());
 
+        p.remote = remote;
         ECMExplosion.spawn(p);
     }
 

@@ -28,6 +28,7 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
 import indevo.industries.SharedSubmarketUser;
+import indevo.industries.compatibility.AotdManager;
 import indevo.industries.salvageyards.memory.WreckRegistry;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
@@ -483,12 +484,12 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.SCRAPYARD.enabled() && isOnlyInstanceInSystem() && super.isAvailableToBuild();
+        return Setting.SCRAPYARD.enabled() && isOnlyInstanceInSystem() && super.isAvailableToBuild() && AotdManager.isResearched(this);
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.SCRAPYARD.enabled();
+        return super.showWhenUnavailable() && Setting.SCRAPYARD.enabled();
     }
 
     private boolean isOnlyInstanceInSystem() {
@@ -497,6 +498,9 @@ public class SalvageYards extends SharedSubmarketUser implements FleetEventListe
 
     @Override
     public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        if (research != null) return research;
+
         if (!isOnlyInstanceInSystem()) {
             return "There can only be one Salvage Yard in a star system.";
         } else {

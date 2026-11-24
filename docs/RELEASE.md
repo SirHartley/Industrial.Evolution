@@ -6,7 +6,7 @@ Nothing in this guide runs unless the user asks: no version bumps, no rebuilt re
 
 ## Versions
 
-Scheme `major.minor.letter`, lowercase letter, no `v` prefix. Current public version `4.1.b`; the unreleased section is `4.2.a`.
+Scheme `major.minor.letter`, lowercase letter, no `v` prefix. Current public version `4.1.b`; test release `5.0.b` ([Test releases](#test-releases)). The next change starts `5.0.c - UNRELEASED`.
 
 | Part | Change | Example |
 |---|---|---|
@@ -118,6 +118,16 @@ On the user's request only.
 6. Start the Release workflow on `master` with `version` set to exactly the version.
 7. Verify the GitHub release (zip and notes) and that `master`'s `IndEvo.version` names it.
 8. Start the next `- UNRELEASED` section with the next change.
+
+## Test releases
+
+A test release is a GitHub pre-release of `dev` that Version Checker does not announce. Version Checker, LunaLib and mod managers read only `master`'s `IndEvo.version` (`masterVersionFile`), so a test release leaves that file alone. The zip's stamped `IndEvo.version` names the test version, higher than `master`'s, so testers get no notice either. Every build bumps the letter (`5.0.a`, `5.0.b`, ...), the public release included.
+
+1. In `Changelog`, change `<version> - UNRELEASED` to `<version>` alone: no `CURRENT PUBLIC VERSION` label, no save line. The public version keeps its label.
+2. Rebuild the release jar with `build`, commit it with the changelog, open a PR into `dev` and merge it.
+3. Run `package <version>` on the merged `dev` commit.
+4. Publish `out/release/Industrial.Evolution-<version>.zip` by hand: `gh release create <version> <zip> --prerelease --target <sha> --title "Industrial.Evolution <version>" --notes-file out/release/release-notes.md`. Not the Release workflow: its publish job commits the stamped `IndEvo.version` to `master`, and GitHub dispatches only workflows on the default branch.
+5. The next change starts `<next version> - UNRELEASED`.
 
 ## Maintenance
 

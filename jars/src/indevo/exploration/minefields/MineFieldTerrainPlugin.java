@@ -5,7 +5,6 @@ import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.util.Misc;
-import com.fs.starfarer.campaign.BaseLocation;
 
 import java.util.Random;
 
@@ -38,7 +37,7 @@ public class MineFieldTerrainPlugin extends MineBeltTerrainPlugin {
     public static SectorEntityToken addMineField(SectorEntityToken focus, int minRadius,
                                                  float maxRadius, String optionalName) {
 
-        CampaignTerrainAPI mineBelt = ((BaseLocation) focus.getContainingLocation()).addTerrain("IndEvo_mine_field",
+        CampaignTerrainAPI mineBelt = (CampaignTerrainAPI) focus.getContainingLocation().addTerrain("IndEvo_mine_field",
                 new MineFieldParams(
                         minRadius,
                         maxRadius,

@@ -4,12 +4,7 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/jars/src" isTestSource="false" />
-      <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/campaign/intel/misc/WIP rework" />
-      <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/campaign/rulecmd/salvage/special/WIP Events" />
-      <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/campaign/rulecmd/portRules" />
-      <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/campaign/rulecmd/academyRules/temp" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/industries/derelicts/industry/WIP" />
-      <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/industries/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/industries/academy/rules/WIP" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/WIP/converters" />
       <excludeFolder url="file://$MODULE_DIR$/jars/src/indevo/exploration/WIP" />
@@ -32,5 +27,15 @@
     <orderEntry type="library" name="commons-compiler" level="application" />
     <orderEntry type="library" name="src" level="application" />
     <orderEntry type="library" name="SHI" level="application" />
+    <orderEntry type="library" name="patchlib" level="application" />
+    <orderEntry type="module-library">
+      <library name="Vok">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/Vok.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

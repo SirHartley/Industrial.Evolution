@@ -27,8 +27,10 @@ import com.fs.starfarer.api.util.Pair;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
+import indevo.industries.compatibility.AotdManager;
 import indevo.submarkets.IndustrySubmarkets;
 import indevo.utils.helper.BillingHelper;
+import indevo.utils.helper.ExtModeHelper;
 import indevo.utils.helper.MiscIE;
 import indevo.utils.helper.StringHelper;
 
@@ -96,12 +98,18 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
 
     @Override
     public boolean isAvailableToBuild() {
-        return Setting.DRYDOCK.enabled();
+        return super.isAvailableToBuild() && Setting.DRYDOCK.enabled() && AotdManager.isResearched(this);
+    }
+
+    @Override
+    public String getUnavailableReason() {
+        String research = AotdManager.getMissingResearchReason(this);
+        return research != null ? research : super.getUnavailableReason();
     }
 
     @Override
     public boolean showWhenUnavailable() {
-        return Setting.DRYDOCK.enabled();
+        return super.showWhenUnavailable() && Setting.DRYDOCK.enabled();
     }
 
     public void reportEconomyTick(int iterIndex) {
@@ -197,19 +205,15 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
                     ship = eligibleShips.get(rnd);
                 }
 
-                //pick and a random dmod
-                List<HullModSpecAPI> DModList = getListNonBuiltInDMods(ship.getVariant());
-                int rnd = new Random().nextInt(DModList.size());
-
                 //cost/dmod memory handing
-                int dModAmount = DModList.size();
+                int dModAmount = getListNonBuiltInDMods(ship.getVariant()).size();
                 if (!maxDModMemory.containsKey(ship) || maxDModMemory.get(ship) < dModAmount)
                     maxDModMemory.put(ship, dModAmount);
 
                 log("maxDModMemory: " + maxDModMemory.get(ship));
 
                 //remove the dmod and add costs
-                ship.getVariant().removePermaMod(DModList.get(rnd).getId());
+                removeOneDMod(ship.getVariant(), new Random());
 
                 float cost = getSingleDModRepairCost(ship, maxDModMemory);
 
@@ -236,11 +240,7 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
             }
         }
 
-        //restore the hull to base if no dmod remains
-        for (Map.Entry<FleetMemberAPI, Float> ship : fixedShips.entrySet()) {
-            ShipVariantAPI shipVar = ship.getKey().getVariant();
-            if (getNumNonBuiltInDMods(shipVar) == 0) shipVar.setHullSpecAPI(getBaseShipHullSpec(shipVar, false));
-        }
+        for (Map.Entry<FleetMemberAPI, Float> ship : fixedShips.entrySet()) restoreHullIfClean(ship.getKey().getVariant());
 
         memory.set(MAX_DMOD_MEMORY, maxDModMemory);
         repairedShipsTooltipList = fixedShips;
@@ -296,12 +296,27 @@ public class RestorationDocks extends BaseIndustry implements EconomyTickListene
     }
 
     public float getSingleDModRepairCost(FleetMemberAPI ship, Map<FleetMemberAPI, Integer> maxDModMemory) {
-        float baseVal = getBaseShipHullSpec(ship.getVariant(), true).getBaseValue();
-
         //add it to the memory if the ship is not in it, does not account for increases in d-mods as it never saves back
         if (!maxDModMemory.containsKey(ship)) maxDModMemory.put(ship, getNumNonBuiltInDMods(ship.getVariant()));
 
-        return (float) (((baseVal / 2) * (Math.pow(1.2, maxDModMemory.get(ship) + 1))) / maxDModMemory.get(ship)) * aiCoreBonusMult;
+        return getSingleDModRepairCost(ship, maxDModMemory.get(ship), aiCoreBonusMult);
+    }
+
+    // also used by the rat settlement Restoration Bay
+    public static float getSingleDModRepairCost(FleetMemberAPI ship, int maxDMods, float mult) {
+        float baseVal = getBaseShipHullSpec(ship.getVariant(), true).getBaseValue();
+        return (float) (((baseVal / 2) * (Math.pow(1.2, maxDMods + 1))) / maxDMods) * mult * ExtModeHelper.commodityPriceMult(Commodities.PARTS);
+    }
+
+    public static void removeOneDMod(ShipVariantAPI variant, Random random) {
+        List<HullModSpecAPI> dMods = getListNonBuiltInDMods(variant);
+        if (dMods.isEmpty()) throw new IllegalStateException("no removable d-mod on " + variant.getHullSpec().getHullId());
+        variant.removePermaMod(dMods.get(random.nextInt(dMods.size())).getId());
+    }
+
+    // back to the base hull once no d-mod remains
+    public static void restoreHullIfClean(ShipVariantAPI variant) {
+        if (DModManager.getNumNonBuiltInDMods(variant) == 0) variant.setHullSpecAPI(getBaseShipHullSpec(variant, false));
     }
 
     public static ShipHullSpecAPI getBaseShipHullSpec(ShipVariantAPI shipVar, boolean forceBaseHull) {

@@ -8,6 +8,7 @@ import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.BaseCustomEntityPlugin;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
+import indevo.items.consumables.itemAbilities.missiles.ArtilleryRemoteAbilityPlugin;
 import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 import org.lwjgl.util.vector.Vector2f;
@@ -27,8 +28,9 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
     public static final float DANGERSIGN_ALPHA_RAMPUP_FRACTION = 0.1f;
     public static final float MAX_FADE_IN_SIZE_MULT = 1.5f;
     public static final float MAX_RETICULE_ALPHA = 0.7f;
-    // the old shells ran their clock at double speed, half the setting keeps that warning time
-    public static final float LANCE_TIME_MULT = 0.5f;
+    public static final float LANCE_TIME_MULT = 0.4f;
+    // lead is twice the fire time like the old double speed shells, so a fleet flying straight is missed
+    public static final float LEAD_TIME_MULT = 0.8f;
 
 
     //dangerSign
@@ -92,11 +94,13 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
             sizeMult = MAX_FADE_IN_SIZE_MULT - (MAX_FADE_IN_SIZE_MULT - 1) * mult;
         } else
             currentAlpha = MAX_RETICULE_ALPHA * (1 - smootherstep(maxFadeInTime, DANGER_SIGN_FADEOUT_TIME, timePassedSeconds));
+
+        if (timePassedSeconds > DANGER_SIGN_FADEOUT_TIME) Misc.fadeAndExpire(entity, 0.1f);
     }
 
     public static Vector2f getAnticipatedTargetLoc(SectorEntityToken entity) {
         Vector2f vel = entity.getVelocity();
-        float dist = vel.length() * (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + 1f) * LANCE_TIME_MULT;
+        float dist = vel.length() * (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + 1f) * LEAD_TIME_MULT;
         float currentNavigationAngle = Misc.getAngleInDegrees(vel);
         Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
         location.scale(dist);
@@ -108,7 +112,8 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
         boolean fuzz = true;
 
         for (int i = 1; i <= num; i++) {
-            float impactTimeSeconds = (float) (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + i + random()) * LANCE_TIME_MULT;
+            float shotTime = (float) (Setting.ARTILLERY_RAILGUN_PROJECTILES_IMPACT_TIME.value() + i + random());
+            float impactTimeSeconds = shotTime * LANCE_TIME_MULT;
 
             Vector2f vel = target.getVelocity();
 
@@ -121,7 +126,7 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
                 ModPlugin.log("fuzzing at " + fuzzMult);
             }
 
-            float dist = vel.length() * impactTimeSeconds * fuzzMult;
+            float dist = vel.length() * shotTime * LEAD_TIME_MULT * fuzzMult;
             float currentNavigationAngle = Misc.getAngleInDegrees(vel);
             Vector2f location = Misc.getUnitVectorAtDegreeAngle(currentNavigationAngle);
             location.scale(dist);
@@ -131,7 +136,8 @@ public class RailgunShotEntity extends BaseCustomEntityPlugin {
                     target.getContainingLocation(),
                     origin,
                     anticipatedEntityPos,
-                    impactTimeSeconds);
+                    impactTimeSeconds,
+                    ArtilleryRemoteAbilityPlugin.isRemoteTarget(target));
 
             fuzz = !fuzz;
         }
