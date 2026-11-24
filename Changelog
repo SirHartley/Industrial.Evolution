@@ -6,6 +6,9 @@ Fixed - Crash on new game with HMI (mods built against the old IE settings)
 Research Projects
 Fixed - New project notices no longer show several times for the same projects
 
+Salvage Specials
+Fixed - Crash when salvaging a story point derelict
+
 Consumables
 Fixed - Crash when pressing a hotkey slot that holds a removed ability
 
