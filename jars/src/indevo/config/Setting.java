@@ -223,8 +223,12 @@ public enum Setting {
         this.apply = apply;
     }
 
+    public static Setting find(String id) {
+        return BY_ID.get(id);
+    }
+
     public static Setting byId(String id) {
-        Setting setting = BY_ID.get(id);
+        Setting setting = find(id);
         if (setting == null) throw new IllegalArgumentException("Unknown IndEvo setting " + id);
         return setting;
     }

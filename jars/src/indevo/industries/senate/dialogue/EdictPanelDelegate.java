@@ -36,12 +36,12 @@ public class EdictPanelDelegate extends BaseCustomDialogDelegate {
         ACTIVE, MET, UNMET
     }
 
-    public static final float BOARD_W = 1004f;
-    public static final float SINGLE_BOARD_W = 744f;
+    public static final float BOARD_W = 1016f;
+    public static final float SINGLE_BOARD_W = 750f;
     public static final float BOARD_H = 712f;
     static final float BODY_Y = 64f;
     static final float LIST_Y = 88f;
-    static final float COLUMN_W = 290f;
+    static final float COLUMN_W = 296f;
     static final float COLONY_ROW_H = 74f;
     static final float EDICT_ROW_H = 32f;
     static final float UNMET_ROW_H = 44f;

@@ -10,6 +10,7 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`.
 | [SETTINGS.md](core/SETTINGS.md) | Settings cache (`config`), LunaLib tabs, `settings.json`, whitelists |
 | [SETTINGS_REWORK.md](core/SETTINGS_REWORK.md) | Decisions behind the typed, cached settings model and Quick Settings; implemented, the current mechanism is in SETTINGS.md |
 | [NEW_FEATURES.md](NEW_FEATURES.md) | Plans for new features (fleet side quests, Catch.Release lockout); not implemented |
+| [TERRAIN_PLAN.md](TERRAIN_PLAN.md) | Plans for new terrain (black hole maelstroms, unstable fabric, solar ejections, currents, nanite drift, ion storms); not implemented |
 | [UTILS.md](core/UTILS.md) | Shared helpers in `indevo/utils` |
 | [COMPATIBILITY.md](core/COMPATIBILITY.md) | Hard and optional mod dependencies and every integration |
 | [RULE_COMMANDS.md](dialogue/RULE_COMMANDS.md) | `rules.csv` layout and every rule command class |
@@ -167,7 +168,7 @@ After a game update, check inferred targets first (any target outside `com.fs.st
 
 ## Save data
 
-IE is released and players keep saves across patch versions. 4.2.a does not load 4.1.b saves (`Changelog` note), so IE carries no migration code for them. Starsector saves the sector with XStream; what persists is in the knowledge skill `docs/concepts/saves-persistence.md`.
+IE is released and players keep saves across patch versions. 5.0.a does not load 4.1.b saves (`Changelog` note), so IE carries no migration code for them. Starsector saves the sector with XStream; what persists is in the knowledge skill `docs/concepts/saves-persistence.md`.
 
 - Saved: fields of persistent listeners (`getInstanceOrRegister`), saved scripts (`TimeTracker`, feature scripts added with `addScript`), intel, industries and conditions on markets, custom entities and their plugins, memory values, tags.
 - Not saved: transient listeners (`register()`), campaign plugins, `SessionTransientMemory` (whitelist sets, VPC commodity and package tables).

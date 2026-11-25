@@ -23,7 +23,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 | `dialogue/ResearchView.java` | Panel state: ids of projects with Info open, scroll offsets (`CARDS`). Lives as long as the plugin, so rebuilds keep both. |
 | `dialogue/ResearchProjectPanel.java` | Side panel, `VisualPanelAPI.showCustomPanel(600, 600, UiCanvas)` with a `UiRoot` rebuild. One card per visible, unredeemed project, ready to redeem first, then by points; the list ends on the last card that fits whole at rest. Card: header strip (name, "Repeatable", percent or "Ready"), the short desc as whole sentences on one line, or a first sentence longer than the line on up to three (the card grows with it), Stock checkbox (repeatable only) and the Info toggle at the right end, bar, inline accepted items at their measured width (owned count up to 3 items while they fit, `+N` past 5), Donate... and Redeem. A finished project whose redeem requirement is missing gets a red line with the item icon. Info adds the wrapped long desc and a table: points each, owned, units to finish (ceil). Redeem logic lives here: `onRedeem`, `showRedeemConfirm`, `redeem` and the Redeem hover `addRedeemTooltip`. |
 | `dialogue/ResearchProjectDonationCargoPicker.java` | Cargo picker filtered to accepted items; takes only what is needed to finish, or everything when `allowsOverflow()` (`:69`). |
-| `intel/GalatiaNewProjectsIntel.java` | Important intel listing new project names; removes itself after 31 days (`:21`). |
+| `intel/GalatiaNewProjectsIntel.java` | Important intel listing new project names; removes itself after 31 days. `notifyNewProjects` batches ids in a transient `Batch` script that sends one intel on the next frame. |
 | `intel/HyperspaceTopographyProjectFactor.java` | One-time factor for the vanilla Hyperspace Topography event, added on Prospector redeem. |
 | `listeners/DoritoGunFoundChecker.java` | `ShowLootListener` + `EconomyTickListener`: any weapon tagged `omega` in loot, cargo or fitted unlocks Spitfire, Snowblind, Keyhole, Eureka, Parallax. |
 | `listeners/AutopulseUseChecker.java` | Economy tick: fitted `autopulse` unlocks Pulse. |
@@ -83,8 +83,7 @@ At `station_galatia_academy` the player opens a side panel with one card per vis
 
 | Class | How | Persists |
 |---|---|---|
-| `DoritoGunFoundChecker` | `addListener(x, true)` every load | transient |
-| `HyperspaceTopoProgressChecker` | `addListener(x, true)`, deduped by class | transient |
+| `DoritoGunFoundChecker`, `HyperspaceTopoProgressChecker` | `addListener(x, true)`, deduped by class | transient |
 | `SlowShipInFleetChecker`, `CorruptedNanoforgeChecker` | `addListener(x, true)` deduped | transient |
 | `ItemPatternChecker` | `addListener(x, true)` deduped, only with VoK | transient |
 | `AutopulseUseChecker`, `HasUniqueShipChecker` | `addListener(x)` deduped | saved |
@@ -105,7 +104,7 @@ Order: `PopulateOptions -> IndEvo_JobMenuPoint -> option -> IndEvo_JobMenuInit -
 5. Stock toggle (tooltip: excess donations toward future rewards, otherwise retained cargo) -> `UiButtons.check` (label `OVERFLOW_LABEL`) with a hover tooltip (width 400, left), flips `Progress.overflow` and rebuilds the panel.
 6. Return -> clear text, restore original plugin, set `$option = gaMeetingEnd` and fire `DialogOptionSelected` (vanilla Galatia rule ends the conversation).
 
-Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notifyNewProjects(ids) -> project.display() true`.
+Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notifyNewProjects(ids) -> project.display() true`. All unlocks in one frame (any listener) go into one `Batch` (a `LinkedHashSet`, so a repeated id shows once); its next `advance` sends one intel with that batch and marks itself done. It runs while paused, so an unlock in a loot dialog sends during the dialog.
 
 ## Contracts
 
@@ -116,6 +115,7 @@ Unlock path: `listener tick -> set memory flag -> GalatiaNewProjectsIntel.notify
 - Overflow is per project and off by default; `Progress.overflow` is false on saves made before the field existed. Turning it off keeps points already past 100%. The progress bar is capped at full width, the label shows the real percentage.
 - `getRandomForProj` stores five `java.util.Random` objects in memory, so a reload reproduces the same rolls (anti save scum). Each roll advances the stored randoms.
 - Camouflage: the engine marks the player fleet as having a unique signature when any member variant has `ship_unique_signature` (`obf/campaign/fleet/CampaignFleet.java:963`). The emitter works by renaming that tag; the swap only runs on `reportPlayerClosedMarket`, so installing the hullmod takes effect after leaving the market.
+- `GalatiaNewProjectsIntel.Batch` is transient and found through `getTransientScripts()`, never a static field, so loading another save drops a pending batch instead of carrying it over.
 - `ResearchProjectDonationCargoPicker` reaches the plugin through `$IndEvo_tempDialogueInstance` and reads its protected `dialog` field (same package). The panel holds the plugin directly.
 
 ## Known issues and dormant code

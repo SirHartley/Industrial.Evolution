@@ -2,6 +2,7 @@ package indevo.exploration.salvage.patches;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CargoAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.OptionPanelAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.fleet.FleetMemberAPI;
@@ -42,6 +43,7 @@ public class RelicDerelictRecoveryPatch {
     private static final FieldQuerySpec MEMBERS_FIELD = FieldQuery.create().fieldName("members").build();
     private static final FieldQuerySpec RECOVERED_FIELD = FieldQuery.create().fieldName("recovered").build();
     private static final FieldQuerySpec OPTIONS_FIELD = FieldQuery.create().fieldName("options").build();
+    private static final FieldQuerySpec DIALOG_FIELD = FieldQuery.create().fieldName("dialog").build();
     private static final FieldQuerySpec TEXT_FIELD = FieldQuery.create().fieldName("text").build();
     private static final MethodQuerySpec ADD_STORY_OPTIONS = MethodQuery.create().methodName("addStoryOptions").parameterCount(0).build();
 
@@ -59,7 +61,14 @@ public class RelicDerelictRecoveryPatch {
 
         // re-add not now below ours so it stays last
         boolean hadNotNow = options.hasOption(ShipRecoverySpecial.NOT_NOW);
-        if (hadNotNow) options.removeOption(ShipRecoverySpecial.NOT_NOW);
+        if (hadNotNow) {
+            options.removeOption(ShipRecoverySpecial.NOT_NOW);
+            // removeOption keeps the removed last button as the anchor, next addOption throws, rebuild resets it
+            options.restoreSavedOptions(options.getSavedOptionList());
+            // restore keeps the add time colour, setOptionColor only tints the button
+            InteractionDialogAPI dialog = context.<InteractionDialogAPI>getField(DIALOG_FIELD).get();
+            if (dialog != null && options.hasOption(ShipRecoverySpecial.RECOVER)) dialog.setOptionColor(ShipRecoverySpecial.RECOVER, Misc.getStoryOptionColor());
+        }
 
         options.addOption(String.format(OPTION_TEXT, cost), OPTION_ID);
         options.setEnabled(OPTION_ID, canPay);
