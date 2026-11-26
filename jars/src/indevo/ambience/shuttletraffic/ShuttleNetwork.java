@@ -98,6 +98,7 @@ public class ShuttleNetwork {
     public final Map<String, ShuttleRoute> routes = new LinkedHashMap<>();
     public final List<ShuttleAnchor> marketAnchors = new ArrayList<>();
     public final List<ShuttleAnchor> decivAnchors = new ArrayList<>();
+    public final List<ShuttleAnchor> taggedAnchors = new ArrayList<>();
     public final List<Body> bodies = new ArrayList<>();
     // IE meteors in the system, refreshed with the fleet scan; meteors fly, so their positions are read live
     private final List<SectorEntityToken> meteors = new ArrayList<>();
@@ -107,6 +108,7 @@ public class ShuttleNetwork {
         routes.clear();
         marketAnchors.clear();
         decivAnchors.clear();
+        taggedAnchors.clear();
         bodies.clear();
         meteors.clear();
     }
@@ -162,15 +164,21 @@ public class ShuttleNetwork {
     }
 
     public void rebuild(LocationAPI location, Random random, float days) {
-        for (ShuttleAnchor anchor : anchors.values()) anchor.seen = false;
+        for (ShuttleAnchor anchor : anchors.values()) {
+            anchor.seen = false;
+            anchor.trafficTag = null;
+        }
         for (ShuttleRoute route : routes.values()) route.seen = false;
         marketAnchors.clear();
         decivAnchors.clear();
+        taggedAnchors.clear();
 
         addMarkets(location, random, days);
+        addTagged(location);
         for (ShuttleAnchor anchor : marketAnchors) addHops(location, anchor, random);
         addDecivs(location);
         addMarketLanes(random);
+        addTaggedLanes(random);
         addPilgrims(location, random);
         addPirateHops(random);
         addHunts(random);
@@ -373,19 +381,37 @@ public class ShuttleNetwork {
             if (!planet.isStar() && !planet.isGasGiant()) bodies.add(planet);
         }
         bodies.addAll(location.getEntitiesWithTag(Tags.STATION));
-        bodies.removeIf(body -> body == market.entity || market.market.getConnectedEntities().contains(body)
+        bodies.removeIf(body -> body == market.entity || market.market.getConnectedEntities().contains(body) || isTagged(body)
                 || Misc.getDistance(loc, body.getLocation()) - market.getRadius() - body.getRadius() > HOP_RANGE || !isHopTarget(body, market));
+
+        int total = Math.max(1, Math.min(MAX_HOPS, Math.round(HOPS_PER_LIVELINESS * market.liveliness)));
+        addTaggedHops(market, total, random);
         if (bodies.isEmpty()) return;
 
         bodies.sort((p, q) -> Float.compare(Misc.getDistance(loc, p.getLocation()), Misc.getDistance(loc, q.getLocation())));
         int count = Math.min(HOP_TARGETS, bodies.size());
-        int total = Math.max(1, Math.min(MAX_HOPS, Math.round(HOPS_PER_LIVELINESS * market.liveliness)));
         for (int i = 0; i < count; i++) {
             ShuttleAnchor target = getHopTarget(bodies.get(i), market);
             int demand = total / count + (i < total % count ? 1 : 0);
             if (target.role == ShuttleAnchor.Role.MARKET) demand = Math.round(demand * Math.max(HOP_QUIET_MIN, Math.min(1f, target.liveliness)));
             if (demand > 0) getRoute(ShuttleRoute.Kind.HOP, market, target, random).demand = demand;
         }
+    }
+
+    // tagged entities in hop range get hops on top of the nearest bodies, the share of one body times their liveliness
+    private void addTaggedHops(ShuttleAnchor market, int total, Random random) {
+        for (ShuttleAnchor tagged : taggedAnchors) {
+            if (Misc.getDistance(market.getLocation(), tagged.getLocation()) - market.getRadius() - tagged.getRadius() > HOP_RANGE) continue;
+            if (isHostile(tagged, market)) continue;
+
+            int demand = Math.round(total / (float) HOP_TARGETS * Math.min(1f, tagged.liveliness));
+            if (demand > 0) getRoute(ShuttleRoute.Kind.HOP, market, tagged, random).demand = demand;
+        }
+    }
+
+    private boolean isTagged(SectorEntityToken entity) {
+        ShuttleAnchor anchor = anchors.get(entity);
+        return anchor != null && anchor.seen && anchor.trafficTag != null;
     }
 
     // a market with traffic counts as itself unless hostile, an entity without a market as a target; decivilized worlds and hidden bases never
@@ -404,6 +430,27 @@ public class ShuttleNetwork {
 
         ShuttleAnchor.Type type = body instanceof PlanetAPI ? ShuttleAnchor.Type.PLANET : ShuttleAnchor.Type.STATION;
         return getAnchor(body, type, ShuttleAnchor.Role.TARGET, body.getMarket(), from.faction);
+    }
+
+    // entities other mods tag as traffic destinations; one with a market in the economy, a decivilized world, a star or a fleet never
+    private void addTagged(LocationAPI location) {
+        for (ShuttleTrafficTag tier : ShuttleTrafficTag.values()) {
+            for (SectorEntityToken entity : location.getEntitiesWithTag(tier.tag)) {
+                if (ShuttleTrafficTag.get(entity) != tier || !entity.isAlive() || entity.isDiscoverable()) continue;
+                if (entity instanceof CampaignFleetAPI || entity instanceof PlanetAPI planet && planet.isStar()) continue;
+
+                MarketAPI market = entity.getMarket();
+                if (market != null && (market.isInEconomy() || market.hasCondition(Conditions.DECIVILIZED_SUBPOP))) continue;
+
+                ShuttleAnchor.Type type = entity instanceof PlanetAPI ? ShuttleAnchor.Type.PLANET : ShuttleAnchor.Type.STATION;
+                ShuttleAnchor anchor = getAnchor(entity, type, ShuttleAnchor.Role.TARGET, market, entity.getFaction());
+                anchor.trafficTag = tier;
+                anchor.closed = false;
+                anchor.density = 1f;
+                anchor.liveliness = tier.getLiveliness();
+                taggedAnchors.add(anchor);
+            }
+        }
     }
 
     private void addDecivs(LocationAPI location) {
@@ -443,6 +490,26 @@ public class ShuttleNetwork {
         }
     }
 
+    // every market but pirates flies lanes to a tagged entity like to a market of the tag's size; a is always the market
+    private void addTaggedLanes(Random random) {
+        for (ShuttleAnchor tagged : taggedAnchors) {
+            for (ShuttleAnchor market : marketAnchors) {
+                if (ShuttleFactionRepo.isPirate(market.faction) || isHostile(tagged, market)) continue;
+
+                float mult = (float) Math.sqrt(market.liveliness * tagged.liveliness) * ShuttleFactionRepo.get(market.faction).lanes();
+                if (market.market.hasCondition(Conditions.PIRATE_ACTIVITY)) mult *= PIRATE_ACTIVITY_LANES;
+                float chord = Misc.getDistance(market.getLocation(), tagged.getLocation());
+                getRoute(ShuttleRoute.Kind.MARKET, market, tagged, random).demand = Math.max(1, Math.round(chord / LANE_SPACING * mult));
+
+                if (market.market.hasIndustry(Ids.PORT)) getRoute(ShuttleRoute.Kind.COURIER, market, tagged, random);
+            }
+        }
+    }
+
+    private static boolean isHostile(ShuttleAnchor tagged, ShuttleAnchor market) {
+        return tagged.faction != null && market.faction != null && tagged.faction.isHostileTo(market.faction);
+    }
+
     // Cathedral markets and vanilla shrines; a shrine without a market of its own gets a target anchor
     private void addPilgrims(LocationAPI location, Random random) {
         List<ShuttleAnchor> shrines = new ArrayList<>();
@@ -452,7 +519,7 @@ public class ShuttleNetwork {
 
         for (SectorEntityToken entity : location.getEntitiesWithTag(Tags.LUDDIC_SHRINE)) {
             ShuttleAnchor known = anchors.get(entity);
-            if (known != null && known.seen) continue;
+            if (known != null && known.seen && known.trafficTag == null) continue;
             if (!entity.isAlive() || entity.isDiscoverable() || entity.getFaction() == null) continue;
 
             ShuttleAnchor.Type type = entity instanceof PlanetAPI ? ShuttleAnchor.Type.PLANET : ShuttleAnchor.Type.STATION;

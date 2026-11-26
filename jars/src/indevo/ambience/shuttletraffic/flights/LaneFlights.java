@@ -51,7 +51,7 @@ public class LaneFlights extends BaseFlights {
 
         boolean smuggler = route.kind == ShuttleRoute.Kind.SMUGGLER;
         // a hop target is shared by every market near it, so hops fly their market's faction both ways
-        FactionAPI faction = route.kind == ShuttleRoute.Kind.PIRATE_CARGO || route.kind == ShuttleRoute.Kind.HOP ? route.a.faction : from.faction;
+        FactionAPI faction = route.kind == ShuttleRoute.Kind.PIRATE_CARGO || route.kind == ShuttleRoute.Kind.HOP ? route.a.faction : getFaction(route, from);
         ShuttleHull hull = switch (route.kind) {
             case SUPPLY -> ShuttleHullPool.rollCargo(faction, random, 0.8f, true);
             case PIRATE_CARGO -> ShuttleHullPool.rollSmall(faction, random);
@@ -82,8 +82,7 @@ public class LaneFlights extends BaseFlights {
 
     // a convoy waits for its first gap after entering the system, so the warm start never places one
     private boolean isConvoyDue(ShuttleRoute route) {
-        if (route.a.market == null || route.b.market == null) return false;
-        if (route.a.market.getSize() < CONVOY_MARKET_SIZE || route.b.market.getSize() < CONVOY_MARKET_SIZE) return false;
+        if (route.a.getSize() < CONVOY_MARKET_SIZE || route.b.getSize() < CONVOY_MARKET_SIZE) return false;
 
         float gap = getConvoyGap(route);
         if (gap == Float.MAX_VALUE) return false;
@@ -96,7 +95,7 @@ public class LaneFlights extends BaseFlights {
     }
 
     private float getConvoyGap(ShuttleRoute route) {
-        float mult = (ShuttleFactionRepo.get(route.a.faction).convoys() + ShuttleFactionRepo.get(route.b.faction).convoys()) / 2f;
+        float mult = (ShuttleFactionRepo.get(route.a.faction).convoys() + ShuttleFactionRepo.get(getFaction(route, route.b)).convoys()) / 2f;
         if (mult <= 0f) return Float.MAX_VALUE;
 
         return (CONVOY_GAP_MIN + random.nextFloat() * (CONVOY_GAP_MAX - CONVOY_GAP_MIN)) / mult;
@@ -113,7 +112,7 @@ public class LaneFlights extends BaseFlights {
         ShuttleAnchor to = reverse ? route.a : route.b;
         if (!canFly(from, to)) return List.of();
 
-        FactionAPI faction = from.faction;
+        FactionAPI faction = getFaction(route, from);
         ShuttleHull lead = ShuttleHullPool.rollCargo(faction, random, 0.6f, false);
         if (lead == null) return List.of();
 
@@ -150,8 +149,13 @@ public class LaneFlights extends BaseFlights {
         ShuttleHull hull = ShuttleHullPool.rollBase(random, COURIER_HULLS);
         if (hull == null) return null;
 
-        return create(hull, route, from.faction, from, to, paths.lanePath(from, to, route.bendFrac, false), SpeedClass.MILITARY, 1f, LANE_JITTER, ShuttleLook.CRAFT,
+        return create(hull, route, getFaction(route, from), from, to, paths.lanePath(from, to, route.bendFrac, false), SpeedClass.MILITARY, 1f, LANE_JITTER, ShuttleLook.CRAFT,
                 Shuttle.CIVIL);
+    }
+
+    // a tagged entity has no craft of its own, its lanes fly the market's faction both ways
+    private static FactionAPI getFaction(ShuttleRoute route, ShuttleAnchor from) {
+        return from.trafficTag != null ? route.a.faction : from.faction;
     }
 
     // one way, to the shrine

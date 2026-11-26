@@ -8,7 +8,7 @@ Checked against Starsector 0.98a-RC8, LunaLib 2.0.1 (`lib/LunaLib.jar`) and IE `
 
 One transient LunaLib campaign renderer drives one `ShuttleTraffic` context that owns everything: anchors, routes, craft, trails, pods. Nothing is an entity, nothing is clickable, nothing is saved. Only the player's current location is simulated; hyperspace has no traffic.
 
-- Anchors are places craft launch from or land at: market planets and stations (`MARKET`), Decivilized Subpopulation planets (`DECIV`), Remnant battlestations (`REMNANT`) and one off destinations (`TARGET`: hunt planets, escape pod planets).
+- Anchors are places craft launch from or land at: market planets and stations (`MARKET`), Decivilized Subpopulation planets (`DECIV`), Remnant battlestations (`REMNANT`) and destinations without traffic of their own (`TARGET`: hop bodies, entities other mods tag ([traffic tags](#traffic-tags)), hunt planets, escape pod planets).
 - Routes say what flies where and how often. Most keep a number of flights in the air on a jittered timer; rare routes roll a daily chance.
 - Craft follow a chain of path segments, land with a descend look, ease around slow fleets, and scatter to other ports when hostile fleets come close; dogfighters steer by heading and throttle. Every craft is slow, turns wide and changes speed gently: no craft moves faster than 75 su/s (burn 3.75) and path speed changes by at most 12 su/s per second up and 20 down.
 
@@ -33,7 +33,8 @@ Package `indevo/ambience/shuttletraffic/`:
 | `dogfights/Dogfighter.java`, `DogfightGroup.java`, `DogfightFleet.java`, `WingType.java`, `DogfightHost.java` | One fighter (heading, throttle, states, look); a lone fighter, pair or vic; a battle fleet copied every frame; a wing's hull, role and weapons; hit particles and refuge lookup |
 | `dogfights/ShuttleProjectiles.java` | 256 slot ring buffer of guns, lasers and torpedoes per battle, swept hit tests, one `GL_LINES` batch |
 | `flights/ShuttlePaths.java`, `BaseFlights.java` | Every path builder (lanes, service hops, redirect, flee, away, hold, screen, cruise, linger, loop); shared flight helpers (`canFly`, `create`, `follower`, `leaderTraits`) |
-| `ShuttleAnchor.java` | One launch or landing place: type (`PLANET`, `STATION`, `FLEET`), role, pad depth, landing length, pad busy time, liveliness, near flag, measured velocity, threat state, meteor swarm state, density |
+| `ShuttleAnchor.java` | One launch or landing place: type (`PLANET`, `STATION`, `FLEET`), role, pad depth, landing length, pad busy time, liveliness, near flag, measured velocity, threat state, meteor swarm state, density, traffic tag, size (`getSize`: the tag's size, else the market's) |
+| `ShuttleTrafficTag.java` | The public traffic tags `IndEvo_traffic_high`, `_med`, `_low` with the market size each flies like; `get(entity)` returns the highest tier the entity carries |
 | `ShuttleRoute.java` | One route: kind, anchors, optional target or fleet, bend, in flight limit, timer or daily chance |
 | `ShuttleTarget.java` | A point relative to an entity, for mining belts, debris fields, wrecks and objectives |
 | `movement/ShuttlePath.java` | Segment chain with arc length tables: `BezierSegment`, `CircleSegment` (circle or rotated ellipse); waypoints on an anchor pad, on a fleet (`FleetWaypoint`), fixed, relative to an entity, or at the start or end of another segment |
@@ -52,7 +53,7 @@ Package `indevo/ambience/shuttletraffic/`:
 | `ShuttleHullPool.java` | Base pool from the CSV, faction pools, crew rule, rolls per flight kind, fitted wing hulls, escape pod hull |
 | `listeners/ShuttleColonyListener.java` | Transient `ColonyPlayerHostileActListener`, `ObjectiveEventListener`, `PlayerColonizationListener`, `ColonyDecivListener`: queues raid dropships, evacuation pods, objective maintenance runs, settlers and decivilization pods |
 | `listeners/ShuttleCampaignListener.java` | Transient `BaseCampaignEventListener`: queues fleets destroyed in battle (pods) and player market transactions (trade shuttles); NPC battle rounds and ends for dogfights; recovery tugs after any battle in view |
-| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, surface hops, budget split and its local reserve, the departure cap per pad, liveliness, state transitions, trail length by time, service hops to a fleet in orbit and the turn back when it leaves, the speed cap and slew, battle round rate, a 12 against 12 dogfight, rush hours, meteor swarm distance |
+| `indevo/tools/ShuttleTrafficChecks.java` | Headless checks, never shipped: constant speed, refresh and segment moves, star pass clearance, cruise circuits, surface hops, budget split and its local reserve, the departure cap per pad, liveliness, state transitions, trail length by time, service hops to a fleet in orbit and the turn back when it leaves, the speed cap and slew, battle round rate, a 12 against 12 dogfight, rush hours, meteor swarm distance, traffic tag ids and sizes |
 | `data/config/indEvo/shuttle_traffic.csv` | Base civilian craft: `id, hullId, weight, small` |
 | `data/config/indEvo/shuttle_factions.csv` | Faction profiles, see [Faction profiles](#faction-profiles) |
 
@@ -66,6 +67,7 @@ Package `indevo/ambience/shuttletraffic/`:
 | Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); hull sprites from `ShipHullSpecAPI.getSpriteName()`, the vanilla `mining_drone` hull for escape pods | `ShuttleTrafficRenderer`, `ShuttleHullPool.getPod` (`:114`) |
 | Config | `data/config/engine_styles.json` (merged): `engineCampaignColor` or `engineColor` for the glow, `contrailCampaignColor` or `contrailColor` at alpha 75 for the trail, `type` `SMOKE` for a normal blend trail | `ShuttleHullPool.getEngineLook` |
 | Industry ids | `Industries.PATROLHQ`, `MILITARYBASE`, `HIGHCOMMAND`, `MINING` (any industry with the `mining` tag, so VoK tiers count), `Ids.ACADEMY`, `Ids.EMBASSY`, `Ids.SCRAPYARD`, `Ids.PIRATEHAVEN`, `Ids.REPAIRDOCKS`, `Ids.PORT` (Courier Port), `Ids.CHURCH` (Cathedral) | `ShuttleNetwork.addMarkets` (`:231`), `addMarketLanes`, `addPilgrims` (`:340`) |
+| Public tags | `IndEvo_traffic_high`, `IndEvo_traffic_med`, `IndEvo_traffic_low`, set by other mods on their entities, read in the daily rebuild ([traffic tags](#traffic-tags)) | `ShuttleTrafficTag`, `ShuttleNetwork.addTagged` (`:436`) |
 | Condition and tags | `Ids.COND_PARADE` (Museum parade), `Tags.LUDDIC_SHRINE` (on markets and on entities, vanilla `CoreLifecyclePluginImpl.tagLuddicShrines`), `Ids.TAG_WATCHTOWER`, `Ids.TAG_ARTILLERY_STATION`, `MeteorSwarmManager.METEOR_TAG` (on every IE meteor, `MeteorEntity:79`) | `ShuttleNetwork` |
 
 Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2, `shepherd` 1, `ox` 1. Another mod adds rows by shipping the same path with its own ids.
@@ -117,6 +119,7 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 | `PARADE` | Market with the Museum parade condition: a wing of 3 faction fighters laps its own planet at `radius + 120` in tight formation | 1 wing | local |
 | `TOW` | Planet market with Restoration Docks to its first connected station: two Ox or Mudskipper tugs side by side at 60% speed pull an unlit frigate of the faction (`ShuttleLook.TOWED`: no glow, no trail), either way; needs room for 3 | 1 group | local |
 
+- Tagged entities ([traffic tags](#traffic-tags)) get `MARKET` lanes, `COURIER` routes and `HOP` routes from markets like a market of the tag's size; they launch no local flights of their own.
 - Budget (`ShuttleBudget`, `ShuttleBudget.update` after every rebuild, when the setting changes and when an anchor's `near` changes): the network writes each route's demand, the budget sets `route.max`. Local flights launch only from `near` anchors: a local route of an anchor that is not near gets max 0, so nothing new launches there and craft already out finish their flight. Local flights reserve `min(local demand of the whole system, cap * 0.4)` craft, local demand counting `Kind.craftPerFlight` per flight (pickets and cruises 2, training 3). The reserve is held from lanes even with no market near: a lane flight takes minutes, and lanes that filled the whole cap left a hub empty when the player arrived. Lanes get the rest: when lane demand is higher, every lane's demand is scaled by `budget / demand`, at least 1. When the near local demand is over the reserve, every near local route is scaled the same way, at least 1. A group may launch into free room the other reserve does not hold; rare flights fit wherever there is room. Formations and races count each craft; pods are not counted. Fleet tied craft (`Group.FLEET`, routes in `ShuttleTraffic.getFleetRoutes`) have their own cap, `setting / 4` (20 at the default 80), on top of the setting, 0 when the setting is 0.
 - Convoys (`LaneFlights.launchMarket`, `:71`): on a market lane with both markets at size 5 or more, every `3..6 days / mean convoys` (profile column; 0 means never) the launch is a convoy in place of one craft: 2 or 3 cargo hulls in line astern 16 su apart and 1 or 2 faction fighters as escort in a V 25 su out on one flank, all following the leader on the traffic lane. The first convoy waits a random share of one gap after the route is made, so the warm start never places one. The freighters must fit the pad's departure room, the escorts only the budget; with room for fewer than 2 freighters and 1 escort the launch is a single craft and the convoy stays due. It counts as one flight of the route.
 - Warm start fills routes in rounds, one flight per route per round, so the first routes in the map do not take the whole cap.
@@ -124,6 +127,22 @@ Base pool: `shuttlepod` 10 (small), `kite` 4 (small), `hermes` 2, `mudskipper` 2
 - Timer routes (`ShuttleSpawner.spawn`, `:63`): lanes `(distance / mean speed + 6) / max * (0.6..1.4)` s, mean speed from the kind's `SpeedClass` (27 su/s civil), others `Kind.pause * (0.6..1.4)` s. Rare routes roll their chance once per day (`rollRareFlights`, `:56`) and launch when the roll is pending.
 - Warm start fills every timer route to its limit at spread progress, trails (by age) and formation history pre-filled.
 - Nothing launches from or to a threatened anchor, or from an anchor threatened in the last day (`BaseFlights.canFly`, `:40`).
+
+### Traffic tags
+
+Public contract for other mods ([COMPATIBILITY](COMPATIBILITY.md#contracts)): never rename the tags. An entity tagged `IndEvo_traffic_high`, `IndEvo_traffic_med` or `IndEvo_traffic_low` becomes a traffic destination (`ShuttleNetwork.addTagged`, `:436`, in every rebuild, so a tag added or removed applies within a day or on the next system entry).
+
+| Tag | Flies like a market of size | Liveliness | Convoys |
+|---|---|---|---|
+| `IndEvo_traffic_high` | 6 | 1.6 | yes, with markets of size 5 or more |
+| `IndEvo_traffic_med` | 4 | 0.625 | no |
+| `IndEvo_traffic_low` | 3 | 0.39 | no |
+
+- Counts only without a market of its own: an entity whose market is in the economy (it has market traffic, or none without a spaceport), a decivilized world, a star, any fleet, a dead or a discoverable entity is skipped. Several tags: the highest wins.
+- Anchor: role `TARGET`, `PLANET` for a planet, else `STATION` (docking pad); faction `entity.getFaction()`, used for hostility and threats only. Never a refuge for fleeing craft.
+- Lanes (`addTaggedLanes`, `:494`): every market in the system that is not pirate and not hostile to the entity's faction gets a `MARKET` lane to it, demand `max(1, round(chord / 500 * sqrt(market liveliness * tag liveliness) * market lanes))`, x2/3 with Pirate Activity at the market; a Courier Port market also gets a `COURIER` route. Convoys follow `ShuttleAnchor.getSize`. Lanes fly both ways in the market's faction (`LaneFlights.getFaction`, `:157`).
+- Hops (`addTaggedHops`, `:402`): every market within 4000 su surface to surface and not hostile hops to it on top of its 2 nearest bodies, demand `round(market hop total / 2 * min(1, tag liveliness))`, none at 0. A size 5 market flies 2 (high), 1 (med) or 1 (low) hop craft to it; tagged entities are never one of the 2 nearest bodies.
+- No cruises, pickets or other local flights launch from it; pilgrims still fly to a tagged shrine.
 
 ### Faction profiles
 
@@ -298,12 +317,13 @@ A station pad is busy while a craft is in its last 100 su and 1 s after. A craft
 |---|---|
 | In game look | Tests (2026-11-08) fixed: rubberbanding, nervous trails, blinking lights, loop joyrides (now cruises), craft vanishing under planets, sprite size, trails out of line with the craft between moving bodies, lanes through the star. Untested in game: star pass, market lanes, blended trail frame, cruises, pod bursts, formation break up, trails by time, sizes and glow, engine colours from slots (before this every hull used manufacturer colours, the slot lookup always failed), formation reform, hits |
 | Calm down (stage 10) | Untested in game: speed cap and slew, stage 4 avoidance back in place of dodging, V for every fighter group, stalled trails fading, dogfighter turn rate and speed, thinner gun rows. Not found by reading: which craft flew in lines at Diktat and Hegemony markets; the likely source, escort wings in single file, is removed |
+| Traffic tags | Untested in game: lanes, hops, couriers and convoys to a tagged entity, pads on a tagged custom entity; no vanilla or IE entity carries a tag. `ShuttleTrafficChecks` covers the tag ids, tier order and sizes, not the network rebuild |
 | Layer | Everything draws in `TERRAIN_7`, below fleets, dogfighters included; whether they need a layer above fleets is open for the live test |
 | Profiles and events | Untested in game: faction profiles, free port, pirate activity, Pather cells, hidden bases, objective runs, settlers, decivilization pods, recovery tugs |
 | More flights | Untested in game: couriers, pilgrims, Museum parades, Restoration Docks tows, Privateer Base dark craft, watchtower and artillery maintenance, convoys, meteor swarm closures, rush hours. IE meteor showers only roll in uninhabited systems, where the closure mostly matters for hidden bases, Remnant patrols and hunts; rogue asteroid formations also cross colonized systems and close the pads they pass, a drizzle does not ([Meteor swarms](../exploration/METEOR.md#rogue-asteroids)). Craft already flying a lane that a swarm crosses keep flying; only their ends divert |
 | Dogfights | Untested in game. Not verified: whether NPC fleet variants carry their final wings before the fleet is inflated near the player, how long NPC battles last in practice. The check fight is a meat grinder: fighters live about 10 s and a side that falls behind loses each new group soon after launch |
 | Run over | Craft do not get out of the way of fleets at 40 su/s or more, so run over can hit any craft in a fast fleet's way; how often is open for the live test |
-| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, the departure cap, states, trail length, service hops, the speed cap and slew, a dogfight, rush hour range and the meteor swarm distance, not flights, reactions, hits or rendering. It runs on its own, not in `ReleaseBuild` |
+| Checks | `ShuttleTrafficChecks` covers paths, cruise circuits, the budget split, the departure cap, states, trail length, service hops, the speed cap and slew, a dogfight, rush hour range, the meteor swarm distance and the traffic tags, not flights, reactions, hits or rendering. It runs on its own, not in `ReleaseBuild` |
 | Performance | Live smoke `trafficperf` group (2026-11-12, `--perf`, after stage 10): worst case in Askonia at 120 (about 100 craft, 32 pods, 2 dogfights with 30 fighters, 6 fleet routes) ran at 5.5 ms per frame against 6.2 ms with traffic off in the same scene; all of `shuttletraffic` 0.9% of CPU and 1.4% of allocation over the run. Frame time is too noisy to show the feature's own cost, and JFR does not see GL driver time |
 | Density | Live smoke `traffic` and `trafficapproach` groups (2026-11-12, setting 80). Parked 500 su off the market, mean craft within radius + 800 su: Chicomoztoc 30, Sindria 38, Jangala 24, Citadel Arcadia 8.5 (lanes passing included). Flying in after 60 s far out: Chicomoztoc 32 on arrival, Sindria 26, Jangala 25. Untested in game by eye: whether that reads as a hub against a fringe station, and how surface hops look |
 
@@ -321,4 +341,4 @@ The native smoke `shuttle` group ([SMOKE_TESTS.md](../SMOKE_TESTS.md)) reads the
 
 ## Maintenance
 
-Update this doc when a flight kind, the anchor rules, the hull pool, the CSV columns of either file or the setting changes. Setting mechanics belong in [Settings](SETTINGS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).
+Update this doc when a flight kind, the anchor rules, the traffic tags, the hull pool, the CSV columns of either file or the setting changes. Setting mechanics belong in [Settings](SETTINGS.md). Follow [CLAUDE.md](../../CLAUDE.md#documentation-upkeep).

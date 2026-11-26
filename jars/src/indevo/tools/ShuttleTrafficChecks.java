@@ -12,6 +12,8 @@ import indevo.ambience.shuttletraffic.ShuttleLook;
 import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleState;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
+import indevo.ambience.shuttletraffic.ShuttleTrafficTag;
+import indevo.ambience.shuttletraffic.flights.LaneFlights;
 import indevo.ambience.shuttletraffic.movement.PathMover;
 import indevo.ambience.shuttletraffic.SpeedClass;
 import indevo.ambience.shuttletraffic.ShuttleTrail;
@@ -114,6 +116,7 @@ public final class ShuttleTrafficChecks {
             run.checkRoundRate();
             run.checkRushHour();
             run.checkLiveliness();
+            run.checkTrafficTags();
             run.checkSpeedCap();
             run.checkSwarmRange();
             run.checkDogfight();
@@ -779,6 +782,27 @@ public final class ShuttleTrafficChecks {
         check(hub > 5f, "Chicomoztoc liveliness " + hub);
         check(fringe < 0.35f, "Citadel Arcadia liveliness " + fringe);
         check(ShuttleNetwork.getLiveliness(6, 1f, false, false) > plain && ShuttleNetwork.getLiveliness(4, 1f, false, false) < plain, "liveliness does not grow with size");
+    }
+
+    // tags are a public contract: exact ids, the highest tier wins, only high counts as a convoy market
+    private void checkTrafficTags() {
+        check(ShuttleTrafficTag.HIGH.tag.equals("IndEvo_traffic_high") && ShuttleTrafficTag.MED.tag.equals("IndEvo_traffic_med")
+                && ShuttleTrafficTag.LOW.tag.equals("IndEvo_traffic_low"), "traffic tag ids changed");
+        check(ShuttleTrafficTag.get(tagged(Set.of("IndEvo_traffic_low", "IndEvo_traffic_high"))) == ShuttleTrafficTag.HIGH, "highest traffic tag does not win");
+        check(ShuttleTrafficTag.get(tagged(Set.of("IndEvo_traffic_med"))) == ShuttleTrafficTag.MED, "med traffic tag not read");
+        check(ShuttleTrafficTag.get(tagged(Set.of())) == null, "untagged entity has a traffic tag");
+        check(ShuttleTrafficTag.HIGH.getLiveliness() > 1f && ShuttleTrafficTag.MED.getLiveliness() < 1f
+                && ShuttleTrafficTag.LOW.getLiveliness() < ShuttleTrafficTag.MED.getLiveliness(), "traffic tag liveliness out of order");
+        check(ShuttleTrafficTag.HIGH.size >= LaneFlights.CONVOY_MARKET_SIZE && ShuttleTrafficTag.MED.size < LaneFlights.CONVOY_MARKET_SIZE, "convoys do not match the traffic tags");
+
+        ShuttleAnchor anchor = new ShuttleAnchor(tagged(Set.of("IndEvo_traffic_high")), ShuttleAnchor.Type.STATION, ShuttleAnchor.Role.TARGET, null, null);
+        anchor.trafficTag = ShuttleTrafficTag.HIGH;
+        check(anchor.getSize() == ShuttleTrafficTag.HIGH.size, "tagged anchor size " + anchor.getSize());
+    }
+
+    private static SectorEntityToken tagged(Set<String> tags) {
+        return (SectorEntityToken) Proxy.newProxyInstance(SectorEntityToken.class.getClassLoader(), new Class<?>[]{SectorEntityToken.class},
+                (self, method, args) -> "hasTag".equals(method.getName()) ? tags.contains((String) args[0]) : defaultValue(method.getReturnType()));
     }
 
     private static ShuttleRoute route(ShuttleRoute.Kind kind, int demand) {
