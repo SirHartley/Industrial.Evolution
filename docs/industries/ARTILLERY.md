@@ -161,7 +161,7 @@ Smoke is the vanilla `nebula_particles` sheet in normal blend, glows are `fusion
 
 `WatchtowerEntityPlugin.advance` (`:91-122`): about once per 20 s in the player's location marks hostile NPC fleets within `IndEvo_Artillery_WatchtowerRange` as seen for 5 days and shows a range ping. Hacking (vanilla objective hack, rules row `cob_hackPrompt_watchtower`) lasts 30 to 60 days and resets the eye.
 
-Watchtowers are placed per system at each jump point, each gate, one gap per gas giant and one gap in the first star-centred ring (`ArtilleryStationPlacer.placeTowers`), discoverable if the system has no markets. When a watchtower changes hands (`reportObjectiveChangedHands`), after `IndEvo_Watchtower_faction_reset` days it reverts to the nearest artillery faction if that is derelict or remnant (`WatchtowerFactionResetListener.java:32-79`).
+Watchtowers are placed per system at each jump point, each gate, one gap per gas giant and one gap in the first star-centred ring (`ArtilleryStationPlacer.placeTowers`), discoverable if the system has no markets. `placeWatchtowers(system, factionId)` is the 4.x entry kept for Lost Sector ([Compatibility](../core/COMPATIBILITY.md#optional-integrations)): it sets `$IndEvo_artilleryVision` to `WATCHTOWER` if unset and places watchtowers. When a watchtower changes hands (`reportObjectiveChangedHands`), after `IndEvo_Watchtower_faction_reset` days it reverts to the nearest artillery faction if that is derelict or remnant (`WatchtowerFactionResetListener.java:32-79`).
 
 ### Vision types and lighthouses
 
