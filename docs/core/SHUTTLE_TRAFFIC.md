@@ -138,7 +138,21 @@ Public contract for other mods ([COMPATIBILITY](COMPATIBILITY.md#contracts)): ne
 | `IndEvo_traffic_med` | 4 | 0.625 | no |
 | `IndEvo_traffic_low` | 3 | 0.39 | no |
 
-- Counts only without a market of its own: an entity whose market is in the economy (it has market traffic, or none without a spaceport), a decivilized world, a star, any fleet, a dead or a discoverable entity is skipped. Several tags: the highest wins.
+- Counts only on an entity without traffic of its own. A tag on anything that already has rules is ignored and changes nothing (`addTagged` runs after `addMarkets`):
+
+| Tagged entity | Result |
+|---|---|
+| Colony planet or station (market in the economy), with or without a spaceport | Ignored, market rules apply (no traffic without a spaceport) |
+| A market's connected station, or any entity already a market anchor in this rebuild | Ignored, keeps its market anchor and supply hops |
+| Hidden pirate or Pather base | Ignored, keeps its dark craft |
+| Decivilized world | Ignored, keeps its `DECIV` anchor (pirate cargo, hunts) |
+| Fleet (Remnant battlestation included), star, dead entity | Ignored |
+| Discoverable entity | Ignored until the player finds it |
+| Planet or station without a market, also a hop body | Tagged; tagged hops replace the normal hop to it, never both |
+| Luddic shrine without a market (Beholder Station) | Tagged; pilgrims fly to the same anchor |
+| Comm relay, nav buoy, sensor array, watchtower | Tagged; maintenance runs keep working, they use no anchor |
+| Tag on the `MarketAPI` or in hyperspace | Not read: only entity tags in a star system count |
+| Several tags | The highest wins |
 - Anchor: role `TARGET`, `PLANET` for a planet, else `STATION` (docking pad); faction `entity.getFaction()`, used for hostility and threats only. Never a refuge for fleeing craft.
 - Lanes (`addTaggedLanes`, `:494`): every market in the system that is not pirate and not hostile to the entity's faction gets a `MARKET` lane to it, demand `max(1, round(chord / 500 * sqrt(market liveliness * tag liveliness) * market lanes))`, x2/3 with Pirate Activity at the market; a Courier Port market also gets a `COURIER` route. Convoys follow `ShuttleAnchor.getSize`. Lanes fly both ways in the market's faction (`LaneFlights.getFaction`, `:157`).
 - Hops (`addTaggedHops`, `:402`): every market within 4000 su surface to surface and not hostile hops to it on top of its 2 nearest bodies, demand `round(market hop total / 2 * min(1, tag liveliness))`, none at 0. A size 5 market flies 2 (high), 1 (med) or 1 (low) hop craft to it; tagged entities are never one of the 2 nearest bodies.
