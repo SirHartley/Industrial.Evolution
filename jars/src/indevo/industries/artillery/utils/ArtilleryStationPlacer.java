@@ -272,6 +272,13 @@ public class ArtilleryStationPlacer {
         return t;
     }
 
+    // 4.x signature, lost sector calls it on new game, never remove or rename
+    public static void placeWatchtowers(StarSystemAPI system, String factionId) {
+        MemoryAPI mem = system.getMemoryWithoutUpdate();
+        if (!mem.contains(Ids.MEM_SYSTEM_ARTILLERY_VISION)) mem.set(Ids.MEM_SYSTEM_ARTILLERY_VISION, VisionType.WATCHTOWER.name());
+        placeTowers(system, factionId, WatchtowerEntityPlugin.ENTITY_ID, new Random());
+    }
+
     public static int placeTowers(StarSystemAPI system, String factionId, String entityType, Random random) {
         float minGap = 100f;
         FactionAPI faction = Global.getSector().getFaction(factionId);
