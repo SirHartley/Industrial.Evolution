@@ -25,6 +25,7 @@ public final class Achievements {
     public static final String YOU_MONSTER = "IndEvo_ach_youMonster";
     public static final String FULL_LIFE = "IndEvo_ach_fullLife";
     public static final String IMMORTAL_HAMPTER = "IndEvo_ach_immortalHampter";
+    public static final String SPEEDRUN = "IndEvo_ach_speedrun";
     public static final String WARSHIP = "IndEvo_ach_warship";
     public static final String PRIORITIES = "IndEvo_ach_priorities";
     public static final String GOOD_CAPTAIN = "IndEvo_ach_goodCaptain";

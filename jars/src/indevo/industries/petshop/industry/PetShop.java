@@ -17,6 +17,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.Pair;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
+import indevo.achievements.Achievements;
 import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.ids.ItemIds;
@@ -238,6 +239,7 @@ public class PetShop extends BaseIndustry implements EconomyTickListener {
                 if (trait != null && (trait.isMutation() || read && trait.isTalent())) sheet.known.add(id);
             }
             Pet young = new Pet(data.id, PetDataRepo.suggestName(data, taken), sheet, a.id, b.id);
+            if (data.isHamster() && young.getLifetime() < 0f) Achievements.complete(Achievements.SPEEDRUN);
             taken.add(young.name);
             brood.young.add(young);
         }

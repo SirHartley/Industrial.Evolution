@@ -6,14 +6,14 @@ Checked against MagicLib 1.5.1 (`lib/MagicLib.jar`, sources under `org/magiclib/
 
 ## Overview
 
-28 achievements, listed in MagicLib's Achievements intel. Unlocks are stored by MagicLib per install in a common file, not in the save, so they carry across saves. MagicLib's LunaLib setting `magiclib_enableAchievements` turns all of them off; every IE hook is then a no-op. Each feature calls one static method on `Achievements` at the moment the event happens; there is no IE state outside MagicLib except one officer memory key.
+29 achievements, listed in MagicLib's Achievements intel. Unlocks are stored by MagicLib per install in a common file, not in the save, so they carry across saves. MagicLib's LunaLib setting `magiclib_enableAchievements` turns all of them off; every IE hook is then a no-op. Each feature calls one static method on `Achievements` at the moment the event happens; there is no IE state outside MagicLib except one officer memory key.
 
 ## Files
 
 | File | Owner / role |
 |---|---|
-| `data/config/magic_achievements.csv` | Specs: `id,name,description,tooltip,script,image,spoilerLevel,rarity`. MagicLib loads it from every enabled mod (`MagicAchievementManager.java:40`, `:443`). `tooltip` is required by the loader and left empty. An empty `image` uses MagicLib's default icon. |
-| `indevo/achievements/Achievements.java` | Ids, goals, targets and the entry points the hooks call (`complete`, `add`, `addKey`, `setTarget`, `addPersonality`, `artilleryHit`, `missileCaught`, `cargoValue`). `get(id)` returns null when achievements are off, the id is not loaded or the achievement is complete (`:167`). |
+| `data/config/magic_achievements.csv` | Specs: `id,name,description,tooltip,script,image,spoilerLevel,rarity`. MagicLib loads it from every enabled mod (`MagicAchievementManager.java:40`, `:443`). `tooltip` is required by the loader and left empty. An empty `image` uses MagicLib's default icon. Art made only for an achievement lives in `graphics/icons/achievements/`. |
+| `indevo/achievements/Achievements.java` | Ids, goals, targets and the entry points the hooks call (`complete`, `add`, `addKey`, `setTarget`, `addPersonality`, `artilleryHit`, `missileCaught`, `cargoValue`). `get(id)` returns null when achievements are off, the id is not loaded or the achievement is complete (`:168`). |
 | `indevo/achievements/plugins/IEAchievement.java` | Script for plain achievements. Loads the image texture (the intel draws it with `addImage`) and sets the max progress from `Achievements.goal`. |
 | `indevo/achievements/plugins/IETargetListAchievement.java` | Script for checklists (Collect Them All, Tourist Trap). Sets the targets from `Achievements.targets` on every application load; `setTargets` keeps the done state of existing keys and drops removed ones. |
 | `indevo/achievements/plugins/RelicHoardAchievement.java` | Might Need It Later. Reads the player cargo in `advanceAfterInterval`. |
@@ -21,13 +21,14 @@ Checked against MagicLib 1.5.1 (`lib/MagicLib.jar`, sources under `org/magiclib/
 
 ## Data and ids
 
-Ids are `IndEvo_ach_<name>`, constants in `Achievements.java:25` to `:52`. Spoiler levels and rarities are in the CSV.
+Ids are `IndEvo_ach_<name>`, constants in `Achievements.java:25` to `:53`. Spoiler levels and rarities are in the CSV.
 
 | Achievement | Id | Unlocks when | Hook |
 |---|---|---|---|
 | You Monster | `youMonster` | Scuttled ship's pet finds no other ship | `industries/petshop/listener/PetStatusManager.java:622` |
 | A Full Life | `fullLife` | Hamster dies of old age | `PetStatusManager.java:724` |
 | The Immortal Hampter | `immortalHampter` | Hamster reaches `HAMSTER_DAYS` (5 cycles, about 6.5 hours of play) | `industries/petshop/memory/Pet.java:415` |
+| Speedrun | `speedrun` | A brood rolls a hamster young with a life span under 0 (flaw levels cost 3 days each, see [PETS](../industries/PETS.md)) | `industries/petshop/industry/PetShop.java:242` |
 | This Is a Warship | `warship` | `WARSHIP_PETS` (10) pets aboard player ships after a place | `Pet.java:126` |
 | Priorities | `priorities` | Pet takes the escape pod | `PetStatusManager.java:936` |
 | Who's a Good Captain | `goodCaptain` | Winning side has a deployed ship whose captain is its pet | `PetStatusManager.java:950` |
