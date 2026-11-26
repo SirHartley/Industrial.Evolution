@@ -52,6 +52,23 @@ The `shaderLib` and `lunalib` checks are redundant while both are hard dependenc
 | Better Colonies | Optional, data | AI industry spawn weights for IE industries | `data/config/BetterColonyConfig/bc_autospindustries.csv` |
 | Version Checker | Optional, data | Update check (GitHub raw master file, thread 18011) | `IndEvo.version`, `data/config/version/version_files.csv` |
 
+## Hooks for other mods
+
+IE ids other mods may set to opt into IE features. Each is a public contract ([Contracts](#contracts)).
+
+### Shuttle traffic destinations
+
+Tag a star system entity that has no market of its own, on creation or later:
+
+```java
+station.addTag("IndEvo_traffic_high"); // or IndEvo_traffic_med, IndEvo_traffic_low
+```
+
+- High flies like a size 6 market (lanes, local hops, couriers, convoys), med like size 4, low like size 3, without convoys.
+- No dependency on IE: the tag is a plain string and does nothing without IE.
+- Read in the daily traffic rebuild and on system entry; removing the tag stops new flights within a day.
+- Tags on a colony, its stations, a hidden base, a decivilized world, a fleet or a star are ignored, so a wrong tag never doubles traffic. Full rules: [Shuttle traffic](SHUTTLE_TRAFFIC.md#traffic-tags).
+
 ## Ashes of the Domain
 
 Theory of Toolbox (`aotd_theory_of_toolbox`), Vaults of Knowledge (`aotd_vok`), Seats of Power (`aotd_sop`), all optional. Plan, findings and asks for AOTD: `AOTD_COMPAT.md` in the project files. Only `indevo/industries/compatibility/AotdManager.java` imports AOTD classes, inside its nested `Vok` class; VoK is compile only (`lib/Vok.jar`, VoK 5.0.6, not shipped). IE never patches AOTD.

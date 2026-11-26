@@ -432,11 +432,13 @@ public class ShuttleNetwork {
         return getAnchor(body, type, ShuttleAnchor.Role.TARGET, body.getMarket(), from.faction);
     }
 
-    // entities other mods tag as traffic destinations; one with a market in the economy, a decivilized world, a star or a fleet never
+    // entities other mods tag as traffic destinations; a market anchor of this rebuild, a market in the economy, a decivilized world, a star or a fleet keeps its own rules
     private void addTagged(LocationAPI location) {
         for (ShuttleTrafficTag tier : ShuttleTrafficTag.values()) {
             for (SectorEntityToken entity : location.getEntitiesWithTag(tier.tag)) {
                 if (ShuttleTrafficTag.get(entity) != tier || !entity.isAlive() || entity.isDiscoverable()) continue;
+                ShuttleAnchor known = anchors.get(entity);
+                if (known != null && known.seen) continue;
                 if (entity instanceof CampaignFleetAPI || entity instanceof PlanetAPI planet && planet.isStar()) continue;
 
                 MarketAPI market = entity.getMarket();
