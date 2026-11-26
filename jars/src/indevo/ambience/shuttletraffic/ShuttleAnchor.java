@@ -46,6 +46,8 @@ public class ShuttleAnchor {
     public float density = 1f;
     // how busy the market feels: size, port, military and station on top of density, set in the network rebuild
     public float liveliness = 1f;
+    // set for an entity other mods tagged as a traffic destination, in the network rebuild
+    public ShuttleTrafficTag trafficTag;
     // the player is close enough to see its local flights, set every scan
     public boolean near = false;
     // world velocity from the last two scans: planets and stations move on orbits, and a fleet parked at one moves with it
@@ -113,6 +115,12 @@ public class ShuttleAnchor {
             case STATION -> STATION_DOCK_LENGTH;
             case FLEET -> FLEET_END_LENGTH;
         };
+    }
+
+    // a tagged entity counts as a market of its tag's size
+    public int getSize() {
+        if (trafficTag != null) return trafficTag.size;
+        return market != null ? market.getSize() : 0;
     }
 
     public boolean isUsable(LocationAPI location) {
