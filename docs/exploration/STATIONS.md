@@ -26,9 +26,9 @@ On a new game `DerelictStationPlacer` counts the vanilla salvageable stations (m
 | Drop groups | lab: `indEvo_tech`, `indEvo_consumables`, `indEvo_missiles`; arsenal: `indEvo_weapons`, `indEvo_consumables`, `indEvo_missiles_always`, `indEvo_missiles`; pet center: `indEvo_petStuff`, `indEvo_pets_normal`, `indEvo_pets_rare`, `indEvo_consumables`, `indEvo_petLongevity`. Three pet centers per game also carry a Longevity Syringe as extra salvage ([Pets](../industries/PETS.md#longevity)) | `data/campaign/procgen/drop_groups.csv` |
 | Descriptions | `IndEvo_arsenalStation`, `IndEvo_orbitalLaboratory`, `IndEvo_abandonedPetCenter` (CUSTOM) | `data/strings/descriptions.csv:4-5`, `:26` |
 | Setting | `IndEvo_Enable_Derelicts` | `LunaSettings.csv:7`; checked in `ModPlugin.onNewGameAfterEconomyLoad` before calling the placer |
-| Setting | `IndEvo_enable_derelict_stations`, off while `IndEvo_Enable_Derelicts` is off (`Setting.block`) | `LunaSettings.csv:24`; `DerelictStationPlacer.init:43` |
-| Setting | `IndEvo_derelictStationAmount` (0.2) | `LunaSettings.csv:19`; overwrites static `ADDITIONAL_STATION_AMT` (`:46`) |
-| Setting | `IndEvo_pets` | `LunaSettings.csv:11`; zeroes the pet center budget (`:70-73`) |
+| Setting | `IndEvo_enable_derelict_stations`, off while `IndEvo_Enable_Derelicts` is off (`Setting.block`) | `LunaSettings.csv:22`; `DerelictStationPlacer.init:43` |
+| Setting | `IndEvo_derelictStationAmount` (0.2) | `LunaSettings.csv:17`; overwrites static `ADDITIONAL_STATION_AMT` (`:44`) |
+| Setting | `IndEvo_pets` | `LunaSettings.csv:11`; zeroes the pet center budget (`:68-71`) |
 | Memory | `MemFlags.SALVAGE_SEED` per entity | `addSalvageEntity:275-276` |
 
 ## Registration and lifecycle

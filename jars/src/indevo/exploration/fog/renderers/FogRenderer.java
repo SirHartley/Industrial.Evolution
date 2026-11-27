@@ -40,9 +40,6 @@ public final class FogRenderer {
     // star icon colours are fully saturated, the light is that hue pulled this far to white
     public static final float SUN_WHITE = 0.35f;
     public static final float SUN_MIN_BRIGHTNESS = 0.5f;
-    // fog is drawn at 1 / divisor of the screen size and stretched back up; it has no detail under about 40 units
-    public static final int HALF_DIVISOR = 2;
-    public static final int LOW_DIVISOR = 4;
 
     private static final String VERTEX_PATH = "data/shaders/indevo_fogVertex.shader";
     private static final String FRAGMENT_PATH = "data/shaders/indevo_fogFragment.shader";
@@ -112,7 +109,7 @@ public final class FogRenderer {
     }
 
     // suns: x, y, radius, light reach per star in bank local coordinates; sunColours: 9 floats per star
-    // divisor 1 draws at screen resolution, HALF_DIVISOR or LOW_DIVISOR draw smaller when the gpu has framebuffers
+    // divisor 1 draws at screen resolution, above 1 draws smaller when the gpu has framebuffers
     public static void render(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time, float[][] colours,
                               float[] suns, int sunCount, float[] sunColours, int divisor) {
         float inset = grid.cell * 2f;

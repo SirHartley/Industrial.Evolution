@@ -1,6 +1,9 @@
 package indevo.config;
 
+import indevo.exploration.fog.FogMode;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public enum Setting {
@@ -20,9 +23,7 @@ public enum Setting {
     RELIC_COMPONENT_HARD_BATTLE_FP_ADVANTAGE("IndEvo_relicComponentHardbattleFPAdvantage", 1.5, 1, 5),
     RELIC_COMPONENT_FP_DESTROYED_FRACT("IndEvo_relicComponentFPDestroyedFract", 0.5, 0, 1),
     METEOR_ENABLED("IndEvo_meteor_enabled", true),
-    FOG_ENABLED("IndEvo_fog_enabled", true),
-    FOG_LOW_FIDELITY("IndEvo_fog_lowFidelity", false),
-    FOG_HALF_RESOLUTION("IndEvo_fog_halfResolution", false),
+    FOG_WEATHER("IndEvo_fog_weather", FogMode.DEFAULT),
     METEOR_BASE_CHANCE_PER_ECONOMY_TICK("IndEvo_meteor_baseChancePerEconomyTick", 0.02, 0.001, 0.1),
     METEOR_IMMEDIATE_MODE("IndEvo_meteor_immediateMode", false),
     METEOR_MIN_INTENSITY("IndEvo_meteor_minIntensity", 1.0, 1, 5),
@@ -173,7 +174,7 @@ public enum Setting {
     MUSEUM_GAMMA_CORE_INCOME_MULT("IndEvo_museum_gammaCoreIncomeMult", 1.3, 0.1, 3),
     MUSEUM_UNIQUE_SHIP_VALUE_MULT("IndEvo_museum_uniqueShipValueMult", 2.0, 1, 5);
 
-    public enum Type {BOOLEAN, INT, DOUBLE}
+    public enum Type {BOOLEAN, INT, DOUBLE, RADIO}
 
     public enum Apply {LIVE, NEW_GAME}
 
@@ -190,32 +191,42 @@ public enum Setting {
     public final double max;
     public final Setting block;
     public final Apply apply;
+    public final List<Choice> choices;
+
+    // a RADIO option, its enum constants in declaration order are the options and the label is the stored value
+    public interface Choice {
+        String label();
+    }
 
     Setting(String id, boolean fallback) {
-        this(id, Type.BOOLEAN, fallback, 0, 1, null, Apply.LIVE);
+        this(id, Type.BOOLEAN, fallback, 0, 1, null, Apply.LIVE, List.of());
     }
 
     Setting(String id, boolean fallback, Setting block) {
-        this(id, Type.BOOLEAN, fallback, 0, 1, block, Apply.LIVE);
+        this(id, Type.BOOLEAN, fallback, 0, 1, block, Apply.LIVE, List.of());
     }
 
     Setting(String id, boolean fallback, Setting block, Apply apply) {
-        this(id, Type.BOOLEAN, fallback, 0, 1, block, apply);
+        this(id, Type.BOOLEAN, fallback, 0, 1, block, apply, List.of());
     }
 
     Setting(String id, int fallback, double min, double max) {
-        this(id, Type.INT, fallback, min, max, null, Apply.LIVE);
+        this(id, Type.INT, fallback, min, max, null, Apply.LIVE, List.of());
     }
 
     Setting(String id, double fallback, double min, double max) {
-        this(id, Type.DOUBLE, fallback, min, max, null, Apply.LIVE);
+        this(id, Type.DOUBLE, fallback, min, max, null, Apply.LIVE, List.of());
     }
 
     Setting(String id, double fallback, double min, double max, Apply apply) {
-        this(id, Type.DOUBLE, fallback, min, max, null, apply);
+        this(id, Type.DOUBLE, fallback, min, max, null, apply, List.of());
     }
 
-    Setting(String id, Type type, Object fallback, double min, double max, Setting block, Apply apply) {
+    Setting(String id, Choice fallback) {
+        this(id, Type.RADIO, fallback.label(), 0, 0, null, Apply.LIVE, List.of((Choice[]) ((Enum<?>) fallback).getDeclaringClass().getEnumConstants()));
+    }
+
+    Setting(String id, Type type, Object fallback, double min, double max, Setting block, Apply apply, List<Choice> choices) {
         this.id = id;
         this.type = type;
         this.fallback = fallback;
@@ -223,6 +234,7 @@ public enum Setting {
         this.max = max;
         this.block = block;
         this.apply = apply;
+        this.choices = choices;
     }
 
     public static Setting find(String id) {
@@ -237,6 +249,7 @@ public enum Setting {
 
     public Object sanitize(Object value) {
         if (type == Type.BOOLEAN) return value instanceof Boolean ? value : fallback;
+        if (type == Type.RADIO) return value instanceof String text && labels().contains(text) ? text : fallback;
         if (!(value instanceof Number number) || !Double.isFinite(number.doubleValue())) return fallback;
         double clamped = Math.max(min, Math.min(max, number.doubleValue()));
         if (type == Type.INT) return (int) Math.round(clamped);
@@ -259,5 +272,16 @@ public enum Setting {
 
     public int intValue() {
         return ((Number) PlayerSettings.get(this)).intValue();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <C extends Choice> C choice() {
+        Object label = PlayerSettings.get(this);
+        for (Choice choice : choices) if (choice.label().equals(label)) return (C) choice;
+        throw new IllegalStateException(id + " is not a RADIO setting");
+    }
+
+    public List<String> labels() {
+        return choices.stream().map(Choice::label).toList();
     }
 }

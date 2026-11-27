@@ -67,9 +67,9 @@ Checked against Starsector 0.98a-RC8 and IE `cbdc2e1`. Recheck engine facts afte
 | Memory key | `$IndEvo_riftBlocked` (any entity, true blocks the jump; for other mods), `$IndEvo_riftPreciseTarget` (local, picked system id) | `RiftBlockers.java:12`, `RiftPrecisePicker` |
 | Tag | `IndEvo_noRiftTarget` on a star system: never a target | `RiftTargets.java:21` |
 | Setting | `IndEvo_Enable_Derelicts` | `data/config/LunaSettings.csv:7` |
-| Setting | `IndEvo_derelictDeliverToGathering`, `IndEvo_RG_cooldownTime` (90), `IndEvo_RG_range` (9), `IndEvo_RG_preciseCost` (100), `IndEvo_reslab_autoDeliverToClosestDecon` | `data/config/LunaSettings.csv:158-162` |
-| Setting | `IndEvo_hullDecon_autoDeliverToClosestForge`, `IndEvo_hullDecon_days_*` (10/20/30/40) | `data/config/LunaSettings.csv:155-159` |
-| Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:160-165` |
+| Setting | `IndEvo_derelictDeliverToGathering`, `IndEvo_RG_cooldownTime` (90), `IndEvo_RG_range` (9), `IndEvo_RG_preciseCost` (100), `IndEvo_reslab_autoDeliverToClosestDecon` | `data/config/LunaSettings.csv:156-160` |
+| Setting | `IndEvo_hullDecon_autoDeliverToClosestForge`, `IndEvo_hullDecon_days_*` (10/20/30/40) | `data/config/LunaSettings.csv:153-157` |
+| Setting | `IndEvo_hullForge_autoQueueShipsUntilEmpty`, `IndEvo_hullForge_autoDeliverToClosestLab`, `IndEvo_hullForge_days_*` (5/10/15/20) | `data/config/LunaSettings.csv:158-163` |
 | Setting | `IndEvo_ToggleMagicRandomSelector` (settings.json only) | `data/config/settings.json:28`, read at `HullForge.java:279,444` |
 | Config | `IndEvo_labList` -> `data/config/indEvo/lab_commodity_whitelist.csv` | `data/config/settings.json:19` |
 | Config | `IndEvo_riftBlockedSystemsList` -> `data/config/indEvo/rift_blocked_systems.csv` (system ids, never a target), `IndEvo_riftBlockingEntitiesList` -> `data/config/indEvo/rift_blocking_entities.csv` (custom entity types that block in orbit: `bifrost_gate`, `aotd_pluto_station`) | `data/config/settings.json:25-26` |

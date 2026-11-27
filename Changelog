@@ -10,7 +10,7 @@ Shuttle Traffic
 Added - Modders: tag an entity IndEvo_traffic_high, _med or _low to make it a traffic destination
 
 Fog
-Added - Low Fidelity Fog and Half Resolution Fog settings for weak graphics chips (Quick Settings)
+Adjusted - Fog Weather setting: Off, High, Default or Low Fidelity. Default draws fog at half resolution, Low at a quarter for weak graphics chips
 
 5.0.b
 General
