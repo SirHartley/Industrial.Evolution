@@ -23,6 +23,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.exploration.fog.renderers.FogRenderer;
 import indevo.exploration.fog.sim.FogCover;
 import indevo.exploration.fog.sim.FogGrid;
@@ -101,6 +102,8 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float LANCE_INNER = 50f;
     public static final float LANCE_OUTER = 130f;
     public static final float LANCE_PUSH = 220f;
+    // low fidelity fog runs the solver at most this often, movers and patches still update every frame
+    public static final float LOW_STEP_SECONDS = 1f / 30f;
     public static final int MAP_CELLS = 40;
     public static final float MAP_REACH = 1.4f;
 
@@ -128,6 +131,7 @@ public class FogTerrainPlugin extends BaseTerrain {
     private transient float[] patches;
     private transient int patchCount;
     private transient int frame;
+    private transient float pendingStep;
     private transient float[][] colours;
     private transient float[] suns;
     private transient float[] sunColours;
@@ -325,7 +329,8 @@ public class FogTerrainPlugin extends BaseTerrain {
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (grid == null || layer != CampaignEngineLayers.TERRAIN_8) return;
         readSuns();
-        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours(), suns, sunCount, sunColours);
+        int divisor = Setting.FOG_LOW_FIDELITY.enabled() ? FogRenderer.LOW_DIVISOR : Setting.FOG_HALF_RESOLUTION.enabled() ? FogRenderer.HALF_DIVISOR : 1;
+        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours(), suns, sunCount, sunColours, divisor);
     }
 
     // up to three stars that light the fog: place, radius and light reach in bank local coordinates, shades per star
@@ -563,7 +568,11 @@ public class FogTerrainPlugin extends BaseTerrain {
             if (ring.t >= RING_SECONDS) it.remove();
         }
 
-        grid.step(dt, time);
+        pendingStep += dt;
+        if (!Setting.FOG_LOW_FIDELITY.enabled() || pendingStep >= LOW_STEP_SECONDS) {
+            grid.step(pendingStep, time);
+            pendingStep = 0f;
+        }
     }
 
     private void feedMovers(float amount, float dt) {
@@ -705,5 +714,6 @@ public class FogTerrainPlugin extends BaseTerrain {
         rings = null;
         lastAnchor = null;
         patchCount = 0;
+        pendingStep = 0f;
     }
 }
