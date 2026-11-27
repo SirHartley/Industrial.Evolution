@@ -2,6 +2,7 @@ id,name,description,tooltip,script,image,spoilerLevel,rarity
 IndEvo_ach_youMonster,You Monster,Scuttle a ship while its pet was still aboard and no other ship could take it.,,indevo.achievements.plugins.IEAchievement,graphics/pets/swearingcrab.png,Hidden,Uncommon
 IndEvo_ach_fullLife,A Full Life,A hamster of yours died of old age. It was a month old.,,indevo.achievements.plugins.IEAchievement,graphics/pets/hampter.png,Spoiler,Common
 IndEvo_ach_immortalHampter,The Immortal Hampter,Keep one hamster alive for 5 cycles.,,indevo.achievements.plugins.IEAchievement,graphics/pets/hampter.png,Visible,Epic
+IndEvo_ach_speedrun,Speedrun,Raise a hamster with a negative life span.,,indevo.achievements.plugins.IEAchievement,graphics/icons/achievements/IndEvo_speedrun.png,Hidden,Rare
 IndEvo_ach_warship,This Is a Warship,Have a pet on 10 ships of your fleet at once.,,indevo.achievements.plugins.IEAchievement,graphics/pets/gravcat.png,Visible,Uncommon
 IndEvo_ach_priorities,Priorities,A pet took the escape pod when its ship went down. The crew was told to wait for the next one.,,indevo.achievements.plugins.IEAchievement,graphics/pets/phasecat.png,Spoiler,Uncommon
 IndEvo_ach_goodCaptain,Who's a Good Captain,Win a battle with a ship commanded by its pet.,,indevo.achievements.plugins.IEAchievement,graphics/pets/doge.png,Spoiler,Rare
