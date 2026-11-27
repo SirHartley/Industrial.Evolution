@@ -59,7 +59,7 @@ public class LighthouseEntityPlugin extends WatchtowerEntityPlugin {
     // 1 at the lighthouse, 0 at the end of the beam, below 0 outside every beam
     public float getBeamFraction(SectorEntityToken target) {
         if (!beamSees(target)) return -1f;
-        return MathUtils.clamp(1f - Misc.getDistance(entity, target) / LighthouseBeamTerrain.getLength(), 0f, 1f);
+        return MathUtils.clamp(1f - Misc.getDistance(entity, target) / getBeamPlugin().getCurrentLength(), 0f, 1f);
     }
 
     private void markFleetsInBeam(LighthouseBeamTerrain terrain) {

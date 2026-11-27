@@ -13,6 +13,7 @@ import indevo.industries.artillery.renderers.LightConeRenderer;
 import indevo.industries.artillery.renderers.SearchlightRenderer;
 import indevo.industries.artillery.scripts.DroneNetScript;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
+import indevo.industries.artillery.utils.ProfileScale;
 import indevo.industries.artillery.utils.VisionBlockers;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -30,6 +31,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
     public static final float[] RING_RADIUS_SHARE = {0.3125f, 0.5875f, 0.825f};
     public static final float[] RING_SPEED = {190f, 150f, 170f};
     public static final float SPOT_RADIUS_SHARE = 0.1625f;
+    public static final float MIN_SPOT_MULT = 0.4f;
     public static final float STOPPED_BURN = 2f;
     public static final float CROSSFADE_SECONDS = 0.6f;
     public static final float MIN_SEEING_STRENGTH = 0.5f;
@@ -74,6 +76,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
     protected transient List<VisionBlockers.Blocker> blockers;
     protected transient float sinceBlockers;
     protected transient float dustTime;
+    protected transient ProfileScale profileScale;
 
     // offset from the tower, so a spot keeps its place while the tower orbits
     public static class Spot {
@@ -109,6 +112,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
     protected Object readResolve() {
         super.readResolve();
         layers = EnumSet.of(CampaignEngineLayers.TERRAIN_7);
+        profileScale = new ProfileScale();
 
         float range = getRange();
         spots = new Spot[RINGS * SPOTS_PER_RING];
@@ -128,6 +132,11 @@ public class SearchlightTerrain extends BaseRingTerrain {
 
     public static float getSpotRadius() {
         return getRange() * SPOT_RADIUS_SHARE;
+    }
+
+    // drawing and every check use this radius, getSpotRadius is the max
+    public float getCurrentSpotRadius() {
+        return getSpotRadius() * profileScale.getMult(MIN_SPOT_MULT);
     }
 
     public static boolean isStopped(CampaignFleetAPI fleet) {
@@ -162,6 +171,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
         brightness = clamp(brightness + (lit ? amount : -amount) / FADE_SECONDS);
         pingCooldown -= amount;
         dustTime += amount;
+        profileScale.advance(amount, entity.getContainingLocation());
 
         sinceBlockers += amount;
         if (sinceBlockers >= BLOCKER_SECONDS) blockers = null;
@@ -253,7 +263,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
 
     private boolean covers(Spot spot, Vector2f point) {
         Vector2f loc = getLocation(spot);
-        return Misc.getDistance(loc, point) < getSpotRadius() && !VisionBlockers.isBlocked(getBlockers(), loc, point);
+        return Misc.getDistance(loc, point) < getCurrentSpotRadius() && !VisionBlockers.isBlocked(getBlockers(), loc, point);
     }
 
     // what a light sees follows its brightness, so a dim light never catches the player
@@ -273,7 +283,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
         if (!lit || !entity.isInCurrentLocation()) return -1f;
 
         Vector2f at = Global.getSector().getPlayerFleet().getLocation();
-        float radius = getSpotRadius();
+        float radius = getCurrentSpotRadius();
         float best = 0f;
 
         for (Spot spot : spots) {
@@ -305,7 +315,7 @@ public class SearchlightTerrain extends BaseRingTerrain {
         if (brightness <= 0f) return;
 
         float alpha = viewport.getAlphaMult() * brightness;
-        float radius = getSpotRadius();
+        float radius = getCurrentSpotRadius();
         Vector2f tower = entity.getLocation();
         boolean drawEmitters = viewport.isNearViewport(tower, EMITTER_RENDER_RANGE);
         if (drawEmitters) SearchlightRenderer.clearSpikes();
