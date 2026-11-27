@@ -27,11 +27,11 @@ The Academy stores officers and admins taken out of the player fleet, trains one
 |---|---|---|
 | Industry | `IndEvo_Academy` (`Ids.ACADEMY`) | `data/campaign/industries.csv:35`, tags `structure, unraidable` |
 | Market | `IndEvo_academyMarket` (`Ids.ACADEMY_MARKET_ID`) on entity `station_galatia_academy` | `ModPlugin.createAcademyMarket()` (`indevo/utils/ModPlugin.java:378`) |
-| Setting | `IndEvo_Academy` (toggle) | `data/config/LunaSettings.csv:104`, read in `Academy.isAvailableToBuild()` (`Academy.java:148`) |
-| Setting | `IndEvo_dailyOfficerSpawnChance` 0.15, `IndEvo_dailyAdminSpawnChance` 0.10 | `LunaSettings.csv:168-169`, `Academy.onNewDay()` |
-| Setting | `IndEvo_personalityTrainingDayCount` 93, `IndEvo_personalityTrainingCost` 30000 | `LunaSettings.csv:170-171` |
-| Setting | `IndEvo_adminTrainingDayCount` 124, `IndEvo_adminTrainingCost` 20000 | `LunaSettings.csv:172-173` |
-| Setting | `IndEvo_monthlyAIStorageCost` 2000 (per person, NPC markets) | `LunaSettings.csv:174` |
+| Setting | `IndEvo_Academy` (toggle) | `data/config/LunaSettings.csv:103`, read in `Academy.isAvailableToBuild()` (`Academy.java:148`) |
+| Setting | `IndEvo_dailyOfficerSpawnChance` 0.15, `IndEvo_dailyAdminSpawnChance` 0.10 | `LunaSettings.csv:167-168`, `Academy.onNewDay()` |
+| Setting | `IndEvo_personalityTrainingDayCount` 93, `IndEvo_personalityTrainingCost` 30000 | `LunaSettings.csv:169-170` |
+| Setting | `IndEvo_adminTrainingDayCount` 124, `IndEvo_adminTrainingCost` 20000 | `LunaSettings.csv:171-172` |
+| Setting | `IndEvo_monthlyAIStorageCost` 2000 (per person, NPC markets) | `LunaSettings.csv:173` |
 | Whitelist | `academy_admin_skill_whitelist.csv`, key `IndEvo_academySkillList` (`Ids.ACADEMY_SKILL_LIST`) | `data/config/indEvo/`, [Settings](../core/SETTINGS.md#whitelists) |
 | Market memory | `$IndEvo_officerIsTraining`, `$IndEvo_adminIsTraining` | set by `Academy`, no reader left |
 | Person memory | `$IndEvo_wasTrainedLevel` (personality steps used) | `Academy.addTrainedSteps()` |

@@ -20,7 +20,6 @@ import com.fs.starfarer.api.impl.campaign.procgen.themes.BaseThemeGenerator;
 import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
-import indevo.config.Setting;
 import indevo.exploration.fog.fleet.FogLurkerAssignmentAI;
 import indevo.exploration.fog.terrain.FogTerrainPlugin;
 import indevo.exploration.fog.terrain.FogTerrainPlugin.Kind;
@@ -83,7 +82,7 @@ public class FogWeatherManager implements EconomyTickListener {
     @Override
     public void reportEconomyTick(int iterIndex) {
         List<SectorEntityToken> active = getActiveFog();
-        if (!Setting.FOG_ENABLED.enabled()) return;
+        if (FogMode.current() == FogMode.OFF) return;
 
         int spells = 0, banks = 0;
         for (SectorEntityToken fog : active) {

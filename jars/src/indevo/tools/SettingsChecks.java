@@ -11,8 +11,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.IllegalFormatException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,14 +29,15 @@ public final class SettingsChecks {
     static final List<String> COLUMNS = List.of("fieldID", "fieldName", "fieldType", "defaultValue", "secondaryValue",
             "fieldDescription", "minValue", "maxValue", "tab");
     static final String QUICK = "Quick Settings";
-    static final List<String> TABS = List.of(QUICK, "Exploration & Items", "Meteor Swarms", "Minefields", "Artillery",
+    static final List<String> TABS = List.of(QUICK, "Exploration & Items", "Fog & Meteors", "Minefields", "Artillery",
             "Industries", "Production", "Derelict Industries", "Colony Services");
     static final Map<String, Setting.Type> TYPES = Map.of("Boolean", Setting.Type.BOOLEAN, "Int", Setting.Type.INT,
-            "Double", Setting.Type.DOUBLE);
+            "Double", Setting.Type.DOUBLE, "Radio", Setting.Type.RADIO);
     static final Pattern INT = Pattern.compile("-?[0-9]+");
     static final Pattern NUMBER = Pattern.compile("-?[0-9]+(\\.[0-9]+)?");
     static final Pattern NEW_GAME_NOTE = Pattern.compile("(^|\\. )Needs a new game\\.");
     static final Pattern DEFAULT_NOTE = Pattern.compile("(^|[.!)] )Default (on|off|-?[0-9]+(\\.[0-9]+)?)\\.");
+    static final Pattern RADIO_DEFAULT_NOTE = Pattern.compile("(^|[.!)] )Default: ([^.]+)\\.");
     static final Pattern LUNA_ACCESS = Pattern.compile("\\bLunaSettings(Loader)?\\b(?!\\.csv)");
     static final List<String> OWN_ACCESS = List.of("jars/src/indevo/config/", "jars/src/indevo/tools/");
 
@@ -76,6 +79,8 @@ public final class SettingsChecks {
                 "highlight check");
         check(DEFAULT_NOTE.matcher("Off. Default on.").find() && DEFAULT_NOTE.matcher("Default 0.5.").find()
                 && !DEFAULT_NOTE.matcher("Defaults vary. Default: 5").find(), "default note check");
+        check(RADIO_DEFAULT_NOTE.matcher("Off. Default: High Fidelity.").find()
+                && !RADIO_DEFAULT_NOTE.matcher("Default High Fidelity.").find(), "radio default note check");
     }
 
     private Map<String, List<String>> checkCsv(byte[] bytes) {
@@ -134,6 +139,7 @@ public final class SettingsChecks {
             return;
         }
         check(TYPES.containsKey(type), id + " has unsupported type " + type);
+        if (type.equals("Radio")) check(!row.get(4).isBlank(), id + " radio has no options in secondaryValue");
         checkShown(id, "fieldName", row.get(1), false);
         checkShown(id, "fieldDescription", row.get(5), true);
     }
@@ -152,7 +158,9 @@ public final class SettingsChecks {
             if (!check(TYPES.get(row.get(2)) == setting.type, setting.id + " row type " + row.get(2)
                     + " does not match " + setting.type)) continue;
             checkDefault(setting, row.get(3));
-            if (setting.type != Setting.Type.BOOLEAN) checkBounds(setting, row.get(6), row.get(7));
+            if (setting.type == Setting.Type.INT || setting.type == Setting.Type.DOUBLE) checkBounds(setting, row.get(6), row.get(7));
+            check((setting.type == Setting.Type.RADIO) != setting.choices.isEmpty(), setting.id + " has choices but is not a RADIO, or the other way round");
+            if (setting.type == Setting.Type.RADIO) checkOptions(setting, row.get(4));
             boolean newGame = setting.apply == Setting.Apply.NEW_GAME;
             check(NEW_GAME_NOTE.matcher(row.get(5)).find() == newGame, setting.id + " help text "
                     + (newGame ? "lacks" : "has") + " \"Needs a new game.\" but apply is " + setting.apply);
@@ -178,16 +186,31 @@ public final class SettingsChecks {
             case INT -> INT.matcher(text).matches() && Integer.parseInt(text) == (Integer) setting.fallback;
             case DOUBLE -> NUMBER.matcher(text).matches()
                     && Double.parseDouble(text) == ((Number) setting.fallback).doubleValue();
+            case RADIO -> text.equals(setting.fallback);
         };
         check(matches, setting.id + " row default " + text + " does not match " + setting.fallback);
     }
 
+    // lunalib splits secondaryValue at commas and trims each option
+    private void checkOptions(Setting setting, String text) {
+        List<String> options = Arrays.stream(text.split(",", -1)).map(String::trim).toList();
+        check(options.equals(setting.labels()), setting.id + " row options " + options + " do not match " + setting.labels());
+        check(new HashSet<>(setting.labels()).size() == setting.labels().size(), setting.id + " has a label twice");
+    }
+
     private void checkDefaultNote(Setting setting, String help) {
+        if (setting.type == Setting.Type.RADIO) {
+            Matcher note = RADIO_DEFAULT_NOTE.matcher(help);
+            check(note.find() && note.group(2).equals(setting.fallback), setting.id
+                    + " help text needs \"Default: <option>.\" matching the default " + setting.fallback);
+            return;
+        }
         Matcher note = DEFAULT_NOTE.matcher(help);
         boolean matches = note.find() && switch (setting.type) {
             case BOOLEAN -> note.group(2).equals((Boolean) setting.fallback ? "on" : "off");
             case INT, DOUBLE -> !note.group(2).equals("on") && !note.group(2).equals("off")
                     && Double.parseDouble(note.group(2)) == ((Number) setting.fallback).doubleValue();
+            case RADIO -> false;
         };
         check(matches, setting.id + " help text needs \"Default <value>.\" matching the default " + setting.fallback);
     }
@@ -218,6 +241,13 @@ public final class SettingsChecks {
             if (setting.type == Setting.Type.BOOLEAN) {
                 check(Setting.same(setting.sanitize(!(Boolean) fallback), !(Boolean) fallback), name + "drops a boolean");
                 check(Setting.same(setting.sanitize(1), fallback), name + "keeps a number");
+                continue;
+            }
+            if (setting.type == Setting.Type.RADIO) {
+                check(Setting.same(setting.sanitize(true), fallback) && Setting.same(setting.sanitize(1), fallback),
+                        name + "keeps a value that is not a string");
+                check(setting.labels().stream().allMatch(label -> Setting.same(setting.sanitize(label), label)),
+                        name + "drops an option");
                 continue;
             }
             check(Setting.same(setting.sanitize(true), fallback), name + "keeps a boolean");
