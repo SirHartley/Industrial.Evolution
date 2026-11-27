@@ -28,8 +28,8 @@ Derelict stations (`IndEvo_GachaStation`, display name "Automated Shipyard") orb
 | Memory key | `$IndEvo_stationRepaired` (`HAS_RESTORED_STATION`, entity) | `GachaStationDialoguePlugin.java:39` |
 | Memory key | `$IndEvo_randomSeed` (`RANDOM`, entity, a `java.util.Random` seeded with the entity hash) | `GachaStationDialoguePlugin.java:50`, set in `GachaStationSpawner.java:64` |
 | Persistent data | `$IndEvo_hasPlacedStations` | `GachaStationSpawner.java:22` |
-| Setting | `IndEvo_AutomatedShipyardNum` (Double, default 1.5, multiplier on coronal tap count) | `data/config/LunaSettings.csv:18`, read in `GachaStationSpawner.java:27` at placement |
-| Setting | `IndEvo_shipPickerRowCount` | `LunaSettings.csv:14`, read in `GachaStationDialoguePlugin.java:407` |
+| Setting | `IndEvo_AutomatedShipyardNum` (Double, default 1.5, multiplier on coronal tap count) | `data/config/LunaSettings.csv:16`, read in `GachaStationSpawner.java:27` at placement |
+| Setting | `IndEvo_shipPickerRowCount` | `LunaSettings.csv:13`, read in `GachaStationDialoguePlugin.java:407` |
 | Rules | `IndEvo_GachaStationCargoOpen` -> `OpenStorageTabOnGachaStation` | `data/campaign/rules.csv:266` |
 | Rule command package | `indevo.exploration.gacha.rules` | `data/config/settings.json:42` |
 | Sprite | `IndEvo/log_gachastation` (intel icon, `graphics/icons/intel/IndEvo_gachastation.png`) | `data/config/settings.json:167` |

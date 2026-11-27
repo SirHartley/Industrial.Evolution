@@ -56,7 +56,7 @@ Rows: `data/campaign/market_conditions.csv:3-14`, tags `show_in_codex, IndEvo_ed
 | Conditions | `IndEvo_edict_*` (12), tag `IndEvo_edict` (`EdictRepo.EDICT_TAG`) | `data/campaign/market_conditions.csv` |
 | Item | `IndEvo_neurals` (Neuroconditioning Compounds) | `data/campaign/special_items.csv:24`, effect in `SpecialItemEffectsRepo` |
 | Constants | `RANGE_LY_TWELVE` 12, `NEURAL_COMPOUNDS_UNREST_RED` 0.5 | `indevo/items/installable/SpecialItemEffectsRepo.java:44-45` |
-| Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:100`, `Senate.isAvailableToBuild()` |
+| Setting | `IndEvo_senate` (toggle) | `data/config/LunaSettings.csv:101`, `Senate.isAvailableToBuild()` |
 | Market tags | `<conditionModId><days>` runtime counter; `edict_stab_penalty<n>` | `TimeTracker`, `Edict_Conscription` |
 | Market memory | `$IndEvo_WeightMemory` (saved population weight) | `Edict_LockColonySize.java:13` |
 | Session cache | `$IndEvo_EdictSpecs` (sorted Edict specs) | `EdictRepo` |

@@ -26,9 +26,9 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | Tab | Fields | Content |
 |---|---|---|
-| Quick Settings | 17 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_fog_weather` (radio: off or a fidelity), `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic, meteor and artillery spawn chance, derelict station and automated shipyard amounts |
+| Quick Settings | 15 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic, artillery spawn chance, derelict station and automated shipyard amounts |
 | Exploration & Items | 15 | Salvage specials, derelict stations, relic components, `IndEvo_consumables_*`, `IndEvo_petLineDays`, `IndEvo_petMotion`, `IndEvo_petLongevityCycles` |
-| Meteor Swarms | 17 | `IndEvo_meteor_*` tuning, rogue asteroid chance |
+| Fog & Meteors | 20 | Fog: `IndEvo_fog_weather` (radio: off or a fidelity); Meteor Swarms: `IndEvo_meteor_*` spawn chance and tuning, rogue asteroid chance |
 | Minefields | 10 | `IndEvo_Minefield_*` |
 | Artillery | 32 | `IndEvo_Artillery_*` tuning, watchtower, vision type weights, lighthouse beams, drone net |
 | Industries | 26 | One enable toggle per industry (`IndEvo_AdManuf`, `IndEvo_embassy`, ...), governance, world wonders |
@@ -36,7 +36,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 | Derelict Industries | 19 | Derelict industry tuning |
 | Colony Services | 31 | Academy, museum, courier port, privateer base |
 
-LunaLib orders tabs by their first row in the CSV and skips rows with an empty `fieldID` (blank spacer rows). Content switches stay in Quick Settings; a block constant's row must be there.
+LunaLib orders tabs by their first row in the CSV and skips rows with an empty `fieldID` (blank spacer rows). Content switches stay in Quick Settings, except `IndEvo_fog_weather`, whose radio also sets the fog fidelity and lives in Fog & Meteors; a block constant's row must be there.
 
 Field counts include `Header` and `Text` rows. Every `Setting` constant has a LunaLib row; the rows without a constant are headers and text.
 

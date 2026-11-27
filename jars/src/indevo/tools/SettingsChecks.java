@@ -29,7 +29,7 @@ public final class SettingsChecks {
     static final List<String> COLUMNS = List.of("fieldID", "fieldName", "fieldType", "defaultValue", "secondaryValue",
             "fieldDescription", "minValue", "maxValue", "tab");
     static final String QUICK = "Quick Settings";
-    static final List<String> TABS = List.of(QUICK, "Exploration & Items", "Meteor Swarms", "Minefields", "Artillery",
+    static final List<String> TABS = List.of(QUICK, "Exploration & Items", "Fog & Meteors", "Minefields", "Artillery",
             "Industries", "Production", "Derelict Industries", "Colony Services");
     static final Map<String, Setting.Type> TYPES = Map.of("Boolean", Setting.Type.BOOLEAN, "Int", Setting.Type.INT,
             "Double", Setting.Type.DOUBLE, "Radio", Setting.Type.RADIO);
