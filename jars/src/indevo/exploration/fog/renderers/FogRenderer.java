@@ -11,16 +11,20 @@ import indevo.exploration.fog.sim.FogGrid;
 import indevo.exploration.fog.sim.FogNoise;
 import org.dark.shaders.util.ShaderLib;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 public final class FogRenderer {
 
@@ -36,6 +40,9 @@ public final class FogRenderer {
     // star icon colours are fully saturated, the light is that hue pulled this far to white
     public static final float SUN_WHITE = 0.35f;
     public static final float SUN_MIN_BRIGHTNESS = 0.5f;
+    // fog is drawn at 1 / divisor of the screen size and stretched back up; it has no detail under about 40 units
+    public static final int HALF_DIVISOR = 2;
+    public static final int LOW_DIVISOR = 4;
 
     private static final String VERTEX_PATH = "data/shaders/indevo_fogVertex.shader";
     private static final String FRAGMENT_PATH = "data/shaders/indevo_fogFragment.shader";
@@ -52,6 +59,16 @@ public final class FogRenderer {
     private static final FloatBuffer RING_HAZE = BufferUtils.createFloatBuffer(MAX_RINGS * 3);
     private static final int[] RING_PICK = new int[MAX_RINGS];
     private static int uAnchor, uGO, uGS, uTime, uCell, uAlpha, uTex, uHoles, uHN, uC0, uC1, uC2, uSun, uSunC, uSunN, uRing, uRingH, uRN;
+    private static FogGrid packedGrid;
+    private static int packedVersion;
+
+    // offscreen target for a reduced resolution draw, made on first use
+    private static final int TARGET_UNCHECKED = -1, TARGET_NONE = 0, TARGET_CORE = 1, TARGET_EXT = 2;
+    private static int targetApi = TARGET_UNCHECKED;
+    private static int targetBuffer = 0;
+    private static int targetTexture = 0;
+    private static int targetWidth, targetHeight;
+    private static final IntBuffer VIEWPORT = BufferUtils.createIntBuffer(16);
 
     private FogRenderer() {
     }
@@ -95,8 +112,9 @@ public final class FogRenderer {
     }
 
     // suns: x, y, radius, light reach per star in bank local coordinates; sunColours: 9 floats per star
+    // divisor 1 draws at screen resolution, HALF_DIVISOR or LOW_DIVISOR draw smaller when the gpu has framebuffers
     public static void render(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time, float[][] colours,
-                              float[] suns, int sunCount, float[] sunColours) {
+                              float[] suns, int sunCount, float[] sunColours, int divisor) {
         float inset = grid.cell * 2f;
         float x0 = Math.max(anchor.x + grid.ox + inset, viewport.getLLX());
         float y0 = Math.max(anchor.y + grid.oy + inset, viewport.getLLY());
@@ -106,7 +124,7 @@ public final class FogRenderer {
 
         load();
         if (program == 0) renderPlain(grid, anchor, viewport.getAlphaMult(), holes, holeCount, colours, x0, y0, x1, y1);
-        else renderShader(grid, anchor, viewport.getAlphaMult(), holes, holeCount, time, colours, suns, sunCount, sunColours, x0, y0, x1, y1);
+        else renderShader(grid, anchor, viewport, holes, holeCount, time, colours, suns, sunCount, sunColours, x0, y0, x1, y1, divisor);
     }
 
     private static void load() {
@@ -146,9 +164,11 @@ public final class FogRenderer {
         uRN = GL20.glGetUniformLocation(program, "uRN");
     }
 
-    private static void renderShader(FogGrid grid, Vector2f anchor, float alphaMult, float[] holes, int holeCount, float time,
-                                     float[][] colours, float[] suns, int sunCount, float[] sunColours, float x0, float y0, float x1, float y1) {
+    private static void renderShader(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time,
+                                     float[][] colours, float[] suns, int sunCount, float[] sunColours, float x0, float y0, float x1, float y1,
+                                     int divisor) {
         int n = grid.n;
+        float alphaMult = viewport.getAlphaMult();
         if (texture == 0) {
             texture = GL11.glGenTextures();
             GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
@@ -157,12 +177,15 @@ public final class FogRenderer {
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
             GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
         }
-        if (pixels == null || pixels.capacity() != n * n * 4) pixels = BufferUtils.createByteBuffer(n * n * 4);
-        grid.pack(pixels);
-
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, n, n, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+        if (grid != packedGrid || grid.version != packedVersion) {
+            if (pixels == null || pixels.capacity() != n * n * 4) pixels = BufferUtils.createByteBuffer(n * n * 4);
+            grid.pack(pixels);
+            GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, n, n, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+            packedGrid = grid;
+            packedVersion = grid.version;
+        }
 
         GL20.glUseProgram(program);
         GL20.glUniform2f(uAnchor, anchor.x, anchor.y);
@@ -194,16 +217,113 @@ public final class FogRenderer {
         // shader writes premultiplied colour
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glBlendFunc(GL11.GL_ONE, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        int screenBuffer = divisor > 1 ? beginTarget(divisor) : -1;
+        quad(x0, y0, x1, y1);
+        GL20.glUseProgram(0);
+        if (screenBuffer >= 0) endTarget(screenBuffer, viewport, x0, y0, x1, y1);
+
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    private static void quad(float x0, float y0, float x1, float y1) {
         GL11.glBegin(GL11.GL_QUADS);
         GL11.glVertex2f(x0, y0);
         GL11.glVertex2f(x1, y0);
         GL11.glVertex2f(x1, y1);
         GL11.glVertex2f(x0, y1);
         GL11.glEnd();
+    }
 
-        GL20.glUseProgram(0);
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+    // binds the small target with the same projection and a smaller gl viewport; returns the buffer to restore, -1 to draw full size
+    private static int beginTarget(int divisor) {
+        GL11.glGetInteger(GL11.GL_VIEWPORT, VIEWPORT);
+        int w = Math.max(1, VIEWPORT.get(2) / divisor), h = Math.max(1, VIEWPORT.get(3) / divisor);
+        if (!ensureTarget(w, h)) return -1;
+
+        // the game or graphicslib may be drawing into a framebuffer of its own
+        int screenBuffer = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
+        GL11.glPushAttrib(GL11.GL_VIEWPORT_BIT | GL11.GL_COLOR_BUFFER_BIT | GL11.GL_ENABLE_BIT | GL11.GL_SCISSOR_BIT);
+        bindBuffer(targetBuffer);
+        GL11.glDisable(GL11.GL_SCISSOR_TEST);
+        GL11.glViewport(0, 0, w, h);
+        GL11.glClearColor(0f, 0f, 0f, 0f);
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+        return screenBuffer;
+    }
+
+    // stretches the small target over the drawn area, texture coordinates from the viewport since the target holds the whole view
+    private static void endTarget(int screenBuffer, ViewportAPI viewport, float x0, float y0, float x1, float y1) {
+        bindBuffer(screenBuffer);
+        GL11.glPopAttrib();
+
+        float llx = viewport.getLLX(), lly = viewport.getLLY(), vw = viewport.getVisibleWidth(), vh = viewport.getVisibleHeight();
+        boolean textured = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, targetTexture);
+        GL11.glColor4f(1f, 1f, 1f, 1f);
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f((x0 - llx) / vw, (y0 - lly) / vh);
+        GL11.glVertex2f(x0, y0);
+        GL11.glTexCoord2f((x1 - llx) / vw, (y0 - lly) / vh);
+        GL11.glVertex2f(x1, y0);
+        GL11.glTexCoord2f((x1 - llx) / vw, (y1 - lly) / vh);
+        GL11.glVertex2f(x1, y1);
+        GL11.glTexCoord2f((x0 - llx) / vw, (y1 - lly) / vh);
+        GL11.glVertex2f(x0, y1);
+        GL11.glEnd();
+        if (!textured) GL11.glDisable(GL11.GL_TEXTURE_2D);
+    }
+
+    // false when the gpu has no framebuffers or the buffer is incomplete, the caller then draws full size
+    private static boolean ensureTarget(int w, int h) {
+        if (targetApi == TARGET_UNCHECKED) {
+            if (GLContext.getCapabilities().OpenGL30) targetApi = TARGET_CORE;
+            else if (GLContext.getCapabilities().GL_EXT_framebuffer_object) targetApi = TARGET_EXT;
+            else {
+                targetApi = TARGET_NONE;
+                Global.getLogger(FogRenderer.class).warn("IndEvo fog: no framebuffer support, drawing fog at full resolution");
+            }
+        }
+        if (targetApi == TARGET_NONE) return false;
+        if (targetBuffer != 0 && targetWidth == w && targetHeight == h) return true;
+
+        if (targetTexture == 0) targetTexture = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, targetTexture);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, w, h, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
+
+        int screenBuffer = GL11.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
+        boolean complete;
+        if (targetApi == TARGET_CORE) {
+            if (targetBuffer == 0) targetBuffer = GL30.glGenFramebuffers();
+            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, targetBuffer);
+            GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL11.GL_TEXTURE_2D, targetTexture, 0);
+            complete = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) == GL30.GL_FRAMEBUFFER_COMPLETE;
+        } else {
+            if (targetBuffer == 0) targetBuffer = EXTFramebufferObject.glGenFramebuffersEXT();
+            EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, targetBuffer);
+            EXTFramebufferObject.glFramebufferTexture2DEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, EXTFramebufferObject.GL_COLOR_ATTACHMENT0_EXT,
+                    GL11.GL_TEXTURE_2D, targetTexture, 0);
+            complete = EXTFramebufferObject.glCheckFramebufferStatusEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT) == EXTFramebufferObject.GL_FRAMEBUFFER_COMPLETE_EXT;
+        }
+        bindBuffer(screenBuffer);
+        targetWidth = w;
+        targetHeight = h;
+        if (!complete) {
+            targetApi = TARGET_NONE;
+            Global.getLogger(FogRenderer.class).warn("IndEvo fog: framebuffer incomplete, drawing fog at full resolution");
+        }
+        return complete;
+    }
+
+    private static void bindBuffer(int buffer) {
+        if (targetApi == TARGET_CORE) GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, buffer);
+        else EXTFramebufferObject.glBindFramebufferEXT(EXTFramebufferObject.GL_FRAMEBUFFER_EXT, buffer);
     }
 
     // the clear rings that touch the drawn area; over the limit the widest win

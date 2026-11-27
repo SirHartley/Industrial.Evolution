@@ -34,6 +34,8 @@ public class FogGrid {
 
     public float ox;
     public float oy;
+    // bumped by every step, the renderer uploads the texture only when it changed
+    public int version;
     private float strength;
     private float time;
     private int row = 0;
@@ -129,7 +131,8 @@ public class FogGrid {
             float[] l = lobes;
             for (int i = 0; i + 4 < l.length; i += 5) {
                 double dx = wx - l[i], dy = wy - l[i + 1], c = Math.cos(l[i + 3]), s = Math.sin(l[i + 3]);
-                q = Math.min(q, Math.hypot((dx * c + dy * s) / l[i + 4], -dx * s + dy * c) / l[i + 2]);
+                double lx = (dx * c + dy * s) / l[i + 4], ly = -dx * s + dy * c;
+                q = Math.min(q, Math.sqrt(lx * lx + ly * ly) / l[i + 2]);
             }
             if (q >= ARM_REACH) return 0;
             double outline = fbm(wx / 2000 + 71 - t * 0.004, wy / 2000 + 13, seed + 41, 3);
@@ -369,6 +372,7 @@ public class FogGrid {
         dt = Math.min(dt, MAX_DT);
         if (dt <= 0f) return;
         time = maskTime;
+        version++;
         refresh(Math.max(1, Math.round(n * dt * 2)));
 
         float h = cell, st = strength;
@@ -387,7 +391,8 @@ public class FogGrid {
         for (int j = 2; j < n - 2; j++) for (int i = 2; i < n - 2; i++) {
             int k = j * n + i;
             float nx = Math.abs(w[k + 1]) - Math.abs(w[k - 1]), ny = Math.abs(w[k + n]) - Math.abs(w[k - n]);
-            float l = (float) Math.hypot(nx, ny) + 1e-6f;
+            // sqrt, not Math.hypot: hypot is strict math and too slow per cell
+            float l = (float) Math.sqrt(nx * nx + ny * ny) + 1e-6f;
             nx /= l;
             ny /= l;
             u[k] += ny * w[k] * ce;
@@ -457,7 +462,7 @@ public class FogGrid {
             out.put(toByte(d[k] / 1.3f * 255f));
             out.put(toByte(128f + gx[k] / 700f * 127f));
             out.put(toByte(128f + gy[k] / 700f * 127f));
-            out.put(toByte((float) Math.hypot(u[k], v[k]) / 400f * 255f));
+            out.put(toByte((float) Math.sqrt(u[k] * u[k] + v[k] * v[k]) / 400f * 255f));
         }
         out.flip();
     }

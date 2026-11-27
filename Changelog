@@ -9,6 +9,9 @@ Adjusted - Research tree: new icons for all 27 IE research nodes
 Shuttle Traffic
 Added - Modders: tag an entity IndEvo_traffic_high, _med or _low to make it a traffic destination
 
+Fog
+Added - Low Fidelity Fog and Half Resolution Fog settings for weak graphics chips (Quick Settings)
+
 5.0.b
 General
 Fixed - Crash on new game with HMI (mods built against the old IE settings)
