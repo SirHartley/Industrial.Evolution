@@ -10,6 +10,7 @@ import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.industries.artillery.renderers.LightConeRenderer;
+import indevo.industries.artillery.utils.ProfileScale;
 import indevo.industries.artillery.utils.VisionBlockers;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
@@ -22,6 +23,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
 
     public static final String TERRAIN_ID = "IndEvo_lighthouse_beam";
     public static final float INNER_RADIUS = 40f;
+    public static final float MIN_LENGTH_MULT = 0.8f;
     public static final float FADE_SECONDS = 1f;
     public static final int MAX_BEAMS = 3;
     public static final LightConeRenderer.Style LIGHT = new LightConeRenderer.Style();
@@ -51,6 +53,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
     protected transient List<VisionBlockers.Blocker> blockers;
     protected transient float sinceBlockers;
     protected transient float dustTime;
+    protected transient ProfileScale profileScale;
 
     static {
         LIGHT.peak = 0.18f;
@@ -72,6 +75,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         super.readResolve();
         layers = EnumSet.of(CampaignEngineLayers.TERRAIN_7);
         glow = Global.getSettings().getSprite("campaignEntities", "fusion_lamp_glow");
+        profileScale = new ProfileScale();
         return this;
     }
 
@@ -85,6 +89,11 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
 
     public static float getLength() {
         return Setting.ARTILLERY_LIGHTHOUSE_BEAM_LENGTH.value();
+    }
+
+    // drawing and sees use this length, getLength is the max
+    public float getCurrentLength() {
+        return getLength() * profileScale.getMult(MIN_LENGTH_MULT);
     }
 
     public static float getArc() {
@@ -121,6 +130,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         brightness = Math.max(0f, Math.min(1f, brightness));
 
         dustTime += amount;
+        profileScale.advance(amount, entity.getContainingLocation());
 
         sinceBlockers += amount;
         if (sinceBlockers >= BLOCKER_SECONDS) blockers = null;
@@ -147,7 +157,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
 
         Vector2f loc = entity.getLocation();
         float dist = Misc.getDistance(loc, point);
-        if (dist < INNER_RADIUS || dist > getLength() + radius) return false;
+        if (dist < INNER_RADIUS || dist > getCurrentLength() + radius) return false;
 
         float arc = getArc() + 360f * checkSeconds / Setting.ARTILLERY_LIGHTHOUSE_TURN_TIME.value();
         for (int i = 0; i < beamCount; i++) {
@@ -168,10 +178,10 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         float[] angles = new float[beamCount];
         for (int i = 0; i < beamCount; i++) {
             angles[i] = getBeamAngle(i);
-            LightConeRenderer.draw(loc, angles[i], getArc(), getLength(), getBlockers(), LIGHT, color, alpha);
+            LightConeRenderer.draw(loc, angles[i], getArc(), getCurrentLength(), getBlockers(), LIGHT, color, alpha);
         }
 
-        LightConeRenderer.drawDust(viewport, loc, angles, getArc(), getLength(), getBlockers(), LIGHT, color, alpha, dustTime);
+        LightConeRenderer.drawDust(viewport, loc, angles, getArc(), getCurrentLength(), getBlockers(), LIGHT, color, alpha, dustTime);
 
         glow.setAdditiveBlend();
         glow.setAngle(0f);
@@ -208,7 +218,7 @@ public class LighthouseBeamTerrain extends BaseRingTerrain {
         float r = color.getRed() / 255f;
         float g = color.getGreen() / 255f;
         float b = color.getBlue() / 255f;
-        float length = getLength();
+        float length = getCurrentLength();
         float arc = getArc();
 
         GL11.glPushAttrib(GL11.GL_ENABLE_BIT | GL11.GL_COLOR_BUFFER_BIT);

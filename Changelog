@@ -444,13 +444,13 @@ Fixed - Ship parts from wrecks now roll per wreck instead of once per session
 
 Artillery
 Added - Lighthouses: rotating beams guard some derelict artillery systems (new game)
-Note - Planets and Chaff Clouds block the beams, a hack turns a lighthouse off
+Note - Planets and Chaff Clouds block the beams, a low sensor profile shortens them, a hack turns a lighthouse off
 Added - Drone nets: nests launch spotter drones in some derelict artillery systems (new game)
 Note - Sensor Decoys pull spotters away, interdicts and missiles destroy them
 Note - Destroyed nests drop Relic Components and are rebuilt after two months
 Added - Searchlights: towers sweep lights over some derelict artillery systems (new game)
 Note - Orange lights see moving fleets, purple lights see fleets at burn 2 or less
-Note - Chaff Clouds block the lights, a hack turns a tower off
+Note - Chaff Clouds block the lights, a low sensor profile shrinks them, a hack turns a tower off
 Added - Settings for vision type weights, lighthouse beams and drone cones
 Added - Artillery fire animation: muzzle flash, smoke and venting per shot
 Added - Mortar shells leave a short trail
