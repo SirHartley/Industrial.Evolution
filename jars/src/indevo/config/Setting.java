@@ -21,6 +21,8 @@ public enum Setting {
     RELIC_COMPONENT_FP_DESTROYED_FRACT("IndEvo_relicComponentFPDestroyedFract", 0.5, 0, 1),
     METEOR_ENABLED("IndEvo_meteor_enabled", true),
     FOG_ENABLED("IndEvo_fog_enabled", true),
+    FOG_LOW_FIDELITY("IndEvo_fog_lowFidelity", false),
+    FOG_HALF_RESOLUTION("IndEvo_fog_halfResolution", false),
     METEOR_BASE_CHANCE_PER_ECONOMY_TICK("IndEvo_meteor_baseChancePerEconomyTick", 0.02, 0.001, 0.1),
     METEOR_IMMEDIATE_MODE("IndEvo_meteor_immediateMode", false),
     METEOR_MIN_INTENSITY("IndEvo_meteor_minIntensity", 1.0, 1, 5),

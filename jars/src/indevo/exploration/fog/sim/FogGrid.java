@@ -34,6 +34,8 @@ public class FogGrid {
 
     public float ox;
     public float oy;
+    // bumped by every step, the renderer uploads the texture only when it changed
+    public int version;
     private float strength;
     private float time;
     private int row = 0;
@@ -370,6 +372,7 @@ public class FogGrid {
         dt = Math.min(dt, MAX_DT);
         if (dt <= 0f) return;
         time = maskTime;
+        version++;
         refresh(Math.max(1, Math.round(n * dt * 2)));
 
         float h = cell, st = strength;

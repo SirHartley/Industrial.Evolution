@@ -38,7 +38,7 @@ All wonders share `WorldWonder`: +10 immigration (independent faction), monthly 
 | Sprites | category `IndEvo`, keys `palace_light_2`, `kadur_megachurch` (CSV `data` column) | `data/config/settings.json:122-123` |
 | List | `IndEvo_cloudList` -> `graphics/clouds/clouds.csv` (`Ids.CLOUD_LIST`) | `data/config/settings.json:18` |
 | List | `IndEvo_treeList` -> `data/config/indEvo/world_tree_whitelist.csv` (`Ids.TREE_LIST`): `jungle`, `terran`, `terran-eccentric` | `data/config/settings.json:20` |
-| Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:116-117`; constants in `indevo/config/Setting.java:143-144`, read by `CloudPainterShieldPatch.getDefaultTag` |
+| Settings | `IndEvo_CPShieldRemove`, `IndEvo_CPShieldOverride` | `data/config/LunaSettings.csv:118-119`; constants in `indevo/config/Setting.java:145-146`, read by `CloudPainterShieldPatch.getDefaultTag` |
 | Market tags | `IndEvo_PS_FULL`, `IndEvo_PS_LOW`, `IndEvo_PS_NONE` | `CloudPainterShieldPatch` |
 | Sprite | `IndEvo` / `shield_texture` (alternate shield texture) | `data/config/settings.json:159` |
 
