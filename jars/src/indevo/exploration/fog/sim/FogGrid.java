@@ -207,6 +207,8 @@ public class FogGrid {
         int si = Math.round((nox - ox) / cell), sj = Math.round((noy - oy) / cell);
         ox = nox;
         oy = noy;
+        // renderer repacks only on a version change, low fidelity can recentre without a step
+        version++;
 
         if (Math.abs(si) >= n || Math.abs(sj) >= n) {
             for (float[] a : new float[][]{u, v, gx, gy, p, src}) java.util.Arrays.fill(a, 0f);
