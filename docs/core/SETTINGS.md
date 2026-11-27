@@ -26,11 +26,11 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | Tab | Fields | Content |
 |---|---|---|
-| Quick Settings | 15 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic, artillery spawn chance, derelict station and automated shipyard amounts |
-| Exploration & Items | 15 | Salvage specials, derelict stations, relic components, `IndEvo_consumables_*`, `IndEvo_petLineDays`, `IndEvo_petMotion`, `IndEvo_petLongevityCycles` |
+| Quick Settings | 12 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic |
+| Exploration & Items | 17 | Salvage specials, derelict stations and their amount, automated shipyard amount, relic components, `IndEvo_consumables_*`, `IndEvo_petLineDays`, `IndEvo_petMotion`, `IndEvo_petLongevityCycles` |
 | Fog & Meteors | 20 | Fog: `IndEvo_fog_weather` (radio: off or a fidelity); Meteor Swarms: `IndEvo_meteor_*` spawn chance and tuning, rogue asteroid chance |
 | Minefields | 10 | `IndEvo_Minefield_*` |
-| Artillery | 32 | `IndEvo_Artillery_*` tuning, watchtower, vision type weights, lighthouse beams, drone net |
+| Artillery | 33 | `IndEvo_Artillery_*` spawn chance and tuning, watchtower, vision type weights, lighthouse beams, drone net |
 | Industries | 26 | One enable toggle per industry (`IndEvo_AdManuf`, `IndEvo_embassy`, ...), governance, world wonders |
 | Production | 21 | Variable industries, supercomputer, salvage yards, engineering hub, restoration docks |
 | Derelict Industries | 19 | Derelict industry tuning |

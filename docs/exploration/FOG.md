@@ -34,7 +34,7 @@ Inside fog the sensor range of a fleet and the range at which it is detected bot
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_fog_weather` radio, Fog & Meteors tab: `Off` (no new fog), `High Fidelity` (full resolution), `Default Fidelity` (half resolution, default), `Low Fidelity` (quarter resolution, solver at most 30 steps a second) | `data/config/LunaSettings.csv:39`, `indevo/config/Setting.java:26`, `FogMode` |
+| Setting | `IndEvo_fog_weather` radio, Fog & Meteors tab: `Off` (no new fog), `High Fidelity` (full resolution), `Default Fidelity` (half resolution, default), `Low Fidelity` (quarter resolution, solver at most 30 steps a second) | `data/config/LunaSettings.csv:38`, `indevo/config/Setting.java:26`, `FogMode` |
 | Terrain | `IndEvo_fog` -> `FogTerrainPlugin`, music suppression 1, loop `terrain_nebula` | `data/campaign/terrain.json:47` |
 | Description | `IndEvo_fog` `TERRAIN` (tooltip text) | `data/strings/descriptions.csv:73` |
 | Effect category | `IndEvo_fog` (`$terrain_IndEvo_fog` per fleet) | `FogTerrainPlugin.EFFECT_CATEGORY` |
