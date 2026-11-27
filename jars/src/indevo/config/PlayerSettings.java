@@ -85,7 +85,11 @@ public final class PlayerSettings implements LunaSettingsListener {
         Map<Setting, Object> stored = new EnumMap<>(Setting.class);
         Map<Setting, Object> resolved = new EnumMap<>(Setting.class);
         for (Setting setting : Setting.values()) {
-            Object value = setting.type == Type.BOOLEAN ? LunaSettings.getBoolean(MOD_ID, setting.id) : LunaSettings.getDouble(MOD_ID, setting.id);
+            Object value = switch (setting.type) {
+                case BOOLEAN -> LunaSettings.getBoolean(MOD_ID, setting.id);
+                case RADIO -> LunaSettings.getString(MOD_ID, setting.id);
+                case INT, DOUBLE -> LunaSettings.getDouble(MOD_ID, setting.id);
+            };
             stored.put(setting, value);
             resolved.put(setting, setting.sanitize(value));
         }

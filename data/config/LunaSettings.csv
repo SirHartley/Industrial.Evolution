@@ -6,22 +6,17 @@ IndEvo_Enable_Derelicts,[Exploration] Exploration Events and Industries,Boolean,
 IndEvo_Enable_Artillery,[Artillery] Spawn Artillery Stations,Boolean,TRUE,,Enable artillery stations and watchtowers. Disabling prevents construction and stops existing stations from firing. Default on. Placement needs a new game.,,,Quick Settings
 IndEvo_Enable_minefields,[Minefields] Minefields,Boolean,TRUE,,Enable planetary minefields. Existing mines stop hitting fleets when disabled. Default on. Placement needs a new game.,,,Quick Settings
 IndEvo_meteor_enabled,[Meteor Swarms] Spawn Meteor Swarms,Boolean,TRUE,,Allow new meteor swarms to spawn. Default on.,,,Quick Settings
-IndEvo_fog_enabled,[Fog] Fog Weather,Boolean,TRUE,,"Allow fog to roll into systems near you: sometimes a whole system for about a month, sometimes a local bank for several months. Sensors are nearly useless inside. Fog that already exists runs out when disabled. Default on.",,,Quick Settings
 IndEvo_pets,[Exploration] Pets,Boolean,TRUE,,"Enable pets, Animal Centers, pet management, Project Navi and abandoned pet stations. Default on. Placement needs a new game.",,,Quick Settings
 IndEvo_header1,General,Header,General,,,,,Quick Settings
 IndEvo_CommerceBalanceChanges,[General] Commerce Adjustments,Boolean,TRUE,,"Limit Commerce to one per faction per system, reduce its improvement bonus, and replace the player alpha core income bonus with a 25%% tariff reduction. Disable to restore vanilla Commerce; re-docking may be needed. Default on.",,,Quick Settings
 IndEvo_shipPickerRowCount,[General] Ship Picker Row Count,Int,8,,Ships per row in most ship selection dialogs. Default 8.,1,100,Quick Settings
 IndEvo_shuttleTraffic,[General] Shuttle Traffic,Int,80,,Most small craft in flight in your current system. Craft that serve fleets fly on top: up to a quarter of this. Visual only. 0 turns shuttle traffic and escape pods off. Default 80.,0,120,Quick Settings
-IndEvo_fog_lowFidelity,[Fog] Low Fidelity Fog,Boolean,FALSE,,"Draws fog at a quarter of the screen resolution and moves it at most 30 times a second. For weak graphics chips, looks nearly the same. Default off.",,,Quick Settings
-IndEvo_fog_halfResolution,[Fog] Half Resolution Fog,Boolean,FALSE,,"Draws fog at half the screen resolution. Less work for the graphics chip, looks nearly the same. Low Fidelity Fog overrides this. Default off.",,,Quick Settings
-IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Meteor shower chance per economy tick. 0.02 = 2%% per tick, with 10 ticks per month. Default 0.02.",0.001,0.1,Quick Settings
-IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,Artillery spawn multiplier. Higher values add more stations; 1 places them in roughly 5-10%% of systems. Default 1. Needs a new game.,0,100,Quick Settings
-IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Additional custom stations as a fraction of the normal station count. 0.2 = 20%% more stations. Default 0.2. Needs a new game.,0,2,Quick Settings
-IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Automated Shipyards per Coronal Tap, rounded up. Default 1.5. Needs a new game.",0,10,Quick Settings
 ,,,,,,,,
 IndEvo_header3,Exploration,Header,Exploration,,,,,Exploration & Items
 IndEvo_SpecialApplicationChance,[Exploration] Special Event Application Chance,Double,0.9,,Chance to attempt adding a salvage event to an eligible entity. The event roll can still yield nothing. Default 0.9. Needs a new game.,0,1,Exploration & Items
 IndEvo_enable_derelict_stations,[Exploration] Additional Station Types,Boolean,TRUE,,"Spawn custom stations, including orbital labs and arsenal stations. Default on. Needs a new game.",,,Exploration & Items
+IndEvo_derelictStationAmount,[Exploration] Additional Station Type Amounts,Double,0.2,,Additional custom stations as a fraction of the normal station count. 0.2 = 20%% more stations. Default 0.2. Needs a new game.,0,2,Exploration & Items
+IndEvo_AutomatedShipyardNum,[Exploration] Automated Shipyards Amount,Double,1.5,,"Automated Shipyards per Coronal Tap, rounded up. Default 1.5. Needs a new game.",0,10,Exploration & Items
 ,,,,,,,,
 IndEvo_header_components,Ship Components,Header,Ship Components,,,,,Exploration & Items
 IndEvo_PartsDropInCampaign,[Commodities] Ship Parts Campaign Drops,Boolean,TRUE,,Add ship components to combat loot. Relic component drops are unaffected. Default on.,,,Exploration & Items
@@ -39,23 +34,26 @@ IndEvo_petMotion,[Pets] Pet Animations,Boolean,TRUE,,"Petting a pet in the Pets 
 IndEvo_petTour,[Pets] Husbandry Tour,Boolean,TRUE,,"Shows the Husbandry tour the next time the Husbandry tab opens. Switches itself off when the tour ends. Default on.",,,Exploration & Items
 IndEvo_petLongevityCycles,[Pets] Cycles per Longevity Syringe,Int,2,,"Cycles of life one Longevity Syringe gives a pet. Hamsters always gain 1 cycle. Default 2.",1,10,Exploration & Items
 ,,,,,,,,
-IndEvo_header_meteor,Meteor Swarms,Header,Meteor Swarms,,,,,Meteor Swarms
-IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,"Spawn meteor showers immediately, without an advance intel warning. Default off.",,,Meteor Swarms
-IndEvo_meteor_minIntensity,[Meteor Swarms] Minimum Intensity,Double,1,,Minimum swarm intensity. Default 1.,1,5,Meteor Swarms
-IndEvo_meteor_maxIntensity,[Meteor Swarms] Maximum Intensity,Double,3,,Maximum swarm intensity. Values above 4 may cause lag. Default 3.,1,10,Meteor Swarms
-IndEvo_meteor_baseShowerWidth,[Meteor Swarms] Base Shower Width,Double,5000,,Base swarm width in game units. Default 5000.,2500,10000,Meteor Swarms
-IndEvo_meteor_intensityWidthModifier,[Meteor Swarms] Intensity Width Modifier,Double,1000,,"Extra swarm width per point of intensity, in game units. Default 1000.",100,5000,Meteor Swarms
-IndEvo_meteor_maxDensity,[Meteor Swarms] Maximum Density,Double,2.5,,Maximum meteor density multiplier. Higher values may cause lag. Default 2.5.,1,5,Meteor Swarms
-IndEvo_meteor_maxRuntimeMult,[Meteor Swarms] Maximum Runtime Multiplier,Double,2.5,,Maximum shower duration multiplier from intensity. Higher values may cause lag. Default 2.5.,1,5,Meteor Swarms
-IndEvo_meteor_baseRuntime,[Meteor Swarms] Base Runtime,Double,50,,Base shower duration in seconds. Longer showers may cause lag. Default 50.,10,150,Meteor Swarms
-IndEvo_meteor_locationTimeoutAfterSpawnDays,[Meteor Swarms] System Cooldown,Double,186,,Days before another swarm can spawn in the same location. Default 186.,1,500,Meteor Swarms
-IndEvo_meteor_generalTimeoutAfterSpawnDays,[Meteor Swarms] Sector Cooldown,Double,31,,Days between swarm spawns anywhere in the sector. Default 31.,1,100,Meteor Swarms
-IndEvo_meteor_gridLimit,[Meteor Swarms] System Boundary,Double,26000,,"Spawn boundary distance from the system center on each axis, in game units. Increase for larger modded systems. Default 26000.",1,100000,Meteor Swarms
-IndEvo_meteor_maxDistanceFromSun,[Meteor Swarms] Max Distance From Star,Double,10000,,"Maximum swarm path distance from the system center before adding half the shower width, in game units. Default 10000.",100,26000,Meteor Swarms
-IndEvo_meteor_minDistanceFromSun,[Meteor Swarms] Min Distance From Star,Double,3000,,"Minimum swarm path distance from the system center before adding half the shower width, in game units. Default 3000.",100,26000,Meteor Swarms
-IndEvo_meteor_maxAngle,[Meteor Swarms] Maximum Path Half-Angle,Double,80,,"Maximum half-angle of the swarm path, in degrees. Default 80.",1,360,Meteor Swarms
-IndEvo_meteor_minAngle,[Meteor Swarms] Minimum Path Half-Angle,Double,50,,"Minimum half-angle of the swarm path, in degrees. Default 50.",1,360,Meteor Swarms
-IndEvo_meteor_rogueChancePerEconomyTick,[Meteor Swarms] Rogue Asteroid Chance,Double,0.1,,"Chance per economy tick that a small group of rogue asteroids crosses the current system without warning, inhabited systems included. 0.1 = 10%% per tick, with 10 ticks per month. 0 turns rogue asteroids off. Default 0.1.",0,0.3,Meteor Swarms
+IndEvo_header_fog,Fog,Header,Fog,,,,,Fog & Meteors
+IndEvo_fog_weather,[Fog] Fog Weather,Radio,Default Fidelity,"Off,High Fidelity,Default Fidelity,Low Fidelity","Fog rolls into systems near you: sometimes a whole system for about a month, sometimes a local bank for several months. Sensors are nearly useless inside. Off stops new fog, fog that already exists runs out. High Fidelity draws fog at full resolution, Default Fidelity at half, Low Fidelity at a quarter and moves it less often, for weak graphics chips. Default: Default Fidelity.",,,Fog & Meteors
+IndEvo_header_meteor,Meteor Swarms,Header,Meteor Swarms,,,,,Fog & Meteors
+IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Meteor shower chance per economy tick. 0.02 = 2%% per tick, with 10 ticks per month. Default 0.02.",0.001,0.1,Fog & Meteors
+IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,"Spawn meteor showers immediately, without an advance intel warning. Default off.",,,Fog & Meteors
+IndEvo_meteor_minIntensity,[Meteor Swarms] Minimum Intensity,Double,1,,Minimum swarm intensity. Default 1.,1,5,Fog & Meteors
+IndEvo_meteor_maxIntensity,[Meteor Swarms] Maximum Intensity,Double,3,,Maximum swarm intensity. Values above 4 may cause lag. Default 3.,1,10,Fog & Meteors
+IndEvo_meteor_baseShowerWidth,[Meteor Swarms] Base Shower Width,Double,5000,,Base swarm width in game units. Default 5000.,2500,10000,Fog & Meteors
+IndEvo_meteor_intensityWidthModifier,[Meteor Swarms] Intensity Width Modifier,Double,1000,,"Extra swarm width per point of intensity, in game units. Default 1000.",100,5000,Fog & Meteors
+IndEvo_meteor_maxDensity,[Meteor Swarms] Maximum Density,Double,2.5,,Maximum meteor density multiplier. Higher values may cause lag. Default 2.5.,1,5,Fog & Meteors
+IndEvo_meteor_maxRuntimeMult,[Meteor Swarms] Maximum Runtime Multiplier,Double,2.5,,Maximum shower duration multiplier from intensity. Higher values may cause lag. Default 2.5.,1,5,Fog & Meteors
+IndEvo_meteor_baseRuntime,[Meteor Swarms] Base Runtime,Double,50,,Base shower duration in seconds. Longer showers may cause lag. Default 50.,10,150,Fog & Meteors
+IndEvo_meteor_locationTimeoutAfterSpawnDays,[Meteor Swarms] System Cooldown,Double,186,,Days before another swarm can spawn in the same location. Default 186.,1,500,Fog & Meteors
+IndEvo_meteor_generalTimeoutAfterSpawnDays,[Meteor Swarms] Sector Cooldown,Double,31,,Days between swarm spawns anywhere in the sector. Default 31.,1,100,Fog & Meteors
+IndEvo_meteor_gridLimit,[Meteor Swarms] System Boundary,Double,26000,,"Spawn boundary distance from the system center on each axis, in game units. Increase for larger modded systems. Default 26000.",1,100000,Fog & Meteors
+IndEvo_meteor_maxDistanceFromSun,[Meteor Swarms] Max Distance From Star,Double,10000,,"Maximum swarm path distance from the system center before adding half the shower width, in game units. Default 10000.",100,26000,Fog & Meteors
+IndEvo_meteor_minDistanceFromSun,[Meteor Swarms] Min Distance From Star,Double,3000,,"Minimum swarm path distance from the system center before adding half the shower width, in game units. Default 3000.",100,26000,Fog & Meteors
+IndEvo_meteor_maxAngle,[Meteor Swarms] Maximum Path Half-Angle,Double,80,,"Maximum half-angle of the swarm path, in degrees. Default 80.",1,360,Fog & Meteors
+IndEvo_meteor_minAngle,[Meteor Swarms] Minimum Path Half-Angle,Double,50,,"Minimum half-angle of the swarm path, in degrees. Default 50.",1,360,Fog & Meteors
+IndEvo_meteor_rogueChancePerEconomyTick,[Meteor Swarms] Rogue Asteroid Chance,Double,0.1,,"Chance per economy tick that a small group of rogue asteroids crosses the current system without warning, inhabited systems included. 0.1 = 10%% per tick, with 10 ticks per month. 0 turns rogue asteroids off. Default 0.1.",0,0.3,Fog & Meteors
 ,,,,,,,,
 IndEvo_header4,Minefields,Header,Minefields,,,,,Minefields
 IndEvo_minefields_disclaimer,,Text,Tip: You can disable minefields temporarily with an interdiction pulse.,,,,,Minefields
@@ -69,6 +67,7 @@ IndEvo_Minefield_CivilianShipImpactMult,[Minefields] Civilian Hit Chance Multipl
 IndEvo_Minefield_PhaseShipImpactMult,[Minefields] Phase Ship Hit Chance Multiplier,Double,0.3,,Multiplier for phase ships' contribution to mine hit chance. Stacks with the civilian multiplier. Default 0.3.,0,2,Minefields
 ,,,,,,,,
 IndEvo_header5,Artillery,Header,Artillery,,,,,Artillery
+IndEvo_Artillery_spawnWeight,[Artillery] Spawn Chance,Double,1,,Artillery spawn multiplier. Higher values add more stations; 1 places them in roughly 5-10%% of systems. Default 1. Needs a new game.,0,100,Artillery
 IndEvo_Artillery_starsPerStationInConstellation,[Artillery] Stars per station in a constellation,Double,1,,Star systems per allowed artillery station in a constellation. Lower values allow more stations; 0 removes the limit. Decimals are ignored. Default 1. Needs a new game.,0,100,Artillery
 IndEvo_Watchtower_faction_reset,[Artillery] Time to watchtower faction reset,Int,31,,Days before a watchtower returns to the faction controlling its artillery station. Default 31.,1,365,Artillery
 IndEvo_Artillery_minDelayBetweenShots,[Artillery] Min Delay Between Shots,Double,2,,Minimum seconds between shots at different targets. Default 2.,0,100,Artillery

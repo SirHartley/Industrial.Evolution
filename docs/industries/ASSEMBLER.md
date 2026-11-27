@@ -23,8 +23,8 @@ All three hold one VPC in the vanilla special item slot. The VPC sets market sup
 | Kind | Id / key | Where |
 |---|---|---|
 | Industry | `IndEvo_AdAssem` (structure, upgrade `IndEvo_AdManuf`), `IndEvo_AdManuf` (industry, downgrade `IndEvo_AdAssem`), `IndEvo_ComForge` (structure) | `data/campaign/industries.csv:2,5,8`; `indevo/ids/Ids.java:50-52` |
-| Setting | `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` (build toggles) | `data/config/LunaSettings.csv:103-105` |
-| Setting | `IndEvo_VarInd_deliverToProductionPoint` (deliver to gathering point instead of local storage) | `data/config/LunaSettings.csv:117` |
+| Setting | `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` (build toggles) | `data/config/LunaSettings.csv:102-104` |
+| Setting | `IndEvo_VarInd_deliverToProductionPoint` (deliver to gathering point instead of local storage) | `data/config/LunaSettings.csv:116` |
 | Config | Base deposit per commodity: columns `IndEvo_AdAssem`, `IndEvo_AdManuf`, `IndEvo_ComForge` of the VPC commodity table | `data/config/indEvo/vpc_commodities.csv`, read through `VPCCommodityRepo.Commodity.getDeposit(getId())` |
 | Constant | `LOG_INCREASE`: Assembler 55, Manufactory 150, Forge 250 | `VariableAssembler.java:37`, `VariableManufactory.java:9`, `CommodityForge.java:35` |
 | Sprites | category `IndEvo`: `assembler`, `manufactorium`, `comforge` (active image), `VPCRemovalIcon` | `data/config/settings.json:131-136` |

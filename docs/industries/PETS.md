@@ -89,11 +89,11 @@ Code paths relative to `jars/src/indevo/`.
 | Rule | `IndEvo_petDockingLine`, `IndEvo_nomiosLongevityOption`, `IndEvo_nomiosLongevityOpen`, `IndEvo_petCenterMenuPoint`, `IndEvo_petCenterColonyOptionMenu`, `IndEvo_openPetCenter` (block `# Pets`); option ids `IndEvo_NomiosLongevity` (`IndEvo_PetTreatment.OPTION`), `IndEvo_openPetCenter` | `data/campaign/rules.csv:891-904` |
 | Death texts | `hamster_death_causes.csv` (natural death of hamsters), `combat_death_causes.csv` | `data/strings/` |
 | Sprites | `IndEvo/pets_large`, `IndEvo/pets_small`, tile markers `pet_marker_hungry`, `pet_marker_starving`, `pet_marker_shock`, `pet_marker_want`, the status paw `pet_status` (`graphics/icons/pets/`); pet icons in `graphics/pets`, look portraits in `graphics/pets/morphs`, their status icons under `graphics/pets/status/` with the same relative names | `data/config/settings.json:103-109` |
-| Setting | `IndEvo_pets` | `LunaSettings.csv:10` |
-| Setting | `IndEvo_petLineDays` (`Setting.PET_LINE_DAYS`): minimum days between two ambient or docking lines, default 14, 0 off | `LunaSettings.csv:37` |
-| Setting | `IndEvo_petMotion` (`Setting.PET_MOTION`): petting motion and hearts, the Play effect and the gene scan reveal in the Pets panel, default on | `LunaSettings.csv:38` |
-| Setting | `IndEvo_petTour` (`Setting.PET_TOUR`): runs the Husbandry tour on the next Husbandry tab open, default on; the tour sets it off when it ends (`PlayerSettings.set`) | `LunaSettings.csv:39` |
-| Setting | `IndEvo_petLongevityCycles` (`Setting.PET_LONGEVITY_CYCLES`): cycles one syringe gives, default 2, 1 to 10 | `LunaSettings.csv:40` |
+| Setting | `IndEvo_pets` | `LunaSettings.csv:9` |
+| Setting | `IndEvo_petLineDays` (`Setting.PET_LINE_DAYS`): minimum days between two ambient or docking lines, default 14, 0 off | `LunaSettings.csv:32` |
+| Setting | `IndEvo_petMotion` (`Setting.PET_MOTION`): petting motion and hearts, the Play effect and the gene scan reveal in the Pets panel, default on | `LunaSettings.csv:33` |
+| Setting | `IndEvo_petTour` (`Setting.PET_TOUR`): runs the Husbandry tour on the next Husbandry tab open, default on; the tour sets it off when it ends (`PlayerSettings.set`) | `LunaSettings.csv:34` |
+| Setting | `IndEvo_petLongevityCycles` (`Setting.PET_LONGEVITY_CYCLES`): cycles one syringe gives, default 2, 1 to 10 | `LunaSettings.csv:35` |
 | Faction (colour only) | `petStoreColour` | `data/world/factions/submarkets/` |
 | Entity | `IndEvo_abandonedPetCenter` | `data/config/custom_entities.json:1192` |
 | Variant tag | `PET_DATA_ID_<pet id>` on the pet's ship | `Pet.place()` |

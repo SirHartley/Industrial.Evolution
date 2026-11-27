@@ -61,7 +61,7 @@ Package `indevo/ambience/shuttletraffic/`:
 
 | Kind | Id / key | Where |
 |---|---|---|
-| Setting | `IndEvo_shuttleTraffic` (Int, 80, 0 to 120): most craft in flight in the current system; fleet tied craft fly on top, up to `setting / 4`; 0 turns traffic, fleet craft and escape pods off | `data/config/LunaSettings.csv:13`, `indevo/config/Setting.java:10`, read every frame in `ShuttleTrafficRenderer.advance` (`renderers/ShuttleTrafficRenderer.java:53`) |
+| Setting | `IndEvo_shuttleTraffic` (Int, 80, 0 to 120): most craft in flight in the current system; fleet tied craft fly on top, up to `setting / 4`; 0 turns traffic, fleet craft and escape pods off | `data/config/LunaSettings.csv:12`, `indevo/config/Setting.java:13`, read every frame in `ShuttleTrafficRenderer.advance` (`renderers/ShuttleTrafficRenderer.java:53`) |
 | CSV | `data/config/indEvo/shuttle_traffic.csv`, read with `getMergedSpreadsheetDataForMod("id", path, "IndEvo")`; rows starting with `#` are skipped | `ShuttleHullPool.getBasePool` |
 | CSV | `data/config/indEvo/shuttle_factions.csv`, read the same way; another mod adds a row for its own faction id | `ShuttleFactionRepo.load` |
 | Sprites | `campaignEntities` / `fusion_lamp_glow` (engine glow); hull sprites from `ShipHullSpecAPI.getSpriteName()`, the vanilla `mining_drone` hull for escape pods | `ShuttleTrafficRenderer`, `ShuttleHullPool.getPod` (`:114`) |
