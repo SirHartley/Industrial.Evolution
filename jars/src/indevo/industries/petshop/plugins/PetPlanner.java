@@ -778,7 +778,7 @@ public class PetPlanner {
         int la = a.sheet().getGrade(key);
         int lb = b.sheet().getGrade(key);
         float sum = PetGenetics.sumChance(data, a.hearts() + b.hearts());
-        CrossRow row = PetHusbandry.traitRow(trait, la, lb, care, sum, a.name(), b.name(), line(trait, a, la), line(trait, b, lb));
+        CrossRow row = PetHusbandry.traitRow(trait, la, lb, care, sum, PetGenetics.sumStep(data), a.name(), b.name(), line(trait, a, la), line(trait, b, lb));
         int want = plan.wanted.get(key);
         PetHusbandry.flow(p, w, y, FLOW_LINK, row, node(a, row.lineA()), node(b, row.lineB()), r -> {
             int level = level(r, trait);

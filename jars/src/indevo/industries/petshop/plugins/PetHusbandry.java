@@ -664,6 +664,7 @@ public class PetHusbandry {
         PetSheet sb = view.reveal.seen(b);
         float care = shop.getCare();
         float sum = PetGenetics.sumChance(data, a.getHearts() + b.getHearts());
+        int step = PetGenetics.sumStep(data);
 
         float malformed = PetGenetics.malformedChance(data, PetShop.getInbreeding(a, b));
         if (malformed > 0f) rows.add(malformedRow(malformed, kin(a, b), kin(b, a)));
@@ -692,7 +693,7 @@ public class PetHusbandry {
         for (PetDataRepo.Trait trait : talents) {
             int la = sa.getGrade(trait.id());
             int lb = sb.getGrade(trait.id());
-            rows.add(traitRow(trait, la, lb, care, sum, a.name, b.name, parentLine(trait, a, la), parentLine(trait, b, lb)));
+            rows.add(traitRow(trait, la, lb, care, sum, step, a.name, b.name, parentLine(trait, a, la), parentLine(trait, b, lb)));
         }
 
         return rows;
@@ -721,9 +722,9 @@ public class PetHusbandry {
         return new Result(lane, lookName(look), Ui.text(), chance, origin, look != null ? "" : "Plain look", null);
     }
 
-    static CrossRow traitRow(PetDataRepo.Trait trait, int la, int lb, float care, float sum, String nameA, String nameB, String lineA, String lineB) {
+    static CrossRow traitRow(PetDataRepo.Trait trait, int la, int lb, float care, float sum, int step, String nameA, String nameB, String lineA, String lineB) {
         List<Result> results = new ArrayList<>();
-        for (PetGenetics.Outcome o : PetGenetics.outcomes(trait.isFlaw(), trait.hasLevels(), la, lb, care, sum)) results.add(result(trait, o, "from " + nameA, "from " + nameB));
+        for (PetGenetics.Outcome o : PetGenetics.outcomes(trait.isFlaw(), trait.hasLevels(), la, lb, care, sum, step)) results.add(result(trait, o, "from " + nameA, "from " + nameB));
         return new CrossRow(trait.id(), trait.name(), unit(trait), trait.isFlaw(), lineA, lineB, results);
     }
 

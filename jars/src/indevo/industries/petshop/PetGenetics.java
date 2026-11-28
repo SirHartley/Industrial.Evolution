@@ -44,7 +44,7 @@ public final class PetGenetics {
     private PetGenetics() {
     }
 
-    // bought, found and offered pets: a disposition, 1 or 2 talents at grade 1 by the species lean, a rare species maybe a signature
+    // bought, found and offered pets: a disposition, 1 or 2 talents at the start grade by the species lean, a rare species 2 and maybe a signature
     public static PetSheet rollSheet(PetData data, Map<String, Trait> traits, Random random) {
         PetSheet sheet = new PetSheet(DISPOSITIONS.get(random.nextInt(DISPOSITIONS.size())));
 
@@ -56,15 +56,16 @@ public final class PetGenetics {
             (trait.isSignature() ? signatures : pool).add(trait);
         }
 
-        int count = random.nextFloat() < PetConstants.TWO_TALENTS_CHANCE ? 2 : 1;
+        int grade = startGrade(data);
+        int count = data.isRare() || random.nextFloat() < PetConstants.TWO_TALENTS_CHANCE ? 2 : 1;
         for (int i = 0; i < count && !pool.isEmpty(); i++) {
             Trait pick = pick(pool, data, random);
             pool.remove(pick);
-            sheet.traits.put(pick.id(), 1);
+            sheet.traits.put(pick.id(), grade);
         }
 
         if (data.isRare() && !signatures.isEmpty() && random.nextFloat() < PetConstants.SIGNATURE_CHANCE) {
-            sheet.traits.put(pick(signatures, data, random).id(), 1);
+            sheet.traits.put(pick(signatures, data, random).id(), grade);
         }
 
         return sheet;
@@ -88,6 +89,7 @@ public final class PetGenetics {
         PetSheet young = new PetSheet(random.nextBoolean() ? a.disposition : b.disposition);
         young.from = new HashMap<>();
         float sum = sumChance(data, hearts);
+        int step = sumStep(data);
 
         boolean lookA = random.nextBoolean();
         young.look = lookA ? a.look : b.look;
@@ -101,11 +103,11 @@ public final class PetGenetics {
 
             int la = a.getGrade(id);
             int lb = b.getGrade(id);
-            int level = inherit(trait.isFlaw(), la, lb, care, sum, random);
+            int level = inherit(trait.isFlaw(), la, lb, care, sum, step, random);
             if (level <= 0) continue;
 
             young.traits.put(id, trait.hasLevels() ? level : 1);
-            young.from.put(id, la > 0 && lb > 0 && level == la + lb ? PetSheet.FROM_SUM : level == la ? PetSheet.FROM_A : PetSheet.FROM_B);
+            young.from.put(id, la > 0 && lb > 0 && level == summed(trait.isFlaw(), la, lb, step) ? PetSheet.FROM_SUM : level == la ? PetSheet.FROM_A : PetSheet.FROM_B);
         }
 
         if (random.nextFloat() < mutationRate) addNewTrait(young, data, traits, random);
@@ -114,9 +116,9 @@ public final class PetGenetics {
     }
 
     // a trait both have sums at the sum chance, else Care tilts to the better parent; a flaw one parent has drops only at Care / (200 + Care)
-    public static int inherit(boolean flaw, int a, int b, float care, float sum, Random random) {
+    public static int inherit(boolean flaw, int a, int b, float care, float sum, int step, Random random) {
         if (a > 0 && b > 0) {
-            if (random.nextFloat() < sum) return a + b;
+            if (random.nextFloat() < sum) return summed(flaw, a, b, step);
 
             boolean better = random.nextFloat() < betterChance(care);
             return flaw == better ? Math.min(a, b) : Math.max(a, b);
@@ -132,7 +134,7 @@ public final class PetGenetics {
     }
 
     // the chances of inherit, a parent without the trait is 0; equal levels of both split their share between the two lanes
-    public static List<Outcome> outcomes(boolean flaw, boolean levels, int a, int b, float care, float sum) {
+    public static List<Outcome> outcomes(boolean flaw, boolean levels, int a, int b, float care, float sum, int step) {
         List<Outcome> list = new ArrayList<>();
         float better = betterChance(care);
 
@@ -149,11 +151,11 @@ public final class PetGenetics {
             float lowChance = rest - highChance;
             if (a == b) {
                 list.add(new Outcome(PetSheet.FROM_A, a, rest / 2f));
-                list.add(new Outcome(PetSheet.FROM_SUM, a + b, sum));
+                list.add(new Outcome(PetSheet.FROM_SUM, summed(flaw, a, b, step), sum));
                 list.add(new Outcome(PetSheet.FROM_B, b, rest / 2f));
             } else {
                 list.add(new Outcome(PetSheet.FROM_A, a, a == high ? highChance : lowChance));
-                list.add(new Outcome(PetSheet.FROM_SUM, a + b, sum));
+                list.add(new Outcome(PetSheet.FROM_SUM, summed(flaw, a, b, step), sum));
                 list.add(new Outcome(PetSheet.FROM_B, b, b == high ? highChance : lowChance));
             }
             return list;
@@ -170,6 +172,20 @@ public final class PetGenetics {
             list.add(new Outcome(lane, level, kept));
         }
         return list;
+    }
+
+    // the level of a sum: both levels, plus the step of a rare species for a talent or mutation, never for a flaw
+    public static int summed(boolean flaw, int a, int b, int step) {
+        return a + b + (flaw ? 0 : step);
+    }
+
+    // talent grade of a bought, found or offered pet
+    public static int startGrade(PetData data) {
+        return data.isEpic() ? PetConstants.EPIC_START_GRADE : data.isRare() ? PetConstants.RARE_START_GRADE : 1;
+    }
+
+    public static int sumStep(PetData data) {
+        return data.isEpic() ? PetConstants.EPIC_SUM_STEP : data.isRare() ? PetConstants.RARE_SUM_STEP : 0;
     }
 
     public static float betterChance(float care) {
@@ -221,11 +237,11 @@ public final class PetGenetics {
         return Math.min(1f, chance);
     }
 
-    // 1 to 3 young, 1 for a rare species, more with Fecund; each one lost at birth at the Weak brood chance of both parents; none with a Sterile parent
+    // 1 to 3 young, 1 or 2 for a rare species, more with Fecund; each one lost at birth at the Weak brood chance of both parents; none with a Sterile parent
     public static int broodSize(PetData data, PetSheet a, PetSheet b, Map<String, Trait> traits, Random random) {
         if (a.getGrade(STERILE) > 0 || b.getGrade(STERILE) > 0) return 0;
 
-        int size = data.isRare() ? 1 : 1 + random.nextInt(PetConstants.MAX_BROOD);
+        int size = data.isRare() ? (random.nextFloat() < PetConstants.RARE_SECOND_YOUNG_CHANCE ? 2 : 1) : 1 + random.nextInt(PetConstants.MAX_BROOD);
         size += Math.round(value(traits, FECUND, a.getGrade(FECUND) + b.getGrade(FECUND)));
         float lost = value(traits, WEAK_BROOD, a.getGrade(WEAK_BROOD) + b.getGrade(WEAK_BROOD)) * 0.01f;
 
@@ -240,7 +256,7 @@ public final class PetGenetics {
 
         int fecund = Math.round(value(traits, FECUND, a.getGrade(FECUND) + b.getGrade(FECUND)));
         boolean weak = a.getGrade(WEAK_BROOD) + b.getGrade(WEAK_BROOD) > 0;
-        int hi = (data.isRare() ? 1 : PetConstants.MAX_BROOD) + fecund;
+        int hi = (data.isRare() ? PetConstants.RARE_MAX_BROOD : PetConstants.MAX_BROOD) + fecund;
         return new int[]{weak ? 0 : 1 + fecund, hi};
     }
 
@@ -312,11 +328,11 @@ public final class PetGenetics {
 
     // chance a young of a and b meets one wanted row: a talent or mutation at that grade or better, a flaw at that level or less;
     // read traits only, so a trait neither parent has never comes and a flaw neither has never does; malformed flaws are left out
-    public static float wantedChance(Trait trait, int want, int a, int b, float care, float sum) {
+    public static float wantedChance(Trait trait, int want, int a, int b, float care, float sum, int step) {
         if (a <= 0 && b <= 0) return trait.isFlaw() ? 1f : 0f;
 
         float chance = 0f;
-        for (Outcome o : outcomes(trait.isFlaw(), trait.hasLevels(), a, b, care, sum)) {
+        for (Outcome o : outcomes(trait.isFlaw(), trait.hasLevels(), a, b, care, sum, step)) {
             if (trait.isFlaw() ? o.level() <= want : o.level() >= want) chance += o.chance();
         }
         return Math.min(1f, chance);
@@ -327,13 +343,14 @@ public final class PetGenetics {
                                                    Map<String, Integer> wanted, Map<String, Trait> traits) {
         Map<String, Float> chances = new LinkedHashMap<>();
         float sum = sumChance(data, hearts);
+        int step = sumStep(data);
         for (Map.Entry<String, Integer> e : wanted.entrySet()) {
             if (e.getKey().equals(MALFORMED)) {
                 chances.put(MALFORMED, 1f - malformedChance(data, inbreeding));
                 continue;
             }
             Trait trait = traits.get(e.getKey());
-            if (trait != null) chances.put(e.getKey(), wantedChance(trait, e.getValue(), a.getGrade(e.getKey()), b.getGrade(e.getKey()), care, sum));
+            if (trait != null) chances.put(e.getKey(), wantedChance(trait, e.getValue(), a.getGrade(e.getKey()), b.getGrade(e.getKey()), care, sum, step));
         }
         return chances;
     }

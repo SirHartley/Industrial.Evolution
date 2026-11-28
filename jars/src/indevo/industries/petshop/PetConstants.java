@@ -54,6 +54,11 @@ public final class PetConstants {
     public static final float TWO_TALENTS_CHANCE = 0.5f;
     // a rare species may bring one signature talent besides the others
     public static final float SIGNATURE_CHANCE = 0.2f;
+    // a bought, found or offered rare pet: two talents at this grade; a sum of a talent or mutation adds the step on top
+    public static final int RARE_START_GRADE = 2;
+    public static final int EPIC_START_GRADE = 3;
+    public static final int RARE_SUM_STEP = 1;
+    public static final int EPIC_SUM_STEP = 2;
 
     // husbandry by pace: fast, medium, slow; the hamster rolls as fast
     public static final float[] SUM_CHANCE = {0.10f, 0.25f, 0.40f};
@@ -76,6 +81,9 @@ public final class PetConstants {
     public static final float MALFORMED_MIN = 0.05f;
     public static final float HAMSTER_MALFORMED = 0.5f;
     public static final int MAX_BROOD = 3;
+    // a rare species has 1 young, a second one at the chance
+    public static final int RARE_MAX_BROOD = 2;
+    public static final float RARE_SECOND_YOUNG_CHANCE = 0.5f;
     public static final float HAMSTER_FLAW_DAYS = 3f;
     // brood time by pace, the hamster on its own; Slow grower and Mayfly change it, never past MAX_BROOD_DAYS
     public static final float[] BROOD_DAYS = {30f, 60f, 90f};

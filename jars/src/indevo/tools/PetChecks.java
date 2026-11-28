@@ -235,21 +235,28 @@ public final class PetChecks {
         check(ravenScavenger > 2 * plainScavenger, "a Salvage Raven is a Scavenger more often: " + ravenScavenger + " against " + plainScavenger);
         check(!plain.isRare() && !plainSignature, "a common pet never brings a signature talent");
 
+        PetData epic = pets.get("voidsquid");
         int signed = 0;
         boolean rareSizes = true;
+        boolean rareGrades = true;
+        boolean epicGrades = true;
         boolean worthless = false;
         for (int i = 0; i < SHEETS; i++) {
             PetSheet sheet = PetGenetics.rollSheet(rare, traits, random);
             long signatures = sheet.traits.keySet().stream().filter(t -> traits.get(t).isSignature()).count();
             long others = sheet.traits.size() - signatures;
             if (signatures > 0) signed++;
-            rareSizes &= signatures <= 1 && others >= 1 && others <= 2;
+            rareSizes &= signatures <= 1 && others == 2;
+            rareGrades &= sheet.traits.values().stream().allMatch(g -> g == PetConstants.RARE_START_GRADE);
+            epicGrades &= PetGenetics.rollSheet(epic, traits, random).traits.values().stream().allMatch(g -> g == PetConstants.EPIC_START_GRADE);
             worthless |= sheet.traits.keySet().stream().anyMatch(t -> traits.get(t).value(1, 1f) <= 0f);
         }
 
         float signedShare = signed / (float) SHEETS;
         check(rare.isRare() && Math.abs(signedShare - PetConstants.SIGNATURE_CHANCE) < 0.01f, "a rare pet brings a signature " + signedShare + " of the time, expected " + PetConstants.SIGNATURE_CHANCE);
-        check(rareSizes, "a rare pet has 1 or 2 talents and at most one signature");
+        check(rareSizes, "a rare pet has 2 talents and at most one signature");
+        check(rare.isRare() && !rare.isEpic() && rareGrades, "a rare pet's talents are grade " + PetConstants.RARE_START_GRADE);
+        check(epic.isEpic() && epicGrades, "an epic pet's talents are grade " + PetConstants.EPIC_START_GRADE);
         check(!worthless, "no pet comes with a talent worth nothing at grade 1");
 
         PetSheet sheet = new PetSheet(Personalities.STEADY);
@@ -439,6 +446,20 @@ public final class PetChecks {
         share("flaw of both at the lower level", flawBoth, 1, (1f - sum) * better);
         check(!flawBoth.containsKey(0), "a flaw both parents have never drops");
 
+        PetData epic = pets.get("voidsquid");
+        Map<Integer, Integer> epicBoth = new LinkedHashMap<>();
+        Map<Integer, Integer> epicFlaw = new LinkedHashMap<>();
+        for (int i = 0; i < YOUNG; i++) {
+            PetSheet young = PetGenetics.rollYoung(epic, a, b, care, 0, 0f, 0f, traits, random);
+            epicBoth.merge(young.getGrade(talent), 1, Integer::sum);
+            epicFlaw.merge(young.getGrade(flaw), 1, Integer::sum);
+        }
+        float epicSum = PetGenetics.sumChance(epic, 0);
+        check(PetGenetics.sumStep(rare) == PetConstants.RARE_SUM_STEP && PetGenetics.sumStep(epic) == PetConstants.EPIC_SUM_STEP && PetGenetics.sumStep(medium) == 0,
+                "a sum adds " + PetConstants.RARE_SUM_STEP + " for a rare species, " + PetConstants.EPIC_SUM_STEP + " for an epic one, nothing for others");
+        share("epic talent of both summed with the step", epicBoth, 5 + PetConstants.EPIC_SUM_STEP, epicSum);
+        share("epic flaw of both summed without the step", epicFlaw, 3, epicSum);
+
         float rate = PetGenetics.mutationRate(medium, plain, plain, false, false, traits);
         check(near(rate, 0.16f) && near(PetGenetics.mutationRate(fast, plain, plain, true, true, traits), 0.24f)
                 && near(PetGenetics.mutationRate(slow, sheet(TRAIT_PREFIX + "unstable", 1), sheet(TRAIT_PREFIX + "unstable", 1), false, false, traits), 0.30f),
@@ -493,17 +514,25 @@ public final class PetChecks {
         float plainBrood = 0f;
         float fecundBrood = 0f;
         float weakBrood = 0f;
+        float rareBrood = 0f;
+        int rareMin = Integer.MAX_VALUE;
         int rareMax = 0;
         for (int i = 0; i < YOUNG; i++) {
             plainBrood += PetGenetics.broodSize(medium, plain, plain, traits, random);
             fecundBrood += PetGenetics.broodSize(medium, sheet(TRAIT_PREFIX + "fecund", 1), plain, traits, random);
             weakBrood += PetGenetics.broodSize(medium, sheet(TRAIT_PREFIX + "weak_brood", 1), plain, traits, random);
-            rareMax = Math.max(rareMax, PetGenetics.broodSize(rare, plain, plain, traits, random));
+            int size = PetGenetics.broodSize(rare, plain, plain, traits, random);
+            rareBrood += size;
+            rareMin = Math.min(rareMin, size);
+            rareMax = Math.max(rareMax, size);
         }
         check(Math.abs(plainBrood / YOUNG - 2f) < 0.02f, "a brood is 1 to 3 young, " + plainBrood / YOUNG + " on average");
         check(Math.abs(fecundBrood / YOUNG - 3f) < 0.02f, "Fecund 1 adds one young, " + fecundBrood / YOUNG + " on average");
         check(Math.abs(weakBrood / YOUNG - 1.5f) < 0.02f, "Weak brood 1 loses a quarter, " + weakBrood / YOUNG + " on average");
-        check(rare.isRare() && rareMax == 1, "a rare species has 1 young");
+        check(rare.isRare() && rareMin == 1 && rareMax == PetConstants.RARE_MAX_BROOD
+                && Math.abs(rareBrood / YOUNG - (1f + PetConstants.RARE_SECOND_YOUNG_CHANCE)) < 0.02f, "a rare species has 1 or 2 young, " + rareBrood / YOUNG + " on average");
+        int[] rareRange = PetGenetics.broodRange(rare, plain, plain, traits);
+        check(rareRange[0] == 1 && rareRange[1] == PetConstants.RARE_MAX_BROOD, "a rare pair shows 1 to " + PetConstants.RARE_MAX_BROOD + " young");
 
         check(!PetGenetics.rollYoung(medium, sheet(giant, 1), plain, 0f, 0, 0f, 0f, traits, new Random(5)).traits.containsKey(TRAIT_PREFIX + "sterile"), "Sterile comes only from inbreeding");
 
@@ -555,14 +584,15 @@ public final class PetChecks {
     }
 
     private void checkPlan(PetData medium, Trait talent, Trait flaw, float care, float better, float drop, float sum) {
-        check(near(PetGenetics.wantedChance(talent, 3, 3, 0, care, sum), better) && near(PetGenetics.wantedChance(talent, 1, 3, 0, care, sum), better),
+        check(near(PetGenetics.wantedChance(talent, 3, 3, 0, care, sum, 0), better) && near(PetGenetics.wantedChance(talent, 1, 3, 0, care, sum, 0), better),
                 "a talent of one parent is planned at the keep chance");
-        check(near(PetGenetics.wantedChance(talent, 5, 3, 2, care, sum), sum) && near(PetGenetics.wantedChance(talent, 3, 3, 2, care, sum), sum + (1f - sum) * better),
+        check(near(PetGenetics.wantedChance(talent, 5, 3, 2, care, sum, 0), sum) && near(PetGenetics.wantedChance(talent, 3, 3, 2, care, sum, 0), sum + (1f - sum) * better),
                 "a talent of both is planned at the sum chance, a lower grade adds the higher grade");
-        check(near(PetGenetics.wantedChance(flaw, 0, 2, 0, care, sum), drop) && near(PetGenetics.wantedChance(flaw, 1, 2, 1, care, sum), (1f - sum) * better)
-                && near(PetGenetics.wantedChance(flaw, 0, 2, 1, care, sum), 0f), "a dropped flaw is planned at the drop chance, never when both parents have it");
-        check(near(PetGenetics.wantedChance(talent, 1, 0, 0, care, sum), 0f) && near(PetGenetics.wantedChance(flaw, 0, 0, 0, care, sum), 1f),
+        check(near(PetGenetics.wantedChance(flaw, 0, 2, 0, care, sum, 0), drop) && near(PetGenetics.wantedChance(flaw, 1, 2, 1, care, sum, 0), (1f - sum) * better)
+                && near(PetGenetics.wantedChance(flaw, 0, 2, 1, care, sum, 0), 0f), "a dropped flaw is planned at the drop chance, never when both parents have it");
+        check(near(PetGenetics.wantedChance(talent, 1, 0, 0, care, sum, 0), 0f) && near(PetGenetics.wantedChance(flaw, 0, 0, 0, care, sum, 0), 1f),
                 "a talent neither parent has never comes, a flaw neither has never does");
+        check(near(PetGenetics.wantedChance(talent, 5 + PetConstants.EPIC_SUM_STEP, 3, 2, care, sum, PetConstants.EPIC_SUM_STEP), sum), "an epic sum is planned with its step");
 
         Map<String, Integer> wanted = new LinkedHashMap<>();
         wanted.put(talent.id(), 3);
@@ -609,7 +639,7 @@ public final class PetChecks {
                 int la = a.getGrade(e.getKey());
                 int lb = b.getGrade(e.getKey());
                 boolean ok = switch (from == null ? "" : from) {
-                    case PetSheet.FROM_SUM -> e.getValue() == la + lb;
+                    case PetSheet.FROM_SUM -> e.getValue() == PetGenetics.summed(traits.get(e.getKey()).isFlaw(), la, lb, PetGenetics.sumStep(medium));
                     case PetSheet.FROM_A -> e.getValue() == la;
                     case PetSheet.FROM_B -> e.getValue() == lb;
                     case PetSheet.FROM_MUTATION -> traits.get(e.getKey()).isMutation() ? la == 0 && lb == 0 : e.getValue() == 1;
@@ -642,9 +672,9 @@ public final class PetChecks {
         int[][] cases = {{3, 2}, {2, 2}, {1, 4}, {2, 0}, {0, 3}};
         boolean sums = true;
         boolean rolls = true;
-        for (boolean flaw : new boolean[]{false, true}) {
+        for (int step : new int[]{0, PetConstants.EPIC_SUM_STEP}) for (boolean flaw : new boolean[]{false, true}) {
             for (int[] c : cases) {
-                List<PetGenetics.Outcome> outcomes = PetGenetics.outcomes(flaw, true, c[0], c[1], 40f, 0.2f);
+                List<PetGenetics.Outcome> outcomes = PetGenetics.outcomes(flaw, true, c[0], c[1], 40f, 0.2f, step);
                 float total = 0f;
                 Map<Integer, Float> byLevel = new HashMap<>();
                 for (PetGenetics.Outcome o : outcomes) {
@@ -654,7 +684,7 @@ public final class PetChecks {
                 sums &= near(total, 1f);
 
                 Map<Integer, Integer> counts = new HashMap<>();
-                for (int i = 0; i < 20000; i++) counts.merge(PetGenetics.inherit(flaw, c[0], c[1], 40f, 0.2f, random), 1, Integer::sum);
+                for (int i = 0; i < 20000; i++) counts.merge(PetGenetics.inherit(flaw, c[0], c[1], 40f, 0.2f, step, random), 1, Integer::sum);
                 for (Map.Entry<Integer, Float> e : byLevel.entrySet()) rolls &= Math.abs(counts.getOrDefault(e.getKey(), 0) / 20000f - e.getValue()) < 0.02f;
                 for (int level : counts.keySet()) rolls &= byLevel.containsKey(level);
             }
@@ -662,7 +692,7 @@ public final class PetChecks {
         check(sums, "the chances of a cross add up to 1");
         check(rolls, "the cross chart matches what inherit rolls");
 
-        List<PetGenetics.Outcome> both = PetGenetics.outcomes(false, false, 1, 1, 40f, 0.2f);
+        List<PetGenetics.Outcome> both = PetGenetics.outcomes(false, false, 1, 1, 40f, 0.2f, PetConstants.EPIC_SUM_STEP);
         check(both.size() == 1 && both.get(0).lane().equals(PetSheet.FROM_SUM) && near(both.get(0).chance(), 1f), "a trait without levels both parents have always passes on");
     }
 
