@@ -1,6 +1,5 @@
 id,name,tier,timeToResearch,reqToResearchFirst,itemReqToResearch,iconId,rewards,columnNumber,rowNumber,isResearchedFromStart,otherReq,tags,modId
-IndEvo_research_colony_annexes,Colony Annexes,0,0,none,,IndEvo_research_colony_annexes,"IndEvo_Warehouse:industry
-IndEvo_PetStore:industry",0,6,true,,,IndEvo
+IndEvo_research_colony_annexes,Colony Annexes,0,0,none,,IndEvo_research_colony_annexes,IndEvo_Warehouse:industry,0,6,true,,,IndEvo
 IndEvo_research_modular_assembly,Modular Assembly,1,35,IndEvo_research_colony_annexes,research_databank:6,IndEvo_research_modular_assembly,IndEvo_AdAssem:industry,0,1,false,,,IndEvo
 IndEvo_research_adaptive_manufacturing,Adaptive Manufacturing,2,60,IndEvo_research_modular_assembly,"research_databank:11,IndEvo_rare_parts:45",IndEvo_research_adaptive_manufacturing,IndEvo_AdManuf:industry,0,1,false,,,IndEvo
 IndEvo_research_forge_overclocking,Forge Overclocking,2,45,IndEvo_research_modular_assembly,"research_databank:9,IndEvo_rare_parts:40",IndEvo_research_forge_overclocking,IndEvo_ComForge:industry,0,0,false,,,IndEvo
@@ -20,7 +19,8 @@ IndEvo_research_interstellar_comms,Interstellar Comms,3,50,IndEvo_research_relay
 IndEvo_research_orbital_artillery,Orbital Artillery,4,80,IndEvo_research_interstellar_comms,"research_databank:22,IndEvo_rare_parts:90",IndEvo_research_orbital_artillery,"IndEvo_Artillery_mortar:industry
 IndEvo_Artillery_missile:industry
 IndEvo_Artillery_railgun:industry",0,8,false,,,IndEvo
-IndEvo_research_ship_procurement,Ship Procurement,1,25,IndEvo_research_colony_annexes,research_databank:4,IndEvo_research_ship_procurement,IndEvo_ReqCenter:industry,0,6,false,,,IndEvo
+IndEvo_research_ship_procurement,Procurement,1,25,IndEvo_research_colony_annexes,research_databank:4,IndEvo_research_ship_procurement,"IndEvo_ReqCenter:industry
+IndEvo_PetStore:industry",0,6,false,,,IndEvo
 IndEvo_research_hull_restoration,Hull Restoration,2,40,IndEvo_research_colony_annexes,"research_databank:8,IndEvo_rare_parts:35",IndEvo_research_hull_restoration,IndEvo_dryDock:industry,0,5,false,,,IndEvo
 IndEvo_research_reverse_engineering,Reverse Engineering,3,85,"IndEvo_research_hull_restoration,IndEvo_research_ship_breaking","research_databank:16,IndEvo_rare_parts:65",IndEvo_research_reverse_engineering,IndEvo_EngHub:industry,0,5,false,,,IndEvo
 IndEvo_research_charter_reform,Charter Reform,1,30,IndEvo_research_colony_annexes,research_databank:6,IndEvo_research_charter_reform,"IndEvo_unlock_outpost:industry
