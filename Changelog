@@ -8,6 +8,9 @@ Adjusted - Consumables now add their ability to the ability bar on pickup
 
 Fog
 Added - Setting to show fleets in fog as sensor contacts at range (default off)
+Added - Railgun lanes and blast craters in fog glow hot and cool to red
+Added - Missiles charge the fog, slow fields and intercept hits spark ion storms
+Adjusted - Thinner railgun lanes in fog, explosions push fog out in a shock wave
 
 Artillery
 Added - Fleet Detection Lights: hostile fleets in artillery systems light up how close you can get

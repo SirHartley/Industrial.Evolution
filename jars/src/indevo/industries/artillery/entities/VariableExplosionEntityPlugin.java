@@ -115,6 +115,10 @@ public class VariableExplosionEntityPlugin extends ExplosionEntityPlugin {
         elapsed += amount;
     }
 
+    public VariableExplosionParams getVariableParams() {
+        return (VariableExplosionParams) params;
+    }
+
     @Override
     public void applyDamageToFleet(CampaignFleetAPI fleet, float damageMult) {
         VariableExplosionParams p = (VariableExplosionParams) params;

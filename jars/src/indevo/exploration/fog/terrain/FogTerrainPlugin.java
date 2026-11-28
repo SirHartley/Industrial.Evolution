@@ -31,12 +31,18 @@ import indevo.exploration.fog.patches.FogSensorContactPatch;
 import indevo.exploration.fog.renderers.FogRenderer;
 import indevo.exploration.fog.sim.FogCover;
 import indevo.exploration.fog.sim.FogGrid;
+import indevo.exploration.fog.sim.FogNoise;
 import indevo.exploration.meteor.MeteorSwarmManager;
+import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
+import indevo.industries.artillery.projectiles.ECMExplosion;
 import indevo.industries.artillery.projectiles.MissileCarrierEntityPlugin;
 import indevo.industries.artillery.projectiles.MissileSubmunitionEntity;
 import indevo.industries.artillery.projectiles.MortarProjectileEntityPlugin;
 import indevo.industries.artillery.projectiles.RailgunProjectileEntityPlugin;
 import indevo.items.consumables.entities.BaseMissileEntityPlugin;
+import indevo.items.consumables.entities.ConcussiveMissileEntityPlugin;
+import indevo.items.consumables.entities.ExplosiveMissileEntityPlugin;
+import indevo.items.consumables.entities.InterceptMissileEntityPlugin;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -110,6 +116,32 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float LANCE_INNER = 50f;
     public static final float LANCE_OUTER = 130f;
     public static final float LANCE_PUSH = 220f;
+    // the railgun lane is drawn per pixel, clear inside LANE_INNER of the beam and full fog from LANE_OUTER; the plain mesh keeps the LANCE cut
+    // the 80 unit grid cannot hold it, the grid only gets a sideways stir by the lane's share of a cell
+    public static final float LANE_INNER = 14f;
+    public static final float LANE_OUTER = 50f;
+    public static final float LANE_STIR_WIDTH = CELL_SIZE * 1.3f;
+    public static final float LANE_STIR_PUSH = LANCE_PUSH * Math.min(1f, LANE_OUTER / CELL_SIZE) * 0.7f;
+    // seconds: lane open, then closing, heat decay, gone; heat 1.25 for the first 0.12 s, then 1.1 decaying
+    public static final float LANE_HOLD = 0.5f;
+    public static final float LANE_CLOSE = 4.5f;
+    public static final float LANE_HEAT_TAU = 2.25f;
+    public static final float LANE_LIFE = 11f;
+    public static final float LANE_FLASH_SECONDS = 0.12f;
+    public static final float LANE_FLASH_HEAT = 1.25f;
+    public static final float LANE_HEAT = 1.1f;
+    // mortar and railgun hits and explosive missiles: shock wave ring out to WAVE x blast radius, heat out to WAVE_HEAT x
+    public static final float WAVE = 1.1f;
+    public static final float WAVE_HEAT = 1.25f;
+    // charge left along missile paths, over CHARGE_RADIUS
+    public static final float CHARGE_RADIUS = CELL_SIZE * 1.5f;
+    public static final float CARRIER_CHARGE = 0.55f;
+    public static final float SUBMUNITION_CHARGE = 0.4f;
+    public static final float MISSILE_CHARGE = 0.5f;
+    // ion storm over a slow field (FIELD_STORM x its radius) or an intercept hit: charge held while it lasts, flashes at random
+    public static final float FIELD_STORM = 1.25f;
+    public static final float STORM_CHARGE = 0.95f;
+    public static final float CONCUSSIVE_PUSH = 420f;
     public static final int MAP_CELLS = 40;
     public static final float MAP_REACH = 1.4f;
 
@@ -132,6 +164,10 @@ public class FogTerrainPlugin extends BaseTerrain {
     private transient FogGrid grid;
     private transient Map<SectorEntityToken, Tracked> tracked;
     private transient List<Ring> rings;
+    private transient List<Lane> lanes;
+    private transient List<Storm> storms;
+    private transient float[] laneData;
+    private transient int laneCount;
     private transient Vector2f lastAnchor;
     private transient Vector2f anchorVel;
     private transient float[] patches;
@@ -170,6 +206,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         boolean pulsed;
         boolean fired;
         float seen;
+        float nextFlash;
         int frame;
     }
 
@@ -182,6 +219,40 @@ public class FogTerrainPlugin extends BaseTerrain {
             this.x = x;
             this.y = y;
             this.range = range;
+        }
+    }
+
+    private static class Lane {
+
+        final float x0, y0, x1, y1;
+        float age;
+
+        Lane(float x0, float y0, float x1, float y1) {
+            this.x0 = x0;
+            this.y0 = y0;
+            this.x1 = x1;
+            this.y1 = y1;
+        }
+
+        float cut() {
+            return age < LANE_HOLD ? 1f : 1f - (float) FogNoise.smooth(0, 1, (age - LANE_HOLD) / LANE_CLOSE);
+        }
+
+        float heat() {
+            return (age < LANE_FLASH_SECONDS ? LANE_FLASH_HEAT : LANE_HEAT) * (float) Math.exp(-age / LANE_HEAT_TAU);
+        }
+    }
+
+    private static class Storm {
+
+        final float x, y, r, duration;
+        float t, nextFlash;
+
+        Storm(float x, float y, float r, float duration) {
+            this.x = x;
+            this.y = y;
+            this.r = r;
+            this.duration = duration;
         }
     }
 
@@ -362,7 +433,8 @@ public class FogTerrainPlugin extends BaseTerrain {
     public void render(CampaignEngineLayers layer, ViewportAPI viewport) {
         if (grid == null || layer != CampaignEngineLayers.TERRAIN_8) return;
         readSuns();
-        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours(), suns, sunCount, sunColours, FogMode.current().divisor);
+        FogRenderer.render(grid, entity.getLocation(), viewport, patches, patchCount, getMaskTime(), getColours(), suns, sunCount, sunColours,
+                laneData, laneCount, FogMode.current().divisor);
     }
 
     // up to three stars that light the fog: place, radius and light reach in bank local coordinates, shades per star
@@ -578,6 +650,9 @@ public class FogTerrainPlugin extends BaseTerrain {
             grid = new FogGrid(GRID_CELLS, CELL_SIZE, s, cx, cy, strength, time);
             tracked = new IdentityHashMap<>();
             rings = new ArrayList<>();
+            lanes = new ArrayList<>();
+            storms = new ArrayList<>();
+            laneData = new float[FogRenderer.MAX_LANES * FogRenderer.LANE_STRIDE];
             patches = new float[MAX_CLEAR_PATCHES * 3];
             anchorVel = new Vector2f();
         }
@@ -599,6 +674,13 @@ public class FogTerrainPlugin extends BaseTerrain {
             ring.last = r;
             if (ring.t >= RING_SECONDS) it.remove();
         }
+        for (Iterator<Storm> it = storms.iterator(); it.hasNext(); ) {
+            Storm storm = it.next();
+            storm.t += dt;
+            if (storm.t >= storm.duration) it.remove();
+            else storm.nextFlash = stormStep(storm.x, storm.y, storm.r, storm.nextFlash, dt);
+        }
+        advanceLanes(dt);
 
         pendingStep += dt;
         if (pendingStep >= FogMode.current().minStep) {
@@ -682,8 +764,10 @@ public class FogTerrainPlugin extends BaseTerrain {
         if (plugin instanceof ExplosionEntityPlugin) blastOnce(shot, plugin);
         else if (plugin instanceof RailgunProjectileEntityPlugin) lanceOnce(shot, (RailgunProjectileEntityPlugin) plugin);
         else if (plugin instanceof MortarProjectileEntityPlugin) moveBody(shot, SHELL_RADIUS, FogGrid.Mover.PAD, SHELL_CUT, false, amount, dt);
-        else if (plugin instanceof MissileCarrierEntityPlugin) moveBody(shot, CARRIER_RADIUS, FogGrid.Mover.PAD, CARRIER_CUT, false, amount, dt);
-        else if (plugin instanceof MissileSubmunitionEntity || plugin instanceof BaseMissileEntityPlugin) moveBody(shot, MISSILE_RADIUS, FogGrid.Mover.PAD, 1f, false, amount, dt);
+        else if (plugin instanceof MissileCarrierEntityPlugin) chargeTrail(shot, CARRIER_RADIUS, CARRIER_CUT, CARRIER_CHARGE, amount, dt);
+        else if (plugin instanceof MissileSubmunitionEntity) chargeTrail(shot, MISSILE_RADIUS, 1f, SUBMUNITION_CHARGE, amount, dt);
+        else if (plugin instanceof BaseMissileEntityPlugin) missileShot(shot, (BaseMissileEntityPlugin) plugin, amount, dt);
+        else if (plugin instanceof ECMExplosion) fieldStorm(shot, (ECMExplosion) plugin, dt);
     }
 
     private void blastOnce(SectorEntityToken explosion, CustomCampaignEntityPlugin plugin) {
@@ -692,9 +776,63 @@ public class FogTerrainPlugin extends BaseTerrain {
         boolean seen = tracked.containsKey(explosion);
         track(explosion, x, y);
         if (seen) return;
-        // params has no getter, the render range is the entity radius plus three explosion radii
+        // vanilla params have no getter, the render range is the entity radius plus three explosion radii
         float r = (plugin.getRenderRange() - explosion.getRadius()) / 3f;
-        grid.blast(x, y, Math.min(MAX_BLAST_RADIUS, r), BLAST_SPIN);
+        r = Math.min(MAX_BLAST_RADIUS, r);
+        grid.blast(x, y, r, BLAST_SPIN);
+        // artillery shells only: mortar and railgun hits
+        if (plugin instanceof VariableExplosionEntityPlugin v && v.getVariableParams().artilleryType != null) shockWave(x, y, r);
+    }
+
+    private void shockWave(float x, float y, float r) {
+        rings.add(new Ring(x, y, r * WAVE));
+        grid.disc(grid.heat, x, y, r * WAVE_HEAT, 1f);
+    }
+
+    private void chargeTrail(SectorEntityToken shot, float radius, float cut, float charge, float amount, float dt) {
+        if (!moveBody(shot, radius, FogGrid.Mover.PAD, cut, false, amount, dt)) return;
+        grid.splat(grid.ion, shot.getLocation().x - entity.getLocation().x, shot.getLocation().y - entity.getLocation().y, CHARGE_RADIUS, charge);
+    }
+
+    // a consumable missile hits once when finishing turns true, onExplosion has run then and the entity holds still while it fades
+    private void missileShot(SectorEntityToken shot, BaseMissileEntityPlugin missile, float amount, float dt) {
+        if (!missile.finishing) {
+            chargeTrail(shot, MISSILE_RADIUS, 1f, MISSILE_CHARGE, amount, dt);
+            return;
+        }
+        float x = shot.getLocation().x - entity.getLocation().x, y = shot.getLocation().y - entity.getLocation().y;
+        if (!grid.inWindow(x, y)) return;
+        Tracked t = track(shot, x, y);
+        if (t.fired) return;
+        t.fired = true;
+
+        // the explosive and concussive warheads spawn an explosion of their own, blastOnce cuts its crater
+        if (missile instanceof ExplosiveMissileEntityPlugin) shockWave(x, y, ExplosiveMissileEntityPlugin.EXPLOSION_SIZE);
+        else if (missile instanceof ConcussiveMissileEntityPlugin) grid.shove(x, y, ConcussiveMissileEntityPlugin.SHOVE_RANGE, CONCUSSIVE_PUSH);
+        else if (missile instanceof InterceptMissileEntityPlugin) {
+            rings.add(new Ring(x, y, InterceptMissileEntityPlugin.INTERDICT_RANGE));
+            storms.add(new Storm(x, y, InterceptMissileEntityPlugin.INTERDICT_RANGE, InterceptMissileEntityPlugin.INTERDICT_SECONDS));
+        }
+    }
+
+    // the storm follows the slow field entity and ends with it, the charge then fades by itself
+    private void fieldStorm(SectorEntityToken field, ECMExplosion plugin, float dt) {
+        if (plugin.finishing) return;
+        float x = field.getLocation().x - entity.getLocation().x, y = field.getLocation().y - entity.getLocation().y;
+        if (!grid.inWindow(x, y)) return;
+        Tracked t = track(field, x, y);
+        t.nextFlash = stormStep(x, y, plugin.rad * FIELD_STORM, t.nextFlash, dt);
+    }
+
+    // holds the charge and drops a flash when the timer runs out; returns the new timer
+    private float stormStep(float x, float y, float r, float nextFlash, float dt) {
+        grid.disc(grid.ion, x, y, r, STORM_CHARGE);
+        nextFlash -= dt;
+        if (nextFlash > 0f) return nextFlash;
+        float angle = Misc.random.nextFloat() * (float) Math.PI * 2f, dist = r * (float) Math.sqrt(Misc.random.nextFloat());
+        grid.splat(grid.flash, x + (float) Math.cos(angle) * dist, y + (float) Math.sin(angle) * dist,
+                170f + 150f * Misc.random.nextFloat(), 0.55f + 0.45f * Misc.random.nextFloat());
+        return (0.12f + 0.38f * Misc.random.nextFloat()) * (220f / r + 0.35f);
     }
 
     // the lance entity sits at the station until it fires and at the beam end after, the beam can cross the window with both outside
@@ -704,7 +842,41 @@ public class FogTerrainPlugin extends BaseTerrain {
         Tracked t = track(shot, x, y);
         if (t.fired || !plugin.isFired()) return;
         t.fired = true;
-        grid.lance(plugin.originLocation.x - anchor.x, plugin.originLocation.y - anchor.y, x, y, LANCE_INNER, LANCE_OUTER, LANCE_PUSH);
+        float x0 = plugin.originLocation.x - anchor.x, y0 = plugin.originLocation.y - anchor.y;
+        if (FogRenderer.isPlain()) {
+            grid.lance(x0, y0, x, y, LANCE_INNER, LANCE_OUTER, LANCE_PUSH, true);
+            return;
+        }
+        float len = (float) Math.hypot(x - x0, y - y0);
+        if (len > RailgunProjectileEntityPlugin.BEAM_START) {
+            x0 += (x - x0) / len * RailgunProjectileEntityPlugin.BEAM_START;
+            y0 += (y - y0) / len * RailgunProjectileEntityPlugin.BEAM_START;
+        }
+        grid.lance(x0, y0, x, y, 0f, LANE_STIR_WIDTH, LANE_STIR_PUSH, false);
+        lanes.add(new Lane(x0, y0, x, y));
+        if (lanes.size() > FogRenderer.MAX_LANES) lanes.remove(0);
+    }
+
+    private void advanceLanes(float dt) {
+        laneCount = 0;
+        for (Iterator<Lane> it = lanes.iterator(); it.hasNext(); ) {
+            Lane lane = it.next();
+            lane.age += dt;
+            if (lane.age >= LANE_LIFE) {
+                it.remove();
+                continue;
+            }
+            int o = laneCount * FogRenderer.LANE_STRIDE;
+            laneData[o] = lane.x0;
+            laneData[o + 1] = lane.y0;
+            laneData[o + 2] = lane.x1;
+            laneData[o + 3] = lane.y1;
+            laneData[o + 4] = LANE_INNER;
+            laneData[o + 5] = LANE_OUTER;
+            laneData[o + 6] = lane.cut();
+            laneData[o + 7] = lane.heat();
+            laneCount++;
+        }
     }
 
     // false when the body is outside the grid window
@@ -744,6 +916,9 @@ public class FogTerrainPlugin extends BaseTerrain {
         grid = null;
         tracked = null;
         rings = null;
+        lanes = null;
+        storms = null;
+        laneCount = 0;
         lastAnchor = null;
         patchCount = 0;
         pendingStep = 0f;
