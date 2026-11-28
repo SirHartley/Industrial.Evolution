@@ -30,7 +30,7 @@ public class FleetLightRenderer implements LunaCampaignRenderingPlugin {
     private static final EnumSet<CampaignEngineLayers> LAYERS = EnumSet.of(CampaignEngineLayers.TERRAIN_7);
     private static final float[] SPOT_ANGLE = {0f};
 
-    public static final Color BASE_COLOR = SearchlightTerrain.WARM;
+    public static final Color BASE_COLOR = SearchlightTerrain.ORANGE;
 
     public static class Light {
         public final CampaignFleetAPI fleet;
