@@ -31,7 +31,6 @@ import indevo.exploration.fog.patches.FogSensorContactPatch;
 import indevo.exploration.fog.renderers.FogRenderer;
 import indevo.exploration.fog.sim.FogCover;
 import indevo.exploration.fog.sim.FogGrid;
-import indevo.exploration.fog.sim.FogNoise;
 import indevo.exploration.meteor.MeteorSwarmManager;
 import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.industries.artillery.projectiles.ECMExplosion;
@@ -112,20 +111,13 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float LANCE_INNER = 50f;
     public static final float LANCE_OUTER = 130f;
     public static final float LANCE_PUSH = 220f;
-    // the railgun lane is drawn per pixel, clear inside LANE_INNER of the beam and full fog from LANE_OUTER; the plain mesh keeps the LANCE cut
-    // the 80 unit grid cannot hold it, the grid only gets a sideways stir by the lane's share of a cell
-    public static final float LANE_INNER = 14f;
-    public static final float LANE_OUTER = 50f;
+    // the railgun trail and its hot line are drawn per pixel from the lane age, the shader holds their numbers; the plain mesh keeps the LANCE cut
+    // the 80 unit grid cannot hold the trail, it only gets a sideways stir and the wake heat
     public static final float LANE_STIR_WIDTH = CELL_SIZE * 1.3f;
-    public static final float LANE_STIR_PUSH = LANCE_PUSH * Math.min(1f, LANE_OUTER / CELL_SIZE) * 0.7f;
-    // seconds: lane open, then closing, heat decay, gone; heat 1.25 for the first 0.12 s, then 1.1 decaying
-    public static final float LANE_HOLD = 0.5f;
-    public static final float LANE_CLOSE = 4.5f;
-    public static final float LANE_HEAT_TAU = 2.25f;
+    public static final float LANE_STIR_PUSH = LANCE_PUSH * 0.44f;
+    public static final float LANE_WAKE_RADIUS = 150f;
+    // seconds until a lane is dropped, its cut and hot line are gone well before
     public static final float LANE_LIFE = 11f;
-    public static final float LANE_FLASH_SECONDS = 0.12f;
-    public static final float LANE_FLASH_HEAT = 1.25f;
-    public static final float LANE_HEAT = 1.1f;
     // mortar and railgun hits and explosive missiles: shock wave ring out to WAVE x blast radius, heat out to WAVE_HEAT x
     public static final float WAVE = 1.1f;
     public static final float WAVE_HEAT = 1.25f;
@@ -228,14 +220,6 @@ public class FogTerrainPlugin extends BaseTerrain {
             this.y0 = y0;
             this.x1 = x1;
             this.y1 = y1;
-        }
-
-        float cut() {
-            return age < LANE_HOLD ? 1f : 1f - (float) FogNoise.smooth(0, 1, (age - LANE_HOLD) / LANE_CLOSE);
-        }
-
-        float heat() {
-            return (age < LANE_FLASH_SECONDS ? LANE_FLASH_HEAT : LANE_HEAT) * (float) Math.exp(-age / LANE_HEAT_TAU);
         }
     }
 
@@ -848,6 +832,7 @@ public class FogTerrainPlugin extends BaseTerrain {
             y0 += (y - y0) / len * RailgunProjectileEntityPlugin.BEAM_START;
         }
         grid.lance(x0, y0, x, y, 0f, LANE_STIR_WIDTH, LANE_STIR_PUSH, false);
+        grid.line(grid.wake, x0, y0, x, y, LANE_WAKE_RADIUS, 1f);
         lanes.add(new Lane(x0, y0, x, y));
         if (lanes.size() > FogRenderer.MAX_LANES) lanes.remove(0);
     }
@@ -866,10 +851,7 @@ public class FogTerrainPlugin extends BaseTerrain {
             laneData[o + 1] = lane.y0;
             laneData[o + 2] = lane.x1;
             laneData[o + 3] = lane.y1;
-            laneData[o + 4] = LANE_INNER;
-            laneData[o + 5] = LANE_OUTER;
-            laneData[o + 6] = lane.cut();
-            laneData[o + 7] = lane.heat();
+            laneData[o + 4] = lane.age;
             laneCount++;
         }
     }

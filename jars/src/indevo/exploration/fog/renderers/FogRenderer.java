@@ -37,9 +37,9 @@ public final class FogRenderer {
     public static final int MAX_HOLES = 48;
     public static final int MAX_SUNS = 3;
     public static final int MAX_RINGS = 32;
-    // railgun lanes drawn per pixel: x0, y0, x1, y1, inner, outer, cut, heat
+    // railgun lanes drawn per pixel: x0, y0, x1, y1, age in seconds
     public static final int MAX_LANES = 8;
-    public static final int LANE_STRIDE = 8;
+    public static final int LANE_STRIDE = 5;
     // star icon colours are fully saturated, the light is that hue pulled this far to white
     public static final float SUN_WHITE = 0.35f;
     public static final float SUN_MIN_BRIGHTNESS = 0.5f;
@@ -407,7 +407,7 @@ public final class FogRenderer {
         LANE_PARAMS.clear();
         for (int i = 0; i < MAX_LANES; i++) {
             for (int f = 0; f < 4; f++) LANES.put(i < count ? lanes[i * LANE_STRIDE + f] : 0f);
-            for (int f = 4; f < LANE_STRIDE; f++) LANE_PARAMS.put(i < count ? lanes[i * LANE_STRIDE + f] : 0f);
+            LANE_PARAMS.put(i < count ? lanes[i * LANE_STRIDE + 4] : 0f).put(0f).put(0f).put(0f);
         }
         LANES.flip();
         LANE_PARAMS.flip();
