@@ -1,12 +1,12 @@
 # Fog
 
-Fog weather in star systems near the player: the roll, the fog terrain and its sensor cut, the fluid solver that moves the fog, the shader that draws it, and the lurker fleets that ambush inside it. Read it before touching `indevo/exploration/fog/` or `IndEvo_fog_weather`. It does not cover the Chaff Cloud consumable ([Consumables](../items/CONSUMABLES.md)), which keeps its own terrain and renderer.
+Fog weather in star systems: the roll, the fog terrain and its sensor cut, the fluid solver that moves the fog, the shader that draws it, and the lurker fleets that ambush inside it. Read it before touching `indevo/exploration/fog/` or `IndEvo_fog_weather`. It does not cover the Chaff Cloud consumable ([Consumables](../items/CONSUMABLES.md)), which keeps its own terrain and renderer.
 
 Checked against Starsector 0.98a-RC8 (knowledge skill build 0.98.5a-RC4) and IE `55b1c98`. Recheck engine facts after a game update. Not yet seen in game.
 
 ## Overview
 
-On each economy tick `FogWeatherManager` may add fog to one star system within 20 light years of the player. Core systems only get banks, never a spell. Banks are common (about one system in three near the player), spells rare (at most 3 at a time). Fog comes in two kinds:
+On each economy tick `FogWeatherManager` rolls every fog capable star system in the sector, so the amount of fog scales with the sector size. A system holds one spell or up to 2 banks. Banks are common (about one bank per two systems), spells rarer (about one system in 14). The sector is seeded once at the start, so fog is spread out from day one. Fog comes in two kinds:
 
 | Kind | Size and place | Timing | Lurkers | Cache |
 |---|---|---|---|---|
@@ -19,7 +19,7 @@ Inside fog the sensor range of a fleet and the range at which it is detected bot
 
 | File | Owner / role |
 |---|---|
-| `indevo/exploration/fog/FogWeatherManager.java` | Transient `EconomyTickListener`. Roll, system choice, spell and bank placement, lurker and cache spawn, the list of active fog in persistent data |
+| `indevo/exploration/fog/FogWeatherManager.java` | Transient `EconomyTickListener`. Seed, per system roll, spell cooldown, spell and bank placement, lurker and cache spawn, the list of active fog in persistent data |
 | `FogMode.java` | Options of the `IndEvo_fog_weather` radio (`Setting.Choice`): label, draw divisor, minimum solver step. `current()` reads the setting. No engine imports, the headless settings checks load it |
 | `sim/FogNoise.java` | Hash, value noise, fbm, smoothstep. No engine imports |
 | `sim/FogGrid.java` | Fluid solver on a scrolling window, port of the mockup's `sim_inline.js`. Nested `Shape` (rest mask and ambient curl, a pure function of local position, seed and time) and `Mover`. Effect fields `heat`, `ion`, `flash` for the shot effects. No engine imports, runs headless |
@@ -43,28 +43,32 @@ Inside fog the sensor range of a fleet and the range at which it is detected bot
 | Stat mods | `IndEvo_fog_stat_mod_1` (detected range), `_2` (sensor range), temporary mults for 0.1 days | `FogTerrainPlugin.DETECTED_MOD_ID`, `SENSOR_MOD_ID` |
 | Stat mod | `IndEvo_fog_cache` (mult on the cache's detected range) | `FogTerrainPlugin.CACHE_MOD_ID` |
 | Persistent data | `IndEvo_fogTerrains` (`List<SectorEntityToken>` of fog terrain entities) | `FogWeatherManager.DATA_KEY` |
+| Persistent data | `IndEvo_fogSeeded` (true once the sector was seeded) | `FogWeatherManager.SEEDED_KEY` |
+| Memory key | `$IndEvo_fogSpellStart` (long timestamp of the last spell), `$IndEvo_fogSpellWait` (float days from it until the next spell may roll), system memory | `FogWeatherManager.SPELL_START_KEY`, `SPELL_WAIT_KEY` |
 | Memory key | `$IndEvo_fogLurker` (true on lurker fleets) | `FogLurkerAssignmentAI.MEM_LURKER` |
 
-Tuning constants are public statics on their owner: roll chances, caps, durations, sizes, ambush chances, lurker size, cache chance and types on `FogWeatherManager`; sensor cut, contact cut, cache sensor cut, density threshold, window size, keep disc margins on `FogTerrainPlugin`; solver constants on `FogGrid`; notice range and chase time on `FogLurkerAssignmentAI`.
+Tuning constants are public statics on their owner: roll chances, cooldown, caps, durations, sizes, ambush chances, lurker size, cache chance and types on `FogWeatherManager`; sensor cut, contact cut, cache sensor cut, density threshold, window size, keep disc margins on `FogTerrainPlugin`; solver constants on `FogGrid`; notice range and chase time on `FogLurkerAssignmentAI`.
 
 ## Registration and lifecycle
 
-- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> FogWeatherManager.register()` adds a transient listener if none is there. Old saves get fog from the next economy tick.
+- `ModPlugin.onGameLoad() -> setListenersIfNeeded() -> FogWeatherManager.register()` adds a transient listener if none is there and seeds the sector (`seedIfNeeded`) unless `IndEvo_fogSeeded` is set or `IndEvo_fog_weather` is `Off`; with `Off` the seed runs on the first tick after it is turned on. Old saves without the flag get the seed on their next load.
 - Fog is a terrain entity added with `addTerrain`, saved with its plugin. It orbits the system centre or a gas giant (`setCircularOrbit(focus, 0, 0, 100)` like vanilla magnetic fields, or a star orbit with period `0.1 * radius` days).
 - Lurkers are fleets with a saved `FogLurkerAssignmentAI` script.
 - A bank's cache is a vanilla salvage entity on an orbit round the fog entity; the plugin keeps it in the saved field `cache` and expires it when the fog is over.
 - The grid, movers, rings, clear patches and the keep discs are transient fields of the plugin, built while the player is in the system and dropped when the player leaves. GL objects are static in `FogRenderer`, created once per application.
 
-`reportEconomyTick -> getActiveFog (prune) -> [IndEvo_fog_weather not Off] roll -> spawnNearPlayer -> isValidSystem -> spawn -> addTerrain + placeBank -> spawnCache -> spawnLurker -> FogTerrainPlugin.advance -> BaseTerrain.advance (applyEffect) -> advanceView -> FogGrid.step -> render -> FogRenderer.render`
+`reportEconomyTick -> [IndEvo_fog_weather not Off] seedIfNeeded -> getActiveFog (prune) -> per system: isCapable -> isSpellReady + hasRoom -> spawn -> pickBankSpot + addTerrain -> spawnCache -> spawnLurker -> FogTerrainPlugin.advance -> BaseTerrain.advance (applyEffect) -> advanceView -> FogGrid.step -> render -> FogRenderer.render`
 
 ## Flow
 
 ### Roll
 
-- `reportEconomyTick` (`FogWeatherManager.java:83`): prunes dead entries, returns while `IndEvo_fog_weather` is `Off`, counts spells and banks. Each tick (10 per month, `economyIterPerMonth`): spell 15% while fewer than 3 are active; bank 50% while fewer than 40 are active and, in `spawnNearPlayer`, fewer than `BANK_SHARE` 33% of the systems in range that can hold a bank (banked plus valid) have one. Near a player who stays in one area that is a new bank about every 6 days until one system in three has one.
-- `isValidSystem(system, kind)` (`:124`): spells never in `THEME_CORE` systems, banks are allowed there; for both not `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`, `SYSTEM_CUT_OFF_FROM_HYPER`, no fog yet, and nebula cover at most `MAX_NEBULA_COVER` 10%. `getNebulaCover` (`:133`) counts the tiles of every `nebula` terrain (`BaseTiledTerrain.getTiles`, 400 units each) whose centre lies in the system disc (`getSystemRadius`: outermost planet or jump point plus 2500, at least 8000) against that disc's area, so nebula in the outskirts does not count. Systems under the limit take the nebula's colour. Markets do not block fog: core colonies can get a bank, player colonies outside the core a bank or a spell. Candidates within 20 light years of the player fleet's hyperspace position, one picked at random.
-- `spawn` (`:154`) throws if the system already has fog.
-- `placeBank` (`:206`): a random gas giant with 60%, else a star orbit at the midpoint between two adjacent planet orbits or beyond the outermost, at least star radius + bank radius + 500 out.
+- `reportEconomyTick` (`FogWeatherManager.java:96`): returns while `IndEvo_fog_weather` is `Off`, runs `seedIfNeeded`, then rolls each system that passes `isCapable`. Each tick (10 per month, `economyIterPerMonth`): `SPELL_CHANCE` 0.4% when `isSpellReady` and the system has no fog, else `BANK_CHANCE` 1% while the system has no spell and fewer than `MAX_BANKS_PER_SYSTEM` 2 banks. `MAX_BANKS` 300 is a safety net only; fog outside the player's system costs nothing (`FogTerrainPlugin.advance` returns early). With banks living about 145 days that is about one bank per two systems, a new bank in a given system about every 10 months, and a spell in about one system in 14.
+- Spell cooldown: `spawn` writes `$IndEvo_fogSpellStart` and `$IndEvo_fogSpellWait` (roll in + hold + fade + `SPELL_COOLDOWN_DAYS` 240) to the system memory, so a system gets no spell for 8 months after one ends. Banks have no cooldown.
+- `seedIfNeeded` (`:119`): once per save, each capable system rolls the steady state: a spell at `SPELL_CHANCE x mean spell life / tick days`, else 2 bank slots each at `BANK_CHANCE x mean bank life / tick days / 2` (about 24%). Seeded fog has no roll in and a hold shortened by a random share, so expiries are staggered.
+- `isFogCapable(system)` (`:186`): not `THEME_HIDDEN`, `THEME_SPECIAL`, `SYSTEM_ABYSSAL`, `SYSTEM_CUT_OFF_FROM_HYPER`, and nebula cover at most `MAX_NEBULA_COVER` 10%. Core systems get spells and banks. The manager caches the result per system (`isCapable`) because tags and nebula do not change in play. `getNebulaCover` counts the tiles of every `nebula` terrain (`BaseTiledTerrain.getTiles`, 400 units each) whose centre lies in the system disc (`getSystemRadius`: outermost planet or jump point plus 2500, at least 8000) against that disc's area, so nebula in the outskirts does not count. Systems under the limit take the nebula's colour. Markets do not block fog.
+- `hasRoom(loc, kind)` (`:172`): a spell needs a system without fog, a bank a system without a spell and with fewer than 2 banks. `spawn` (`:225`) throws without room.
+- `pickBankSpot` (`:272`): up to 10 tries of a random gas giant with 60%, else a star orbit at the midpoint between two adjacent planet orbits or beyond the outermost, at least star radius + bank radius + 500 out. A spot is taken only when its distance from the system centre differs from every other bank's by at least the sum of both radii, so two banks never touch while they orbit. No clear spot: no bank this tick.
 
 ### Strength and density
 
@@ -122,7 +126,7 @@ Look approved on the mockup page (project files `ie/FOG_SHOT_EFFECTS_MOCKUP.html
 
 ### Cache
 
-- `spawnCache` (`FogWeatherManager.java:259`): banks only, `BANK_CACHE_CHANCE` 15%. One of `supply_cache_small`, `equipment_cache_small`, `weapons_cache_small` through `BaseThemeGenerator.addSalvageEntity` (faction neutral, vanilla salvage and discovery). Placed at the thickest full mask of up to 30 tries, 0.1..0.35 radius from the centre, on a 300 day orbit round the fog entity so it moves with the bank.
+- `spawnCache` (`FogWeatherManager.java:337`): banks only, `BANK_CACHE_CHANCE` 15%. One of `supply_cache_small`, `equipment_cache_small`, `weapons_cache_small` through `BaseThemeGenerator.addSalvageEntity` (faction neutral, vanilla salvage and discovery). Placed at the thickest full mask of up to 30 tries, 0.1..0.35 radius from the centre, on a 300 day orbit round the fog entity so it moves with the bank.
 - `hideCache` (`FogTerrainPlugin.java:309`), each frame in the player's location and once at spawn: `1 - 0.7 * density` as a mult on the cache's `getDetectedRangeMod()`. Density is `getDensityAt`; during the roll in the rest mask is used without the strength, so the cache never sits in the open first. During the fade the cut shrinks with the fog.
 - Spot range of a small cache is `(sensor strength + profile 1 + 1200) x cache mult x own sensor mult` (`BaseCampaignEntity.getBaseSensorRangeToDetect`, `getMaxSensorRangeToDetect`, knowledge skill `obf/campaign/BaseCampaignEntity.java:1089`; detection range 1200 from `salvage_entity_gen_data.csv`). Estimate for a fleet sensor strength of 450..1050: 1650..2250 in the open, 500..675 from outside thick fog, 50..70 from inside it, about 1400..1600 with Active Sensor Burst (3000 flat, own cut skipped).
 - When the fog is over the plugin calls `Misc.fadeAndExpire` on a cache that is still there. A looted cache expires the vanilla way and the plugin drops its reference.
@@ -153,6 +157,7 @@ Look approved on the mockup page (project files `ie/FOG_SHOT_EFFECTS_MOCKUP.html
 | Not seen in game | Shader look, layer order against fleets and other terrain, frame time, window edge at full zoom out, ambush behaviour, the lurker chase and the sensor contacts are unverified |
 | Shot effects | Heat, lanes, shock waves, charge trails and ion storms only rendered headless (game shader in WebGL with dumped grids); look, frame time and the second texture unit not seen in game |
 | Default and Low Fidelity | Half and quarter resolution draw (half is the default), framebuffer state restore, the LunaLib radio and frame time not seen in game. Headless: quarter resolution 8.9x cheaper shader time (software GL), 8.2x on an Intel HD 505 in a browser |
+| Two banks in view | Each bank in view of the viewport runs its own solver and shader pass, and `FogRenderer` re-uploads the grid texture for each. Cost with two banks on screen not measured |
 | Window size | 128 x 80 = 10240 units. A view wider than about 10000 units shows the fog cut at the window edge |
 | Chaff Cloud | Still uses its own renderer; moving it to the fog renderer is a later task |
 
