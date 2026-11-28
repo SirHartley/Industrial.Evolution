@@ -1,4 +1,8 @@
 --------------------------- Changelog -----------------------------
+5.0.d - UNRELEASED
+Fog
+Added - Setting to show fleets in fog as sensor contacts at range (default off)
+
 5.0.c
 General
 Adjusted - Moved fog and meteor swarm settings to the new Fog & Meteors tab
