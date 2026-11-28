@@ -150,6 +150,7 @@ void main() {
 	c *= 0.82 + 0.25 * smoothstep(0.2, 1.0, d);
 	c = mix(c, s2, ws * 0.6);
 	a = min(1.0, a * (1.0 + ws * 0.6));
+	float a0 = a;
 
 	// shot effects: heat, charge and flashes from the second grid texture, railgun lanes exact per pixel
 	vec3 emit = vec3(0.0);
@@ -201,6 +202,8 @@ void main() {
 		hk *= smoothstep(hl.z * 0.45, hl.z * 1.5, distance(w, hl.xy));
 	}
 
+	// glow only where there was fog before the lane cuts, clear space stays dark
+	emit *= smoothstep(0.02, 0.3, a0);
 	a *= hk * uAlpha;
 	gl_FragColor = vec4(c * a + emit * hk * uAlpha, a);
 }
