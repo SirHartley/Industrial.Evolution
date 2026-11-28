@@ -11,6 +11,7 @@ Added - Setting to show fleets in fog as sensor contacts at range (default off)
 Added - Railgun shots leave a heated wake in fog that cools to red, blasts heat the fog red
 Added - Missiles charge the fog, slow fields and intercept hits spark ion storms
 Adjusted - Railgun lanes in fog are now thin trails that drift and tear, explosions push fog out in a shock wave
+Adjusted - Explosions clear a smaller hole in fog, about 60% of the blast
 Adjusted - Mortar shells fly over fog, only their explosion clears it
 Adjusted - Fog rolls in across the whole sector, not only near the player
 Adjusted - New games and older saves start with fog already spread over the sector

@@ -118,9 +118,11 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float LANE_WAKE_RADIUS = 150f;
     // seconds until a lane is dropped, its cut and hot line are gone well before
     public static final float LANE_LIFE = 11f;
-    // mortar and railgun hits and explosive missiles: shock wave ring out to WAVE x blast radius, heat out to WAVE_HEAT x
+    // mortar and railgun hits and explosive missiles: shock wave ring out to WAVE x crater radius, heat out to WAVE_HEAT x
     public static final float WAVE = 1.1f;
     public static final float WAVE_HEAT = 1.25f;
+    // crater radius per explosion radius: the shock wave reaches 0.6 explosion radii, heat scales with it
+    public static final float BLAST_SCALE = 0.6f / WAVE;
     // charge left along missile paths, over CHARGE_RADIUS
     public static final float CHARGE_RADIUS = CELL_SIZE * 1.5f;
     public static final float CARRIER_CHARGE = 0.55f;
@@ -757,7 +759,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         if (seen) return;
         // vanilla params have no getter, the render range is the entity radius plus three explosion radii
         float r = (plugin.getRenderRange() - explosion.getRadius()) / 3f;
-        r = Math.min(MAX_BLAST_RADIUS, r);
+        r = Math.min(MAX_BLAST_RADIUS, r) * BLAST_SCALE;
         grid.blast(x, y, r, BLAST_SPIN);
         // artillery shells only: mortar and railgun hits
         if (plugin instanceof VariableExplosionEntityPlugin v && v.getVariableParams().artilleryType != null) shockWave(x, y, r);
@@ -786,7 +788,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         t.fired = true;
 
         // the explosive and concussive warheads spawn an explosion of their own, blastOnce cuts its crater
-        if (missile instanceof ExplosiveMissileEntityPlugin) shockWave(x, y, ExplosiveMissileEntityPlugin.EXPLOSION_SIZE);
+        if (missile instanceof ExplosiveMissileEntityPlugin) shockWave(x, y, ExplosiveMissileEntityPlugin.EXPLOSION_SIZE * BLAST_SCALE);
         else if (missile instanceof ConcussiveMissileEntityPlugin) grid.shove(x, y, ConcussiveMissileEntityPlugin.SHOVE_RANGE, CONCUSSIVE_PUSH);
         else if (missile instanceof InterceptMissileEntityPlugin) {
             rings.add(new Ring(x, y, InterceptMissileEntityPlugin.INTERDICT_RANGE));
