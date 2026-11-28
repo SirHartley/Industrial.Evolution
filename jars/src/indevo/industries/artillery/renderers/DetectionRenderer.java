@@ -1,12 +1,18 @@
 package indevo.industries.artillery.renderers;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.AsteroidAPI;
 import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.CampaignTerrainAPI;
+import com.fs.starfarer.api.campaign.JumpPointAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
+import com.fs.starfarer.api.campaign.RingBandAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.SectorEntityToken.VisibilityLevel;
 import com.fs.starfarer.api.combat.ViewportAPI;
+import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
@@ -24,9 +30,11 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,6 +62,9 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     public static final float LINE_WIDTH = 1.5f;
     public static final float GLOW_WIDTH = 6f;
     public static final float GLOW_ALPHA = 0.35f;
+    public static final float BLOCK_GAP = 50f;
+    public static final float BLOCK_FADE = 250f;
+    public static final float BLOCK_MIN_RADIUS = 10f;
     public static final int SEGMENTS = 180;
 
     // render runs on one thread
@@ -64,6 +75,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     public static class Edge {
         public final SectorEntityToken entity;
         public final boolean tower;
+        public final List<SectorEntityToken> blockers = new ArrayList<>();
         public float radius;
         public float target;
         public float rate;
@@ -140,6 +152,16 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         return level == VisibilityLevel.COMPOSITION_DETAILS || level == VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS;
     }
 
+    // what an edge fades out near: planets, stars, jump points and visible objects, no fleets, terrain, asteroids or hidden helpers
+    public static boolean isBlocker(SectorEntityToken object) {
+        if (object instanceof CampaignFleetAPI || object instanceof CampaignTerrainAPI
+                || object instanceof AsteroidAPI || object instanceof RingBandAPI) return false;
+        if (object.getRadius() < BLOCK_MIN_RADIUS || object.hasTag(Tags.NON_CLICKABLE)) return false;
+
+        return object instanceof PlanetAPI || object instanceof JumpPointAPI
+                || object.getVisibilityLevelToPlayerFleet() != VisibilityLevel.NONE;
+    }
+
     @Override
     public boolean isExpired() {
         return false;
@@ -214,7 +236,27 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
             }
         }
 
+        findBlockers();
         checkSpot(insideTower, spotted);
+    }
+
+    // objects move slowly, so the 0.25 s check is enough to know which ones sit near an edge
+    private void findBlockers() {
+        for (Edge edge : edges.values()) edge.blockers.clear();
+        if (edges.isEmpty()) return;
+
+        for (SectorEntityToken object : location.getAllEntities()) {
+            if (!isBlocker(object)) continue;
+
+            float reach = object.getRadius() + BLOCK_GAP + BLOCK_FADE;
+            for (Edge edge : edges.values()) {
+                if (object == edge.entity) continue;
+
+                float dist = Misc.getDistance(edge.entity.getLocation(), object.getLocation());
+                if (dist > Math.min(edge.radius, edge.target) - reach && dist < Math.max(edge.radius, edge.target) + reach)
+                    edge.blockers.add(object);
+            }
+        }
     }
 
     // red once the eye is full while it sees the player, like a locked searchlight spot
@@ -303,7 +345,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         float facing = (float) Math.toRadians(Misc.getAngleInDegrees(loc, player.getLocation()));
         Color color = Misc.interpolateColor(EDGE_COLOR, DroneConeTerrain.LOCK_COLOR, SearchlightRenderer.smooth(edge.locking));
 
-        drawEdge(loc, edge.radius, facing, color, viewport.getAlphaMult() * edge.brightness, approach, inside, flash, viewport.getViewMult());
+        drawEdge(loc, edge.radius, edge.blockers, facing, color, viewport.getAlphaMult() * edge.brightness, approach, inside, flash, viewport.getViewMult());
     }
 
     // the searchlight spot without rim and tower spikes, sized by the player's profile like the towers' spots
@@ -331,9 +373,8 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
             SearchlightRenderer.drawRing(loc, radius, spotRing / SearchlightTerrain.RING_SECONDS, DroneConeTerrain.LOCK_COLOR, fade);
     }
 
-    private static void drawEdge(Vector2f loc, float radius, float facing, Color color, float fade,
+    private static void drawEdge(Vector2f loc, float radius, List<SectorEntityToken> blockers, float facing, Color color, float fade,
                                  float approach, float inside, float flash, float unitsPerPixel) {
-        float max = 0f;
         for (int i = 0; i <= SEGMENTS; i++) {
             double offset = 2.0 * Math.PI * i / SEGMENTS - Math.PI;
             float along = (float) offset * radius / ARC_SPAN;
@@ -342,9 +383,12 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
             ALPHAS[i] = Math.min(1f, fade * (approach * near + inside * (INSIDE_EDGE_ALPHA + INSIDE_NEAR_ALPHA * near) + flash));
             COS[i] = (float) Math.cos(facing + offset);
             SIN[i] = (float) Math.sin(facing + offset);
-            max = Math.max(max, ALPHAS[i]);
         }
 
+        for (SectorEntityToken blocker : blockers) mask(loc, radius, blocker.getLocation(), blocker.getRadius() + BLOCK_GAP);
+
+        float max = 0f;
+        for (float alpha : ALPHAS) max = Math.max(max, alpha);
         if (max < 0.005f) return;
 
         float r = color.getRed() / 255f;
@@ -380,6 +424,17 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         GL11.glEnd();
 
         GL11.glPopAttrib();
+    }
+
+    // gone within clear of the object's centre, back to full over BLOCK_FADE
+    private static void mask(Vector2f loc, float radius, Vector2f at, float clear) {
+        for (int i = 0; i <= SEGMENTS; i++) {
+            if (ALPHAS[i] <= 0f) continue;
+
+            float dx = loc.x + COS[i] * radius - at.x;
+            float dy = loc.y + SIN[i] * radius - at.y;
+            ALPHAS[i] *= SearchlightRenderer.smooth(((float) Math.sqrt(dx * dx + dy * dy) - clear) / BLOCK_FADE);
+        }
     }
 
     private static float clamp(float value) {
