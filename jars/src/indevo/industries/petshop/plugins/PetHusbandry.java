@@ -11,6 +11,7 @@ import com.fs.starfarer.api.util.Misc;
 import indevo.industries.academy.industry.Academy;
 import indevo.industries.petshop.PetConstants;
 import indevo.industries.petshop.PetGenetics;
+import indevo.industries.petshop.hullmods.PetHullmod;
 import indevo.industries.petshop.industry.PetShop;
 import indevo.industries.petshop.listener.PetStatusManager;
 import indevo.industries.petshop.memory.Pet;
@@ -617,7 +618,8 @@ public class PetHusbandry {
             }
             case DISPOSITION -> {
                 t.addPara("Disposition", Ui.hl(), 0f);
-                t.addPara("A pet with the Captain talent commands its ship with this personality.", 10f);
+                boolean seen = PetStatusManager.getInstance().getSeenTraits().contains(PetHullmod.CAPTAIN);
+                t.addPara(seen ? "A pet with the Captain talent commands its ship with this personality." : "Affects an unknown talent.", 10f);
                 t.addPara("A young has the disposition of one parent.", 10f);
             }
             case MALFORMED -> {

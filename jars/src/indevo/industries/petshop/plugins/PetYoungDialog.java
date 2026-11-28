@@ -378,6 +378,7 @@ public class PetYoungDialog extends BaseCustomDialogDelegate {
         UiData.grid(p, 88f, 44f, CARD_W - 96f, ROW_H, List.of(
                 GridRow.of("Look", pet.getLookName(), Ui.text()),
                 GridRow.of("Disposition", Misc.ucFirst(pet.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(pet.sheet.disposition))));
+        PetCard.dispositionTip(p, 88f, 44f + ROW_H, CARD_W - 96f, pet);
         if (pet.sheet.malformed) {
             Ui.text(p, 88f, 84f, CARD_W - 96f, "Malformed", Ui.neg());
             Ui.tooltip(p, Ui.panel(p, 88f, 84f, CARD_W - 96f, ROW_H), "Malformed", "Its parents were kin. It has a new flaw, or one more level of a flaw it inherited.");

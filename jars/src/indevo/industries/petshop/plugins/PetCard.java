@@ -585,6 +585,7 @@ public class PetCard {
         rows.add(GridRow.of("Age", PetTree.goneAge(pet), Ui.text()));
         rows.add(GridRow.of("Young", String.valueOf(PetTree.young(pet)), Ui.hl()));
         UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, rows);
+        dispositionTip(p, GRID_X, IDENT_Y + UiData.GRID_ROW_H, w - GRID_X, pet);
 
         float y = IDENT_Y + IDENT + TITLES_GAP;
         List<PetTitle> titles = pet.getTitles();
@@ -629,6 +630,7 @@ public class PetCard {
                 GridRow.of("Disposition", Misc.ucFirst(offer.sheet.disposition), Academy.COLOURS_BY_PERSONALITY.get(offer.sheet.disposition)),
                 GridRow.of("Age", age(offer), Ui.text()),
                 GridRow.of("Life left", PetPlaceDialog.about(offer.getLifetime() - offer.age), Ui.text())));
+        dispositionTip(p, GRID_X, IDENT_Y + UiData.GRID_ROW_H, w - GRID_X, offer);
 
         float ky = IDENT_Y + IDENT + PetsPanel.HEAD_GAP;
         addKeeping(p, ky, w, offer);
@@ -809,8 +811,20 @@ public class PetCard {
         rows.add(GridRow.of("Mood", mood.label, mood.getColor()));
         UiData.grid(p, GRID_X, IDENT_Y, w - GRID_X, UiData.GRID_ROW_H, rows);
 
+        dispositionTip(p, GRID_X, IDENT_Y + UiData.GRID_ROW_H, w - GRID_X, pet);
         String tip = moodTip(pet, mood);
         if (tip != null) Ui.solidTooltip(p, Ui.panel(p, GRID_X, IDENT_Y + (rows.size() - 1) * UiData.GRID_ROW_H, w - GRID_X, UiData.GRID_ROW_H), mood.label, tip);
+    }
+
+    static void dispositionTip(CustomPanelAPI p, float x, float y, float w, Pet pet) {
+        String d = pet.sheet.disposition;
+        String captain = captainSeen(pet) ? "With the Captain talent, it commands its ship as " + (d.startsWith("a") ? "an " : "a ") + d + " officer." : "Affects an unknown talent.";
+        Ui.solidTooltip(p, Ui.panel(p, x, y, w, UiData.GRID_ROW_H), Misc.ucFirst(d), captain, "Affects lines on board and after a fight.", "Disposition is hereditary.");
+    }
+
+    // read on this pet or on any pet the player has or had
+    static boolean captainSeen(Pet pet) {
+        return pet.sheet.isKnown(PetHullmod.CAPTAIN) || PetStatusManager.getInstance().getSeenTraits().contains(PetHullmod.CAPTAIN);
     }
 
     // the cause and the fix
