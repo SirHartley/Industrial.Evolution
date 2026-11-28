@@ -166,12 +166,13 @@ public class Dogfighter {
         burstLeft = 0;
     }
 
-    public void render(float alphaMult, SpriteAPI glow) {
+    public void render(float alphaMult, SpriteAPI glow, float sizeMult) {
         float a = alpha * alphaMult;
         if (a <= 0.01f || hull.sprite == null) return;
 
+        float drawn = scale * sizeMult;
         SpriteAPI sprite = hull.sprite;
-        sprite.setSize(hull.width * scale, hull.length * scale);
+        sprite.setSize(hull.width * drawn, hull.length * drawn);
         sprite.setAngle(facing - 90f);
         sprite.setColor(Color.WHITE);
         sprite.setAlphaMult(a);
@@ -179,8 +180,8 @@ public class Dogfighter {
         sprite.renderAtCenter(pos.x, pos.y);
         if (state == State.DYING) return;
 
-        float glowSize = hull.width * scale * 0.7f;
-        float back = hull.length * scale * 0.5f;
+        float glowSize = hull.width * drawn * 0.7f;
+        float back = hull.length * drawn * 0.5f;
         glow.setSize(glowSize, glowSize);
         glow.setAngle(0f);
         glow.setColor(hull.glowColor);
@@ -189,12 +190,13 @@ public class Dogfighter {
         glow.renderAtCenter(pos.x - dirX() * back, pos.y - dirY() * back);
     }
 
-    public void renderTrail(float alphaMult, float minWidth) {
+    public void renderTrail(float alphaMult, float minWidth, float sizeMult) {
         float a = alpha * alphaMult;
         if (a <= 0.01f) return;
 
-        float back = hull.length * scale * 0.5f;
-        float width = Math.max(minWidth, Math.min(3f, 0.5f * hull.width * scale));
+        float drawn = scale * sizeMult;
+        float back = hull.length * drawn * 0.5f;
+        float width = Math.max(minWidth, Math.min(3f, 0.5f * hull.width * drawn));
         trail.render(pos.x - dirX() * back, pos.y - dirY() * back, width, hull.trailColor, hull.additiveTrail, a, true);
     }
 
