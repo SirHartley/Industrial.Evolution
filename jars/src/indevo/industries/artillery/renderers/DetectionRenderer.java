@@ -226,9 +226,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
             for (CampaignFleetAPI fleet : location.getFleets()) {
                 if (!isWatcher(fleet, player, artilleryFactions)) continue;
 
-                boolean sees = seesPlayer(fleet, player);
-                if (eyeLocked && !sees) continue;
-                update(fleet, false, EyeIndicatorScript.getDetectionRadius(fleet, player), sees, eyeLocked);
+                update(fleet, false, EyeIndicatorScript.getDetectionRadius(fleet, player), seesPlayer(fleet, player), eyeLocked);
             }
         }
 
@@ -240,7 +238,6 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
 
                 boolean sees = Misc.getDistance(tower, player) < range;
                 insideTower |= sees;
-                if (eyeLocked && !sees) continue;
                 update(tower, true, range, sees, eyeLocked);
             }
         }
