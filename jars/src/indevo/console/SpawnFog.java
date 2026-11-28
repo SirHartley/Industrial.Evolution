@@ -39,13 +39,16 @@ public class SpawnFog implements BaseCommand {
             Console.showMessage("Fog can only be spawned in a star system.");
             return CommandResult.WRONG_CONTEXT;
         }
-        if (FogWeatherManager.hasFog(system)) {
-            Console.showMessage(system.getName() + " already has fog.");
+        if (!FogWeatherManager.hasRoom(system, kind)) {
+            Console.showMessage(system.getName() + (kind == Kind.SPELL ? " already has fog." : " already has a spell or " + FogWeatherManager.MAX_BANKS_PER_SYSTEM + " banks."));
             return CommandResult.ERROR;
         }
 
         cache &= kind == Kind.BANK;
-        FogWeatherManager.spawn(system, kind, new Random(), ambush, cache);
+        if (FogWeatherManager.spawn(system, kind, new Random(), ambush, cache) == null) {
+            Console.showMessage("No spot in " + system.getName() + " is clear of the banks already there.");
+            return CommandResult.ERROR;
+        }
         Console.showMessage("Spawned fog (" + kind.name().toLowerCase() + (ambush ? ", with lurkers" : "") + (cache ? ", with a cache" : "") + ") in " + system.getName() + ". It rolls in over " + (int) FogWeatherManager.ROLL_IN_DAYS + " days.");
         return CommandResult.SUCCESS;
     }
