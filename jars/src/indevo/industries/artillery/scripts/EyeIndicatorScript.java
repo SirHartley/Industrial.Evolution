@@ -90,7 +90,9 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         amount += checkInterval.getIntervalDuration(); //increment by interval since the amount is missing from last advance
         cycleActions();
 
-        boolean spotted = false;
+        // watchtowers fill the eye at 1 + the share of their range the player is inside, searchlights and reporting fleets four times as fast, beams and drones by getRampRate; the fastest source counts
+        float bestRate = -1f;
+
         Set<String> artilleryFactions = ArtilleryStationEntityPlugin.getArtilleryFactionIds(loc);
         for (CampaignFleetAPI f : loc.getFleets()) {
             //check if visible to other fleet
@@ -99,13 +101,11 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
                         && Misc.getVisibleFleets(otherFLeet, false).contains(f)) {
 
                     if (f.isPlayerFleet()) {
-                        elapsed = MAX_TIME_TO_TARGET_LOCK;
-                        isLocked = true;
-                        spotted = true;
+                        bestRate = Math.max(bestRate, getFleetRate(otherFLeet, f));
+                        continue;
+                    }
 
-                        ModPlugin.log("in fleet range, is seen");
-
-                    } else f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, BASE_NPC_KNOWN_DURATION);
+                    f.getMemoryWithoutUpdate().set(WAS_SEEN_BY_HOSTILE_ENTITY, true, BASE_NPC_KNOWN_DURATION);
                     break;
                 }
             }
@@ -113,11 +113,8 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         List<SectorEntityToken> watchtowerList = loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER);
 
-        // watchtowers fill the eye at 1 + the share of their range the player is inside, searchlights four times as fast, beams and drones by getRampRate; the fastest source counts
-        float bestRate = -1f;
-
         DroneNetScript droneNet = DroneNetScript.get(loc);
-        if (droneNet != null && droneNet.getPlayerFraction() >= 0f) bestRate = getRampRate(droneNet.getPlayerFraction());
+        if (droneNet != null && droneNet.getPlayerFraction() >= 0f) bestRate = Math.max(bestRate, getRampRate(droneNet.getPlayerFraction()));
 
         for (SectorEntityToken t : watchtowerList) {
             WatchtowerEntityPlugin p = (WatchtowerEntityPlugin) t.getCustomPlugin();
@@ -140,11 +137,8 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
 
         float addition;
 
-        if (bestRate < 0f && !spotted) { //out of range of every source
+        if (bestRate < 0f) { //out of range of every source
             addition = -amount * DRAIN_RATE;
-
-        } else if (bestRate < 0f) {
-            addition = amount;
 
         } else {
             addition = amount * bestRate;
@@ -161,6 +155,25 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
                 && artilleryFactions.contains(fleet.getFaction().getId())
                 && fleet.getFaction().isHostileTo(target.getFaction())
                 && fleet.isHostileTo(target);
+    }
+
+    // a reporting fleet fills the eye like a searchlight spot: 2.5 s at its centre to 5 s at the edge of its sight
+    public static float getFleetRate(CampaignFleetAPI fleet, CampaignFleetAPI player) {
+        float fraction = Misc.getDistance(fleet, player) / getDetectionRadius(fleet, player);
+        return SEARCHLIGHT_FILL_MULT * (2f - Math.min(1f, fraction));
+    }
+
+    // centre distance at which a fleet sees the player: vanilla shows composition at the full range with the transponder on, else at detectionRangeDetailsMult of it
+    public static float getDetectionRadius(CampaignFleetAPI fleet, CampaignFleetAPI player) {
+        float range = fleet.getMaxSensorRangeToDetect(player);
+
+        if (!player.isTransponderOn()) {
+            float always = Math.max(range * Global.getSettings().getFloat("detectionRangeDetailsAlwaysMult"),
+                    Global.getSettings().getFloat("detectionRangeDetailsAlwaysMin"));
+            range = Math.max(range * Global.getSettings().getFloat("detectionRangeDetailsMult"), always);
+        }
+
+        return range + fleet.getRadius() + player.getRadius();
     }
 
     // fraction 1 at the source, 0 at the end of its reach: a full eye in RAMP_MIN_SECONDS up to RAMP_MAX_SECONDS
