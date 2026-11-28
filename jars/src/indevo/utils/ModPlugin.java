@@ -55,6 +55,7 @@ import indevo.industries.compatibility.AotdManager;
 import indevo.industries.academy.plugins.AcademyOptionProvider;
 import indevo.industries.engineeringhub.plugins.EngineeringHubOptionProvider;
 import indevo.industries.artillery.listener.WatchtowerFactionResetListener;
+import indevo.industries.artillery.renderers.FleetLightRenderer;
 import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
 import indevo.industries.assembler.listeners.DepositMessage;
@@ -503,6 +504,7 @@ public class ModPlugin extends BaseModPlugin {
         RogueRockDustRenderer.register();
         FogWeatherManager.register();
         ShuttleTrafficRenderer.register();
+        FleetLightRenderer.register();
         AchievementCampaignListener.register();
         RemoveIndustryOptionWarningProvider.register();
         WarehouseAddSubmarketOptionProvider.register();

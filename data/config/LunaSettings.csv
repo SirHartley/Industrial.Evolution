@@ -85,6 +85,7 @@ IndEvo_Artillery_lighthouse_beamLength,[Lighthouse] Beam Length,Double,6000,,Lig
 IndEvo_Artillery_lighthouse_beamWidth,[Lighthouse] Beam Width,Double,20,,Lighthouse beam width in degrees. Default 20.,5,90,Artillery
 IndEvo_Artillery_lighthouse_turnTime,[Lighthouse] Turn Time,Double,225,,Seconds for one full turn of a lighthouse. Lower values sweep faster. Default 225.,10,600,Artillery
 IndEvo_Artillery_drone_coneLength,[Drone Net] Cone Length,Double,1800,,Spotter drone vision cone length in game units. Going dark shortens it. Default 1800.,500,10000,Artillery
+IndEvo_Artillery_fleetLights,[Artillery] Fleet Detection Lights,Boolean,TRUE,,"Hostile fleets in lighthouse, searchlight and drone net systems show a light out to the range at which they see your fleet. Default on.",,,Artillery
 IndEvo_Artillery_defense_FP2,[Artillery] Defence Fleet FP,Double,70,,Base fleet points of artillery defenders. Default 70.,1,1000,Artillery
 IndEvo_Artillery_mortar_projectilesPerShot,[Mortar Artillery] Projectiles per Shot,Int,8,,Shells per mortar volley. Default 8.,1,30,Artillery
 IndEvo_Artillery_mortar_projectilesImpactTime,[Mortar Artillery] Time to Impact,Double,4,,Seconds before mortar shells hit. Higher values give more time to dodge. Default 4.,1,60,Artillery

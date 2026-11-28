@@ -184,6 +184,18 @@ public class ArtilleryStationPlacer {
         }
     }
 
+    // systems placed before the vision key carry plain watchtowers only
+    public static boolean usesWatchtowers(LocationAPI loc) {
+        String vision = loc.getMemoryWithoutUpdate().getString(Ids.MEM_SYSTEM_ARTILLERY_VISION);
+        if (vision != null) return VisionType.WATCHTOWER.name().equals(vision);
+
+        for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_WATCHTOWER)) {
+            if (t.getCustomPlugin() != null && t.getCustomPlugin().getClass() == WatchtowerEntityPlugin.class) return true;
+        }
+
+        return false;
+    }
+
     private static VisionType pickVisionType(Random random) {
         WeightedRandomPicker<VisionType> picker = new WeightedRandomPicker<>(random);
         picker.add(VisionType.LIGHTHOUSE, Setting.ARTILLERY_VISION_WEIGHT_LIGHTHOUSE.value());
