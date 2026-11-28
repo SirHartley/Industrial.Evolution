@@ -1,5 +1,8 @@
 --------------------------- Changelog -----------------------------
 5.0.d - UNRELEASED
+General
+Added - Dev mode: campaign zoom readout under the FPS counter
+
 Fog
 Added - Setting to show fleets in fog as sensor contacts at range (default off)
 

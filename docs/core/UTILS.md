@@ -162,7 +162,7 @@ Users: artillery projectiles (`MortarProjectileEntityPlugin`, `MissileSubmunitio
 
 ## ui
 
-Shared UI kit for IE panels (`Ui`, `UiButtons`, `UiImages`, `UiData`, `UiFrame`, `UiScroll`, `UiRoot`, `UiCanvas`, `UiDraw`). Owned by [UI](UI.md): helpers, layout contract, rebuild and scroll pattern.
+Shared UI kit for IE panels (`Ui`, `UiButtons`, `UiImages`, `UiData`, `UiFrame`, `UiScroll`, `UiRoot`, `UiCanvas`, `UiDraw`) and the dev mode zoom readout (`DevZoomReadout`). Owned by [UI](UI.md): helpers, layout contract, rebuild and scroll pattern.
 
 ## update
 
