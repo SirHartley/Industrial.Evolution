@@ -827,7 +827,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         float angle = Misc.random.nextFloat() * (float) Math.PI * 2f, dist = r * (float) Math.sqrt(Misc.random.nextFloat());
         grid.splat(grid.flash, x + (float) Math.cos(angle) * dist, y + (float) Math.sin(angle) * dist,
                 170f + 150f * Misc.random.nextFloat(), 0.55f + 0.45f * Misc.random.nextFloat());
-        return (0.12f + 0.38f * Misc.random.nextFloat()) * (220f / r + 0.35f);
+        return (0.06f + 0.19f * Misc.random.nextFloat()) * (220f / r + 0.35f);
     }
 
     // the lance entity sits at the station until it fires and at the beam end after, the beam can cross the window with both outside
