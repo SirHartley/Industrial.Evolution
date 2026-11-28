@@ -457,6 +457,7 @@ public class ModPlugin extends BaseModPlugin {
         LocatorSystemRatingUpdater.register();
         ConsumableItemDropListener.register();
         ConsumableItemMarketAdder.register();
+        ConsumableAbilityAdder.register();
         SpecialItemDropsListener.register();
         VPCLootResolver.register();
         RecentJumpListener.register();
