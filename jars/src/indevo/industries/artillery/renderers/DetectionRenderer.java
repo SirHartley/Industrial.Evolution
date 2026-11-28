@@ -49,6 +49,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     // same layer as the searchlight spots, below the fleets
     private static final EnumSet<CampaignEngineLayers> LAYERS = EnumSet.of(CampaignEngineLayers.TERRAIN_7);
     private static final float[] SPOT_ANGLE = {0f};
+    private static final float[] WANDER_PERIODS = {11f, 7f, 9.5f, 6f};
 
     public static final Color EDGE_COLOR = SearchlightTerrain.ORANGE;
     public static final Color SPOT_COLOR = new Color(255, 214, 72);
@@ -64,6 +65,8 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     public static final float BLOCK_FADE = 250f;
     public static final float BLOCK_MIN_RADIUS = 10f;
     public static final float UNION_FADE = 150f;
+    public static final float WANDER_SHARE = 0.3f;
+    public static final float SNAP_SECONDS = 0.2f;
     public static final int SEGMENTS = 180;
 
     // render runs on one thread
@@ -105,6 +108,9 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     private float spotLocking;
     private float spotLockTime;
     private float spotRing = SearchlightTerrain.RING_SECONDS;
+    private float spotSnap;
+    private float spotWander;
+    private final float[] spotPhase = new float[WANDER_PERIODS.length];
 
     public static void register() {
         if (LunaCampaignRenderer.hasRendererOfClass(DetectionRenderer.class)) return;
@@ -285,7 +291,10 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     private void checkSpot(boolean insideTower, boolean eyeLocked) {
         switch (spotState) {
             case NONE -> {
-                if (insideTower && !eyeLocked) spotState = SpotState.TRACKING;
+                if (insideTower && !eyeLocked) {
+                    spotState = SpotState.TRACKING;
+                    if (spotBrightness <= 0f) for (int i = 0; i < spotPhase.length; i++) spotPhase[i] = (float) (Math.random() * 2.0 * Math.PI);
+                }
             }
             case TRACKING -> {
                 if (eyeLocked) {
@@ -319,6 +328,8 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         boolean shown = spotState == SpotState.TRACKING || (locked && spotLockTime < SearchlightTerrain.RING_SECONDS);
         spotBrightness = clamp(spotBrightness + (shown ? amount : -amount) / SearchlightTerrain.FADE_SECONDS);
         spotLocking = clamp(spotLocking + (locked ? amount : -amount) / SearchlightTerrain.LOCK_FADE_SECONDS);
+        spotSnap = clamp(spotSnap + (locked ? amount : -amount) / SNAP_SECONDS);
+        if (spotBrightness > 0f) spotWander += amount;
         if (spotRing < SearchlightTerrain.RING_SECONDS) spotRing += amount;
     }
 
@@ -355,8 +366,8 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     private void renderSpot(CampaignFleetAPI player, ViewportAPI viewport) {
         if (spotBrightness <= 0f && spotRing >= SearchlightTerrain.RING_SECONDS) return;
 
-        Vector2f loc = player.getLocation();
         float radius = SearchlightTerrain.getSpotRadius() * profileScale.getMult(SearchlightTerrain.MIN_SPOT_MULT);
+        Vector2f loc = getSpotLocation(player.getLocation(), radius);
         float fade = viewport.getAlphaMult();
 
         if (spotBrightness > 0f) {
@@ -373,7 +384,19 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         }
 
         if (spotRing < SearchlightTerrain.RING_SECONDS)
-            SearchlightRenderer.drawRing(loc, radius, spotRing / SearchlightTerrain.RING_SECONDS, DroneConeTerrain.LOCK_COLOR, fade);
+            SearchlightRenderer.drawRing(player.getLocation(), radius, spotRing / SearchlightTerrain.RING_SECONDS, DroneConeTerrain.LOCK_COLOR, fade);
+    }
+
+    // two slow sines per axis wander the spot over the fleet inside its core, a lock pulls it to the centre
+    private Vector2f getSpotLocation(Vector2f center, float radius) {
+        float reach = WANDER_SHARE * radius * (1f - SearchlightRenderer.smooth(spotSnap));
+        float x = 0.6f * wave(0) + 0.4f * wave(1);
+        float y = 0.6f * wave(2) + 0.4f * wave(3);
+        return new Vector2f(center.x + x * reach, center.y + y * reach);
+    }
+
+    private float wave(int index) {
+        return (float) Math.sin(2.0 * Math.PI * spotWander / WANDER_PERIODS[index] + spotPhase[index]);
     }
 
     private void drawEdge(Edge edge, float facing, Color color, float fade, float approach, float inside, float flash, float unitsPerPixel) {
