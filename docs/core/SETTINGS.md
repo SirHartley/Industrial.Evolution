@@ -12,7 +12,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 
 | File | Owner / role |
 |---|---|
-| `indevo/config/Setting.java` | One constant per LunaLib field (165): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`, `RADIO`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`), `choices`; `Choice` (a radio option); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()`, `choice()` |
+| `indevo/config/Setting.java` | One constant per LunaLib field (166): `id`, `type` (`BOOLEAN`, `INT`, `DOUBLE`, `RADIO`), `fallback`, `min`, `max`, `block`, `apply` (`LIVE`, `NEW_GAME`), `choices`; `Choice` (a radio option); `sanitize`, `byId`, reads `enabled()`, `value()`, `intValue()`, `choice()` |
 | `indevo/config/PlayerSettings.java` | Cache: `install`, `reload`, LunaLib listener, write back, `set`, `applyCampaignSettings` |
 | `data/config/LunaSettings.csv` | LunaLib fields: id, label, type, default, help text (`fieldDescription`), bounds, tab |
 | `indevo/tools/SettingsChecks.java` | Build gate checks of the CSV against `Setting` ([Settings checks](#settings-checks)); never shipped |
@@ -28,7 +28,7 @@ Player settings live in `data/config/LunaSettings.csv`. `indevo.config.PlayerSet
 |---|---|---|
 | Quick Settings | 12 | Content: the content switches `IndEvo_block_industries`, `IndEvo_block_consumables`, `IndEvo_Enable_Derelicts`, `IndEvo_Enable_Artillery`, `IndEvo_Enable_minefields`, `IndEvo_meteor_enabled`, `IndEvo_pets`; General: commerce balance changes, ship picker rows, shuttle traffic |
 | Exploration & Items | 17 | Salvage specials, derelict stations and their amount, automated shipyard amount, relic components, `IndEvo_consumables_*`, `IndEvo_petLineDays`, `IndEvo_petMotion`, `IndEvo_petLongevityCycles` |
-| Fog & Meteors | 20 | Fog: `IndEvo_fog_weather` (radio: off or a fidelity); Meteor Swarms: `IndEvo_meteor_*` spawn chance and tuning, rogue asteroid chance |
+| Fog & Meteors | 21 | Fog: `IndEvo_fog_weather` (radio: off or a fidelity), `IndEvo_fog_sensorContacts`; Meteor Swarms: `IndEvo_meteor_*` spawn chance and tuning, rogue asteroid chance |
 | Minefields | 10 | `IndEvo_Minefield_*` |
 | Artillery | 33 | `IndEvo_Artillery_*` spawn chance and tuning, watchtower, vision type weights, lighthouse beams, drone net |
 | Industries | 26 | One enable toggle per industry (`IndEvo_AdManuf`, `IndEvo_embassy`, ...), governance, world wonders |

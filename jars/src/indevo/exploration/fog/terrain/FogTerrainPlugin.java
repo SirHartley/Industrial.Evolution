@@ -11,6 +11,8 @@ import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.AbilityPlugin;
+import com.fs.starfarer.api.combat.MutableStat;
+import com.fs.starfarer.api.combat.StatBonus;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.impl.campaign.ExplosionEntityPlugin;
 import com.fs.starfarer.api.impl.campaign.abilities.InterdictionPulseAbility;
@@ -23,7 +25,9 @@ import com.fs.starfarer.api.impl.campaign.terrain.BaseTiledTerrain;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.config.Setting;
 import indevo.exploration.fog.FogMode;
+import indevo.exploration.fog.patches.FogSensorContactPatch;
 import indevo.exploration.fog.renderers.FogRenderer;
 import indevo.exploration.fog.sim.FogCover;
 import indevo.exploration.fog.sim.FogGrid;
@@ -53,6 +57,10 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final String EFFECT_CATEGORY = "IndEvo_fog";
     public static final float SENSOR_CUT = 0.9f;
     public static final float CACHE_SENSOR_CUT = 0.7f;
+    // the player sees fleets past the sensor cut as unidentified contacts out to this lighter cut
+    public static final float CONTACT_CUT = 0.5f;
+    public static final String DETECTED_MOD_ID = TERRAIN_ID + "_stat_mod_1";
+    public static final String SENSOR_MOD_ID = TERRAIN_ID + "_stat_mod_2";
     public static final String CACHE_MOD_ID = "IndEvo_fog_cache";
     public static final float CONTAINS_THRESHOLD = 0.05f;
     public static final float FULL_SOUND_DENSITY = 0.6f;
@@ -249,6 +257,33 @@ public class FogTerrainPlugin extends BaseTerrain {
         return 1f - SENSOR_CUT * Math.min(1f, Math.max(0f, density));
     }
 
+    public static boolean isFogContact(Object target, Object observer) {
+        if (!(observer instanceof CampaignFleetAPI player) || !player.isPlayerFleet()) return false;
+        if (!(target instanceof CampaignFleetAPI fleet) || fleet == player) return false;
+        if (fleet.getContainingLocation() != player.getContainingLocation() || !fleet.hasSensorProfile() || !player.hasSensorStrength()) return false;
+
+        float lift = getContactLift(fleet.getDetectedRangeMod(), DETECTED_MOD_ID) * getContactLift(player.getSensorRangeMod(), SENSOR_MOD_ID);
+        if (lift <= 1f || !Setting.FOG_SENSOR_CONTACTS.enabled()) return false;
+
+        float dist = Math.max(0f, Misc.getDistance(fleet.getLocation(), player.getLocation()) - fleet.getRadius() - player.getRadius());
+        float range = player.getMaxSensorRangeToDetect(fleet);
+        if (dist <= range) return false;
+
+        // the engine adds the easy mode bonus after the mults and caps last
+        float easy = Misc.isEasy() ? Global.getSettings().getFloat("easySensorBonus") : 0f;
+        float cap = Global.getSettings().getFloat(player.getContainingLocation().isHyperspace() ? "sensorRangeMaxHyper" : "sensorRangeMax")
+                + fleet.getExtendedDetectedAtRange();
+        return dist <= Math.min((range - easy) * lift + easy, cap);
+    }
+
+    // contact cut mult over the applied sensor cut mult, 1 outside fog
+    private static float getContactLift(StatBonus stat, String id) {
+        MutableStat.StatMod mod = stat.getMultBonus(id);
+        if (mod == null || mod.value >= 1f) return 1f;
+        float density = (1f - mod.value) / SENSOR_CUT;
+        return (1f - CONTACT_CUT * density) / mod.value;
+    }
+
     @Override
     public void advance(float amount) {
         super.advance(amount);
@@ -306,11 +341,11 @@ public class FogTerrainPlugin extends BaseTerrain {
     public void applyEffect(SectorEntityToken entity, float days) {
         if (!(entity instanceof CampaignFleetAPI fleet)) return;
         float mult = getSensorMult(getDensityAt(fleet.getLocation()));
-        fleet.getStats().addTemporaryModMult(0.1f, getModId() + "_1", "In fog", mult, fleet.getStats().getDetectedRangeMod());
+        fleet.getStats().addTemporaryModMult(0.1f, DETECTED_MOD_ID, "In fog", mult, fleet.getStats().getDetectedRangeMod());
 
         AbilityPlugin burst = fleet.getAbility(Abilities.SENSOR_BURST);
         if (burst != null && burst.isActiveOrInProgress()) return;
-        fleet.getStats().addTemporaryModMult(0.1f, getModId() + "_2", "In fog", mult, fleet.getStats().getSensorRangeMod());
+        fleet.getStats().addTemporaryModMult(0.1f, SENSOR_MOD_ID, "In fog", mult, fleet.getStats().getSensorRangeMod());
     }
 
     @Override
@@ -594,7 +629,7 @@ public class FogTerrainPlugin extends BaseTerrain {
 
             readAbilities(fleet, t, x, y);
 
-            boolean visible = fleet == player || fleet.getVisibilityLevelToPlayerFleet() != SectorEntityToken.VisibilityLevel.NONE;
+            boolean visible = fleet == player || FogSensorContactPatch.getVanillaLevelToPlayerFleet(fleet) != SectorEntityToken.VisibilityLevel.NONE;
             t.seen = fleet == player ? 1f : Math.max(0f, Math.min(1f, t.seen + (visible ? dt * 2f : -dt * 1.2f)));
             if (t.seen > 0f) addPatch(x, y, fleet.getRadius() * PATCH_RADIUS_MULT * t.seen, fleet == player);
         }

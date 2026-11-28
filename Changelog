@@ -6,6 +6,9 @@ Added - Dev mode: campaign zoom readout under the FPS counter
 Consumables
 Adjusted - Consumables now add their ability to the ability bar on pickup
 
+Fog
+Added - Setting to show fleets in fog as sensor contacts at range (default off)
+
 5.0.c
 General
 Adjusted - Moved fog and meteor swarm settings to the new Fog & Meteors tab
