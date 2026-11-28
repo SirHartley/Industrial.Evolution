@@ -133,6 +133,7 @@ NPCs: `FleetConsumableInventoryManager` gives spawned fleets the missile abiliti
 - Ability ids live in saves once added to the player fleet. Renaming one leaves a dead ability on old saves (inferred).
 - New missiles: extend `BaseMissileConsumableAbilityPlugin`, implement `createReticule()` and `onSkillshotFired()`, tag the ability row `IndEvo_skillshot`, add a `BaseMissileEntityPlugin` entity.
 - `$missile_bonked` is shared with [Meteor](../exploration/METEOR.md); `forceTarget` and `ArtilleryTerrain` with [Artillery](../industries/ARTILLERY.md).
+- The fog weather reads `BaseMissileEntityPlugin.finishing` (hit once when it turns true) and `ExplosiveMissileEntityPlugin.EXPLOSION_SIZE`, `ConcussiveMissileEntityPlugin.SHOVE_RANGE`, `InterceptMissileEntityPlugin.INTERDICT_RANGE` and `INTERDICT_SECONDS` ([FOG](../exploration/FOG.md#shot-effects)).
 - `LocatorSystemRatingUpdater.salvageEntityMap` rates `IndEvo_arsenalStation` 10, `IndEvo_orbitalLaboratory` 20, `IndEvo_GachaStation` 20; ruins conditions 3/5/7/10, `IndEvo_RuinsCondition` and `IndEvo_RuinedInfra` +2, debris +2, populated markets +10 x size.
 - The beacon entity tag `IndEvo_beacon` hooks the rules dialogue in [Beacons](../dialogue/BEACONS.md).
 - Missile plugins call `Achievements.missileCaught` before setting `$missile_bonked`. `ArtilleryRemoteAbilityPlugin` marks its target token with `$IndEvo_ArtilleryRemote_target` ([ACHIEVEMENTS](../core/ACHIEVEMENTS.md)).

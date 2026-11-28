@@ -17,6 +17,11 @@ uniform float uSunN;
 uniform vec4 uRing[32];
 uniform vec3 uRingH[32];
 uniform float uRN;
+uniform sampler2D uFx;
+uniform float uFxOn;
+uniform vec4 uLane[8];
+uniform vec4 uLaneP[8];
+uniform float uLN;
 
 float h(vec2 p) {
 	p = fract(p * vec2(123.34, 456.21));
@@ -43,9 +48,10 @@ float fbm(vec2 p) {
 	return s / 0.94;
 }
 
-vec4 g(vec2 q) {
+// cubic b-spline read of a grid texture, four linear taps
+vec4 bs(sampler2D tx, vec2 q, vec4 off) {
 	vec2 t = (q - uGO) / uGS;
-	if (t.x < 0.0 || t.y < 0.0 || t.x > 1.0 || t.y > 1.0) return vec4(0.0, 0.502, 0.502, 0.0);
+	if (t.x < 0.0 || t.y < 0.0 || t.x > 1.0 || t.y > 1.0) return off;
 	float px = uCell / uGS;
 	vec2 st = t / px - 0.5;
 	vec2 i = floor(st);
@@ -60,8 +66,20 @@ vec4 g(vec2 q) {
 	vec2 a1 = w2 + w3;
 	vec2 p0 = (i - 0.5 + w1 / a0) * px;
 	vec2 p1 = (i + 1.5 + w3 / a1) * px;
-	return a0.y * (a0.x * texture2D(uTex, vec2(p0.x, p0.y)) + a1.x * texture2D(uTex, vec2(p1.x, p0.y)))
-		+ a1.y * (a0.x * texture2D(uTex, vec2(p0.x, p1.y)) + a1.x * texture2D(uTex, vec2(p1.x, p1.y)));
+	return a0.y * (a0.x * texture2D(tx, vec2(p0.x, p0.y)) + a1.x * texture2D(tx, vec2(p1.x, p0.y)))
+		+ a1.y * (a0.x * texture2D(tx, vec2(p0.x, p1.y)) + a1.x * texture2D(tx, vec2(p1.x, p1.y)));
+}
+
+vec4 g(vec2 q) {
+	return bs(uTex, q, vec4(0.0, 0.502, 0.502, 0.0));
+}
+
+// black body style ramp, 0 cold to 1 just hit
+vec3 heatCol(float t) {
+	vec3 c = mix(vec3(0.30, 0.015, 0.015), vec3(0.93, 0.12, 0.045), smoothstep(0.0, 0.3, t));
+	c = mix(c, vec3(1.0, 0.47, 0.09), smoothstep(0.28, 0.55, t));
+	c = mix(c, vec3(1.0, 0.84, 0.34), smoothstep(0.52, 0.8, t));
+	return mix(c, vec3(1.0, 0.97, 0.84), smoothstep(0.8, 1.0, t));
 }
 
 // clear rings round bodies, exact per pixel: a ring is only a few grid cells wide. same math as FogGrid.Shape.keepAt
@@ -133,12 +151,56 @@ void main() {
 	c = mix(c, s2, ws * 0.6);
 	a = min(1.0, a * (1.0 + ws * 0.6));
 
+	// shot effects: heat, charge and flashes from the second grid texture, railgun lanes exact per pixel
+	vec3 emit = vec3(0.0);
+	if (uFxOn > 0.5 || uLN > 0.0) {
+		vec4 fx = vec4(0.0);
+		if (uFxOn > 0.5) fx = bs(uFx, w, vec4(0.0));
+		float tg = fx.r;
+		float ion = fx.g;
+		float fl = fx.b;
+		float tl = 0.0;
+		// a closing lane drifts with the flow, its edge bent by the fog noise
+		vec2 drift = (vec2(n2, n1) - 0.5) * 120.0;
+		float lw = 1.0 + (n3 - 0.5) * 0.7;
+		for (int i = 0; i < 8; i++) {
+			if (float(i) >= uLN) break;
+			vec4 ln = uLane[i];
+			vec4 lp = uLaneP[i];
+			vec2 ab = ln.zw - ln.xy;
+			vec2 wl = w + drift * (1.0 - lp.z);
+			float k = clamp(dot(wl - ln.xy, ab) / max(1.0, dot(ab, ab)), 0.0, 1.0);
+			float dist = distance(wl, ln.xy + ab * k) * lw;
+			a *= mix(1.0, smoothstep(lp.x, lp.y, dist), lp.z);
+			float hw = lp.y * 1.05;
+			tl = max(tl, lp.w * exp(-dist * dist / (hw * hw)) * (0.78 + 0.5 * n3));
+		}
+		float ht = clamp(max(tg, tl), 0.0, 1.0);
+		// thin fog glows less hot, a dim yellow would read olive
+		vec3 hc = heatCol(ht * mix(0.55, 1.0, a));
+		c = mix(c, hc, smoothstep(0.04, 0.6, ht) * 0.8);
+		c += hc * ht * ht * 0.45;
+		// a crater keeps only a faint glow so the hole still reads, a lane keeps all of it
+		float et = max(tl, tg * 0.22) * (0.5 + 0.7 * n3);
+		emit += heatCol(et) * pow(et, 1.3) * 0.8 * (1.0 - a * 0.5);
+
+		// blue at the fringe, purple where the charge is high. the tint multiplies, so the fog keeps its own detail
+		vec3 ic = mix(vec3(0.14, 0.38, 1.0), vec3(0.60, 0.22, 0.98), smoothstep(0.34, 0.62, n2 + (ion - 0.6) * 0.3));
+		float lum = dot(c, vec3(0.3, 0.5, 0.2));
+		float rdg = 1.0 - smoothstep(0.0, 0.2, abs(n2 - 0.5));
+		c = mix(c, ic * (0.2 + 2.3 * lum) * (0.35 + 0.9 * n1 + 0.9 * rdg * ion), smoothstep(0.03, 0.5, ion) * 0.72);
+		c += mix(ic, vec3(0.8, 0.8, 1.0), 0.5) * rdg * ion * ion * 0.22;
+		c += vec3(0.74, 0.80, 1.0) * fl * (0.55 + 0.9 * n3);
+		emit += ic * fl * 0.14 * (1.0 - a);
+	}
+
+	float hk = 1.0;
 	for (int i = 0; i < 48; i++) {
 		if (float(i) >= uHN) break;
 		vec3 hl = uHoles[i];
-		a *= smoothstep(hl.z * 0.45, hl.z * 1.5, distance(w, hl.xy));
+		hk *= smoothstep(hl.z * 0.45, hl.z * 1.5, distance(w, hl.xy));
 	}
 
-	a *= uAlpha;
-	gl_FragColor = vec4(c * a, a);
+	a *= hk * uAlpha;
+	gl_FragColor = vec4(c * a + emit * hk * uAlpha, a);
 }

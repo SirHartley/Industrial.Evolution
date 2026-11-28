@@ -26,6 +26,10 @@ public class FogGrid {
     public static final float FRONT_WIDTH = 1500f;
     public static final float FRONT_TAU = 1.5f;
     public static final float NO_FRONT = Float.MAX_VALUE;
+    // seconds until heat, charge and a flash fall to about a third
+    public static final float HEAT_TAU = 3.4f, ION_TAU = 2.6f, FLASH_TAU = 0.11f;
+    // below this the effect fields count as empty: not advected, not uploaded, not drawn
+    public static final float EFFECT_FLOOR = 0.5f / 255f;
 
     public final int n;
     public final float cell;
@@ -39,9 +43,12 @@ public class FogGrid {
     private float strength;
     private float time;
     private int row = 0;
+    private float effectPeak;
 
     public final float[] m, d, u, v, gx, gy;
-    private final float[] t1, t2, t3, t4, p, div, src, w, psi;
+    // heat after shots and blasts, charge after missiles, lightning flashes; 0..1, ride the flow and fade
+    public final float[] heat, ion, flash;
+    private final float[] t1, t2, t3, t4, t5, t6, p, div, src, w, psi;
 
     public static class Shape {
 
@@ -179,7 +186,8 @@ public class FogGrid {
         int nn = n * n;
         m = new float[nn]; d = new float[nn]; u = new float[nn]; v = new float[nn];
         gx = new float[nn]; gy = new float[nn];
-        t1 = new float[nn]; t2 = new float[nn]; t3 = new float[nn]; t4 = new float[nn];
+        heat = new float[nn]; ion = new float[nn]; flash = new float[nn];
+        t1 = new float[nn]; t2 = new float[nn]; t3 = new float[nn]; t4 = new float[nn]; t5 = new float[nn]; t6 = new float[nn];
         p = new float[nn]; div = new float[nn]; src = new float[nn]; w = new float[nn]; psi = new float[nn];
 
         refresh(n);
@@ -211,13 +219,14 @@ public class FogGrid {
         version++;
 
         if (Math.abs(si) >= n || Math.abs(sj) >= n) {
-            for (float[] a : new float[][]{u, v, gx, gy, p, src}) java.util.Arrays.fill(a, 0f);
+            for (float[] a : new float[][]{u, v, gx, gy, p, src, heat, ion, flash}) java.util.Arrays.fill(a, 0f);
+            effectPeak = 0f;
             refresh(n);
             fill();
             return;
         }
 
-        for (float[] a : new float[][]{m, d, u, v, gx, gy, p, src, psi}) shift(a, si, sj);
+        for (float[] a : new float[][]{m, d, u, v, gx, gy, p, src, psi, heat, ion, flash}) shift(a, si, sj);
 
         for (int j = 0; j < n; j++) {
             boolean newRow = j + sj < 0 || j + sj >= n;
@@ -316,8 +325,8 @@ public class FogGrid {
         }
     }
 
-    // instant cut along a segment, full inside inner and gone at outer, pushed out to both sides
-    public void lance(float x0, float y0, float x1, float y1, float inner, float outer, float push) {
+    // instant cut along a segment, full inside inner and gone at outer, pushed out to both sides; without cut it only pushes
+    public void lance(float x0, float y0, float x1, float y1, float inner, float outer, float push, boolean cut) {
         float len = (float) Math.hypot(x1 - x0, y1 - y0);
         if (len < 1f) return;
         float ux = (x1 - x0) / len, uy = (y1 - y0) / len;
@@ -329,8 +338,10 @@ public class FogGrid {
             if (dist >= outer) continue;
             int k = j * n + i;
             float f = 1f - dist / outer, s = Math.signum(side) * push * f;
-            d[k] *= (float) smooth(inner, outer, dist);
-            src[k] += 3f * f;
+            if (cut) {
+                d[k] *= (float) smooth(inner, outer, dist);
+                src[k] += 3f * f;
+            }
             u[k] += uy * s;
             v[k] -= ux * s;
         }
@@ -368,6 +379,56 @@ public class FogGrid {
                 v[k] += dx / dist * tw;
             }
         }
+    }
+
+    // pushes fog outward without a hole, thinned in the middle
+    public void shove(float x, float y, float rad, float push) {
+        int i0 = Math.max(1, (int) Math.floor((x - rad - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + rad - ox) / cell));
+        int j0 = Math.max(1, (int) Math.floor((y - rad - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((y + rad - oy) / cell));
+        for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
+            float dx = ox + (i + 0.5f) * cell - x, dy = oy + (j + 0.5f) * cell - y;
+            float dist = (float) Math.hypot(dx, dy);
+            if (dist >= rad || dist < 1f) continue;
+            int k = j * n + i;
+            float f = (float) Math.sin(Math.PI * dist / rad);
+            u[k] += dx / dist * push * f;
+            v[k] += dy / dist * push * f;
+            src[k] += 2.2f * (1f - dist / rad);
+            d[k] *= 0.55f + 0.45f * (float) smooth(rad * 0.15, rad * 0.7, dist);
+        }
+    }
+
+    // raises an effect field to val inside half the radius, soft out to 1.3 radii
+    public void disc(float[] a, float x, float y, float rad, float val) {
+        float outer = rad * 1.3f;
+        int i0 = Math.max(1, (int) Math.floor((x - outer - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + outer - ox) / cell));
+        int j0 = Math.max(1, (int) Math.floor((y - outer - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((y + outer - oy) / cell));
+        for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
+            float dist = (float) Math.hypot(ox + (i + 0.5f) * cell - x, oy + (j + 0.5f) * cell - y);
+            if (dist >= outer) continue;
+            int k = j * n + i;
+            float f = val * (1f - (float) smooth(rad * 0.5, outer, dist));
+            if (f > a[k]) a[k] = f;
+        }
+        if (val > effectPeak) effectPeak = val;
+    }
+
+    // raises an effect field to val at the centre, falling off squared to the radius
+    public void splat(float[] a, float x, float y, float rad, float val) {
+        int i0 = Math.max(1, (int) Math.floor((x - rad - ox) / cell)), i1 = Math.min(n - 2, (int) Math.ceil((x + rad - ox) / cell));
+        int j0 = Math.max(1, (int) Math.floor((y - rad - oy) / cell)), j1 = Math.min(n - 2, (int) Math.ceil((y + rad - oy) / cell));
+        for (int j = j0; j <= j1; j++) for (int i = i0; i <= i1; i++) {
+            float dist = (float) Math.hypot(ox + (i + 0.5f) * cell - x, oy + (j + 0.5f) * cell - y);
+            if (dist >= rad) continue;
+            int k = j * n + i;
+            float f = 1f - dist / rad, g = val * f * f;
+            if (g > a[k]) a[k] = g;
+        }
+        if (val > effectPeak) effectPeak = val;
+    }
+
+    public boolean hasEffects() {
+        return effectPeak > EFFECT_FLOOR;
     }
 
     public void step(float dt, float maskTime) {
@@ -441,6 +502,7 @@ public class FogGrid {
             gx[k] = (t3[k] + u[k] * dt) * dd;
             gy[k] = (t4[k] + v[k] * dt) * dd;
         }
+        if (hasEffects()) stepEffects(dt);
 
         // border cells stand for the fog outside the window, which sits at the rest mask
         for (int i = 0; i < n; i++) {
@@ -449,6 +511,22 @@ public class FogGrid {
             setBorder(i * n);
             setBorder(i * n + n - 1);
         }
+    }
+
+    // heat and charge ride the same flow as the fog, flashes stay put
+    private void stepEffects(float dt) {
+        advect(heat, t5, dt);
+        advect(ion, t6, dt);
+        float hk = (float) Math.exp(-dt / HEAT_TAU), ik = (float) Math.exp(-dt / ION_TAU), fk = (float) Math.exp(-dt / FLASH_TAU);
+        float peak = 0f;
+        for (int k = 0; k < n * n; k++) {
+            float h = t5[k] * hk, c = t6[k] * ik, f = flash[k] * fk;
+            heat[k] = h;
+            ion[k] = c;
+            flash[k] = f;
+            peak = Math.max(peak, Math.max(h, Math.max(c, f)));
+        }
+        effectPeak = peak;
     }
 
     private void setBorder(int k) {
@@ -465,6 +543,18 @@ public class FogGrid {
             out.put(toByte(128f + gx[k] / 700f * 127f));
             out.put(toByte(128f + gy[k] / 700f * 127f));
             out.put(toByte((float) Math.sqrt(u[k] * u[k] + v[k] * v[k]) / 400f * 255f));
+        }
+        out.flip();
+    }
+
+    // rgba per cell: heat, charge, flash, unused
+    public void packEffects(ByteBuffer out) {
+        out.clear();
+        for (int k = 0; k < n * n; k++) {
+            out.put(toByte(heat[k] * 255f));
+            out.put(toByte(ion[k] * 255f));
+            out.put(toByte(flash[k] * 255f));
+            out.put((byte) 255);
         }
         out.flip();
     }

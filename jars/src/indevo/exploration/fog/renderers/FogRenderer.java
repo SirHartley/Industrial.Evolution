@@ -37,6 +37,9 @@ public final class FogRenderer {
     public static final int MAX_HOLES = 48;
     public static final int MAX_SUNS = 3;
     public static final int MAX_RINGS = 32;
+    // railgun lanes drawn per pixel: x0, y0, x1, y1, inner, outer, cut, heat
+    public static final int MAX_LANES = 8;
+    public static final int LANE_STRIDE = 8;
     // star icon colours are fully saturated, the light is that hue pulled this far to white
     public static final float SUN_WHITE = 0.35f;
     public static final float SUN_MIN_BRIGHTNESS = 0.5f;
@@ -48,16 +51,23 @@ public final class FogRenderer {
     private static boolean loaded = false;
     private static int program = 0;
     private static int texture = 0;
+    private static int fxTexture = 0;
     private static ByteBuffer pixels;
+    private static ByteBuffer fxPixels;
     private static final FloatBuffer HOLES = BufferUtils.createFloatBuffer(MAX_HOLES * 3);
     private static final FloatBuffer SUNS = BufferUtils.createFloatBuffer(MAX_SUNS * 4);
     private static final FloatBuffer SUN_COLOURS = BufferUtils.createFloatBuffer(MAX_SUNS * 9);
     private static final FloatBuffer RINGS = BufferUtils.createFloatBuffer(MAX_RINGS * 4);
     private static final FloatBuffer RING_HAZE = BufferUtils.createFloatBuffer(MAX_RINGS * 3);
     private static final int[] RING_PICK = new int[MAX_RINGS];
+    private static final FloatBuffer LANES = BufferUtils.createFloatBuffer(MAX_LANES * 4);
+    private static final FloatBuffer LANE_PARAMS = BufferUtils.createFloatBuffer(MAX_LANES * 4);
     private static int uAnchor, uGO, uGS, uTime, uCell, uAlpha, uTex, uHoles, uHN, uC0, uC1, uC2, uSun, uSunC, uSunN, uRing, uRingH, uRN;
+    private static int uFx, uFxOn, uLane, uLaneP, uLN;
     private static FogGrid packedGrid;
     private static int packedVersion;
+    private static FogGrid fxPackedGrid;
+    private static int fxPackedVersion;
 
     // offscreen target for a reduced resolution draw, made on first use
     private static final int TARGET_UNCHECKED = -1, TARGET_NONE = 0, TARGET_CORE = 1, TARGET_EXT = 2;
@@ -108,10 +118,16 @@ public final class FogRenderer {
         return shadesOf(r + (1f - r) * SUN_WHITE, g + (1f - g) * SUN_WHITE, b + (1f - b) * SUN_WHITE);
     }
 
+    // true once the shader failed and the plain mesh draws, which shows no tint and no per pixel lane
+    public static boolean isPlain() {
+        return loaded && program == 0;
+    }
+
     // suns: x, y, radius, light reach per star in bank local coordinates; sunColours: 9 floats per star
+    // lanes: LANE_STRIDE floats per railgun lane in bank local coordinates
     // divisor 1 draws at screen resolution, above 1 draws smaller when the gpu has framebuffers
     public static void render(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time, float[][] colours,
-                              float[] suns, int sunCount, float[] sunColours, int divisor) {
+                              float[] suns, int sunCount, float[] sunColours, float[] lanes, int laneCount, int divisor) {
         float inset = grid.cell * 2f;
         float x0 = Math.max(anchor.x + grid.ox + inset, viewport.getLLX());
         float y0 = Math.max(anchor.y + grid.oy + inset, viewport.getLLY());
@@ -121,7 +137,7 @@ public final class FogRenderer {
 
         load();
         if (program == 0) renderPlain(grid, anchor, viewport.getAlphaMult(), holes, holeCount, colours, x0, y0, x1, y1);
-        else renderShader(grid, anchor, viewport, holes, holeCount, time, colours, suns, sunCount, sunColours, x0, y0, x1, y1, divisor);
+        else renderShader(grid, anchor, viewport, holes, holeCount, time, colours, suns, sunCount, sunColours, lanes, laneCount, x0, y0, x1, y1, divisor);
     }
 
     private static void load() {
@@ -159,22 +175,30 @@ public final class FogRenderer {
         uRing = GL20.glGetUniformLocation(program, "uRing");
         uRingH = GL20.glGetUniformLocation(program, "uRingH");
         uRN = GL20.glGetUniformLocation(program, "uRN");
+        uFx = GL20.glGetUniformLocation(program, "uFx");
+        uFxOn = GL20.glGetUniformLocation(program, "uFxOn");
+        uLane = GL20.glGetUniformLocation(program, "uLane");
+        uLaneP = GL20.glGetUniformLocation(program, "uLaneP");
+        uLN = GL20.glGetUniformLocation(program, "uLN");
+    }
+
+    private static int gridTexture() {
+        int id = GL11.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+        return id;
     }
 
     private static void renderShader(FogGrid grid, Vector2f anchor, ViewportAPI viewport, float[] holes, int holeCount, float time,
-                                     float[][] colours, float[] suns, int sunCount, float[] sunColours, float x0, float y0, float x1, float y1,
-                                     int divisor) {
+                                     float[][] colours, float[] suns, int sunCount, float[] sunColours, float[] lanes, int laneCount,
+                                     float x0, float y0, float x1, float y1, int divisor) {
         int n = grid.n;
         float alphaMult = viewport.getAlphaMult();
-        if (texture == 0) {
-            texture = GL11.glGenTextures();
-            GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-            GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-        }
         GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        if (texture == 0) texture = gridTexture();
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture);
         if (grid != packedGrid || grid.version != packedVersion) {
             if (pixels == null || pixels.capacity() != n * n * 4) pixels = BufferUtils.createByteBuffer(n * n * 4);
@@ -182,6 +206,22 @@ public final class FogRenderer {
             GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, n, n, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
             packedGrid = grid;
             packedVersion = grid.version;
+        }
+
+        // the effect texture is read only while the grid holds heat, charge or flashes, so quiet fog costs no extra taps
+        boolean fx = grid.hasEffects();
+        if (fx) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE1);
+            if (fxTexture == 0) fxTexture = gridTexture();
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, fxTexture);
+            if (grid != fxPackedGrid || grid.version != fxPackedVersion) {
+                if (fxPixels == null || fxPixels.capacity() != n * n * 4) fxPixels = BufferUtils.createByteBuffer(n * n * 4);
+                grid.packEffects(fxPixels);
+                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, n, n, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, fxPixels);
+                fxPackedGrid = grid;
+                fxPackedVersion = grid.version;
+            }
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
         }
 
         GL20.glUseProgram(program);
@@ -210,6 +250,9 @@ public final class FogRenderer {
         GL20.glUniform3(uSunC, SUN_COLOURS);
         GL20.glUniform1f(uSunN, sunCount);
         putRings(grid.shape.keep, x0 - anchor.x, y0 - anchor.y, x1 - anchor.x, y1 - anchor.y, grid.cell);
+        GL20.glUniform1i(uFx, 1);
+        GL20.glUniform1f(uFxOn, fx ? 1f : 0f);
+        putLanes(lanes, laneCount);
 
         // shader writes premultiplied colour
         GL11.glEnable(GL11.GL_BLEND);
@@ -217,6 +260,11 @@ public final class FogRenderer {
         int screenBuffer = divisor > 1 ? beginTarget(divisor) : -1;
         quad(x0, y0, x1, y1);
         GL20.glUseProgram(0);
+        if (fx) {
+            GL13.glActiveTexture(GL13.GL_TEXTURE1);
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+            GL13.glActiveTexture(GL13.GL_TEXTURE0);
+        }
         if (screenBuffer >= 0) endTarget(screenBuffer, viewport, x0, y0, x1, y1);
 
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
@@ -351,6 +399,21 @@ public final class FogRenderer {
         GL20.glUniform4(uRing, RINGS);
         GL20.glUniform3(uRingH, RING_HAZE);
         GL20.glUniform1f(uRN, count);
+    }
+
+    private static void putLanes(float[] lanes, int laneCount) {
+        int count = Math.min(laneCount, MAX_LANES);
+        LANES.clear();
+        LANE_PARAMS.clear();
+        for (int i = 0; i < MAX_LANES; i++) {
+            for (int f = 0; f < 4; f++) LANES.put(i < count ? lanes[i * LANE_STRIDE + f] : 0f);
+            for (int f = 4; f < LANE_STRIDE; f++) LANE_PARAMS.put(i < count ? lanes[i * LANE_STRIDE + f] : 0f);
+        }
+        LANES.flip();
+        LANE_PARAMS.flip();
+        GL20.glUniform4(uLane, LANES);
+        GL20.glUniform4(uLaneP, LANE_PARAMS);
+        GL20.glUniform1f(uLN, count);
     }
 
     private static void renderPlain(FogGrid grid, Vector2f anchor, float alphaMult, float[] holes, int holeCount,
