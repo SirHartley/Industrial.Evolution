@@ -208,10 +208,6 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
         return Math.max(STUN_SECONDS - earlierHits * STUN_STEP_SECONDS, STUN_MIN_SECONDS);
     }
 
-    public static boolean isStunned(CampaignFleetAPI fleet) {
-        return fleet.getMemoryWithoutUpdate().contains(STUN_HITS_KEY);
-    }
-
     public void spawnExplosion(float size) {
         LocationAPI cl = entity.getContainingLocation();
 
