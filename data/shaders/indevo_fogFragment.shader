@@ -185,14 +185,15 @@ void main() {
 		float et = max(tl, tg * 0.22) * (0.5 + 0.7 * n3);
 		emit += heatCol(et) * pow(et, 1.3) * 0.8 * (1.0 - a * 0.5);
 
-		// blue at the fringe, purple where the charge is high. the tint multiplies, so the fog keeps its own detail
-		vec3 ic = mix(vec3(0.14, 0.38, 1.0), vec3(0.60, 0.22, 0.98), smoothstep(0.34, 0.62, n2 + (ion - 0.6) * 0.3));
-		float lum = dot(c, vec3(0.3, 0.5, 0.2));
-		float rdg = 1.0 - smoothstep(0.0, 0.2, abs(n2 - 0.5));
-		c = mix(c, ic * (0.2 + 2.3 * lum) * (0.35 + 0.9 * n1 + 0.9 * rdg * ion), smoothstep(0.03, 0.5, ion) * 0.72);
-		c += mix(ic, vec3(0.8, 0.8, 1.0), 0.5) * rdg * ion * ion * 0.22;
-		c += vec3(0.74, 0.80, 1.0) * fl * (0.55 + 0.9 * n3);
-		emit += ic * fl * 0.14 * (1.0 - a);
+		// the charge is mostly dark, flashes light patches of fog blue to purple. one cheap noise at about 110 units breaks the disc outline
+		float sv = n(w / 110.0 + vec2(n1, n2) * 5.0);
+		float ci = ion * smoothstep(0.3, 0.62, sv * 0.55 + n3 * 0.7 + ion * 0.2 - 0.06);
+		vec3 ic = mix(vec3(0.14, 0.38, 1.0), vec3(0.60, 0.22, 0.98), smoothstep(0.4, 0.6, n2 + (sv - 0.5) * 0.5));
+		vec3 tint = ic * (0.3 + 2.2 * dot(c, vec3(0.3, 0.5, 0.2)));
+		float flk = fl * (0.55 + 0.9 * n3);
+		c = mix(c, tint, ci * 0.12);
+		c = mix(c, tint * 1.5, clamp(flk * 1.8, 0.0, 1.0) * 0.75 * smoothstep(0.02, 0.3, ion));
+		c += vec3(0.74, 0.80, 1.0) * flk * flk * 0.5;
 	}
 
 	float hk = 1.0;

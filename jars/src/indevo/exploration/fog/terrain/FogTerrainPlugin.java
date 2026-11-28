@@ -37,7 +37,6 @@ import indevo.industries.artillery.entities.VariableExplosionEntityPlugin;
 import indevo.industries.artillery.projectiles.ECMExplosion;
 import indevo.industries.artillery.projectiles.MissileCarrierEntityPlugin;
 import indevo.industries.artillery.projectiles.MissileSubmunitionEntity;
-import indevo.industries.artillery.projectiles.MortarProjectileEntityPlugin;
 import indevo.industries.artillery.projectiles.RailgunProjectileEntityPlugin;
 import indevo.items.consumables.entities.BaseMissileEntityPlugin;
 import indevo.items.consumables.entities.ConcussiveMissileEntityPlugin;
@@ -105,9 +104,6 @@ public class FogTerrainPlugin extends BaseTerrain {
     public static final float ROCK_CUT = 0.8f;
     // a rock's own space is a clear patch drawn per pixel: gone inside 0.36 entity radii, full fog from 1.2
     public static final float ROCK_PATCH_MULT = 0.8f;
-    // a shell crosses a cell in three frames, so it cuts harder than its speed alone would
-    public static final float SHELL_RADIUS = 14f;
-    public static final float SHELL_CUT = 4f;
     public static final float CARRIER_RADIUS = 27f;
     public static final float CARRIER_CUT = 2f;
     public static final float MISSILE_RADIUS = 7f;
@@ -763,7 +759,6 @@ public class FogTerrainPlugin extends BaseTerrain {
         CustomCampaignEntityPlugin plugin = shot.getCustomPlugin();
         if (plugin instanceof ExplosionEntityPlugin) blastOnce(shot, plugin);
         else if (plugin instanceof RailgunProjectileEntityPlugin) lanceOnce(shot, (RailgunProjectileEntityPlugin) plugin);
-        else if (plugin instanceof MortarProjectileEntityPlugin) moveBody(shot, SHELL_RADIUS, FogGrid.Mover.PAD, SHELL_CUT, false, amount, dt);
         else if (plugin instanceof MissileCarrierEntityPlugin) chargeTrail(shot, CARRIER_RADIUS, CARRIER_CUT, CARRIER_CHARGE, amount, dt);
         else if (plugin instanceof MissileSubmunitionEntity) chargeTrail(shot, MISSILE_RADIUS, 1f, SUBMUNITION_CHARGE, amount, dt);
         else if (plugin instanceof BaseMissileEntityPlugin) missileShot(shot, (BaseMissileEntityPlugin) plugin, amount, dt);
@@ -832,7 +827,7 @@ public class FogTerrainPlugin extends BaseTerrain {
         float angle = Misc.random.nextFloat() * (float) Math.PI * 2f, dist = r * (float) Math.sqrt(Misc.random.nextFloat());
         grid.splat(grid.flash, x + (float) Math.cos(angle) * dist, y + (float) Math.sin(angle) * dist,
                 170f + 150f * Misc.random.nextFloat(), 0.55f + 0.45f * Misc.random.nextFloat());
-        return (0.12f + 0.38f * Misc.random.nextFloat()) * (220f / r + 0.35f);
+        return (0.06f + 0.19f * Misc.random.nextFloat()) * (220f / r + 0.35f);
     }
 
     // the lance entity sits at the station until it fires and at the beam end after, the beam can cross the window with both outside
