@@ -8,6 +8,7 @@ import com.fs.starfarer.api.impl.campaign.terrain.BaseRingTerrain;
 import com.fs.starfarer.api.loading.Description;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.industries.artillery.projectiles.ECMExplosion;
 import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
@@ -42,7 +43,8 @@ public class SlowFieldTerrain extends BaseRingTerrain {
                 "" + (int) ((Misc.BURN_PENALTY_MULT) * 100f) + "%"
         );
 
-        float penalty = Misc.getBurnMultForTerrain(Global.getSector().getPlayerFleet());
+        CampaignFleetAPI player = Global.getSector().getPlayerFleet();
+        float penalty = ECMExplosion.isStunned(player) ? Misc.getBurnMultForTerrain(player) : 1f;
         tooltip.addPara("Your fleet's speed is reduced by %s.", pad,
                 highlight,
                 "" + (int) Math.round((1f - penalty) * 100) + "%"
@@ -50,7 +52,7 @@ public class SlowFieldTerrain extends BaseRingTerrain {
     }
 
     public void applyEffect(SectorEntityToken entity, float days) {
-        if (entity instanceof CampaignFleetAPI) {
+        if (entity instanceof CampaignFleetAPI && ECMExplosion.isStunned((CampaignFleetAPI) entity)) {
             CampaignFleetAPI fleet = (CampaignFleetAPI) entity;
             float penalty = Misc.getBurnMultForTerrain(fleet);
             fleet.getStats().addTemporaryModMult(0.1f, "IndEvo_slowField",

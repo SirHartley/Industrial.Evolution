@@ -5,6 +5,7 @@ import com.fs.starfarer.api.campaign.CampaignEngineLayers;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.LocationAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.combat.ViewportAPI;
 import com.fs.starfarer.api.graphics.SpriteAPI;
@@ -25,13 +26,15 @@ import org.lwjgl.util.vector.Vector2f;
 
 import java.awt.*;
 
-import static indevo.items.consumables.entityAbilities.InterdictionMineAbility.getInterdictSeconds;
-
 public class ECMExplosion extends BaseCustomEntityPlugin {
 
     public static final float RAMPUP_DUR_FRACT = 0.1f;
     public static final float PX_PER_PARTICLE = 100f;
     public static final float EXPLOSION_SIZE = 100f;
+    public static final String STUN_HITS_KEY = "$IndEvo_missileStunHits";
+    public static final float STUN_SECONDS = 5f;
+    public static final float STUN_STEP_SECONDS = 0.5f;
+    public static final float STUN_MIN_SECONDS = 1f;
 
     public transient SpriteAPI sprite;
 
@@ -161,23 +164,24 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
     public void interdictTarget(CampaignFleetAPI other) {
         if (other.isInHyperspaceTransition()) return;
 
-        float interdictSeconds = getInterdictSeconds(other);
-        if (interdictSeconds > 0 && interdictSeconds < 1f) interdictSeconds = 1f;
+        MemoryAPI mem = other.getMemoryWithoutUpdate();
+        float secondsPerDay = Global.getSector().getClock().getSecondsPerDay();
+        int hits = mem.contains(STUN_HITS_KEY) ? mem.getInt(STUN_HITS_KEY) : 0;
+        float stunSeconds = getStunSeconds(hits);
+        float leftSeconds = mem.contains(STUN_HITS_KEY) ? Math.max(mem.getExpire(STUN_HITS_KEY), 0f) * secondsPerDay : 0f;
+        boolean extended = stunSeconds > leftSeconds;
+        if (extended) leftSeconds = stunSeconds;
+
+        mem.set(STUN_HITS_KEY, hits + 1, leftSeconds / secondsPerDay);
 
         SectorEntityToken.VisibilityLevel vis = other.getVisibilityLevelToPlayerFleet();
-        if (vis == SectorEntityToken.VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS ||
+        if (extended && (vis == SectorEntityToken.VisibilityLevel.COMPOSITION_AND_FACTION_DETAILS ||
                 vis == SectorEntityToken.VisibilityLevel.COMPOSITION_DETAILS
-                || other.isPlayerFleet()) {
-
-            if (interdictSeconds <= 0) {
-                other.addFloatingText("Interdict avoided!", other.getFaction().getBaseUIColor(), 1f, true);
-                return;
-            } else {
-                other.addFloatingText("Interdict! (" + (int) Math.round(interdictSeconds) + "s)", other.getFaction().getBaseUIColor(), 1f, true);
-            }
+                || other.isPlayerFleet())) {
+            other.addFloatingText("Interdict! (" + Misc.getRoundedValueMaxOneAfterDecimal(stunSeconds) + "s)", other.getFaction().getBaseUIColor(), 1f, true);
         }
 
-        float interdictDays = interdictSeconds / Global.getSector().getClock().getSecondsPerDay();
+        float stunDays = leftSeconds / secondsPerDay;
 
         for (AbilityPlugin ability : other.getAbilities().values()) {
             if (!ability.getSpec().hasTag(Abilities.TAG_BURN + "+") &&
@@ -193,14 +197,19 @@ public class ECMExplosion extends BaseCustomEntityPlugin {
 
             if (!ability.getSpec().hasTag(Abilities.TAG_BURN + "+")) continue;
 
-            float cooldown = interdictDays;
-            //cooldown = Math.max(cooldown, origCooldown);
-            cooldown += origCooldown;
-            cooldown += extra;
+            float cooldown = Math.max(stunDays, origCooldown) + extra;
             float max = Math.max(ability.getSpec().getDeactivationCooldown(), 2f);
             if (cooldown > max) cooldown = max;
             ability.setCooldownLeft(cooldown);
         }
+    }
+
+    public static float getStunSeconds(int earlierHits) {
+        return Math.max(STUN_SECONDS - earlierHits * STUN_STEP_SECONDS, STUN_MIN_SECONDS);
+    }
+
+    public static boolean isStunned(CampaignFleetAPI fleet) {
+        return fleet.getMemoryWithoutUpdate().contains(STUN_HITS_KEY);
     }
 
     public void spawnExplosion(float size) {
