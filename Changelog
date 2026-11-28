@@ -18,7 +18,7 @@ Adjusted - New games and older saves start with fog already spread over the sect
 Adjusted - Core systems can now get fog spells, systems can hold up to 2 banks
 
 Artillery
-Added - Fleet Detection Lights: fleets of the artillery's faction light up how close you can get
+Added - Fleet Detection Lights: fleets of the artillery's faction show the edge of their sight as you close in
 Note - Lighthouse, searchlight and drone net systems only
 Added - Setting to turn off fleet detection lights
 Adjusted - Only fleets of the artillery's own faction now report targets to it

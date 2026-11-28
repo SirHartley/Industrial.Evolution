@@ -163,6 +163,19 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
                 && fleet.isHostileTo(target);
     }
 
+    // centre distance at which a fleet sees the player: vanilla shows composition at the full range with the transponder on, else at detectionRangeDetailsMult of it
+    public static float getDetectionRadius(CampaignFleetAPI fleet, CampaignFleetAPI player) {
+        float range = fleet.getMaxSensorRangeToDetect(player);
+
+        if (!player.isTransponderOn()) {
+            float always = Math.max(range * Global.getSettings().getFloat("detectionRangeDetailsAlwaysMult"),
+                    Global.getSettings().getFloat("detectionRangeDetailsAlwaysMin"));
+            range = Math.max(range * Global.getSettings().getFloat("detectionRangeDetailsMult"), always);
+        }
+
+        return range + fleet.getRadius() + player.getRadius();
+    }
+
     // fraction 1 at the source, 0 at the end of its reach: a full eye in RAMP_MIN_SECONDS up to RAMP_MAX_SECONDS
     public static float getRampRate(float fraction) {
         float seconds = RAMP_MAX_SECONDS - (RAMP_MAX_SECONDS - RAMP_MIN_SECONDS) * MathUtils.clamp(fraction, 0f, 1f);
