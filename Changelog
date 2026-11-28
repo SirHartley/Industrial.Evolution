@@ -1,22 +1,23 @@
 --------------------------- Changelog -----------------------------
-5.0.c - UNRELEASED
+5.0.c
 General
-Adjusted - Fog and meteor swarm settings moved to the new Fog & Meteors settings tab
-Adjusted - Artillery spawn chance and the derelict station and automated shipyard amounts moved from Quick Settings to their tabs
+Adjusted - Moved fog and meteor swarm settings to the new Fog & Meteors tab
+Adjusted - Moved artillery, derelict station and shipyard spawn settings to their own tabs
+Fixed - Crash on new game with Lost.Sector
 
 Achievements
 Added - One more hidden achievement
 
 Ashes of the Domain
-Adjusted - Research tree: new icons for all 27 IE research nodes
-Adjusted - Research tree: new layout, requirements and costs, every line now shows and none cross
-Adjusted - Research tree: Ship Procurement is now Procurement and also unlocks the Animal Center
+Adjusted - Research tree: new icons for all 27 IE nodes
+Adjusted - Research tree: new layout, requirements and costs (no more crossing or hidden lines)
+Adjusted - Research tree: Ship Procurement renamed to Procurement, now also unlocks the Animal Center
 
 Shuttle Traffic
 Added - Modders: tag an entity IndEvo_traffic_high, _med or _low to make it a traffic destination
 
 Fog
-Adjusted - Fog Weather setting: Off, High, Default or Low Fidelity. Default draws fog at half resolution, Low at a quarter for weak graphics chips
+Adjusted - Fog Weather setting now has High, Default and Low Fidelity for weak graphics chips
 
 5.0.b
 General

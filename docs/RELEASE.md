@@ -6,7 +6,7 @@ Nothing in this guide runs unless the user asks: no version bumps, no rebuilt re
 
 ## Versions
 
-Scheme `major.minor.letter`, lowercase letter, no `v` prefix. Current public version `4.1.b`; test release `5.0.b` ([Test releases](#test-releases)). The next change starts `5.0.c - UNRELEASED`.
+Scheme `major.minor.letter`, lowercase letter, no `v` prefix. Current public version `4.1.b`; test release `5.0.c` ([Test releases](#test-releases)). The next change starts `5.0.d - UNRELEASED`.
 
 | Part | Change | Example |
 |---|---|---|
