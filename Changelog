@@ -26,6 +26,7 @@ Adjusted - Only fleets of the artillery's own faction now report targets to it
 Adjusted - Fleets that see you now fill the artillery eye over 2.5 to 5s instead of locking at once
 Adjusted - Missile Artillery: interdicts no longer stack, each further hit 0.5s shorter
 Note - First hit 5s, at least 1s, resets once the interdict wears off
+Removed - Watchtower range ping (the range edge shows it now)
 
 Shuttle Traffic
 Adjusted - Traffic stays visible at full zoom out, craft and trails slightly larger there
