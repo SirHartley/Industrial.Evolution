@@ -90,6 +90,10 @@ public class PetData {
         return rarity > 0f && rarity <= 0.4f;
     }
 
+    public boolean isEpic() {
+        return rarity > 0f && rarity <= 0.1f;
+    }
+
     public boolean isNoSell() {
         return tags.contains(TAG_NO_SELL);
     }
@@ -108,7 +112,7 @@ public class PetData {
 
     public Pair<String, Color> getRarityDesc(){
         return rarity == 0f? new Pair<>("[Unique]", new Color(240, 20, 30, 255))
-                : rarity == 0.1f ? new Pair<>("[Epic]", new Color(180, 50, 255, 255))
+                : isEpic() ? new Pair<>("[Epic]", new Color(180, 50, 255, 255))
                 : Misc.isBetween(0f, 0.4f, rarity) ? new Pair<>("[Rare]", new Color(80, 100, 255, 255))
                 : Misc.isBetween(0.5f, 0.8f, rarity) ? new Pair<>("[Uncommon]", new Color(80, 200, 80, 255)) :
                 new Pair<>("[Common]", Color.white);

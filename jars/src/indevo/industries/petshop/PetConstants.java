@@ -54,6 +54,11 @@ public final class PetConstants {
     public static final float TWO_TALENTS_CHANCE = 0.5f;
     // a rare species may bring one signature talent besides the others
     public static final float SIGNATURE_CHANCE = 0.2f;
+    // a bought, found or offered rare pet: two talents at this grade; a sum of a talent or mutation adds the step on top
+    public static final int RARE_START_GRADE = 2;
+    public static final int EPIC_START_GRADE = 3;
+    public static final int RARE_SUM_STEP = 1;
+    public static final int EPIC_SUM_STEP = 2;
 
     // husbandry by pace: fast, medium, slow; the hamster rolls as fast
     public static final float[] SUM_CHANCE = {0.10f, 0.25f, 0.40f};
