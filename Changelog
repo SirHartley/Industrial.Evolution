@@ -11,6 +11,7 @@ Added - Setting to show fleets in fog as sensor contacts at range (default off)
 Added - Railgun lanes and blast craters in fog glow hot and cool to red
 Added - Missiles charge the fog, slow fields and intercept hits spark ion storms
 Adjusted - Thinner railgun lanes in fog, explosions push fog out in a shock wave
+Adjusted - Mortar shells fly over fog, only their explosion clears it
 Adjusted - Fog rolls in across the whole sector, not only near the player
 Adjusted - New games and older saves start with fog already spread over the sector
 Adjusted - Core systems can now get fog spells, systems can hold up to 2 banks
