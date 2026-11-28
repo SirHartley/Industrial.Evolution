@@ -7,6 +7,7 @@ import com.fs.starfarer.api.util.IntervalUtil;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
 import indevo.ids.Ids;
+import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.entities.LighthouseEntityPlugin;
 import indevo.industries.artillery.entities.SearchlightEntityPlugin;
 import indevo.industries.artillery.entities.WatchtowerEntityPlugin;
@@ -15,6 +16,7 @@ import indevo.utils.ModPlugin;
 import org.lazywizard.lazylib.MathUtils;
 
 import java.util.List;
+import java.util.Set;
 
 public class EyeIndicatorScript extends BaseCampaignEventListener implements EveryFrameScript {
 
@@ -89,14 +91,11 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         cycleActions();
 
         boolean spotted = false;
+        Set<String> artilleryFactions = ArtilleryStationEntityPlugin.getArtilleryFactionIds(loc);
         for (CampaignFleetAPI f : loc.getFleets()) {
             //check if visible to other fleet
             for (CampaignFleetAPI otherFLeet : loc.getFleets()) {
-                if (otherFLeet == f) continue;
-
-                if (otherFLeet.isHostileTo(f)
-                        && otherFLeet.getAI() != null
-                        && !otherFLeet.isStationMode()
+                if (canReport(otherFLeet, f, artilleryFactions)
                         && Misc.getVisibleFleets(otherFLeet, false).contains(f)) {
 
                     if (f.isPlayerFleet()) {
@@ -152,6 +151,16 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         }
 
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);
+    }
+
+    // only fleets of an artillery station's own faction report a target to it, other hostile fleets don't
+    public static boolean canReport(CampaignFleetAPI fleet, CampaignFleetAPI target, Set<String> artilleryFactions) {
+        return fleet != target
+                && fleet.getAI() != null
+                && !fleet.isStationMode()
+                && artilleryFactions.contains(fleet.getFaction().getId())
+                && fleet.getFaction().isHostileTo(target.getFaction())
+                && fleet.isHostileTo(target);
     }
 
     // fraction 1 at the source, 0 at the end of its reach: a full eye in RAMP_MIN_SECONDS up to RAMP_MAX_SECONDS

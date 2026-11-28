@@ -11,6 +11,7 @@ import indevo.config.Setting;
 import indevo.ids.Ids;
 import indevo.industries.artillery.entities.ArtilleryStationEntityPlugin;
 import indevo.industries.artillery.scripts.DroneNetScript;
+import indevo.industries.artillery.scripts.EyeIndicatorScript;
 import indevo.industries.artillery.terrain.DroneConeTerrain;
 import indevo.industries.artillery.terrain.SearchlightTerrain;
 import indevo.industries.artillery.utils.ArtilleryStationPlacer;
@@ -23,6 +24,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class FleetLightRenderer implements LunaCampaignRenderingPlugin {
 
@@ -72,12 +74,9 @@ public class FleetLightRenderer implements LunaCampaignRenderingPlugin {
     }
 
     // the fleets EyeIndicatorScript locks on, only while the player sees at least a sensor contact
-    public static boolean isWatcher(CampaignFleetAPI fleet, CampaignFleetAPI player) {
-        return fleet != player
-                && fleet.isAlive()
-                && fleet.getAI() != null
-                && !fleet.isStationMode()
-                && fleet.isHostileTo(player)
+    public static boolean isWatcher(CampaignFleetAPI fleet, CampaignFleetAPI player, Set<String> artilleryFactions) {
+        return fleet.isAlive()
+                && EyeIndicatorScript.canReport(fleet, player, artilleryFactions)
                 && fleet.getVisibilityLevelToPlayerFleet() != VisibilityLevel.NONE;
     }
 
@@ -145,8 +144,9 @@ public class FleetLightRenderer implements LunaCampaignRenderingPlugin {
         for (Light light : lights.values()) light.shown = false;
         if (!active) return;
 
+        Set<String> artilleryFactions = ArtilleryStationEntityPlugin.getArtilleryFactionIds(location);
         for (CampaignFleetAPI fleet : location.getFleets()) {
-            if (!isWatcher(fleet, player)) continue;
+            if (!isWatcher(fleet, player, artilleryFactions)) continue;
 
             float target = getDetectionRadius(fleet, player);
             Light light = lights.get(fleet);

@@ -19,7 +19,9 @@ import indevo.industries.artillery.industry.ArtilleryStation;
 import indevo.industries.artillery.scripts.CampaignAttackScript;
 
 import java.awt.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
     public static final String TYPE_RAILGUN = "railgun";
@@ -136,6 +138,12 @@ public class ArtilleryStationEntityPlugin extends BaseCustomEntityPlugin {
 
     public static List<SectorEntityToken> getArtilleriesInLoc(LocationAPI loc) {
         return loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION);
+    }
+
+    public static Set<String> getArtilleryFactionIds(LocationAPI loc) {
+        Set<String> ids = new HashSet<>();
+        for (SectorEntityToken t : getArtilleriesInLoc(loc)) ids.add(t.getFaction().getId());
+        return ids;
     }
 
     public static boolean needsVisionAgainstPlayer(LocationAPI loc) {
