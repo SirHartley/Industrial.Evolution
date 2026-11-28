@@ -54,9 +54,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     public static final Color SPOT_COLOR = new Color(255, 214, 72);
     public static final float WARN_DISTANCE = 900f;
     public static final float ARC_SPAN = 300f;
-    public static final float ARC_MIN_ALPHA = 0.15f;
     public static final float ARC_MAX_ALPHA = 0.7f;
-    public static final float INSIDE_EDGE_ALPHA = 0.15f;
     public static final float INSIDE_NEAR_ALPHA = 0.5f;
     public static final float FLASH_ALPHA = 0.8f;
     public static final float LINE_WIDTH = 1.5f;
@@ -65,6 +63,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
     public static final float BLOCK_GAP = 50f;
     public static final float BLOCK_FADE = 250f;
     public static final float BLOCK_MIN_RADIUS = 10f;
+    public static final float UNION_FADE = 150f;
     public static final int SEGMENTS = 180;
 
     // render runs on one thread
@@ -213,6 +212,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         for (Edge edge : edges.values()) edge.shown = false;
 
         boolean spotted = EyeIndicatorScript.isPlayerSpotted();
+        boolean eyeLocked = EyeIndicatorScript.isEyeLocked();
         boolean insideTower = false;
 
         if (here && isFleetEdgeActive(location)) {
@@ -220,7 +220,10 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
 
             for (CampaignFleetAPI fleet : location.getFleets()) {
                 if (!isWatcher(fleet, player, artilleryFactions)) continue;
-                update(fleet, false, EyeIndicatorScript.getDetectionRadius(fleet, player), seesPlayer(fleet, player), spotted);
+
+                boolean sees = seesPlayer(fleet, player);
+                if (eyeLocked && !sees) continue;
+                update(fleet, false, EyeIndicatorScript.getDetectionRadius(fleet, player), sees, eyeLocked);
             }
         }
 
@@ -232,7 +235,8 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
 
                 boolean sees = Misc.getDistance(tower, player) < range;
                 insideTower |= sees;
-                update(tower, true, range, sees, spotted);
+                if (eyeLocked && !sees) continue;
+                update(tower, true, range, sees, eyeLocked);
             }
         }
 
@@ -259,8 +263,8 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         }
     }
 
-    // red once the eye is full while it sees the player, like a locked searchlight spot
-    private void update(SectorEntityToken entity, boolean tower, float target, boolean sees, boolean spotted) {
+    // red while the eye is red and it sees the player, like a locked searchlight spot
+    private void update(SectorEntityToken entity, boolean tower, float target, boolean sees, boolean eyeLocked) {
         Edge edge = edges.get(entity);
         if (edge == null) {
             edge = new Edge(entity, tower, target);
@@ -270,7 +274,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
             edge.rate = Math.abs(target - edge.radius) / DroneNetScript.CONE_RESIZE_SECONDS;
         }
 
-        boolean locked = sees && spotted;
+        boolean locked = sees && eyeLocked;
         if (locked && !edge.locked) edge.flash = 0f;
 
         edge.sees = sees;
@@ -330,7 +334,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         renderSpot(player, viewport);
     }
 
-    // outside only the stretch of the edge facing the player, brighter as the player closes in; inside the whole edge, brightest toward the way out
+    // only the stretch of the edge facing the player: outside it comes in over the last WARN_DISTANCE, inside it shows the way out
     private void renderEdge(Edge edge, CampaignFleetAPI player, ViewportAPI viewport) {
         if (edge.brightness <= 0f || !edge.entity.isInCurrentLocation()) return;
 
@@ -340,12 +344,12 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         float gap = Misc.getDistance(loc, player.getLocation()) - edge.radius;
         float closeness = SearchlightRenderer.smooth(1f - gap / WARN_DISTANCE);
         float inside = SearchlightRenderer.smooth(edge.inside);
-        float approach = (ARC_MIN_ALPHA + (ARC_MAX_ALPHA - ARC_MIN_ALPHA) * closeness) * (1f - inside);
+        float approach = ARC_MAX_ALPHA * closeness * (1f - inside);
         float flash = edge.flash < SearchlightTerrain.RING_SECONDS ? FLASH_ALPHA * (1f - edge.flash / SearchlightTerrain.RING_SECONDS) : 0f;
         float facing = (float) Math.toRadians(Misc.getAngleInDegrees(loc, player.getLocation()));
         Color color = Misc.interpolateColor(EDGE_COLOR, DroneConeTerrain.LOCK_COLOR, SearchlightRenderer.smooth(edge.locking));
 
-        drawEdge(loc, edge.radius, edge.blockers, facing, color, viewport.getAlphaMult() * edge.brightness, approach, inside, flash, viewport.getViewMult());
+        drawEdge(edge, facing, color, viewport.getAlphaMult() * edge.brightness, approach, inside, flash, viewport.getViewMult());
     }
 
     // the searchlight spot without rim and tower spikes, sized by the player's profile like the towers' spots
@@ -373,19 +377,27 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
             SearchlightRenderer.drawRing(loc, radius, spotRing / SearchlightTerrain.RING_SECONDS, DroneConeTerrain.LOCK_COLOR, fade);
     }
 
-    private static void drawEdge(Vector2f loc, float radius, List<SectorEntityToken> blockers, float facing, Color color, float fade,
-                                 float approach, float inside, float flash, float unitsPerPixel) {
+    private void drawEdge(Edge edge, float facing, Color color, float fade, float approach, float inside, float flash, float unitsPerPixel) {
+        Vector2f loc = edge.entity.getLocation();
+        float radius = edge.radius;
+
         for (int i = 0; i <= SEGMENTS; i++) {
             double offset = 2.0 * Math.PI * i / SEGMENTS - Math.PI;
             float along = (float) offset * radius / ARC_SPAN;
             float near = (float) Math.exp(-along * along);
 
-            ALPHAS[i] = Math.min(1f, fade * (approach * near + inside * (INSIDE_EDGE_ALPHA + INSIDE_NEAR_ALPHA * near) + flash));
+            ALPHAS[i] = Math.min(1f, fade * near * (approach + inside * INSIDE_NEAR_ALPHA + flash));
             COS[i] = (float) Math.cos(facing + offset);
             SIN[i] = (float) Math.sin(facing + offset);
         }
 
-        for (SectorEntityToken blocker : blockers) mask(loc, radius, blocker.getLocation(), blocker.getRadius() + BLOCK_GAP);
+        for (SectorEntityToken blocker : edge.blockers) mask(loc, radius, blocker.getLocation(), blocker.getRadius() + BLOCK_GAP);
+
+        // a stretch inside another edge of the same kind is already seen, so outside only the outline of the area they watch together shows
+        for (Edge other : edges.values()) {
+            if (other == edge || other.tower != edge.tower || other.brightness <= 0f || !other.entity.isInCurrentLocation()) continue;
+            unionMask(loc, radius, other.entity.getLocation(), other.radius, other.brightness * (1f - inside));
+        }
 
         float max = 0f;
         for (float alpha : ALPHAS) max = Math.max(max, alpha);
@@ -434,6 +446,19 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
             float dx = loc.x + COS[i] * radius - at.x;
             float dy = loc.y + SIN[i] * radius - at.y;
             ALPHAS[i] *= SearchlightRenderer.smooth(((float) Math.sqrt(dx * dx + dy * dy) - clear) / BLOCK_FADE);
+        }
+    }
+
+    private static void unionMask(Vector2f loc, float radius, Vector2f at, float otherRadius, float strength) {
+        if (strength <= 0f) return;
+
+        for (int i = 0; i <= SEGMENTS; i++) {
+            if (ALPHAS[i] <= 0f) continue;
+
+            float dx = loc.x + COS[i] * radius - at.x;
+            float dy = loc.y + SIN[i] * radius - at.y;
+            float depth = otherRadius - (float) Math.sqrt(dx * dx + dy * dy);
+            ALPHAS[i] *= 1f - strength * SearchlightRenderer.smooth(depth / UNION_FADE);
         }
     }
 
