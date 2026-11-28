@@ -195,6 +195,12 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         return Global.getSector().getPlayerFleet().getMemoryWithoutUpdate().getBoolean(WAS_SEEN_BY_HOSTILE_ENTITY);
     }
 
+    // the eye stays red from a full fill until it drains to 0, longer than $IndEvo_WasSeenByOtherEntity lasts
+    public static boolean isEyeLocked() {
+        EyeIndicatorScript script = getInstance();
+        return script != null && script.isLocked;
+    }
+
     private void cycleActions() {
         CampaignFleetAPI player = Global.getSector().getPlayerFleet();
 

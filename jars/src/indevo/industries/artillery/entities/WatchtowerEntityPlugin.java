@@ -12,7 +12,6 @@ import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
 import com.fs.starfarer.api.impl.campaign.procgen.themes.MiscellaneousThemeGenerator;
-import com.fs.starfarer.api.loading.CampaignPingSpec;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import indevo.config.Setting;
@@ -108,14 +107,6 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         // TODO: 19/10/2022 change this to an interval instead of this janky shit
         if (phase >= 1 * MathUtils.getRandomNumberInRange(1, 1.1f)) {
-            String factionID = entity.getFaction().getId();
-            boolean isAI = factionID.equals(Ids.DERELICT_FACTION_ID) || factionID.equals(Factions.REMNANTS);
-            boolean isLocked = checkSensorLockActive();
-
-            if (isAI) {
-                if (isLocked && !isHacked() && isFunctional()) showRangePing();
-            } else if (!isHacked() && isFunctional()) showRangePing();
-
             if (isFunctional()) for (CampaignFleetAPI f : Misc.getNearbyFleets(entity, Setting.ARTILLERY_WATCHTOWER_RANGE.value())) {
                 if (isHostileTo(f)) { //&& f.getVisibilityLevelTo(entity) == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT){
                     if (f.isPlayerFleet()) continue;
@@ -165,30 +156,6 @@ public class WatchtowerEntityPlugin extends BaseCampaignObjectivePlugin {
 
         if (faction == null) return true;
         else return faction.isHostileTo(targetFaction);
-    }
-
-    protected void showRangePing() {
-        SectorEntityToken.VisibilityLevel vis = entity.getVisibilityLevelToPlayerFleet();
-        if (vis == SectorEntityToken.VisibilityLevel.NONE || vis == SectorEntityToken.VisibilityLevel.SENSOR_CONTACT)
-            return;
-
-        FactionAPI f = entity.getFaction();
-        if (!f.isHostileTo(Factions.PLAYER) || isHacked()) return;
-
-        float range = Setting.ARTILLERY_WATCHTOWER_RANGE.value() / 2f;
-
-        CampaignPingSpec custom = new CampaignPingSpec();
-        custom.setColor(f.getColor());
-        custom.setWidth(7);
-        custom.setMinRange(range - 100f);
-        custom.setRange(range);
-        custom.setDuration(4f);
-        custom.setAlphaMult(0.25f);
-        custom.setInFraction(0.2f);
-        custom.setNum(3);
-        custom.setDelay(0.25f);
-
-        Global.getSector().addPing(entity, custom);
     }
 
     public void setHacked(boolean hacked) {
