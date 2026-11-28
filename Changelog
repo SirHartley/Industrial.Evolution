@@ -1,4 +1,8 @@
 --------------------------- Changelog -----------------------------
+5.0.d - UNRELEASED
+General
+Added - Dev mode: campaign zoom readout under the FPS counter
+
 5.0.c
 General
 Adjusted - Moved fog and meteor swarm settings to the new Fog & Meteors tab
