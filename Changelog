@@ -21,6 +21,7 @@ Artillery
 Added - Fleet Detection Lights: fleets of the artillery's faction show the edge of their sight as you close in
 Note - Lighthouse, searchlight and drone net systems only
 Added - Setting to turn off fleet detection lights
+Added - Watchtowers show their range edge and a yellow searchlight on you until spotted
 Adjusted - Only fleets of the artillery's own faction now report targets to it
 Adjusted - Fleets that see you now fill the artillery eye over 2.5 to 5s instead of locking at once
 Adjusted - Missile Artillery: interdicts no longer stack, each further hit 0.5s shorter

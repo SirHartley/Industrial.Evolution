@@ -72,15 +72,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
                 || !loc.hasTag(Ids.TAG_SYSTEM_HAS_ARTILLERY)) return;
 
         //check if there's a hostile arty, if not, we reset to 0 and cycle
-        boolean hostileArtilleryPresent = false;
-        if (Setting.ENABLE_ARTILLERY.enabled()) for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)) {
-            if (t.getFaction().isHostileTo(player.getFaction())) {
-                hostileArtilleryPresent = true;
-                break;
-            }
-        }
-
-        if (!hostileArtilleryPresent) {
+        if (!hasHostileArtillery(loc, player)) {
             elapsed = 0f;
             cycleActions();
             return;
@@ -131,7 +123,7 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
             }
 
             float dist = Misc.getDistance(t, player);
-            if (!p.isHacked() && p.isHostileTo(player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value())
+            if (isRangeSource(p, player) && dist < Setting.ARTILLERY_WATCHTOWER_RANGE.value())
                 bestRate = Math.max(bestRate, 2f - dist / Setting.ARTILLERY_WATCHTOWER_RANGE.value());
         }
 
@@ -145,6 +137,23 @@ public class EyeIndicatorScript extends BaseCampaignEventListener implements Eve
         }
 
         elapsed = MathUtils.clamp(elapsed += addition, 0, MAX_TIME_TO_TARGET_LOCK);
+    }
+
+    public static boolean hasHostileArtillery(LocationAPI loc, CampaignFleetAPI player) {
+        if (!Setting.ENABLE_ARTILLERY.enabled()) return false;
+
+        for (SectorEntityToken t : loc.getEntitiesWithTag(Ids.TAG_ARTILLERY_STATION)) {
+            if (t.getFaction().isHostileTo(player.getFaction())) return true;
+        }
+
+        return false;
+    }
+
+    // the eye fills by distance from this tower; lit lighthouses and searchlight towers see with their lights instead
+    public static boolean isRangeSource(WatchtowerEntityPlugin tower, CampaignFleetAPI player) {
+        if (tower instanceof LighthouseEntityPlugin lighthouse && lighthouse.isLit()) return false;
+        if (tower instanceof SearchlightEntityPlugin searchlight && searchlight.isLit()) return false;
+        return !tower.isHacked() && tower.isHostileTo(player);
     }
 
     // only fleets of an artillery station's own faction report a target to it, other hostile fleets don't
