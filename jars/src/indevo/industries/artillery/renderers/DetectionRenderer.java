@@ -211,7 +211,6 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
 
         for (Edge edge : edges.values()) edge.shown = false;
 
-        boolean spotted = EyeIndicatorScript.isPlayerSpotted();
         boolean eyeLocked = EyeIndicatorScript.isEyeLocked();
         boolean insideTower = false;
 
@@ -241,7 +240,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         }
 
         findBlockers();
-        checkSpot(insideTower, spotted);
+        checkSpot(insideTower, eyeLocked);
     }
 
     // objects move slowly, so the 0.25 s check is enough to know which ones sit near an edge
@@ -282,14 +281,14 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
         edge.shown = true;
     }
 
-    // a watchtower keeps a spot on the player while the eye fills, it locks red on a full eye and fades out after the ring
-    private void checkSpot(boolean insideTower, boolean spotted) {
+    // a watchtower keeps a spot on the player only while the eye fills, it locks red when the eye turns red and fades out after the ring
+    private void checkSpot(boolean insideTower, boolean eyeLocked) {
         switch (spotState) {
             case NONE -> {
-                if (insideTower && !spotted) spotState = SpotState.TRACKING;
+                if (insideTower && !eyeLocked) spotState = SpotState.TRACKING;
             }
             case TRACKING -> {
-                if (spotted) {
+                if (eyeLocked) {
                     spotState = SpotState.LOCKED;
                     spotLockTime = 0f;
                     spotRing = 0f;
@@ -297,7 +296,7 @@ public class DetectionRenderer implements LunaCampaignRenderingPlugin {
                 } else if (!insideTower) spotState = SpotState.NONE;
             }
             case LOCKED -> {
-                if (!spotted) spotState = insideTower ? SpotState.TRACKING : SpotState.NONE;
+                if (!eyeLocked) spotState = insideTower ? SpotState.TRACKING : SpotState.NONE;
             }
         }
     }
