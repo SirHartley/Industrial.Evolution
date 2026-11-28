@@ -25,6 +25,7 @@ Each consumable is a special item whose `plugin params` names an ability. Using 
 | `entityAbilities/InterdictionMineAbility.java`, `DecoyMineAbility.java`, `NoWellSlipstreamAbility.java` | Abilities given to spawned entities or temporarily to the player |
 | `terrain/SmokeCloudTerrain.java` | Smoke cloud terrain effect |
 | `listeners/ConsumableItemMarketAdder.java`, `ConsumableItemDropListener.java` | Item sources: markets and combat loot |
+| `listeners/ConsumableAbilityAdder.java` | Adds the ability of every consumable in player cargo to the fleet and ability bar |
 | `listeners/LocatorSystemRatingUpdater.java` | Per-system rating read by the locator |
 | `listeners/SpooferItemKeypressListener.java` | Arrow keys cycle the spoofer faction |
 | `fleet/FleetConsumableInventoryManager.java`, `MissileMemFlags.java` | NPC missile inventory and memory keys |
@@ -76,18 +77,19 @@ Times in days. `IndEvo_skillshot` enables hotkey targeting; each ability picks i
 
 | Hook | What |
 |---|---|
-| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin.java:131`) | Loads the nanites texture for the codex |
-| `ModPlugin.java:165` (`onGameLoad`), `:285` (`onNewGameAfterEconomyLoad`) | `LocatorSystemRatingUpdater.updateAllSystems()` |
-| `ModPlugin.java:437` | `LocatorSystemRatingUpdater`, transient |
-| `ModPlugin.java:438` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
-| `ModPlugin.java:439` | `ConsumableItemMarketAdder`, transient |
-| `ModPlugin.java:442` | `SpooferItemKeypressListener`, transient |
-| `ModPlugin.java:468`, `:311` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
-| `ModPlugin.java:469` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
+| `ModPlugin.onAboutToStartGeneratingCodex` (`ModPlugin.java:148`) | Loads the nanites texture for the codex |
+| `ModPlugin.java:182` (`onGameLoad`), `:303` (`onNewGameAfterEconomyLoad`) | `LocatorSystemRatingUpdater.updateAllSystems()` |
+| `ModPlugin.java:457` | `LocatorSystemRatingUpdater`, transient |
+| `ModPlugin.java:458` | `ConsumableItemDropListener`, persistent `ShowLootListener`, added only if absent |
+| `ModPlugin.java:459` | `ConsumableItemMarketAdder`, transient |
+| `ModPlugin.java:460` | `ConsumableAbilityAdder`, transient `EveryFrameScript`, runs while paused |
+| `ModPlugin.java:464` | `SpooferItemKeypressListener`, transient |
+| `ModPlugin.java:495`, `:329` (`beforeGameSave`) | `SkillshotFramework.register()` (transient hotkey listener and activation manager, clears the cross mod lock); `SkillshotFramework.reset()` before save |
+| `ModPlugin.java:496` | `FleetConsumableInventoryManager`, transient `FleetSpawnListener` |
 
 `ListenerManager.addListener(Object)` is the persistent variant (`obf/campaign/ListenerManager.java:25-33` in the starsector-knowledge skill), so any listener added without `true` is saved with the game.
 
-Abilities are added lazily: `BaseConsumableItemPlugin.getAbilityPlugin()` adds the ability to the player fleet and character data the first time it is needed (a "Codex Fleet" stands in when there is no player fleet).
+Abilities are added on pickup: `ConsumableAbilityAdder` checks player cargo every 0.5 real seconds (also while paused) and calls `ItemAbilityHelper.addAbility` for each `ID_MAP` item present whose ability the fleet lacks. It polls because cargo arrives through loot, markets, rules, salvage specials and the console, with no shared callback (`CargoGainedListener` only covers derelict recovery). The ability then stays when the items run out. `BaseConsumableItemPlugin.getAbilityPlugin()` still adds it on first use as a fallback (a "Codex Fleet" stands in when there is no player fleet).
 
 ## Flow
 

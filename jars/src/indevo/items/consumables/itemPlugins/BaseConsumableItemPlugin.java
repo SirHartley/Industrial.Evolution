@@ -9,10 +9,10 @@ import com.fs.starfarer.api.campaign.impl.items.BaseSpecialItemPlugin;
 import com.fs.starfarer.api.characters.AbilityPlugin;
 import com.fs.starfarer.api.graphics.SpriteAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
-import com.fs.starfarer.api.loading.AbilitySpecAPI;
 import com.fs.starfarer.api.ui.Alignment;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
+import indevo.items.consumables.ItemAbilityHelper;
 import indevo.items.consumables.itemAbilities.SingleUseItemAbility;
 import indevo.utils.helper.StringHelper;
 import indevo.utils.timers.IntervalTracker;
@@ -61,13 +61,7 @@ public class BaseConsumableItemPlugin extends BaseSpecialItemPlugin {
     }
 
     public void addAbilityToFleet(CampaignFleetAPI fleet) {
-        String params = spec.getParams();
-        AbilitySpecAPI abilitySpecAPI = Global.getSettings().getAbilitySpec(params);
-
-        if (abilitySpecAPI != null && !fleet.hasAbility(params)) {
-            fleet.addAbility(params);
-            if (fleet.isPlayerFleet()) Global.getSector().getCharacterData().addAbility(params);
-        }
+        ItemAbilityHelper.addAbility(fleet, spec.getParams());
     }
 
     @Override
