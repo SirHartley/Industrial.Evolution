@@ -237,11 +237,11 @@ public final class PetGenetics {
         return Math.min(1f, chance);
     }
 
-    // 1 to 3 young, 1 for a rare species, more with Fecund; each one lost at birth at the Weak brood chance of both parents; none with a Sterile parent
+    // 1 to 3 young, 1 or 2 for a rare species, more with Fecund; each one lost at birth at the Weak brood chance of both parents; none with a Sterile parent
     public static int broodSize(PetData data, PetSheet a, PetSheet b, Map<String, Trait> traits, Random random) {
         if (a.getGrade(STERILE) > 0 || b.getGrade(STERILE) > 0) return 0;
 
-        int size = data.isRare() ? 1 : 1 + random.nextInt(PetConstants.MAX_BROOD);
+        int size = data.isRare() ? (random.nextFloat() < PetConstants.RARE_SECOND_YOUNG_CHANCE ? 2 : 1) : 1 + random.nextInt(PetConstants.MAX_BROOD);
         size += Math.round(value(traits, FECUND, a.getGrade(FECUND) + b.getGrade(FECUND)));
         float lost = value(traits, WEAK_BROOD, a.getGrade(WEAK_BROOD) + b.getGrade(WEAK_BROOD)) * 0.01f;
 
@@ -256,7 +256,7 @@ public final class PetGenetics {
 
         int fecund = Math.round(value(traits, FECUND, a.getGrade(FECUND) + b.getGrade(FECUND)));
         boolean weak = a.getGrade(WEAK_BROOD) + b.getGrade(WEAK_BROOD) > 0;
-        int hi = (data.isRare() ? 1 : PetConstants.MAX_BROOD) + fecund;
+        int hi = (data.isRare() ? PetConstants.RARE_MAX_BROOD : PetConstants.MAX_BROOD) + fecund;
         return new int[]{weak ? 0 : 1 + fecund, hi};
     }
 

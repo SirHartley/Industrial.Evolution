@@ -514,17 +514,25 @@ public final class PetChecks {
         float plainBrood = 0f;
         float fecundBrood = 0f;
         float weakBrood = 0f;
+        float rareBrood = 0f;
+        int rareMin = Integer.MAX_VALUE;
         int rareMax = 0;
         for (int i = 0; i < YOUNG; i++) {
             plainBrood += PetGenetics.broodSize(medium, plain, plain, traits, random);
             fecundBrood += PetGenetics.broodSize(medium, sheet(TRAIT_PREFIX + "fecund", 1), plain, traits, random);
             weakBrood += PetGenetics.broodSize(medium, sheet(TRAIT_PREFIX + "weak_brood", 1), plain, traits, random);
-            rareMax = Math.max(rareMax, PetGenetics.broodSize(rare, plain, plain, traits, random));
+            int size = PetGenetics.broodSize(rare, plain, plain, traits, random);
+            rareBrood += size;
+            rareMin = Math.min(rareMin, size);
+            rareMax = Math.max(rareMax, size);
         }
         check(Math.abs(plainBrood / YOUNG - 2f) < 0.02f, "a brood is 1 to 3 young, " + plainBrood / YOUNG + " on average");
         check(Math.abs(fecundBrood / YOUNG - 3f) < 0.02f, "Fecund 1 adds one young, " + fecundBrood / YOUNG + " on average");
         check(Math.abs(weakBrood / YOUNG - 1.5f) < 0.02f, "Weak brood 1 loses a quarter, " + weakBrood / YOUNG + " on average");
-        check(rare.isRare() && rareMax == 1, "a rare species has 1 young");
+        check(rare.isRare() && rareMin == 1 && rareMax == PetConstants.RARE_MAX_BROOD
+                && Math.abs(rareBrood / YOUNG - (1f + PetConstants.RARE_SECOND_YOUNG_CHANCE)) < 0.02f, "a rare species has 1 or 2 young, " + rareBrood / YOUNG + " on average");
+        int[] rareRange = PetGenetics.broodRange(rare, plain, plain, traits);
+        check(rareRange[0] == 1 && rareRange[1] == PetConstants.RARE_MAX_BROOD, "a rare pair shows 1 to " + PetConstants.RARE_MAX_BROOD + " young");
 
         check(!PetGenetics.rollYoung(medium, sheet(giant, 1), plain, 0f, 0, 0f, 0f, traits, new Random(5)).traits.containsKey(TRAIT_PREFIX + "sterile"), "Sterile comes only from inbreeding");
 

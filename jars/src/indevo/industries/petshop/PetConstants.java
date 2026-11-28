@@ -81,6 +81,9 @@ public final class PetConstants {
     public static final float MALFORMED_MIN = 0.05f;
     public static final float HAMSTER_MALFORMED = 0.5f;
     public static final int MAX_BROOD = 3;
+    // a rare species has 1 young, a second one at the chance
+    public static final int RARE_MAX_BROOD = 2;
+    public static final float RARE_SECOND_YOUNG_CHANCE = 0.5f;
     public static final float HAMSTER_FLAW_DAYS = 3f;
     // brood time by pace, the hamster on its own; Slow grower and Mayfly change it, never past MAX_BROOD_DAYS
     public static final float[] BROOD_DAYS = {30f, 60f, 90f};
