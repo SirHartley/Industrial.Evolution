@@ -85,9 +85,9 @@ public class ShuttleNetwork {
     private static final float HOP_RANGE = 4000f;
     // share of its hops a hub still flies to a neighbouring market with liveliness near 0
     private static final float HOP_QUIET_MIN = 0.25f;
-    // local flights launch while the player is within NEAR_RANGE su of the anchor's surface, and stop past NEAR_RANGE_OUT
-    public static final float NEAR_RANGE = 4000f;
-    public static final float NEAR_RANGE_OUT = 4600f;
+    // local flights launch while the anchor's surface is within NEAR_MARGIN su of the view, and stop past NEAR_MARGIN_OUT
+    public static final float NEAR_MARGIN = 1000f;
+    public static final float NEAR_MARGIN_OUT = 1600f;
     // surface hops: craft between two pads of the same planet, the bustle of a hub with no neighbour in hop range
     private static final int MAX_SURFACE = 10;
     private static final float SURFACE_PER_LIVELINESS = 1.5f;
@@ -113,12 +113,12 @@ public class ShuttleNetwork {
         meteors.clear();
     }
 
-    // the player has no callback for moving either, so this runs with the fleet scan; true when an anchor changed, arrived takes the anchors that came into range
-    public boolean updateNear(Vector2f player, List<ShuttleAnchor> arrived) {
+    // neither moving nor zooming has a callback, so this runs with the fleet scan; true when an anchor changed, arrived takes the anchors that came into range
+    public boolean updateNear(ShuttleView view, List<ShuttleAnchor> arrived) {
         boolean changed = false;
         for (ShuttleAnchor anchor : anchors.values()) {
-            float gap = Misc.getDistance(player, anchor.getLocation()) - anchor.getRadius();
-            boolean near = gap <= (anchor.near ? NEAR_RANGE_OUT : NEAR_RANGE);
+            float gap = view.gap(anchor.getLocation()) - anchor.getRadius();
+            boolean near = gap <= (anchor.near ? NEAR_MARGIN_OUT : NEAR_MARGIN);
             if (near == anchor.near) continue;
 
             anchor.near = near;
