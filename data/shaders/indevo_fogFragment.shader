@@ -150,40 +150,45 @@ void main() {
 	c *= 0.82 + 0.25 * smoothstep(0.2, 1.0, d);
 	c = mix(c, s2, ws * 0.6);
 	a = min(1.0, a * (1.0 + ws * 0.6));
-	float a0 = a;
 
-	// shot effects: heat, charge and flashes from the second grid texture, railgun lanes exact per pixel
-	vec3 emit = vec3(0.0);
+	// shot effects: blast heat, charge, flashes and railgun wake from the second grid texture, railgun trails per pixel. they only tint fog, nothing glows in clear space
 	if (uFxOn > 0.5 || uLN > 0.0) {
 		vec4 fx = vec4(0.0);
 		if (uFxOn > 0.5) fx = bs(uFx, w, vec4(0.0));
 		float tg = fx.r;
 		float ion = fx.g;
 		float fl = fx.b;
+		float tw = fx.a;
 		float tl = 0.0;
-		// a closing lane drifts with the flow, its edge bent by the fog noise
-		vec2 drift = (vec2(n2, n1) - 0.5) * 120.0;
-		float lw = 1.0 + (n3 - 0.5) * 0.7;
 		for (int i = 0; i < 8; i++) {
 			if (float(i) >= uLN) break;
 			vec4 ln = uLane[i];
-			vec4 lp = uLaneP[i];
+			float age = uLaneP[i].x;
 			vec2 ab = ln.zw - ln.xy;
-			vec2 wl = w + drift * (1.0 - lp.z);
-			float k = clamp(dot(wl - ln.xy, ab) / max(1.0, dot(ab, ab)), 0.0, 1.0);
-			float dist = distance(wl, ln.xy + ab * k) * lw;
-			a *= mix(1.0, smoothstep(lp.x, lp.y, dist), lp.z);
-			float hw = lp.y * 1.05;
-			tl = max(tl, lp.w * exp(-dist * dist / (hw * hw)) * (0.78 + 0.5 * n3));
+			float len = max(1.0, length(ab));
+			vec2 dir = ab / len;
+			vec2 rel = w - ln.xy;
+			float al = dot(rel, dir);
+			float grow = 1.0 - exp(-age / 1.6);
+			// a hair thin trail the fog carries off line, more the older it gets
+			float wv = ((n2 - 0.5) * 420.0 + (n3 - 0.5) * 110.0) * grow;
+			float dist = length(vec2(al - clamp(al, 0.0, len), rel.x * dir.y - rel.y * dir.x + wv));
+			// it does not close like a zip: it widens, thins out and tears where the fog is busy
+			float brk = ((n3 - 0.5) * 3.4 + (n2 - 0.5) * 1.2) * grow;
+			float dep = (1.0 - smoothstep(0.15, 1.0, age / 1.8 + brk)) * mix(1.0, 0.4, grow);
+			a *= 1.0 - dep * (1.0 - smoothstep(3.0, 16.0 * (1.0 + 1.5 * grow), dist));
+			tl = max(tl, (age < 0.12 ? 1.25 : 1.1) * exp(-age / 2.25) * exp(-dist * dist / 1156.0) * (0.78 + 0.5 * n3));
 		}
-		float ht = clamp(max(tg, tl), 0.0, 1.0);
-		// thin fog glows less hot, a dim yellow would read olive
+		// blast heat in reds only, bright to dark
+		float hb = clamp(tg * (0.8 + 0.4 * n3), 0.0, 1.0);
+		vec3 rc = mix(vec3(0.22, 0.01, 0.01), vec3(1.0, 0.17, 0.08), smoothstep(0.0, 0.75, hb * mix(0.6, 1.0, a)));
+		c = mix(c, rc, smoothstep(0.04, 0.6, hb) * 0.8);
+		c += rc * hb * hb * 0.4;
+		// railgun wake and hot line: white hot, yellow, red. thin fog runs cooler, a dim yellow would read olive
+		float ht = clamp(max(tw * 1.2 * (0.8 + 0.4 * n3), tl), 0.0, 1.0);
 		vec3 hc = heatCol(ht * mix(0.55, 1.0, a));
 		c = mix(c, hc, smoothstep(0.04, 0.6, ht) * 0.8);
 		c += hc * ht * ht * 0.45;
-		// a crater keeps only a faint glow so the hole still reads, a lane keeps all of it
-		float et = max(tl, tg * 0.22) * (0.5 + 0.7 * n3);
-		emit += heatCol(et) * pow(et, 1.3) * 0.8 * (1.0 - a * 0.5);
 
 		// the charge is mostly dark, flashes light patches of fog blue to purple. one cheap noise at about 110 units breaks the disc outline
 		float sv = n(w / 110.0 + vec2(n1, n2) * 5.0);
@@ -203,8 +208,6 @@ void main() {
 		hk *= smoothstep(hl.z * 0.45, hl.z * 1.5, distance(w, hl.xy));
 	}
 
-	// glow only where there was fog before the lane cuts, clear space stays dark
-	emit *= smoothstep(0.02, 0.3, a0);
 	a *= hk * uAlpha;
-	gl_FragColor = vec4(c * a + emit * hk * uAlpha, a);
+	gl_FragColor = vec4(c * a, a);
 }
