@@ -36,6 +36,7 @@ IndEvo_petLongevityCycles,[Pets] Cycles per Longevity Syringe,Int,2,,"Cycles of 
 ,,,,,,,,
 IndEvo_header_fog,Fog,Header,Fog,,,,,Fog & Meteors
 IndEvo_fog_weather,[Fog] Fog Weather,Radio,Default Fidelity,"Off,High Fidelity,Default Fidelity,Low Fidelity","Fog rolls into systems near you: sometimes a whole system for about a month, sometimes a local bank for several months. Sensors are nearly useless inside. Off stops new fog, fog that already exists runs out. High Fidelity draws fog at full resolution, Default Fidelity at half, Low Fidelity at a quarter and moves it less often, for weak graphics chips. Default: Default Fidelity.",,,Fog & Meteors
+IndEvo_fog_sensorContacts,[Fog] Sensor Contacts,Boolean,FALSE,,"Show fleets in fog as unidentified sensor contacts from further out. They are still only identified up close. Default off.",,,Fog & Meteors
 IndEvo_header_meteor,Meteor Swarms,Header,Meteor Swarms,,,,,Fog & Meteors
 IndEvo_meteor_baseChancePerEconomyTick,[Meteor Swarms] Spawn Chance,Double,0.02,,"Meteor shower chance per economy tick. 0.02 = 2%% per tick, with 10 ticks per month. Default 0.02.",0.001,0.1,Fog & Meteors
 IndEvo_meteor_immediateMode,[Meteor Swarms] Immediate Mode,Boolean,FALSE,,"Spawn meteor showers immediately, without an advance intel warning. Default off.",,,Fog & Meteors

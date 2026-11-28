@@ -6,6 +6,9 @@ Added - Dev mode: campaign zoom readout under the FPS counter
 Consumables
 Adjusted - Consumables now add their ability to the ability bar on pickup
 
+Fog
+Added - Setting to show fleets in fog as sensor contacts at range (default off)
+
 Artillery
 Added - Fleet Detection Lights: hostile fleets in artillery systems light up how close you can get
 Note - Lighthouse, searchlight and drone net systems only
