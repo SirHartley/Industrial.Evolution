@@ -63,7 +63,7 @@ public class ShuttleTraffic {
             location = current;
             network.rebuild(location, random, days);
             network.updateSwarms(location);
-            network.updateNear(player.getLocation(), null);
+            network.updateNear(ShuttleView.of(player.getLocation(), Global.getSector().getViewport()), null);
             budget.update(network.routes.values(), cap);
             fleetScan.scan(location, player);
             reactions.updateThreats();
@@ -74,7 +74,7 @@ public class ShuttleTraffic {
                 daysSinceRebuild = 0f;
                 ShuttleHullPool.dropStaleFactionPools();
                 network.rebuild(location, random, days);
-                network.updateNear(player.getLocation(), null);
+                network.updateNear(ShuttleView.of(player.getLocation(), Global.getSector().getViewport()), null);
                 budget.update(network.routes.values(), cap);
                 spawner.rollRareFlights();
             }
@@ -91,9 +91,10 @@ public class ShuttleTraffic {
             network.updateMotion(sinceMotion);
             sinceMotion = 0f;
             arrived.clear();
-            if (network.updateNear(player.getLocation(), arrived)) {
+            ShuttleView view = ShuttleView.of(player.getLocation(), Global.getSector().getViewport());
+            if (network.updateNear(view, arrived)) {
                 budget.update(network.routes.values(), cap);
-                if (!arrived.isEmpty()) spawner.warmStart(arrived, player.getLocation());
+                if (!arrived.isEmpty()) spawner.warmStart(arrived, view);
             }
             reactions.updateThreats();
             reactions.react();

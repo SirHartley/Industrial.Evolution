@@ -2,8 +2,6 @@ package indevo.ambience.shuttletraffic;
 
 import com.fs.starfarer.api.util.Misc;
 
-import org.lwjgl.util.vector.Vector2f;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -11,8 +9,8 @@ import java.util.function.Predicate;
 
 public class ShuttleSpawner {
 
-    // a craft placed mid flight closer to the player than this could pop up on screen, it launches from its pad later
-    private static final float WARM_CLEARANCE = 3000f;
+    // a craft placed mid flight in view pops up on screen, it launches from its pad later; trails are up to 112 su
+    private static final float WARM_CLEARANCE = 200f;
     private static final float DEPARTURE_RETRY = 2f;
 
     private final ShuttleTraffic traffic;
@@ -26,12 +24,12 @@ public class ShuttleSpawner {
     }
 
     // a market that came into range is busy by the time the player gets there
-    public void warmStart(List<ShuttleAnchor> arrived, Vector2f player) {
-        warmStart(route -> route.kind.group == ShuttleBudget.Group.LOCAL && arrived.contains(route.a), player);
+    public void warmStart(List<ShuttleAnchor> arrived, ShuttleView view) {
+        warmStart(route -> route.kind.group == ShuttleBudget.Group.LOCAL && arrived.contains(route.a), view);
     }
 
     // fills the routes in rounds, one flight per route each round, so the first routes in the map do not take the whole cap
-    private void warmStart(Predicate<ShuttleRoute> filter, Vector2f player) {
+    private void warmStart(Predicate<ShuttleRoute> filter, ShuttleView view) {
         Random random = traffic.getRandom();
         ShuttleBudget budget = traffic.getBudget();
         budget.count(traffic.getShuttles());
@@ -48,7 +46,7 @@ public class ShuttleSpawner {
                 launchedAny = true;
                 float fraction = Math.min(0.95f, (round + random.nextFloat()) / route.max);
                 for (Shuttle shuttle : launched) shuttle.warmStart(fraction);
-                if (player == null || isClear(launched, player)) add(route, launched);
+                if (view == null || isClear(launched, view)) add(route, launched);
             }
         }
     }
@@ -123,9 +121,9 @@ public class ShuttleSpawner {
         traffic.getShuttles().addAll(launched);
     }
 
-    private static boolean isClear(List<Shuttle> launched, Vector2f player) {
+    private static boolean isClear(List<Shuttle> launched, ShuttleView view) {
         for (Shuttle shuttle : launched) {
-            if (Misc.getDistance(shuttle.pos, player) < WARM_CLEARANCE) return false;
+            if (view.gap(shuttle.pos) < WARM_CLEARANCE) return false;
         }
         return true;
     }

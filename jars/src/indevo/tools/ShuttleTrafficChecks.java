@@ -13,6 +13,7 @@ import indevo.ambience.shuttletraffic.ShuttleRoute;
 import indevo.ambience.shuttletraffic.ShuttleState;
 import indevo.ambience.shuttletraffic.ShuttleNetwork;
 import indevo.ambience.shuttletraffic.ShuttleTrafficTag;
+import indevo.ambience.shuttletraffic.ShuttleView;
 import indevo.ambience.shuttletraffic.flights.LaneFlights;
 import indevo.ambience.shuttletraffic.movement.PathMover;
 import indevo.ambience.shuttletraffic.SpeedClass;
@@ -117,6 +118,7 @@ public final class ShuttleTrafficChecks {
             run.checkRushHour();
             run.checkLiveliness();
             run.checkTrafficTags();
+            run.checkView();
             run.checkSpeedCap();
             run.checkSwarmRange();
             run.checkDogfight();
@@ -798,6 +800,15 @@ public final class ShuttleTrafficChecks {
         ShuttleAnchor anchor = new ShuttleAnchor(tagged(Set.of("IndEvo_traffic_high")), ShuttleAnchor.Type.STATION, ShuttleAnchor.Role.TARGET, null, null);
         anchor.trafficTag = ShuttleTrafficTag.HIGH;
         check(anchor.getSize() == ShuttleTrafficTag.HIGH.size, "tagged anchor size " + anchor.getSize());
+    }
+
+    // near anchors and warm start clearance measure from the visible rect, not the player
+    private void checkView() {
+        ShuttleView view = new ShuttleView(100f, 50f, 2880f, 1620f);
+        check(view.gap(new Vector2f(-2000f, 1000f)) == 0f, "point on screen has a gap");
+        check(Math.abs(view.gap(new Vector2f(3480f, 50f)) - 500f) < 0.01f, "side gap " + view.gap(new Vector2f(3480f, 50f)));
+        check(Math.abs(view.gap(new Vector2f(3280f, 2070f)) - 500f) < 0.01f, "corner gap " + view.gap(new Vector2f(3280f, 2070f)));
+        check(view.gap(new Vector2f(100f, 50f + 1620f + ShuttleNetwork.NEAR_MARGIN)) <= ShuttleNetwork.NEAR_MARGIN, "near margin above the view");
     }
 
     private static SectorEntityToken tagged(Set<String> tags) {

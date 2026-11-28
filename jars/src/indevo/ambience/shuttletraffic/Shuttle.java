@@ -591,20 +591,22 @@ public class Shuttle {
         return phase;
     }
 
-    public void renderTrail(float alphaMult, float minWidth) {
+    public void renderTrail(float alphaMult, float minWidth, float sizeMult) {
         float a = getRenderAlpha(alphaMult);
         if (a <= 0.01f || isTumbling()) return;
 
-        float width = Math.max(minWidth, Math.min(look.trailWidth(), 0.5f * hull.width * scale));
-        trail.render(getRearX(), getRearY(), width, hull.trailColor, hull.additiveTrail, a * look.trailAlpha() * throttle, !isHit());
+        float drawn = scale * sizeMult;
+        float width = Math.max(minWidth, Math.min(look.trailWidth(), 0.5f * hull.width * drawn));
+        trail.render(getRearX(drawn), getRearY(drawn), width, hull.trailColor, hull.additiveTrail, a * look.trailAlpha() * throttle, !isHit());
     }
 
-    public void renderSprite(float alphaMult, SpriteAPI glow) {
+    public void renderSprite(float alphaMult, SpriteAPI glow, float sizeMult) {
         float a = getRenderAlpha(alphaMult);
         if (a <= 0.01f) return;
 
+        float drawn = scale * sizeMult;
         SpriteAPI sprite = hull.sprite;
-        sprite.setSize(hull.width * scale, hull.length * scale);
+        sprite.setSize(hull.width * drawn, hull.length * drawn);
         sprite.setAngle(getSpriteAngle());
         sprite.setColor(GREYS[Math.max(0, Math.min(GREY_STEPS, Math.round(darken * GREY_STEPS)))]);
         sprite.setAlphaMult(a);
@@ -613,13 +615,13 @@ public class Shuttle {
 
         if (look.glow() && !isTumbling() && !isHit()) {
             // never wider than the craft: 0.7 * 1.3 at most
-            float glowSize = hull.width * scale * 0.7f * glowMult;
+            float glowSize = hull.width * drawn * 0.7f * glowMult;
             glow.setSize(glowSize, glowSize);
             glow.setAngle(0f);
             glow.setColor(hull.glowColor);
             glow.setAdditiveBlend();
             glow.setAlphaMult(a * glowFlicker);
-            glow.renderAtCenter(getRearX(), getRearY());
+            glow.renderAtCenter(getRearX(drawn), getRearY(drawn));
         }
     }
 
@@ -644,12 +646,12 @@ public class Shuttle {
         return alpha * alphaMult * fader * wreck;
     }
 
-    private float getRearX() {
-        return pos.x - (float) Math.cos(Math.toRadians(facing)) * hull.length * scale * 0.5f;
+    private float getRearX(float drawn) {
+        return pos.x - (float) Math.cos(Math.toRadians(facing)) * hull.length * drawn * 0.5f;
     }
 
-    private float getRearY() {
-        return pos.y - (float) Math.sin(Math.toRadians(facing)) * hull.length * scale * 0.5f;
+    private float getRearY(float drawn) {
+        return pos.y - (float) Math.sin(Math.toRadians(facing)) * hull.length * drawn * 0.5f;
     }
 
     private void setPath(ShuttlePath newPath, End newLaunch, End newLand) {

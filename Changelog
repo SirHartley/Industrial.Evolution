@@ -20,6 +20,10 @@ Added - Fleet Detection Lights: hostile fleets in artillery systems light up how
 Note - Lighthouse, searchlight and drone net systems only
 Added - Setting to turn off fleet detection lights
 
+Shuttle Traffic
+Adjusted - Traffic stays visible at full zoom out, craft and trails slightly larger there
+Adjusted - Local traffic now follows what is on screen at any zoom
+
 5.0.c
 General
 Adjusted - Moved fog and meteor swarm settings to the new Fog & Meteors tab
