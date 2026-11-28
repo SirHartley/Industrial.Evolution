@@ -1,5 +1,6 @@
 package indevo.items.consumables;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
@@ -47,6 +48,13 @@ public class ItemAbilityHelper {
         if (!(entity instanceof CampaignFleetAPI fleet) || !fleet.isPlayerFleet()) return 0;
 
         return (int) Math.floor(fleet.getCargo().getQuantity(CargoAPI.CargoItemType.SPECIAL, new SpecialItemData(itemId, null)));
+    }
+
+    public static void addAbility(CampaignFleetAPI fleet, String abilityId) {
+        if (fleet.hasAbility(abilityId) || Global.getSettings().getAbilitySpec(abilityId) == null) return;
+
+        fleet.addAbility(abilityId);
+        if (fleet.isPlayerFleet()) Global.getSector().getCharacterData().addAbility(abilityId);
     }
 
     public static void removeItem(SectorEntityToken entity, String itemId) {
