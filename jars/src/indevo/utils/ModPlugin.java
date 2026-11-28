@@ -107,6 +107,7 @@ import indevo.utils.helper.MiscIE;
 import indevo.utils.timers.RaidTimeout;
 import indevo.utils.timers.TimeTracker;
 import indevo.utils.trails.MagicCampaignTrailPlugin;
+import indevo.utils.ui.DevZoomReadout;
 import indevo.utils.update.NewGameIndustryPlacer;
 import org.dark.shaders.light.LightData;
 import org.dark.shaders.util.ShaderLib;
@@ -514,6 +515,7 @@ public class ModPlugin extends BaseModPlugin {
         TechMiningRelicOptionProvider.register();
         SurveyDataTooltipAmender.register();
         RelayNetworkBrain.getInstanceOrRegister();
+        DevZoomReadout.register();
 
         //DistressCallManager.getInstanceOrRegister();
         //HullmodTimeTracker.getInstanceOrRegister();
