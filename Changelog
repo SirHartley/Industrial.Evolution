@@ -20,6 +20,9 @@ Artillery
 Added - Fleet Detection Lights: hostile fleets in artillery systems light up how close you can get
 Note - Lighthouse, searchlight and drone net systems only
 Added - Setting to turn off fleet detection lights
+Adjusted - Missile Artillery: interdicts no longer stack, each further hit 0.5s shorter
+Note - First hit 5s, at least 1s, resets once the interdict wears off
+Adjusted - Missile Artillery: slow fields only slow interdicted fleets
 
 Shuttle Traffic
 Adjusted - Traffic stays visible at full zoom out, craft and trails slightly larger there
